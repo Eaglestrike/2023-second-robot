@@ -14,6 +14,9 @@ namespace vec = svector;
  * does complementary filters angle but alpha depends on speed (literally what alex did)
  * 
  * i truly have no clue what im doing
+ * 
+ * If odometry randomly resets to 0, it's probably because maxTime is too small
+ * or you are not calling PredictFromWheels every periodic.
  */
 class Odometry
 {
@@ -28,7 +31,7 @@ public:
   Odometry(double E0, double Q, double kAng, double k, double maxTime);
 
   void PredictFromWheels(vec::Vector2D vAvg, double navXAng, std::size_t curTime);
-  void UpdateFromCamera(double x, double y, double angZ, std::size_t timeOffset, std::size_t curTime);
+  void UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t timeOffset, std::size_t curTime);
 
   void Reset(std::size_t curTime);
   void SetTerms(double E0, double Q, double kAng, double k, double maxTime);
@@ -44,5 +47,6 @@ private:
   double m_k;
   double m_maxTime;
 
+  // maps time from startup in ms (stored as integer) to Kalman state
   std::map<std::size_t, KalmanState> m_states;
 };

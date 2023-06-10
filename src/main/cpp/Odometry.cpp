@@ -1,6 +1,6 @@
 #include "Odometry.h"
 
-// #include <cmath>
+#include <cmath>
 // #include <cstdlib>
 
 // #include "Constants.h"
@@ -17,6 +17,7 @@
 Odometry::Odometry(double E0, double Q, double kAng, double k, double maxTime)
   : m_E0{E0}, m_Q{Q}, m_kAng{kAng}, m_k{k}, m_maxTime{maxTime}
 {
+  // we want to make sure there's at least one value in the map at all times
   m_states[0].E = E0;
   m_states[0].ang = 0;
 }
@@ -24,11 +25,12 @@ Odometry::Odometry(double E0, double Q, double kAng, double k, double maxTime)
 /**
  * Resets all odometry by clearing states map
  * 
- * @param curTime current robot time (from startup)
+ * @param curTime current robot time (from startup), in ms
 */
 void Odometry::Reset(std::size_t curTime) {
   m_states.clear();
 
+  // add value; we want to make sure there's at least one value in the map at all times
   m_states[curTime].E = m_E0;
   m_states[curTime].ang = 0;
 }
@@ -42,6 +44,7 @@ void Odometry::Reset(std::size_t curTime) {
 */
 void Odometry::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::size_t curTime)
 {
+  // get previous state variables
   auto lastIt = m_states.rbegin();
   std::size_t kPrev = lastIt->first;
   auto posPrev = lastIt->second.pos;
@@ -49,76 +52,121 @@ void Odometry::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::siz
   double ePrev = lastIt->second.E;
   double angPrev = lastIt->second.ang;
 
-  double timeDiff = static_cast<double>(curTime - kPrev);
+  double timeDiff = static_cast<double>(curTime - kPrev) / 1000.0;
 
+  // position is previous position + time difference
   auto pos = posPrev + vAvgCur * timeDiff;
   auto vAvg = vAvgCur;
   double ang = navXAng;
-  double E = ePrev + m_Q;
+  double E = ePrev + m_Q; // error covariance amplifies
 
+  // assign values to map
   m_states[curTime].pos = pos;
   m_states[curTime].ang = ang;
   m_states[curTime].vAvg = vAvgCur;
   m_states[curTime].E = E;
+
+  // delete map values > maxTime seconds ago, unless it's the last value in the map
+  auto firstIt = m_states.lower_bound(curTime - static_cast<std::size_t>(m_maxTime * 1000.0)); // first iterator to include
+  m_states.erase(m_states.begin(), firstIt);
+
+  // if empty, insert zeroes
+  // we want to make sure there is at least one value at all times
+  if (m_states.size() == 0) {
+    m_states[curTime].E = m_E0;
+    m_states[curTime].ang = 0;
+  }
+  // this will mess up odometry but at least no runtime errors
 }
 
-// /**
-//  * Predicts current position and angle given wheel velocities
-//  * 
-//  * @param vAvg The wheel velocities, averaged
-//  * @param navXAng current navX angle
-//  * @param curTime current robot time (from start), in ms
-// */
-// void Odometry::PredictFromWheels(vec::Vector2D vAvg, double navXAng, std::size_t curTime)
-// {
-//   // clear matrix if >500ms ago
-//   while (m_states.size() > 0 && std::abs(static_cast<long long>(curTime - m_states.begin()->first)) > m_maxTime) {
-//     m_states.erase(m_states.begin());
-//   }
+/**
+ * Updates data from camera
+ * 
+ * @param pos Robot's position relative to the field from the camera
+ * @param angZ Angle reading from camera
+ * @param timeOffset Difference in time between now and the time that the camera reading was read, in ms
+ * @param curTime current robot time (from startup), in ms
+*/
+void Odometry::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t timeOffset, std::size_t curTime) {
+  // if > maxTime before, ignore
+  if (static_cast<double>(curTime - timeOffset) > m_maxTime * 1000.0) {
+    return;
+  }
 
-//   // calculate change in time
-//   double deltaT;
-//   if (m_states.size() == 0) {
-//     deltaT = curTime;
-//   } else {
-//     double prevTime = m_states.rbegin()->first;
-//     deltaT = curTime - prevTime;
-//   }
+  std::size_t measurementTime = curTime - timeOffset; // time of camera measurement, in ms
 
-//   // update x, y, process covariance
-//   double prevX;
-//   double prevY;
-//   Eigen::Matrix<double, 2, 2> prevP;
-//   if (m_states.size() == 0) {
-//     prevX = 0;
-//     prevY = 0;
-//     prevP = Eigen::Matrix<double, 2, 2>::Identity() * m_pInitial;
-//   } else {
-//     prevX = m_states.rbegin()->second.state(0, 0); 
-//     prevY = m_states.rbegin()->second.state(1, 0);
-//     prevP = m_states.rbegin()->second.P;  
-//   }
+  // state nearest to measurement time
+  auto measurementIt = m_states.lower_bound(measurementTime);
+  // make sure iterator exists
+  if (measurementIt == m_states.end()) {
+    return;
+  }
 
-//   auto vAvgRotate = vAvg.rotate(navXAng);
-//   double curXPred = prevX + x(vAvgRotate) * deltaT;
-//   double curYPred = prevY + y(vAvgRotate) * deltaT;  
+  // get predicted state variables
+  std::size_t kPred = measurementIt->first;
+  auto posPred = measurementIt->second.pos;
+  auto vAvgPred = measurementIt->second.vAvg;
+  auto ePred = measurementIt->second.E;
+  auto angPred = measurementIt->second.ang;
 
-//   Eigen::Matrix<double, 2, 2> Q = Eigen::Matrix<double, 2, 2>::Identity() * m_posStdDev;
-//   Eigen::Matrix<double, 2, 2> curP = prevP + Q;
+  // corrects position
+  double camNoise = m_k * vec::magn(vAvgPred); // cam noise is proportional to robot velocity
+  double kalmanGain = ePred / (ePred + camNoise); // calculates kalman gain
+  vec::Vector2D correctedPos = posPred + (pos - posPred) * kalmanGain; // corrects position
+  double e = (1 - kalmanGain) / ePred; // corrects error
 
-//   // update angle
-//   double curAng = navXAng;
+  // corrects angle
+  double alpha = 0.1 / (1 + std::exp(m_kAng * (vec::magn(vAvgPred) - 0.5))); // how much to trust angle from camera
+  double ang = alpha * angZ + (1 - alpha) * angPred;
+  double angDiff = ang - angPred;
 
-//   // create state
-//   KalmanState curState;
-//   curState.state << curXPred, curYPred;
-//   curState.angle = curAng;
-//   curState.vAvg = vAvg;
-//   curState.P = curP;
+  // previous states and times
+  KalmanState prevState; // used to store previous state of timestep
+  prevState.ang = ang;
+  prevState.pos = correctedPos;
+  prevState.E = e;
+  prevState.vAvg = vAvgPred;
+  std::size_t prevTime = measurementTime; // used to store previous time
 
-//   std::size_t timeIndex = static_cast<std::size_t>(curTime);
-//   m_states[timeIndex] = curState;
-// }
+  measurementIt++;
+
+  // updates states from measurementTime to map end
+  for (auto it = measurementIt; it != m_states.end(); it++) {
+    // time difference
+    double timeDiff = static_cast<double>(curTime - prevTime) / 1000.0;
+
+    // average velocity of current time step
+    auto vAvgCur = it->second.vAvg;
+
+    // new position is previous position + time difference
+    auto pos = prevState.pos + vAvgCur * timeDiff;
+    auto vAvg = vAvgCur;
+    double ang = it->second.ang + angDiff;
+    double E = prevState.E + m_Q; // error covariance amplifies
+
+    // assign values to state
+    prevState.pos = pos;
+    prevState.ang = ang;
+    prevState.vAvg = vAvg;
+    prevState.E = E;
+    prevTime = it->first;
+
+    // updates state, then prevState is used for next iteration
+    it->second = prevState;
+  }
+
+  // delete map values > maxTime seconds ago, unless it's the last value in the map
+  auto firstIt = m_states.lower_bound(curTime - static_cast<std::size_t>(m_maxTime * 1000.0)); // first iterator to include
+  m_states.erase(m_states.begin(), firstIt);
+
+  // if empty, insert zeroes
+  // we want to make sure there is at least one value at all times
+  if (m_states.size() == 0) {
+    m_states[curTime].E = m_E0;
+    m_states[curTime].ang = 0;
+  }
+  // this will mess up odometry but at least no runtime errors
+}
 
 // /**
 //  * Updates from camera data

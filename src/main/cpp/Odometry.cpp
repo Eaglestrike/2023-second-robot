@@ -1,9 +1,6 @@
 #include "Odometry.h"
 
 #include <cmath>
-// #include <cstdlib>
-
-// #include "Constants.h"
 
 /**
  * Constrcutor
@@ -168,113 +165,43 @@ void Odometry::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t time
   // this will mess up odometry but at least no runtime errors
 }
 
-// /**
-//  * Updates from camera data
-//  * 
-//  * @param x Camera x data
-//  * @param y Camera y data 
-//  * @param angZ Camera angle
-//  * @param timeOffset Time offset from camera read
-//  * @param curTime Current time
-// */
-// void Odometry::UpdateFromCamera(double x, double y, double angZ, std::size_t timeOffset, std::size_t curTime)
-// {
-//   // don't update if camera data is greater than a certain amount of time
-//   if (timeOffset > m_maxTime) {
-//     return;
-//   }
+/**
+ * Sets odometry terms
+ * 
+ * It is recommended to reset odometry after setting terms
+ * 
+ * All of these must be > 0 or things will break
+ * 
+ * @param E0 initial error covariance
+ * @param Q noise of wheels
+ * @param kAng angle constant in logistic function higher = lower trust in camera for higher velocities
+ * @param k constant of proportionality between speed and camera noise
+ * @param maxTime max time before ignore, in s
+*/
+void Odometry::SetTerms(double E0, double Q, double kAng, double k, double maxTime) {
+  m_E0 = E0;
+  m_Q = Q;
+  m_kAng = kAng;
+  m_k = k;
+  m_maxTime = maxTime;
+}
 
-//   // gets state in the past
-//   auto it = m_states.lower_bound(curTime - timeOffset);
+/**
+ * Gets estimated position
+ * 
+ * @returns Estimated position
+*/
+vec::Vector2D Odometry::GetEstimatedPos() const {
+  auto itLatest = m_states.rbegin();
+  return itLatest->second.pos;
+}
 
-//   if (it == m_states.end()) {
-//     return;
-//   }
-
-//   auto pastState = it->second;
-
-//   // calculates kalman gain
-//   auto R = Eigen::Matrix<double, 2, 2>::Identity() * m_measurementStdDev;
-//   auto gain = pastState.P * (pastState.P + R).inverse();
-
-//   // updates state and covariance
-//   Eigen::Matrix<double, 2, 1> measure;
-//   measure << x, y;
-//   auto newState = pastState.state + gain * (measure - pastState.state);
-//   auto newP = (Eigen::Matrix<double, 2, 2>::Identity() - gain) * pastState.P;
-
-//   // calculate trustworthiness of camera 
-//   double curVel = magn(pastState.vAvg);
-//   double alpha = 0.1 / (1 + std::exp(10 * (curVel - 0.2)));
-//   double newTheta = alpha * angZ + (1 - alpha) * pastState.angle;
-//   double addVal = newTheta - pastState.angle - m_angOffset;
-//   m_angOffset += addVal;
-
-//   // update values from this snapshot in time + 1 to present
-//   KalmanState curState;
-//   for (auto it2 = it; it2 != m_states.end(); it2++) {
-//     m_states[timeIndex] = curState;
-
-//     // update x, y, process covariance
-//     double prevX;
-//     double prevY;
-//     Eigen::Matrix<double, 2, 2> prevP;
-//     if (m_states.size() == 0) {
-//       prevX = 0;
-//       prevY = 0;
-//       prevP = Eigen::Matrix<double, 2, 2>::Identity() * m_pInitial;
-//     } else {
-//       prevX = it2->second.state(0, 0); 
-//       prevY = it2->second.state(1, 0);
-//       prevP = it2->second.P;  
-//     }
-
-//     auto vAvgRotate = vAvg.rotate(navXAng);
-//     double curXPred = prevX + x(vAvgRotate) * deltaT;
-//     double curYPred = prevY + y(vAvgRotate) * deltaT;  
-
-//     Eigen::Matrix<double, 2, 2> Q = Eigen::Matrix<double, 2, 2>::Identity() * m_posStdDev;
-//     Eigen::Matrix<double, 2, 2> curP = prevP + Q;
-
-//     // create state
-//     curState.state << curXPred, curYPred;
-//     curState.angle = curAng;
-//     curState.vAvg = vAvg;
-//     curState.P = curP;
-//   }
-
-//   it++;
-//   // delete values from begin() to current time
-//   if (m_states.size() > 0) {
-//     m_states.erase(m_states.begin(), it);
-//   }
-// }
-
-// /**
-//  * Resets odometry and past values
-// */
-// void Odometry::Reset()
-// {
-//   m_states.clear();
-//   m_angOffset = 0;
-// }
-
-// /**
-//  * Sets covariance error, recommended to reset after
-//  * 
-//  * @param posStdDev position standard deviation
-//  * @param measurementStdDev measurement standrad deviation
-//  * @param pInitial inital value of covariance matrix
-//  * @param maxTime Max time before ignore/discard vlaues
-// */
-// void Odometry::SetErrorTerms(double posStdDev, double measurementStdDev, double pInitial, double maxTime)
-// {
-//   m_posStdDev = posStdDev;
-//   m_measurementStdDev = measurementStdDev;
-//   m_pInitial = pInitial;
-//   m_maxTime = maxTime;
-// }
-
-// /**
-//  * 
-// */
+/**
+ * Gets estimated angle
+ * 
+ * @returns Estimated angle
+*/
+double Odometry::GetEstimatedAng() const {
+  auto itLatest = m_states.rbegin();
+  return itLatest->second.ang;
+}

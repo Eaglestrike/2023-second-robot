@@ -36,8 +36,7 @@ public:
   void Reset(std::size_t curTime);
   void SetTerms(double E0, double Q, double kAng, double k, double maxTime);
 
-  double GetEstimatedX() const;
-  double GetEstimatedY() const;
+  vec::Vector2D GetEstimatedPos() const;
   double GetEstimatedAng() const;
 
 private:

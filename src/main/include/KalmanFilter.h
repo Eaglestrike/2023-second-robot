@@ -18,7 +18,7 @@ namespace vec = svector;
  * If odometry randomly resets to 0, it's probably because maxTime is too small
  * or you are not calling PredictFromWheels every periodic.
  */
-class Odometry
+class KalmanFilter
 {
 public:
   struct KalmanState {
@@ -28,7 +28,7 @@ public:
     double E;
   };
 
-  Odometry(double E0, double Q, double kAng, double k, double maxTime);
+  KalmanFilter(double E0, double Q, double kAng, double k, double maxTime);
 
   void PredictFromWheels(vec::Vector2D vAvg, double navXAng, std::size_t curTime);
   void UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t timeOffset, std::size_t curTime);

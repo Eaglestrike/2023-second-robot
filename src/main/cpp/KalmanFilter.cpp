@@ -1,4 +1,4 @@
-#include "Odometry.h"
+#include "KalmanFilter.h"
 
 #include <cmath>
 
@@ -11,7 +11,7 @@
  * @param k constant of proportionality for linear function calculating noise of camera xy measurement
  * @param maxTime maximum time before discarding measurements, in s
 */
-Odometry::Odometry(double E0, double Q, double kAng, double k, double maxTime)
+KalmanFilter::KalmanFilter(double E0, double Q, double kAng, double k, double maxTime)
   : m_E0{E0}, m_Q{Q}, m_kAng{kAng}, m_k{k}, m_maxTime{maxTime}
 {
   // we want to make sure there's at least one value in the map at all times
@@ -24,7 +24,7 @@ Odometry::Odometry(double E0, double Q, double kAng, double k, double maxTime)
  * 
  * @param curTime current robot time (from startup), in ms
 */
-void Odometry::Reset(std::size_t curTime) {
+void KalmanFilter::Reset(std::size_t curTime) {
   m_states.clear();
 
   // add value; we want to make sure there's at least one value in the map at all times
@@ -39,7 +39,7 @@ void Odometry::Reset(std::size_t curTime) {
  * @param navXAng current navX angle
  * @param curTime current robot time (from startup), in ms
 */
-void Odometry::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::size_t curTime)
+void KalmanFilter::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::size_t curTime)
 {
   // get previous state variables
   auto lastIt = m_states.rbegin();
@@ -83,7 +83,7 @@ void Odometry::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::siz
  * @param timeOffset Difference in time between now and the time that the camera reading was read, in ms
  * @param curTime current robot time (from startup), in ms
 */
-void Odometry::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t timeOffset, std::size_t curTime) {
+void KalmanFilter::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t timeOffset, std::size_t curTime) {
   // if > maxTime before, ignore
   if (static_cast<double>(curTime - timeOffset) > m_maxTime * 1000.0) {
     return;
@@ -176,7 +176,7 @@ void Odometry::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t time
  * @param k constant of proportionality between speed and camera noise
  * @param maxTime max time before ignore, in s
 */
-void Odometry::SetTerms(double E0, double Q, double kAng, double k, double maxTime) {
+void KalmanFilter::SetTerms(double E0, double Q, double kAng, double k, double maxTime) {
   m_E0 = E0;
   m_Q = Q;
   m_kAng = kAng;
@@ -189,7 +189,7 @@ void Odometry::SetTerms(double E0, double Q, double kAng, double k, double maxTi
  * 
  * @returns Estimated position
 */
-vec::Vector2D Odometry::GetEstimatedPos() const {
+vec::Vector2D KalmanFilter::GetEstimatedPos() const {
   auto itLatest = m_states.rbegin();
   return itLatest->second.pos;
 }
@@ -199,7 +199,7 @@ vec::Vector2D Odometry::GetEstimatedPos() const {
  * 
  * @returns Estimated angle
 */
-double Odometry::GetEstimatedAng() const {
+double KalmanFilter::GetEstimatedAng() const {
   auto itLatest = m_states.rbegin();
   return itLatest->second.ang;
 }

@@ -47,7 +47,6 @@ void Odometry::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::siz
   auto posPrev = lastIt->second.pos;
   auto vAvgPrev = lastIt->second.vAvg;
   double ePrev = lastIt->second.E;
-  double angPrev = lastIt->second.ang;
 
   double timeDiff = static_cast<double>(curTime - kPrev) / 1000.0;
 
@@ -100,7 +99,6 @@ void Odometry::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t time
   }
 
   // get predicted state variables
-  std::size_t kPred = measurementIt->first;
   auto posPred = measurementIt->second.pos;
   auto vAvgPred = measurementIt->second.vAvg;
   auto ePred = measurementIt->second.E;
@@ -130,7 +128,7 @@ void Odometry::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t time
   // updates states from measurementTime to map end
   for (auto it = measurementIt; it != m_states.end(); it++) {
     // time difference
-    double timeDiff = static_cast<double>(curTime - prevTime) / 1000.0;
+    double timeDiff = static_cast<double>(it->first - prevTime) / 1000.0;
 
     // average velocity of current time step
     auto vAvgCur = it->second.vAvg;

@@ -35,8 +35,8 @@ void KalmanFilter::Reset(std::size_t curTime) {
 /**
  * Predicts current position and angle given wheel velocities and navx
  * 
- * @param vAvgCur average velocity from wheels, rotated
- * @param navXAng current navX angle
+ * @param vAvgCur average velocity from wheels, rotated (world frame)
+ * @param navXAng current navX angle, in radians
  * @param curTime current robot time (from startup), in ms
 */
 void KalmanFilter::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::size_t curTime)
@@ -79,7 +79,7 @@ void KalmanFilter::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std:
  * Updates data from camera
  * 
  * @param pos Robot's position relative to the field from the camera
- * @param angZ Angle reading from camera
+ * @param angZ Angle reading from camera, in radians
  * @param timeOffset Difference in time between now and the time that the camera reading was read, in ms
  * @param curTime current robot time (from startup), in ms
 */
@@ -134,9 +134,9 @@ void KalmanFilter::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t 
     auto vAvgCur = it->second.vAvg;
 
     // new position is previous position + time difference
+    double ang = it->second.ang + angDiff;
     auto pos = prevState.pos + vAvgCur * timeDiff;
     auto vAvg = vAvgCur;
-    double ang = it->second.ang + angDiff;
     double E = prevState.E + m_Q; // error covariance amplifies
 
     // assign values to state

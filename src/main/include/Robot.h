@@ -13,6 +13,7 @@
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
 
+#include "Odometry.h"
 #include "SwerveModule.h"
 #include "SwerveControl.h"
 #include "thirdparty/simplevectors.hpp"
@@ -57,4 +58,5 @@ class Robot : public frc::TimedRobot {
 
   // temp odometry
   vec::Vector2D m_pos;
+  Odometry m_odometry;
 };

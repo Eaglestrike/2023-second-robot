@@ -8,6 +8,8 @@
 
 #include <cstddef>
 
+#include "thirdparty/simplevectors.hpp"
+
 const double NEAR_ZERO_TOLERANCE = 0.000001;
 
 namespace SwerveConstants
@@ -58,8 +60,20 @@ namespace SwerveConstants
 }
 
 namespace OdometryConstants {
-  const double P_INITIAL = 1.0;
-  const double POS_STD_DEV = 0.1;
-  const double MEASURE_STD_DEV = 0.1;
-  const double CAMERA_TRUST_K = -10.0;
+  const double E0 = 1.0;
+  const double Q = 0.1;
+  const double CAM_TRUST_KANG = 10.0;
+  const double CAM_TRUST_KPOS = 1.0;
+  const double MAX_TIME = 0.5;
+}
+
+namespace FieldConstants {
+  const vec::Vector2D TAG1 = {15.513558, 1.071626};
+  const vec::Vector2D TAG2 = {15.513558, 2.748026};
+  const vec::Vector2D TAG3 = {15.513558, 4.424426};
+  const vec::Vector2D TAG4 = {16.178794, 6.749796};
+  const vec::Vector2D TAG5 = {0.36195, 6.749796};
+  const vec::Vector2D TAG6 = {1.02743, 4.424426};
+  const vec::Vector2D TAG7 = {1.02743, 2.748026};
+  const vec::Vector2D TAG8 = {1.02743, 1.071626};
 }

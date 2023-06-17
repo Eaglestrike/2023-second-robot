@@ -164,7 +164,7 @@ void KalmanFilter::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t 
 }
 
 /**
- * Sets odometry terms
+ * Sets Kalman Filter terms
  * 
  * It is recommended to reset odometry after setting terms
  * 

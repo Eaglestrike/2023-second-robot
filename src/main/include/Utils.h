@@ -20,4 +20,6 @@ public:
   static bool NearZero(const double num, const double tolerance = NEAR_ZERO_TOLERANCE);
   static bool NearZero(const vec::Vector2D vec, const double tolerance = NEAR_ZERO_TOLERANCE);
   static std::size_t GetCurTimeMs();
+  static double DegToRad(const double deg);
+  static double RadToDeg(const double rad);
 };

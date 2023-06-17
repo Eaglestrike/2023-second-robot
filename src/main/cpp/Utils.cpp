@@ -2,6 +2,10 @@
 
 #include <cmath>
 
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643383279502884197169399
+#endif
+
 #include <frc/Timer.h>
 
 /**
@@ -82,4 +86,26 @@ std::size_t Utils::GetCurTimeMs() {
   auto curTime = frc::Timer::GetFPGATimestamp();
   auto timeMs = curTime.convert<units::millisecond>();
   return static_cast<std::size_t>(timeMs.value());
+}
+
+/**
+ * Converst degrees to radians
+ * 
+ * @param deg Angle in degrees
+ * 
+ * @returns Angle in radians
+*/
+double Utils::DegToRad(const double deg) {
+  return deg * (M_PI / 180.0);
+}
+
+/**
+ * Converts radians to degrees
+ * 
+ * @param rad Angle in radians
+ * 
+ * @returns Angle in degrees
+*/
+double Utils::RadToDeg(const double rad) {
+  return rad * (180.0 / M_PI);
 }

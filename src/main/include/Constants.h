@@ -10,6 +10,8 @@
 
 #include "thirdparty/simplevectors.hpp"
 
+namespace vec = svector;
+
 const double NEAR_ZERO_TOLERANCE = 0.000001;
 
 namespace SwerveConstants

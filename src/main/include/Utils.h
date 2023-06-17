@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <vector>
 
 #include "Constants.h"
@@ -8,12 +9,15 @@
 namespace vec = svector; //!< vector namespace alias
 
 /**
- * Math utility class with static methods
+ * Utility class with static methods
+ * 
+ * Math + time included
 */
-class Mathutil {
+class Utils {
 public:
   static double AbsMin(const double a, const double b);
   static vec::Vector2D GetVecAverage(const std::vector<vec::Vector2D>);
   static bool NearZero(const double num, const double tolerance = NEAR_ZERO_TOLERANCE);
   static bool NearZero(const vec::Vector2D vec, const double tolerance = NEAR_ZERO_TOLERANCE);
+  static std::size_t GetCurTimeMs();
 };

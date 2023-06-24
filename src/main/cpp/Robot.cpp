@@ -33,6 +33,42 @@ Robot::Robot()
   std::array<vec::Vector2D, 4> radiiArray{{m_rFr, m_rBr, m_rFl, m_rBl}};
   m_swerveController = std::make_shared<SwerveControl>(moduleArray, radiiArray, 0, 1, 0);
 
+  AddPeriodic([&](){
+    double lx = m_lJoy.GetRawAxis(0);
+    double ly = -m_lJoy.GetRawAxis(1);
+
+    double rx = m_rJoy.GetRawAxis(0);
+
+    double vx = std::clamp(ly, -1.0, 1.0) * 12.0;
+    double vy = std::clamp(lx, -1.0, 1.0) * 12.0;
+    double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
+
+    // dead zones
+    if (std::abs(lx) < 0.1 && std::abs(ly) < 0.1) {
+      vx = 0;
+      vy = 0;
+    }
+    if (std::abs(rx) < 0.1) {
+      w = 0;
+    }
+
+    double curYaw = m_navx->GetYaw();
+    curYaw = curYaw * (M_PI / 180);
+
+    vec::Vector2D setVel = {vx, -vy};
+    m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.005);
+
+    m_swerveController->Periodic();
+
+    // temporary
+    auto vel = m_swerveController->GetRobotVelocity(curYaw);
+    m_pos += vel * 0.005;
+
+    frc::SmartDashboard::PutString("pos:", m_pos.toString());
+    frc::SmartDashboard::PutString("vel:", vel.toString());
+    frc::SmartDashboard::PutString("setVel:", setVel.toString());
+  }, 5_ms, 2_ms);
+
   // navx
   try
   {
@@ -124,39 +160,6 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  double lx = m_lJoy.GetRawAxis(0);
-  double ly = -m_lJoy.GetRawAxis(1);
-
-  double rx = m_rJoy.GetRawAxis(0);
-
-  double vx = std::clamp(ly, -1.0, 1.0) * 12.0;
-  double vy = std::clamp(lx, -1.0, 1.0) * 12.0;
-  double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
-
-  // dead zones
-  if (std::abs(lx) < 0.1 && std::abs(ly) < 0.1) {
-    vx = 0;
-    vy = 0;
-  }
-  if (std::abs(rx) < 0.1) {
-    w = 0;
-  }
-
-  double curYaw = m_navx->GetYaw();
-  curYaw = curYaw * (M_PI / 180);
-
-  vec::Vector2D setVel = {vx, -vy};
-  m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.02);
-
-  m_swerveController->Periodic();
-
-  // temporary
-  auto vel = m_swerveController->GetRobotVelocity(curYaw);
-  m_pos += vel * 0.02;
-
-  frc::SmartDashboard::PutString("pos:", m_pos.toString());
-  frc::SmartDashboard::PutString("vel:", vel.toString());
-  frc::SmartDashboard::PutString("setVel:", setVel.toString());
 }
 
 void Robot::DisabledInit() {}

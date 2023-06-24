@@ -1,6 +1,7 @@
 #include "Odometry.h"
 
 #include <cmath>
+#include <iostream>
 
 #include "Constants.h"
 #include "Utils.h"
@@ -13,7 +14,7 @@
  * @param swerveController pointer to swerve controller
  * @param navx Pointer to navx
  */
-Odometry::Odometry(std::shared_ptr<SwerveControl> swerveController, std::shared_ptr<AHRS> navx)
+Odometry::Odometry(const std::shared_ptr<SwerveControl> &swerveController, const std::shared_ptr<AHRS> &navx)
   : m_startAng{0}, m_curAng{0}, m_swerveController{swerveController}, m_navx{navx}, m_filter{
    OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::MAX_TIME
   } {}
@@ -158,8 +159,16 @@ double Odometry::GetAng() const {
  * dont forgor
 */
 void Odometry::Periodic() {
-  double ang = m_navx->GetYaw() + Utils::RadToDeg(m_startAng);
-  vec::Vector2D avgVelocityWorld = m_swerveController->GetRobotVelocity(Utils::DegToRad(ang));
+  double ang = 0;
+  if (std::shared_ptr<AHRS> navxTmp = m_navx.lock()) {
+    ang = navxTmp->GetYaw() + Utils::RadToDeg(m_startAng);
+  }
+
+  vec::Vector2D avgVelocityWorld;
+  if (std::shared_ptr<SwerveControl> swerveControllerTmp = m_swerveController.lock()) {
+    swerveControllerTmp->GetRobotVelocity(Utils::DegToRad(ang));
+  }
+
   std::size_t curTimeMs = Utils::GetCurTimeMs();
   m_filter.PredictFromWheels(avgVelocityWorld, Utils::DegToRad(ang), curTimeMs);
 }

@@ -59,6 +59,8 @@ void SwerveControl::ResetFeedForward()
 
 /**
  * Resets angle correction angle to zero
+ * 
+ * @todo Change this to go into odometry
  *
  * @note Always call this after calling navx::ZeroYaw()
  */

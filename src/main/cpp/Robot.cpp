@@ -35,20 +35,17 @@ Robot::Robot()
   std::array<vec::Vector2D, 4> radiiArray{{m_rFr, m_rBr, m_rFl, m_rBl}};
   m_swerveController = std::make_shared<SwerveControl>(moduleArray, radiiArray, 0, 1, 0);
 
-  AddPeriodic([&](){
-    // ODOMETRY
-    vec::Vector2D pos = m_odometry.GetPosition();
-    double ang = m_odometry.GetAng();
+  // AddPeriodic([&](){
+  //   // ODOMETRY
+  //   vec::Vector2D pos = m_odometry.GetPosition();
+  //   double ang = m_odometry.GetAng();
 
-    frc::SmartDashboard::PutString("KF pos", pos.toString());
-    frc::SmartDashboard::PutNumber("KF ang", ang);
+  //   frc::SmartDashboard::PutString("KF pos", pos.toString());
+  //   frc::SmartDashboard::PutNumber("KF ang", ang);
 
-    m_odometry.Periodic();
-    // END ODOMETRY
-
-    if (frc::DriverStation::IsTeleop()) {
-    }
-  }, 5_ms, 2_ms);
+  //   m_odometry.Periodic();
+  //   // END ODOMETRY
+  // }, 5_ms, 2_ms);
 
   // navx
   try
@@ -69,6 +66,10 @@ void Robot::RobotInit()
   // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
   // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
   // frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+
+
+  // set PID for wheels and angle correction
+  m_swerveController->SetAngleCorrectionPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
 
   frc::SmartDashboard::PutNumber("KF E0", OdometryConstants::E0);
   frc::SmartDashboard::PutNumber("KF Q", OdometryConstants::Q);
@@ -186,6 +187,16 @@ void Robot::TeleopPeriodic() {
   m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.005);
   m_swerveController->Periodic();
   // END SWERVE DRIVE
+
+  // TEMP, DELETE LATER
+  // vec::Vector2D pos = m_odometry.GetPosition();
+  // double ang = m_odometry.GetAng();
+
+  // frc::SmartDashboard::PutString("KF pos", pos.toString());
+  // frc::SmartDashboard::PutNumber("KF ang", ang);
+
+  m_odometry.Periodic();
+  // END DELETE LATER
 }
 
 void Robot::DisabledInit() {}

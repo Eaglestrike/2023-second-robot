@@ -34,7 +34,7 @@ void Odometry::SetStartPos(vec::Vector2D startPos) {
  * 
  * This can be used for trimming
  * 
- * @param startAng starting angle
+ * @param startAng starting angle, in radians
 */
 void Odometry::SetStartAng(double startAng) {
   m_startAng = startAng;
@@ -46,7 +46,7 @@ void Odometry::SetStartAng(double startAng) {
  * Call this after setting position in shuffleboard
  * 
  * @param startPos starting position
- * @param startAng starting angle
+ * @param startAng starting angle, in radians
 */
 void Odometry::SetStart(vec::Vector2D startPos, double startAng) {
   m_startPos = startPos;
@@ -123,7 +123,7 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, double angNavX, s
   // @todo figure out if ^^^ is right
   std::size_t curTimeMs = Utils::GetCurTimeMs();
   //         substituting angnavX here vvvvvv becaues of waht's mentioned in comment above
-  m_filter.UpdateFromCamera(robotPos, angNavX, howLongAgo, curTimeMs);
+  m_filter.UpdateFromCamera(robotPos, Utils::DegToRad(angNavX), howLongAgo, curTimeMs);
 }
 
 /**
@@ -146,7 +146,7 @@ vec::Vector2D Odometry::GetPosition() const {
 /**
  * Gets current estimated angle
  * 
- * @returns estimated angle
+ * @returns estimated angle, in radians
 */
 double Odometry::GetAng() const {
   return m_filter.GetEstimatedAng();
@@ -158,8 +158,8 @@ double Odometry::GetAng() const {
  * dont forgor
 */
 void Odometry::Periodic() {
-  double ang = m_navx->GetYaw();
-  vec::Vector2D avgVelocityWorld = m_swerveController->GetRobotVelocity(ang);
+  double ang = m_navx->GetYaw() + Utils::RadToDeg(m_startAng);
+  vec::Vector2D avgVelocityWorld = m_swerveController->GetRobotVelocity(Utils::DegToRad(ang));
   std::size_t curTimeMs = Utils::GetCurTimeMs();
   m_filter.PredictFromWheels(avgVelocityWorld, Utils::DegToRad(ang), curTimeMs);
 }

@@ -22,7 +22,7 @@ namespace SwerveConstants
   const double WHEEL_GEAR_RATIO = 6.12; // stolen from Alex, 6.12 motor spins = 1 wheel spin
 
   // meters
-  const double CENTER_TO_EDGE = 0.368;
+  const double CENTER_TO_EDGE = 0.368; // grid distance from center to wheel
 
   const std::size_t FR_DRIVE_ID = 4;
   const std::size_t BR_DRIVE_ID = 1;
@@ -78,4 +78,11 @@ namespace FieldConstants {
   const vec::Vector2D TAG6 = {1.02743, 4.424426};
   const vec::Vector2D TAG7 = {1.02743, 2.748026};
   const vec::Vector2D TAG8 = {1.02743, 1.071626};
+}
+
+namespace RobotConstants {
+  // meters
+  // first robot is 33.5in x 34in
+  const double WIDTH = 0.85;
+  const double LENGTH = 0.86;
 }

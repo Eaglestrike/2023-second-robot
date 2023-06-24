@@ -12,9 +12,11 @@
 #endif
 
 #include <fmt/core.h>
+#include <frc/DriverStation.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Constants.h"
+#include "Utils.h"
 
 Robot::Robot()
     : m_lJoy{0}, m_rJoy{1},
@@ -34,39 +36,18 @@ Robot::Robot()
   m_swerveController = std::make_shared<SwerveControl>(moduleArray, radiiArray, 0, 1, 0);
 
   AddPeriodic([&](){
-    double lx = m_lJoy.GetRawAxis(0);
-    double ly = -m_lJoy.GetRawAxis(1);
+    // ODOMETRY
+    vec::Vector2D pos = m_odometry.GetPosition();
+    double ang = m_odometry.GetAng();
 
-    double rx = m_rJoy.GetRawAxis(0);
+    frc::SmartDashboard::PutString("KF pos", pos.toString());
+    frc::SmartDashboard::PutNumber("KF ang", ang);
 
-    double vx = std::clamp(ly, -1.0, 1.0) * 12.0;
-    double vy = std::clamp(lx, -1.0, 1.0) * 12.0;
-    double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
+    m_odometry.Periodic();
+    // END ODOMETRY
 
-    // dead zones
-    if (std::abs(lx) < 0.1 && std::abs(ly) < 0.1) {
-      vx = 0;
-      vy = 0;
+    if (frc::DriverStation::IsTeleop()) {
     }
-    if (std::abs(rx) < 0.1) {
-      w = 0;
-    }
-
-    double curYaw = m_navx->GetYaw();
-    curYaw = curYaw * (M_PI / 180);
-
-    vec::Vector2D setVel = {vx, -vy};
-    m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.005);
-
-    m_swerveController->Periodic();
-
-    // temporary
-    auto vel = m_swerveController->GetRobotVelocity(curYaw);
-    m_pos += vel * 0.005;
-
-    frc::SmartDashboard::PutString("pos:", m_pos.toString());
-    frc::SmartDashboard::PutString("vel:", vel.toString());
-    frc::SmartDashboard::PutString("setVel:", setVel.toString());
   }, 5_ms, 2_ms);
 
   // navx
@@ -82,15 +63,25 @@ Robot::Robot()
 
 void Robot::RobotInit()
 {
-  frc::SmartDashboard::PutNumber("wheel kP", SwerveConstants::TURN_P);
-  frc::SmartDashboard::PutNumber("wheel kI", SwerveConstants::TURN_I);
-  frc::SmartDashboard::PutNumber("wheel kD", SwerveConstants::TURN_D);
-  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+  // frc::SmartDashboard::PutNumber("wheel kP", SwerveConstants::TURN_P);
+  // frc::SmartDashboard::PutNumber("wheel kI", SwerveConstants::TURN_I);
+  // frc::SmartDashboard::PutNumber("wheel kD", SwerveConstants::TURN_D);
+  // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+  // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+  // frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+
+  frc::SmartDashboard::PutNumber("KF E0", OdometryConstants::E0);
+  frc::SmartDashboard::PutNumber("KF Q", OdometryConstants::Q);
+  frc::SmartDashboard::PutNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
+  frc::SmartDashboard::PutNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
+  frc::SmartDashboard::PutNumber("KF maxtime", OdometryConstants::MAX_TIME);
 
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
+
+  // TEMPORARY, REMOVE LATER!!!
+  // pretend at AprilTag 7
+  m_odometry.SetStart({1.8669, 2.748026}, M_PI);
 }
 
 /**
@@ -105,19 +96,27 @@ void Robot::RobotPeriodic()
 {
   if (m_lJoy.GetTrigger())
   {
-    double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
-    double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
-    double kD = frc::SmartDashboard::GetNumber("wheel kD", SwerveConstants::TURN_D);
-    double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-    double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-    double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+    // double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
+    // double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
+    // double kD = frc::SmartDashboard::GetNumber("wheel kD", SwerveConstants::TURN_D);
 
-    m_swerveFl.SetPID(kP, kI, kD);
-    m_swerveFr.SetPID(kP, kI, kD);
-    m_swerveBl.SetPID(kP, kI, kD);
-    m_swerveBr.SetPID(kP, kI, kD);
+    // m_swerveFl.SetPID(kP, kI, kD);
+    // m_swerveFr.SetPID(kP, kI, kD);
+    // m_swerveBl.SetPID(kP, kI, kD);
+    // m_swerveBr.SetPID(kP, kI, kD);
 
-    m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
+    // double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+    // double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+    // double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+    // m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
+
+    double E0 = frc::SmartDashboard::GetNumber("KF E0", OdometryConstants::E0);
+    double Q = frc::SmartDashboard::GetNumber("KF Q", OdometryConstants::Q);
+    double kAng = frc::SmartDashboard::GetNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
+    double kPos = frc::SmartDashboard::GetNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
+    double maxTime = frc::SmartDashboard::GetNumber("KF maxtime", OdometryConstants::MAX_TIME);
+
+    m_odometry.SetKFTerms(E0, Q, kAng, kPos, maxTime);
   }
 
   if (m_rJoy.GetTrigger())
@@ -125,17 +124,18 @@ void Robot::RobotPeriodic()
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection();
     m_pos = {0, 0};
+    m_odometry.Reset();
   }
 
-  frc::SmartDashboard::PutNumber("fl encoder", m_swerveFl.GetEncoderReading());
-  frc::SmartDashboard::PutNumber("fr encoder", m_swerveFr.GetEncoderReading());
-  frc::SmartDashboard::PutNumber("bl encoder", m_swerveBl.GetEncoderReading());
-  frc::SmartDashboard::PutNumber("br encoder", m_swerveBr.GetEncoderReading());
+  // frc::SmartDashboard::PutNumber("fl encoder", m_swerveFl.GetEncoderReading());
+  // frc::SmartDashboard::PutNumber("fr encoder", m_swerveFr.GetEncoderReading());
+  // frc::SmartDashboard::PutNumber("bl encoder", m_swerveBl.GetEncoderReading());
+  // frc::SmartDashboard::PutNumber("br encoder", m_swerveBr.GetEncoderReading());
 
-  frc::SmartDashboard::PutString("fl velocity", m_swerveFl.GetVelocity().toString());
-  frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
-  frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
-  frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
+  // frc::SmartDashboard::PutString("fl velocity", m_swerveFl.GetVelocity().toString());
+  // frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
+  // frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
+  // frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
 }
 
 /**
@@ -160,6 +160,32 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
+  // SWERVE DRIVE
+  double lx = m_lJoy.GetRawAxis(0);
+  double ly = -m_lJoy.GetRawAxis(1);
+
+  double rx = m_rJoy.GetRawAxis(0);
+
+  double vx = std::clamp(ly, -1.0, 1.0) * 12.0;
+  double vy = std::clamp(lx, -1.0, 1.0) * 12.0;
+  double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
+
+  // dead zones
+  if (std::abs(lx) < 0.1 && std::abs(ly) < 0.1) {
+    vx = 0;
+    vy = 0;
+  }
+  if (std::abs(rx) < 0.1) {
+    w = 0;
+  }
+
+  double curYaw = m_navx->GetYaw();
+  curYaw = Utils::DegToRad(curYaw);
+
+  vec::Vector2D setVel = {vx, -vy};
+  m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.005);
+  m_swerveController->Periodic();
+  // END SWERVE DRIVE
 }
 
 void Robot::DisabledInit() {}

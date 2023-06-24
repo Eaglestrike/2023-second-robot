@@ -21,7 +21,6 @@ public:
   
   void SetStartPos(vec::Vector2D startPos);
   void SetStartAng(double startAng);
-  void CalcStart(std::size_t fieldPos);
   void SetStart(vec::Vector2D startPos, double startAng);
   void SetKFTerms(double E0, double Q, double kAng, double k, double maxTime);
   void SetCamData(vec::Vector2D camPos, double camAng, double angNavX, std::size_t camID, std::size_t howLongAgo);

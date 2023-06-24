@@ -79,7 +79,7 @@ void KalmanFilter::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std:
  * Updates data from camera
  * 
  * @param pos Robot's position relative to the field from the camera
- * @param angZ Angle reading from camera, in radians
+ * @param angZ Angle reading from camera (or navX if camera angle is bad), in radians
  * @param timeOffset Difference in time between now and the time that the camera reading was read, in ms
  * @param curTime current robot time (from startup), in ms
 */

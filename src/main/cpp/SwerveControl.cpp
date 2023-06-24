@@ -33,7 +33,7 @@ SwerveControl::SwerveControl(RefArray<SwerveModule> modules, std::array<vec::Vec
  *
  * @note Assumes modules have the same mass
  * 
- * @param ang NavX angle
+ * @param ang NavX angle, in radians
  *
  * @returns Robot velocity
  */

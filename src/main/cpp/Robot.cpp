@@ -33,7 +33,17 @@ Robot::Robot()
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
   std::array<vec::Vector2D, 4> radiiArray{{m_rFr, m_rBr, m_rFl, m_rBl}};
-  m_swerveController = std::make_shared<SwerveControl>(moduleArray, radiiArray, 0, 1, 0);
+  m_swerveController = new SwerveControl(moduleArray, radiiArray, 0, 1, 0);
+
+  // navx
+  try
+  {
+    m_navx = new AHRS(frc::SerialPort::kUSB);
+  }
+  catch (const std::exception &e)
+  {
+    std::cerr << e.what() << std::endl;
+  }
 
   // AddPeriodic([&](){
   //   // ODOMETRY
@@ -46,16 +56,6 @@ Robot::Robot()
   //   m_odometry.Periodic();
   //   // END ODOMETRY
   // }, 5_ms, 2_ms);
-
-  // navx
-  try
-  {
-    m_navx = std::make_shared<AHRS>(frc::SerialPort::kUSB);
-  }
-  catch (const std::exception &e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
 }
 
 void Robot::RobotInit()
@@ -69,7 +69,11 @@ void Robot::RobotInit()
 
 
   // set PID for wheels and angle correction
-  m_swerveController->SetAngleCorrectionPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
+  m_swerveFl.SetPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
+  m_swerveFr.SetPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
+  m_swerveBl.SetPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
+  m_swerveBr.SetPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
+  m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
 
   frc::SmartDashboard::PutNumber("KF E0", OdometryConstants::E0);
   frc::SmartDashboard::PutNumber("KF Q", OdometryConstants::Q);
@@ -81,8 +85,7 @@ void Robot::RobotInit()
   m_swerveController->ResetAngleCorrection();
 
   // TEMPORARY, REMOVE LATER!!!
-  // pretend at AprilTag 7
-  m_odometry.SetStart({1.8669, 2.748026}, M_PI);
+  // m_odometry.SetStart({0, 0}, 0);
 }
 
 /**
@@ -117,7 +120,7 @@ void Robot::RobotPeriodic()
     double kPos = frc::SmartDashboard::GetNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
     double maxTime = frc::SmartDashboard::GetNumber("KF maxtime", OdometryConstants::MAX_TIME);
 
-    m_odometry.SetKFTerms(E0, Q, kAng, kPos, maxTime);
+    // m_odometry.SetKFTerms(E0, Q, kAng, kPos, maxTime);
   }
 
   if (m_rJoy.GetTrigger())
@@ -125,7 +128,7 @@ void Robot::RobotPeriodic()
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection();
     m_pos = {0, 0};
-    m_odometry.Reset();
+    // m_odometry.Reset();
   }
 
   // frc::SmartDashboard::PutNumber("fl encoder", m_swerveFl.GetEncoderReading());
@@ -195,7 +198,7 @@ void Robot::TeleopPeriodic() {
   // frc::SmartDashboard::PutString("KF pos", pos.toString());
   // frc::SmartDashboard::PutNumber("KF ang", ang);
 
-  m_odometry.Periodic();
+  // m_odometry.Periodic();
   // END DELETE LATER
 }
 

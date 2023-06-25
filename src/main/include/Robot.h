@@ -49,12 +49,12 @@ class Robot : public frc::TimedRobot {
   frc::Joystick m_rJoy;
 
   // IMU
-  std::shared_ptr<AHRS> m_navx;
+  AHRS *m_navx;
 
   // swerve
   SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
   vec::Vector2D m_rFr, m_rBr, m_rFl, m_rBl;
-  std::shared_ptr<SwerveControl> m_swerveController;
+  SwerveControl *m_swerveController;
 
   // temp odometry
   vec::Vector2D m_pos;

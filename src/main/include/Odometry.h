@@ -17,7 +17,7 @@ namespace vec = svector;
 class Odometry {
 public:
   Odometry() = delete;
-  Odometry(const std::shared_ptr<SwerveControl> &swerveController, const std::shared_ptr<AHRS> &navx);
+  Odometry(SwerveControl *swerveController, AHRS *navx);
   
   void SetStartPos(vec::Vector2D startPos);
   void SetStartAng(double startAng);
@@ -32,12 +32,12 @@ public:
   void Periodic();
 
 private:
-  vec::Vector2D m_startPos;
+  vec::Vector2D m_startPos; // position offset
   double m_startAng;
   vec::Vector2D m_curPos;
   double m_curAng;
 
-  std::weak_ptr<SwerveControl> m_swerveController;
-  std::weak_ptr<AHRS> m_navx;
+  SwerveControl *m_swerveController;
+  AHRS *m_navx;
   KalmanFilter m_filter;
 };

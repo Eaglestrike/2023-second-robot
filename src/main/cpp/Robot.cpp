@@ -27,8 +27,7 @@ Robot::Robot()
       m_rFr{SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
       m_rBr{-SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
       m_rFl{SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE},
-      m_rBl{-SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE},
-      m_odometry{m_swerveController, m_navx}
+      m_rBl{-SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
@@ -45,17 +44,19 @@ Robot::Robot()
     std::cerr << e.what() << std::endl;
   }
 
-  // AddPeriodic([&](){
-  //   // ODOMETRY
-  //   vec::Vector2D pos = m_odometry.GetPosition();
-  //   double ang = m_odometry.GetAng();
+  m_odometry.SetPointers(m_swerveController, m_navx);
 
-  //   frc::SmartDashboard::PutString("KF pos", pos.toString());
-  //   frc::SmartDashboard::PutNumber("KF ang", ang);
+  AddPeriodic([&](){
+    // ODOMETRY
+    vec::Vector2D pos = m_odometry.GetPosition();
+    double ang = m_odometry.GetAng();
 
-  //   m_odometry.Periodic();
-  //   // END ODOMETRY
-  // }, 5_ms, 2_ms);
+    frc::SmartDashboard::PutString("KF pos", pos.toString());
+    frc::SmartDashboard::PutNumber("KF ang", ang);
+
+    m_odometry.Periodic();
+    // END ODOMETRY
+  }, 5_ms, 2_ms);
 }
 
 void Robot::RobotInit()
@@ -85,7 +86,7 @@ void Robot::RobotInit()
   m_swerveController->ResetAngleCorrection();
 
   // TEMPORARY, REMOVE LATER!!!
-  // m_odometry.SetStart({0, 0}, 0);
+  m_odometry.SetStart({0, 0}, 0);
 }
 
 /**
@@ -120,7 +121,7 @@ void Robot::RobotPeriodic()
     double kPos = frc::SmartDashboard::GetNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
     double maxTime = frc::SmartDashboard::GetNumber("KF maxtime", OdometryConstants::MAX_TIME);
 
-    // m_odometry.SetKFTerms(E0, Q, kAng, kPos, maxTime);
+    m_odometry.SetKFTerms(E0, Q, kAng, kPos, maxTime);
   }
 
   if (m_rJoy.GetTrigger())
@@ -128,7 +129,7 @@ void Robot::RobotPeriodic()
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection();
     m_pos = {0, 0};
-    // m_odometry.Reset();
+    m_odometry.Reset();
   }
 
   // frc::SmartDashboard::PutNumber("fl encoder", m_swerveFl.GetEncoderReading());
@@ -190,16 +191,6 @@ void Robot::TeleopPeriodic() {
   m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.005);
   m_swerveController->Periodic();
   // END SWERVE DRIVE
-
-  // TEMP, DELETE LATER
-  // vec::Vector2D pos = m_odometry.GetPosition();
-  // double ang = m_odometry.GetAng();
-
-  // frc::SmartDashboard::PutString("KF pos", pos.toString());
-  // frc::SmartDashboard::PutNumber("KF ang", ang);
-
-  // m_odometry.Periodic();
-  // END DELETE LATER
 }
 
 void Robot::DisabledInit() {}

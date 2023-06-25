@@ -9,15 +9,23 @@
 /**
  * Constructor
  * 
- * Initializes starting position and angle to 0, and this can be changed later with SetStart()
+ * Initializes starting position and angle to 0, and this can be changed later with SetStart() 
+ */
+Odometry::Odometry()
+  : m_startAng{0}, m_curAng{0}, m_filter{
+   OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::MAX_TIME
+  } {}
+
+/**
+ * Sets swerve controller and navX pointers
  * 
  * @param swerveController pointer to swerve controller
  * @param navx Pointer to navx
- */
-Odometry::Odometry(SwerveControl *swerveController, AHRS *navx)
-  : m_startAng{0}, m_curAng{0}, m_swerveController{swerveController}, m_navx{navx}, m_filter{
-   OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::MAX_TIME
-  } {}
+*/
+void Odometry::SetPointers(SwerveControl *swerveController, AHRS *navx) {
+  m_swerveController = swerveController;
+  m_navx = navx;
+}
 
 /**
  * Sets start position

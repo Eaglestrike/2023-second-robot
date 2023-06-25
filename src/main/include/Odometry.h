@@ -16,9 +16,9 @@ namespace vec = svector;
 */
 class Odometry {
 public:
-  Odometry() = delete;
-  Odometry(SwerveControl *swerveController, AHRS *navx);
+  Odometry();
   
+  void SetPointers(SwerveControl *swerveController, AHRS *navx);
   void SetStartPos(vec::Vector2D startPos);
   void SetStartAng(double startAng);
   void SetStart(vec::Vector2D startPos, double startAng);

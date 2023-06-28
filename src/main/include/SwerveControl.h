@@ -21,7 +21,7 @@ public:
 
   vec::Vector2D GetRobotVelocity(double ang);
 
-  void ResetAngleCorrection();
+  void ResetAngleCorrection(double startAng = 0);
   void ResetFeedForward();
   void SetFeedForward(double kS, double kV, double kA);
   void SetAngleCorrectionPID(double kP, double kI, double kD);

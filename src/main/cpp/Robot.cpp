@@ -27,7 +27,9 @@ Robot::Robot()
       m_rFr{SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
       m_rBr{-SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
       m_rFl{SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE},
-      m_rBl{-SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE}
+      m_rBl{-SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE},
+      m_startAng{0},
+      m_joystickAng{0}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
@@ -44,17 +46,18 @@ Robot::Robot()
     std::cerr << e.what() << std::endl;
   }
 
-  m_odometry.SetPointers(m_swerveController, m_navx);
-
   AddPeriodic([&](){
     // ODOMETRY
-    vec::Vector2D pos = m_odometry.GetPosition();
+    vec::Vector2D pos = m_odometry.GetPosition(m_startPos);
     double ang = m_odometry.GetAng();
 
     frc::SmartDashboard::PutString("KF pos", pos.toString());
     frc::SmartDashboard::PutNumber("KF ang", ang);
 
-    m_odometry.Periodic();
+    double angWorld = Utils::DegToRad(m_navx->GetYaw()) + m_startAng;
+    vec::Vector2D velWorld = m_swerveController->GetRobotVelocity(angWorld);
+
+    m_odometry.Periodic(angWorld, velWorld);
     // END ODOMETRY
   }, 5_ms, 2_ms);
 }
@@ -85,8 +88,7 @@ void Robot::RobotInit()
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
 
-  // TEMPORARY, REMOVE LATER!!!
-  m_odometry.SetStart({0, 0}, 0);
+  // don't use odometry set staart instead use robot m_startPos and m_startAng
 }
 
 /**
@@ -127,8 +129,7 @@ void Robot::RobotPeriodic()
   if (m_rJoy.GetTrigger())
   {
     m_navx->ZeroYaw();
-    m_swerveController->ResetAngleCorrection();
-    m_pos = {0, 0};
+    m_swerveController->ResetAngleCorrection(m_startAng);
     m_odometry.Reset();
   }
 
@@ -173,22 +174,21 @@ void Robot::TeleopPeriodic() {
 
   double vx = std::clamp(ly, -1.0, 1.0) * 12.0;
   double vy = std::clamp(lx, -1.0, 1.0) * 12.0;
-  double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
+  double w = -std::clamp(rx, -1.0, 1.0) * 7.0;
 
   // dead zones
-  if (std::abs(lx) < 0.1 && std::abs(ly) < 0.1) {
+  if (std::abs(lx) < 0.05 && std::abs(ly) < 0.05) {
     vx = 0;
     vy = 0;
   }
-  if (std::abs(rx) < 0.1) {
+  if (std::abs(rx) < 0.05) {
     w = 0;
   }
 
-  double curYaw = m_navx->GetYaw();
-  curYaw = Utils::DegToRad(curYaw);
+  double curAng = m_odometry.GetAng();
 
   vec::Vector2D setVel = {vx, -vy};
-  m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.005);
+  m_swerveController->SetRobotVelocityAbs(setVel, w, curAng, 0.005, m_joystickAng);
   m_swerveController->Periodic();
   // END SWERVE DRIVE
 }

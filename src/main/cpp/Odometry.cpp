@@ -12,55 +12,8 @@
  * Initializes starting position and angle to 0, and this can be changed later with SetStart() 
  */
 Odometry::Odometry()
-  : m_startAng{0}, m_curAng{0}, m_filter{
-   OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::MAX_TIME
+  : m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::MAX_TIME
   } {}
-
-/**
- * Sets swerve controller and navX pointers
- * 
- * @param swerveController pointer to swerve controller
- * @param navx Pointer to navx
-*/
-void Odometry::SetPointers(SwerveControl *swerveController, AHRS *navx) {
-  m_swerveController = swerveController;
-  m_navx = navx;
-}
-
-/**
- * Sets start position
- * 
- * This can be used for trimming
- * 
- * @param startPos starting position
-*/
-void Odometry::SetStartPos(vec::Vector2D startPos) {
-  m_startPos = startPos;
-}
-
-/**
- * Sets start angle
- * 
- * This can be used for trimming
- * 
- * @param startAng starting angle, in radians
-*/
-void Odometry::SetStartAng(double startAng) {
-  m_startAng = startAng;
-}
-
-/**
- * Sets start position and angle
- * 
- * Call this after setting position in shuffleboard
- * 
- * @param startPos starting position
- * @param startAng starting angle, in radians
-*/
-void Odometry::SetStart(vec::Vector2D startPos, double startAng) {
-  m_startPos = startPos;
-  m_startAng = startAng;
-}
 
 /**
  * Sets Kalman filter terms
@@ -137,6 +90,8 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, double angNavX, s
 
 /**
  * Resets current position and angle
+ * 
+ * Should do this while robot is facing AWAY
 */
 void Odometry::Reset() {
   std::size_t curTimeMs = Utils::GetCurTimeMs();
@@ -144,16 +99,18 @@ void Odometry::Reset() {
 }
 
 /**
- * Gets current position
+ * Gets current position world frame
+ * 
+ * @param posOffset starting position
  * 
  * @returns current predicted position
 */
-vec::Vector2D Odometry::GetPosition() const {
-  return m_filter.GetEstimatedPos();
+vec::Vector2D Odometry::GetPosition(vec::Vector2D posOffset) const {
+  return m_filter.GetEstimatedPos() + posOffset;
 }
 
 /**
- * Gets current estimated angle
+ * Gets current estimated angle world frame
  * 
  * @returns estimated angle, in radians
 */
@@ -162,13 +119,12 @@ double Odometry::GetAng() const {
 }
 
 /**
- * Periodic function, call this every periodic!!!1111@!!!!
+ * Periodic function
  * 
- * dont forgor
+ * @param ang angle of robot world frame
+ * @param avgVelocity average velocity world frame
 */
-void Odometry::Periodic() {
-  double ang = m_navx->GetYaw() + Utils::RadToDeg(m_startAng);
-  vec::Vector2D avgVelocityWorld = m_swerveController->GetRobotVelocity(Utils::DegToRad(ang));
+void Odometry::Periodic(double ang, vec::Vector2D avgVelocity) {
   std::size_t curTimeMs = Utils::GetCurTimeMs();
-  m_filter.PredictFromWheels(avgVelocityWorld, Utils::DegToRad(ang), curTimeMs);
+  m_filter.PredictFromWheels(avgVelocity, Utils::DegToRad(ang), curTimeMs);
 }

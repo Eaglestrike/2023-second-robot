@@ -56,7 +56,9 @@ class Robot : public frc::TimedRobot {
   vec::Vector2D m_rFr, m_rBr, m_rFl, m_rBl;
   SwerveControl *m_swerveController;
 
-  // temp odometry
-  vec::Vector2D m_pos;
+  // odometry
+  vec::Vector2D m_startPos; // offset; starting position on field relative to apriltag origin, can use for trim
+  double m_startAng; // offset; starting angle on field relative to +x axis of apriltag coords, can use for trim
+  double m_joystickAng;
   Odometry m_odometry;
 };

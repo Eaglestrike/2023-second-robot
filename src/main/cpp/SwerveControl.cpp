@@ -33,7 +33,7 @@ SwerveControl::SwerveControl(RefArray<SwerveModule> modules, std::array<vec::Vec
  *
  * @note Assumes modules have the same mass
  * 
- * @param ang NavX angle, in radians
+ * @param ang world frame angle, in radians
  *
  * @returns Robot velocity
  */
@@ -46,7 +46,7 @@ vec::Vector2D SwerveControl::GetRobotVelocity(double ang)
   }
 
   auto avg = Utils::GetVecAverage(vectors);
-  return vec::rotate(avg, ang); // rotate by navx ang
+  return vec::rotate(avg, ang); // rotate by world frame ang
 }
 
 /**
@@ -61,12 +61,14 @@ void SwerveControl::ResetFeedForward()
  * Resets angle correction angle to zero
  * 
  * @todo Change this to go into odometry
+ * 
+ * @param startAng the starting angle of robot
  *
  * @note Always call this after calling navx::ZeroYaw()
  */
-void SwerveControl::ResetAngleCorrection()
+void SwerveControl::ResetAngleCorrection(double startAng)
 {
-  m_curAngle = 0;
+  m_curAngle = startAng;
 }
 
 /**
@@ -100,7 +102,7 @@ void SwerveControl::SetAngleCorrectionPID(double kP, double kI, double kD)
  *
  * @param vel Velocity to set
  * @param angVel Angular velocity, + is counterclockwise, - is clockwise
- * @param ang Current navX angle, in radians
+ * @param ang Current world frame angle, in radians
  * @param time Time between readings
  */
 void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double ang, double time)
@@ -163,7 +165,7 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
  * 
  * @param vel Velocity to set (from joystick inputs)
  * @param angVel Angular velocity, + is counterclockwise, - is clockwise
- * @param ang Current navX angle, in radians
+ * @param ang Current world frame angle, in radians
  * @param time Time between readings
  * @param angOfJoystick angle of +y on joysticks with respect to +x of field
 */

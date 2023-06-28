@@ -28,8 +28,9 @@ Robot::Robot()
       m_rBr{-SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
       m_rFl{SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE},
       m_rBl{-SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE},
+      m_startPos{400, 400},
       m_startAng{0},
-      m_joystickAng{0}
+      m_joystickAng{M_PI}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
@@ -86,7 +87,7 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutNumber("KF maxtime", OdometryConstants::MAX_TIME);
 
   m_navx->ZeroYaw();
-  m_swerveController->ResetAngleCorrection();
+  m_swerveController->ResetAngleCorrection(m_startAng);
 
   // don't use odometry set staart instead use robot m_startPos and m_startAng
 }
@@ -174,14 +175,14 @@ void Robot::TeleopPeriodic() {
 
   double vx = std::clamp(ly, -1.0, 1.0) * 12.0;
   double vy = std::clamp(lx, -1.0, 1.0) * 12.0;
-  double w = -std::clamp(rx, -1.0, 1.0) * 7.0;
+  double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
 
   // dead zones
-  if (std::abs(lx) < 0.05 && std::abs(ly) < 0.05) {
+  if (std::abs(lx) < 0.1 && std::abs(ly) < 0.1) {
     vx = 0;
     vy = 0;
   }
-  if (std::abs(rx) < 0.05) {
+  if (std::abs(rx) < 0.1) {
     w = 0;
   }
 

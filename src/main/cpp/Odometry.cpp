@@ -121,10 +121,10 @@ double Odometry::GetAng() const {
 /**
  * Periodic function
  * 
- * @param ang angle of robot world frame
+ * @param ang angle of robot world frame, radians
  * @param avgVelocity average velocity world frame
 */
 void Odometry::Periodic(double ang, vec::Vector2D avgVelocity) {
   std::size_t curTimeMs = Utils::GetCurTimeMs();
-  m_filter.PredictFromWheels(avgVelocity, Utils::DegToRad(ang), curTimeMs);
+  m_filter.PredictFromWheels(avgVelocity, ang, curTimeMs);
 }

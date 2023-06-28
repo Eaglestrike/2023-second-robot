@@ -157,9 +157,23 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 }
 
 /**
+ * Sets robot velocity using absolute coordinates
+ * 
+ * Coordinates of joystick do not always match coordinates of field depending on where the driver station is
+ * 
+ * @param vel Velocity to set (from joystick inputs)
+ * @param angVel Angular velocity, + is counterclockwise, - is clockwise
+ * @param ang Current navX angle, in radians
+ * @param time Time between readings
+ * @param angOfJoystick angle of +y on joysticks with respect to +x of field
+*/
+void SwerveControl::SetRobotVelocityAbs(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick) {
+  vec::Vector2D velRot = rotate(vel, angOfJoystick);
+  SetRobotVelocity(velRot, angVel, ang, time);
+}
+
+/**
  * Periodic function
- *
- * @note to self: CALL ME!!!! cALLL ME!!!!! you blITHERignnGG IDIOT!
  */
 void SwerveControl::Periodic()
 {

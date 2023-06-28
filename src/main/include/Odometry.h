@@ -19,7 +19,7 @@ public:
   Odometry();
   
   void SetKFTerms(double E0, double Q, double kAng, double k, double maxTime);
-  void SetCamData(vec::Vector2D camPos, double camAng, double angNavX, std::size_t camID, std::size_t howLongAgo);
+  void SetCamData(vec::Vector2D camPos, double camAng, double angNavX, std::size_t tagID, std::size_t age, std::size_t uniqueId);
   void Reset();
 
   vec::Vector2D GetPosition(vec::Vector2D posOffset) const;
@@ -29,4 +29,5 @@ public:
 
 private:
   KalmanFilter m_filter;
+  long long m_prevId;
 };

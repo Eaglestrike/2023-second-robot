@@ -110,8 +110,8 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
   std::vector<vec::Vector2D> vecPrints;
   vecPrints.resize(4);
 
-  // frc::SmartDashboard::PutNumber("cur angle", ang);
-  // frc::SmartDashboard::PutNumber("tgt angle", m_curAngle);
+  frc::SmartDashboard::PutNumber("cur angle", ang);
+  frc::SmartDashboard::PutNumber("tgt angle", m_curAngle);
 
   if (!Utils::NearZero(angVel))
   {

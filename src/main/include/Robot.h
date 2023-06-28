@@ -14,8 +14,9 @@
 #include <frc/smartdashboard/SendableChooser.h>
 
 #include "Odometry.h"
-#include "SwerveModule.h"
+#include "SocketClient.h"
 #include "SwerveControl.h"
+#include "SwerveModule.h"
 #include "thirdparty/simplevectors.hpp"
 
 namespace vec = svector;
@@ -39,10 +40,7 @@ class Robot : public frc::TimedRobot {
 
  private:
   // smartdashboard
-  frc::SendableChooser<std::string> m_chooser;
-  const std::string kAutoNameDefault = "Default";
-  const std::string kAutoNameCustom = "My Auto";
-  std::string m_autoSelected; 
+  frc::SendableChooser<std::string> m_startPosChooser;
 
   // inputs
   frc::Joystick m_lJoy;
@@ -61,4 +59,7 @@ class Robot : public frc::TimedRobot {
   double m_startAng; // offset; starting angle (radians) on field relative to +x axis of apriltag coords, can use for trim
   double m_joystickAng;
   Odometry m_odometry;
+
+  // jetson
+  SocketClient m_client;
 };

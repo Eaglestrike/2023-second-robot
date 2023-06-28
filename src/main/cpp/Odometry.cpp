@@ -13,7 +13,7 @@
  */
 Odometry::Odometry()
   : m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::MAX_TIME
-  } {}
+  }, m_prevId{-1} {}
 
 /**
  * Sets Kalman filter terms
@@ -42,15 +42,23 @@ void Odometry::SetKFTerms(double E0, double Q, double kAng, double k, double max
  * @param camPos Position data from camera
  * @param camAng Angle from camera (or navX, whichever is better), in degrees
  * @param angNavX navX angle, in degrees
- * @param camID ID of camera
- * @param howLongAgo delay measurement from camera (combined delay from camera to jetson and from jetson to rio through network)
+ * @param tagID Apriltag ID
+ * @param age delay measurement from camera (combined delay from camera to jetson and from jetson to rio through network)
+ * @param uniqueId unique ID from camera
 */
-void Odometry::SetCamData(vec::Vector2D camPos, double camAng, double angNavX, std::size_t camID, std::size_t howLongAgo)
+void Odometry::SetCamData(vec::Vector2D camPos, double camAng, double angNavX, std::size_t tagID, std::size_t howLongAgo, std::size_t uniqueId)
 {
   vec::Vector2D vecRot = rotate(camPos, Utils::DegToRad(angNavX - 90));
   vec::Vector2D tagPos;
 
-  switch (camID) {
+  // check that ID is actually unique
+  if (static_cast<long long>(uniqueId) == m_prevId) {
+    return;
+  } 
+
+  m_prevId = static_cast<long long>(uniqueId);
+
+  switch (tagID) {
     case 1:
       tagPos = FieldConstants::TAG1;
       break;

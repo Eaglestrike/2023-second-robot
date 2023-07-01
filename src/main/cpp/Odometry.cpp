@@ -37,17 +37,15 @@ void Odometry::SetKFTerms(double E0, double Q, double kAng, double k, double max
 /**
  * Applies corrections from camera data
  * 
- * @todo Implement
- * 
  * @param camPos Position data from camera
  * @param camAng Angle from camera (or navX, whichever is better), in degrees
- * @param angNavX navX angle, in degrees
  * @param tagID Apriltag ID
  * @param age delay measurement from camera (combined delay from camera to jetson and from jetson to rio through network)
  * @param uniqueId unique ID from camera
 */
-void Odometry::SetCamData(vec::Vector2D camPos, double camAng, double angNavX, std::size_t tagID, std::size_t howLongAgo, std::size_t uniqueId)
+void Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId)
 {
+  double angNavX = GetAng();
   vec::Vector2D vecRot = rotate(camPos, Utils::DegToRad(angNavX - 90));
   vec::Vector2D tagPos;
 
@@ -58,6 +56,7 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, double angNavX, s
 
   m_prevId = static_cast<long long>(uniqueId);
 
+  // I know I can use an array, i was just being an idiot when writing this
   switch (tagID) {
     case 1:
       tagPos = FieldConstants::TAG1;
@@ -93,7 +92,7 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, double angNavX, s
   // @todo figure out if ^^^ is right
   std::size_t curTimeMs = Utils::GetCurTimeMs();
   //         substituting angnavX here vvvvvv becaues of waht's mentioned in comment above
-  m_filter.UpdateFromCamera(robotPos, Utils::DegToRad(angNavX), howLongAgo, curTimeMs);
+  m_filter.UpdateFromCamera(robotPos, Utils::DegToRad(angNavX), age, curTimeMs);
 }
 
 /**

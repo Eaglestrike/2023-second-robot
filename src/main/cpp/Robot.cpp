@@ -63,7 +63,6 @@ Robot::Robot()
     // process camera data
     std::vector<double> camData = m_client.GetData();
     if (m_client.HasConn() && !m_client.IsStale()) {
-      int camId = static_cast<int>(camData[0]);
       int tagId = static_cast<int>(camData[1]);
       double x = static_cast<int>(camData[2]);
       double y = static_cast<int>(camData[3]);
@@ -71,7 +70,7 @@ Robot::Robot()
       long long age = static_cast<long long>(camData[5]);
       unsigned long long uniqueId = static_cast<unsigned long long>(camData[6]);
 
-      
+      m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
     }
 
     // other odometry

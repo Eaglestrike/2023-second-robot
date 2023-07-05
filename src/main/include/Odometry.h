@@ -16,9 +16,9 @@ namespace vec = svector;
 */
 class Odometry {
 public:
-  Odometry();
+  Odometry(vec::Vector2D *posOffset, double *angOffset);
   
-  void SetKFTerms(double E0, double Q, double kAng, double k, double maxTime);
+  void SetKFTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime);
   void SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId);
   void Reset();
 

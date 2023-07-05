@@ -32,6 +32,7 @@ Robot::Robot()
       m_startPos{400, 400},
       m_startAng{0},
       m_joystickAng{0},
+      m_odometry{&m_startPos, &m_startAng},
       m_client{"10.1.14.43", 5807, 500, 5000}
 {
   // swerve
@@ -54,19 +55,23 @@ Robot::Robot()
     vec::Vector2D pos = m_odometry.GetPosition(m_startPos);
     double ang = m_odometry.GetAng();
 
+    m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
+
     frc::SmartDashboard::PutString("KF pos", pos.toString());
     frc::SmartDashboard::PutNumber("KF ang", ang);
 
     frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
     frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
 
+    frc::SmartDashboard::PutData("Field", &m_field);
+
     // process camera data
     std::vector<double> camData = m_client.GetData();
     if (m_client.HasConn() && !m_client.IsStale()) {
       int tagId = static_cast<int>(camData[1]);
-      double x = static_cast<int>(camData[2]);
-      double y = static_cast<int>(camData[3]);
-      double angZ = static_cast<int>(camData[4]);
+      double x = camData[2];
+      double y = camData[3];
+      double angZ = camData[4];
       long long age = static_cast<long long>(camData[5]);
       unsigned long long uniqueId = static_cast<unsigned long long>(camData[6]);
 
@@ -104,6 +109,7 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutNumber("KF Q", OdometryConstants::Q);
   frc::SmartDashboard::PutNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
   frc::SmartDashboard::PutNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
+  frc::SmartDashboard::PutNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
   frc::SmartDashboard::PutNumber("KF maxtime", OdometryConstants::MAX_TIME);
 
   // starting position
@@ -154,9 +160,10 @@ void Robot::RobotPeriodic()
     double Q = frc::SmartDashboard::GetNumber("KF Q", OdometryConstants::Q);
     double kAng = frc::SmartDashboard::GetNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
     double kPos = frc::SmartDashboard::GetNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
+    double kPosInt = frc::SmartDashboard::GetNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
     double maxTime = frc::SmartDashboard::GetNumber("KF maxtime", OdometryConstants::MAX_TIME);
 
-    m_odometry.SetKFTerms(E0, Q, kAng, kPos, maxTime);
+    m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
   }
 
   // resets orientation and odometry

@@ -10,10 +10,13 @@
  * Constructor
  * 
  * Initializes starting position and angle to 0, and this can be changed later with SetStart() 
+ * 
+ * @param posOffset position offset in robot cpp
+ * @param angOffset angle offset in robot cpp
  */
-Odometry::Odometry()
-  : m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::MAX_TIME
-  }, m_prevId{-1} {}
+Odometry::Odometry(vec::Vector2D *posOffset, double *angOffset)
+  : m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::CAM_TRUST_KPOSINT, OdometryConstants::MAX_TIME,
+  posOffset, angOffset}, m_prevId{-1} {}
 
 /**
  * Sets Kalman filter terms
@@ -28,10 +31,11 @@ Odometry::Odometry()
  * @param Q noise of wheels
  * @param kAng angle constant in logistic function higher = lower trust in camera for higher velocities
  * @param k constant of proportionality between speed and camera noise
+ * @param kPosInt constant of camera noise when robot not moving
  * @param maxTime max time before ignore, in s
 */
-void Odometry::SetKFTerms(double E0, double Q, double kAng, double k, double maxTime) {
-  m_filter.SetTerms(E0, Q, kAng, k, maxTime);
+void Odometry::SetKFTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime) {
+  m_filter.SetTerms(E0, Q, kAng, k, kPosInt, maxTime);
 }
 
 /**
@@ -52,41 +56,51 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
   // check that ID is actually unique
   if (static_cast<long long>(uniqueId) == m_prevId) {
     return;
-  } 
-
+  }
   m_prevId = static_cast<long long>(uniqueId);
 
   // I know I can use an array, i was just being an idiot when writing this
   switch (tagID) {
     case 1:
+      // std::cout << "tag1: ";
       tagPos = FieldConstants::TAG1;
       break;
     case 2:
+      // std::cout << "tag2: ";
       tagPos = FieldConstants::TAG2;
       break;
     case 3:
+      // std::cout << "tag3: ";
       tagPos = FieldConstants::TAG3;
       break;
     case 4:
+      // std::cout << "tag4: ";
       tagPos = FieldConstants::TAG4;
       break;
     case 5:
+      // std::cout << "tag5: ";
       tagPos = FieldConstants::TAG5;
       break;
     case 6:
+      // std::cout << "tag6: ";
       tagPos = FieldConstants::TAG6;
       break;
     case 7:
+      // std::cout << "tag7: ";
       tagPos = FieldConstants::TAG7;
       break;
     case 8:
+      // std::cout << "tag8: ";
       tagPos = FieldConstants::TAG8;
       break;
     default:
+      // std::cout << "bad detect" << std::endl;
       return; // unrecognized tag; don't process
   }
 
   vec::Vector2D robotPos = tagPos - vecRot;
+
+  // std::cout << robotPos.toString() << std::endl;
 
   // not using camAng, because it relies on existing odometry measurements to get accurate and ideally it's its own, independent measurement
   // @todo figure out if ^^^ is right

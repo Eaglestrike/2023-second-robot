@@ -1,6 +1,7 @@
 #include "KalmanFilter.h"
 
 #include <cmath>
+#include <iostream>
 
 /**
  * Constrcutor
@@ -9,10 +10,13 @@
  * @param Q wheel odometry measurement noise
  * @param kAng angle constant of proportionality for logistic function calculating trust of camera's angle measurement
  * @param k constant of proportionality for linear function calculating noise of camera xy measurement
+ * @param kPosInt camera constant noise when robot is not moving
  * @param maxTime maximum time before discarding measurements, in s
+ * @param posOffset pointer to Position offset in robot cpp
+ * @param angOffset pointer to angle offset in robot cpp
 */
-KalmanFilter::KalmanFilter(double E0, double Q, double kAng, double k, double maxTime)
-  : m_E0{E0}, m_Q{Q}, m_kAng{kAng}, m_k{k}, m_maxTime{maxTime}
+KalmanFilter::KalmanFilter(double E0, double Q, double kAng, double k, double kPosInt, double maxTime, vec::Vector2D *posOffset, double *angOffset)
+  : m_E0{E0}, m_Q{Q}, m_kAng{kAng}, m_kPos{k}, m_kPosInt{kPosInt}, m_maxTime{maxTime}, m_posOffset{posOffset}, m_angOffset{angOffset}
 {
   // we want to make sure there's at least one value in the map at all times
   m_states[0].E = E0;
@@ -85,7 +89,8 @@ void KalmanFilter::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std:
 */
 void KalmanFilter::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t timeOffset, std::size_t curTime) {
   // if > maxTime before, ignore
-  if (static_cast<double>(curTime - timeOffset) > m_maxTime * 1000.0) {
+  // std::cout << "here 1: " << curTime << " " << timeOffset << std::endl;
+  if (static_cast<double>(timeOffset) > m_maxTime * 1000.0) {
     return;
   }
 
@@ -98,6 +103,9 @@ void KalmanFilter::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t 
     return;
   }
 
+  pos -= *m_posOffset;
+  angZ -= *m_angOffset;
+
   // get predicted state variables
   auto posPred = measurementIt->second.pos;
   auto vAvgPred = measurementIt->second.vAvg;
@@ -105,8 +113,9 @@ void KalmanFilter::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t 
   auto angPred = measurementIt->second.ang;
 
   // corrects position
-  double camNoise = m_k * vec::magn(vAvgPred); // cam noise is proportional to robot velocity
+  double camNoise = m_kPos * vec::magn(vAvgPred) + m_kPosInt; // cam noise is proportional to robot velocity
   double kalmanGain = ePred / (ePred + camNoise); // calculates kalman gain
+  std::cout << "ePred: " << ePred << " camNoise: " << camNoise << " gain: " << kalmanGain << std::endl;
   vec::Vector2D correctedPos = posPred + (pos - posPred) * kalmanGain; // corrects position
   double e = (1 - kalmanGain) / ePred; // corrects error
 
@@ -174,13 +183,15 @@ void KalmanFilter::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t 
  * @param Q noise of wheels
  * @param kAng angle constant in logistic function higher = lower trust in camera for higher velocities
  * @param k constant of proportionality between speed and camera noise
+ * @param kPosInt camera constant noise of camera when not moving
  * @param maxTime max time before ignore, in s
 */
-void KalmanFilter::SetTerms(double E0, double Q, double kAng, double k, double maxTime) {
+void KalmanFilter::SetTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime) {
   m_E0 = E0;
   m_Q = Q;
   m_kAng = kAng;
-  m_k = k;
+  m_kPos = k;
+  m_kPosInt = kPosInt;
   m_maxTime = maxTime;
 }
 

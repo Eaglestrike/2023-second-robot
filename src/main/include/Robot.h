@@ -11,6 +11,7 @@
 #include <AHRS.h>
 #include <frc/Joystick.h>
 #include <frc/TimedRobot.h>
+#include <frc/smartdashboard/Field2d.h>
 #include <frc/smartdashboard/SendableChooser.h>
 
 #include "Odometry.h"
@@ -41,6 +42,7 @@ class Robot : public frc::TimedRobot {
  private:
   // smartdashboard
   frc::SendableChooser<std::string> m_startPosChooser;
+  frc::Field2d m_field;
 
   // inputs
   frc::Joystick m_lJoy;

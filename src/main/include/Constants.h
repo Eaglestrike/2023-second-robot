@@ -63,9 +63,10 @@ namespace SwerveConstants
 
 namespace OdometryConstants {
   const double E0 = 1.0;
-  const double Q = 0.1;
-  const double CAM_TRUST_KANG = 10.0;
-  const double CAM_TRUST_KPOS = 1.0;
+  const double Q = 0.01;
+  const double CAM_TRUST_KANG = 10.0; // unused for now, can use if relying on apriltag angle
+  const double CAM_TRUST_KPOS = 500.0;
+  const double CAM_TRUST_KPOSINT = 100.0;
   const double MAX_TIME = 0.5;
 }
 

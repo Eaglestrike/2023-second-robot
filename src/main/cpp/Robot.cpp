@@ -174,7 +174,7 @@ void Robot::RobotPeriodic()
     m_odometry.Reset();
   }
 
-  // get position offsets (sorry for cancer if statements)
+  // get position offsets (sorry for bad if statements)
   // TODO put all values in Constants.h
   std::string m_selected = m_startPosChooser.GetSelected();
   if (m_selected == "Debug") {
@@ -195,11 +195,11 @@ void Robot::RobotPeriodic()
     m_joystickAng = 0;
   } else if (m_selected == "Red L") {
     m_startAng = 0;
-    m_startPos = {10, 1};
+    m_startPos = {14.35, 1};
     m_joystickAng = M_PI;
   } else if (m_selected == "Red M") {
     m_startAng = 0;
-    m_startPos = {10, 3};
+    m_startPos = {14.35, 2.5};
     m_joystickAng = M_PI;
   } else if (m_selected == "Red R") {
     m_startAng = 0;

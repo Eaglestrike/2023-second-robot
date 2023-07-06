@@ -112,10 +112,15 @@ void KalmanFilter::UpdateFromCamera(vec::Vector2D pos, double angZ, std::size_t 
   auto ePred = measurementIt->second.E;
   auto angPred = measurementIt->second.ang;
 
+   // don't correct if no error covariance
+  if (ePred == 0) {
+    return;
+  }
+
   // corrects position
   double camNoise = m_kPos * vec::magn(vAvgPred) + m_kPosInt; // cam noise is proportional to robot velocity
   double kalmanGain = ePred / (ePred + camNoise); // calculates kalman gain
-  std::cout << "ePred: " << ePred << " camNoise: " << camNoise << " gain: " << kalmanGain << std::endl;
+  // std::cout << "ePred: " << ePred << " camNoise: " << camNoise << " gain: " << kalmanGain << std::endl;
   vec::Vector2D correctedPos = posPred + (pos - posPred) * kalmanGain; // corrects position
   double e = (1 - kalmanGain) / ePred; // corrects error
 

@@ -6,6 +6,10 @@
 #include "Constants.h"
 #include "Utils.h"
 
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643383279502884197169399
+#endif
+
 /**
  * Constructor
  * 
@@ -50,7 +54,7 @@ void Odometry::SetKFTerms(double E0, double Q, double kAng, double k, double kPo
 void Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId)
 {
   double angNavX = GetAng();
-  vec::Vector2D vecRot = rotate(camPos, Utils::DegToRad(angNavX - 90));
+  vec::Vector2D vecRot = rotate(camPos, angNavX - M_PI / 2);
   vec::Vector2D tagPos;
 
   // check that ID is actually unique
@@ -100,7 +104,7 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
 
   vec::Vector2D robotPos = tagPos - vecRot;
 
-  // std::cout << robotPos.toString() << std::endl;
+  std::cout << robotPos.toString() << std::endl;
 
   // not using camAng, because it relies on existing odometry measurements to get accurate and ideally it's its own, independent measurement
   // @todo figure out if ^^^ is right

@@ -15,11 +15,11 @@
  * 
  * Initializes starting position and angle to 0, and this can be changed later with SetStart() 
  * 
- * @param posOffset position offset in robot cpp
- * @param angOffset angle offset in robot cpp
+ * @param posOffset pointer to position offset in robot cpp
+ * @param angOffset pointer to angle offset in robot cpp
  */
 Odometry::Odometry(vec::Vector2D *posOffset, double *angOffset)
-  : m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::CAM_TRUST_KPOSINT, OdometryConstants::MAX_TIME,
+  : m_posOffset{posOffset}, m_angOffset{angOffset}, m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::CAM_TRUST_KPOSINT, OdometryConstants::MAX_TIME,
   posOffset, angOffset}, m_prevId{-1} {}
 
 /**
@@ -46,7 +46,7 @@ void Odometry::SetKFTerms(double E0, double Q, double kAng, double k, double kPo
  * Applies corrections from camera data
  * 
  * @param camPos Position data from camera
- * @param camAng Angle from camera (or navX, whichever is better), in degrees
+ * @param camAng Angle from camera (unused, may use later)
  * @param tagID Apriltag ID
  * @param age delay measurement from camera (combined delay from camera to jetson and from jetson to rio through network)
  * @param uniqueId unique ID from camera
@@ -104,7 +104,7 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
 
   vec::Vector2D robotPos = tagPos - vecRot;
 
-  std::cout << robotPos.toString() << std::endl;
+  // std::cout << robotPos.toString() << std::endl;
 
   // not using camAng, because it relies on existing odometry measurements to get accurate and ideally it's its own, independent measurement
   // @todo figure out if ^^^ is right
@@ -126,12 +126,10 @@ void Odometry::Reset() {
 /**
  * Gets current position world frame
  * 
- * @param posOffset starting position
- * 
  * @returns current predicted position
 */
-vec::Vector2D Odometry::GetPosition(vec::Vector2D posOffset) const {
-  return m_filter.GetEstimatedPos() + posOffset;
+vec::Vector2D Odometry::GetPosition() const {
+  return m_filter.GetEstimatedPos() + *m_posOffset;
 }
 
 /**
@@ -146,10 +144,10 @@ double Odometry::GetAng() const {
 /**
  * Periodic function
  * 
- * @param ang angle of robot world frame, radians
+ * @param ang navX angle of robot, radians
  * @param avgVelocity average velocity world frame
 */
 void Odometry::Periodic(double ang, vec::Vector2D avgVelocity) {
   std::size_t curTimeMs = Utils::GetCurTimeMs();
-  m_filter.PredictFromWheels(avgVelocity, ang, curTimeMs);
+  m_filter.PredictFromWheels(avgVelocity, ang + *m_angOffset, curTimeMs);
 }

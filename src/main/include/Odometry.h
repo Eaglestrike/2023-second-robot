@@ -22,12 +22,14 @@ public:
   void SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId);
   void Reset();
 
-  vec::Vector2D GetPosition(vec::Vector2D posOffset) const;
+  vec::Vector2D GetPosition() const;
   double GetAng() const;
 
   void Periodic(double ang, vec::Vector2D avgVelocity);
 
 private:
+  vec::Vector2D *m_posOffset;
+  double *m_angOffset;
   KalmanFilter m_filter;
   long long m_prevId;
 };

@@ -52,7 +52,7 @@ Robot::Robot()
 
   AddPeriodic([&](){
     // ODOMETRY
-    vec::Vector2D pos = m_odometry.GetPosition(m_startPos);
+    vec::Vector2D pos = m_odometry.GetPosition();
     double ang = m_odometry.GetAng();
 
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
@@ -79,10 +79,10 @@ Robot::Robot()
     }
 
     // other odometry
-    double angWorld = Utils::DegToRad(m_navx->GetYaw()) + m_startAng;
-    vec::Vector2D velWorld = m_swerveController->GetRobotVelocity(angWorld);
+    double angNavX = Utils::DegToRad(m_navx->GetYaw());
+    vec::Vector2D velWorld = m_swerveController->GetRobotVelocity(angNavX + m_startAng);
 
-    m_odometry.Periodic(angWorld, velWorld);
+    m_odometry.Periodic(angNavX, velWorld);
     // END ODOMETRY
   }, 5_ms, 2_ms);
 }

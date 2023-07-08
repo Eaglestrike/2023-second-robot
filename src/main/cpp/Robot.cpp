@@ -174,43 +174,6 @@ void Robot::RobotPeriodic()
     m_odometry.Reset();
   }
 
-  // get position offsets (sorry for bad if statements)
-  // TODO put all values in Constants.h
-  std::string m_selected = m_startPosChooser.GetSelected();
-  if (m_selected == "Debug") {
-    m_startAng = 0;
-    m_startPos = {0, 0};
-    m_joystickAng = 0;
-  } else if (m_selected == "Blue L") {
-    m_startAng = M_PI;
-    m_startPos = {0, 5};
-    m_joystickAng = 0;
-  } else if (m_selected == "Blue M") {
-    m_startAng = M_PI;
-    m_startPos = {0, 3};
-    m_joystickAng = 0;
-  } else if (m_selected == "Blue R") {
-    m_startAng = M_PI;
-    m_startPos = {0, 1};
-    m_joystickAng = 0;
-  } else if (m_selected == "Red L") {
-    m_startAng = 0;
-    m_startPos = {14.35, 1};
-    m_joystickAng = M_PI;
-  } else if (m_selected == "Red M") {
-    m_startAng = 0;
-    m_startPos = {14.35, 2.5};
-    m_joystickAng = M_PI;
-  } else if (m_selected == "Red R") {
-    m_startAng = 0;
-    m_startPos = {10, 5};
-    m_joystickAng = M_PI;
-  } else {
-    m_startAng = 0;
-    m_startPos = {0, 0};
-    m_joystickAng = 0;
-  }
-
   // frc::SmartDashboard::PutNumber("fl encoder", m_swerveFl.GetEncoderReading());
   // frc::SmartDashboard::PutNumber("fr encoder", m_swerveFr.GetEncoderReading());
   // frc::SmartDashboard::PutNumber("bl encoder", m_swerveBl.GetEncoderReading());
@@ -273,7 +236,43 @@ void Robot::TeleopPeriodic() {
 
 void Robot::DisabledInit() {}
 
-void Robot::DisabledPeriodic() {}
+void Robot::DisabledPeriodic() {
+  // get position offsets (sorry for bad if statements)
+  std::string m_selected = m_startPosChooser.GetSelected();
+  if (m_selected == "Debug") {
+    m_startAng = FieldConstants::DEBUG_ANG;
+    m_startPos = FieldConstants::DEBUG_POS;
+    m_joystickAng = FieldConstants::DEBUG_JANG;
+  } else if (m_selected == "Blue L") {
+    m_startAng = FieldConstants::BL_ANG;
+    m_startPos = FieldConstants::BL_POS;
+    m_joystickAng = FieldConstants::BL_JANG;
+  } else if (m_selected == "Blue M") {
+    m_startAng = FieldConstants::BM_ANG;
+    m_startPos = FieldConstants::BM_POS;
+    m_joystickAng = FieldConstants::BM_JANG;
+  } else if (m_selected == "Blue R") {
+    m_startAng = FieldConstants::BR_ANG;
+    m_startPos = FieldConstants::BR_POS;
+    m_joystickAng = FieldConstants::BR_JANG;
+  } else if (m_selected == "Red L") {
+    m_startAng = FieldConstants::RL_ANG;
+    m_startPos = FieldConstants::RL_POS;
+    m_joystickAng = FieldConstants::RL_JANG;
+  } else if (m_selected == "Red M") {
+    m_startAng = FieldConstants::RM_ANG;
+    m_startPos = FieldConstants::RM_POS;
+    m_joystickAng = FieldConstants::RM_JANG;
+  } else if (m_selected == "Red R") {
+    m_startAng = FieldConstants::RR_ANG;
+    m_startPos = FieldConstants::RR_POS;
+    m_joystickAng = FieldConstants::RR_JANG;
+  } else {
+    m_startAng = FieldConstants::DEBUG_ANG;
+    m_startPos = FieldConstants::DEBUG_POS;
+    m_joystickAng = FieldConstants::DEBUG_JANG;
+  }
+}
 
 void Robot::TestInit() {}
 

@@ -13,6 +13,12 @@ namespace vec = svector;
 
 /**
  * Gets information about robot's velocity, position, and heading
+ * 
+ * Uses an absolute coordinate system on field, units are in meters.
+ * Coordinate system: https://firstfrc.blob.core.windows.net/frc2023/FieldAssets/2023LayoutMarkingDiagram.pdf
+ * Apriltag origin = coordinate origin
+ * +x is towards red driver stations, +y is towrads human player stations, +z is up
+ * 0 degree angle is facing +x direction, 90 degree is facing +y
 */
 class Odometry {
 public:

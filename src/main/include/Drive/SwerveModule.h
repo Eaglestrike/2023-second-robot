@@ -3,7 +3,7 @@
 #include <ctre/Phoenix.h>
 #include <frc/controller/PIDController.h>
 
-#include "thirdparty/simplevectors.hpp"
+#include "Util/thirdparty/simplevectors.hpp"
 
 namespace vec = svector; //!< Alias to vector namespace
 

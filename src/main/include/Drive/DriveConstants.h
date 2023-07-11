@@ -1,14 +1,10 @@
-/**
- * A file of constants
- *
- * @note General constants are not namespaced
- */
-
 #pragma once
 
 #include <cstddef>
 
-const double NEAR_ZERO_TOLERANCE = 0.000001;
+/**
+ * A file of constants for the drivebase
+ */
 
 namespace SwerveConstants
 {

@@ -1,4 +1,4 @@
-#include "SwerveControl.h"
+#include "Drive/SwerveControl.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -6,8 +6,8 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-#include "Constants.h"
-#include "Mathutil.h"
+#include "Drive/DriveConstants.h"
+#include "Util/Mathutil.h"
 
 /**
  * Constructor

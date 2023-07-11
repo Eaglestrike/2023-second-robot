@@ -1,4 +1,4 @@
-#include "SwerveModule.h"
+#include "Drive/SwerveModule.h"
 
 #include <algorithm>
 #include <cmath>
@@ -7,8 +7,8 @@
 #define M_PI 3.141592653589793238462643383279502884197169399
 #endif
 
-#include "Constants.h"
-#include "Mathutil.h"
+#include "Drive/DriveConstants.h"
+#include "Util/Mathutil.h"
 
 /**
  * Constructor

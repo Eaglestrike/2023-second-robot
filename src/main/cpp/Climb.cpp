@@ -15,7 +15,7 @@ void Climb::RobotInit(){
 
 void Climb::updatePos(){
  double steps = m_motor.GetSelectedSensorPosition(); 
- double rad = steps * (2 * M_PI / 2048); // falcon is 2048 ticks per revolution
+ double rad = steps * (2.0 * M_PI / 2048.0); // falcon is 2048 ticks per revolution
  m_currentPos = rad;
 }
 

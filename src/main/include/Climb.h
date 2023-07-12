@@ -10,8 +10,9 @@ class Climb {
     EXTENDED,
     STOWING,
     EXTENDING,
-    LIFTING, // did not include lifted bc should always be correcting
-  };
+    LIFTING, // did not include lifted because while climbing robot should never stop correcting 
+             // since the final "lifted" position is not sustainable unlike the stowed and extended positions
+};
 
   Climb();
 

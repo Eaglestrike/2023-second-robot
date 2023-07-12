@@ -17,7 +17,7 @@
 #include "Constants.h"
 
 Robot::Robot()
-    : m_lJoy{0}, m_rJoy{1},
+    : m_lJoy{InputConstants::LJOY_PORT}, m_rJoy{InputConstants::RJOY_PORT}, m_xbox{InputConstants::XBOX_PORT},
       m_swerveFr{SwerveConstants::FR_DRIVE_ID, SwerveConstants::FR_TURN_ID, SwerveConstants::FR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FR_INVERTED, SwerveConstants::FR_OFFSET},
       m_swerveBr{SwerveConstants::BR_DRIVE_ID, SwerveConstants::BR_TURN_ID, SwerveConstants::BR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BR_INVERTED, SwerveConstants::BR_OFFSET},
       m_swerveFl{SwerveConstants::FL_DRIVE_ID, SwerveConstants::FL_TURN_ID, SwerveConstants::FL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FL_INVERTED, SwerveConstants::FL_OFFSET},
@@ -54,6 +54,7 @@ void Robot::RobotInit()
 
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
+  m_climb.RobotInit();
 }
 
 /**
@@ -156,6 +157,18 @@ void Robot::TeleopPeriodic() {
   frc::SmartDashboard::PutString("pos:", m_pos.toString());
   frc::SmartDashboard::PutString("vel:", vel.toString());
   frc::SmartDashboard::PutString("setVel:", setVel.toString());
+
+  //climb
+  if (m_xbox.GetRawButtonPressed(ClimbConstants::EXTEND_BUTTON)){
+    m_climb.Extend();
+  }
+  if (m_xbox.GetRawButtonPressed(ClimbConstants::STOW_BUTTON)){
+    m_climb.Stow();
+  }
+  if (m_xbox.GetRawButtonPressed(ClimbConstants::LIFT_BUTTON)){
+    m_climb.Lift();
+  }
+  m_climb.TeleopPeriodic();
 }
 
 void Robot::DisabledInit() {}

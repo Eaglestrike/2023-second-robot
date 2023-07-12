@@ -15,6 +15,7 @@
 
 #include "SwerveModule.h"
 #include "SwerveControl.h"
+#include "Climb.h"
 #include "thirdparty/simplevectors.hpp"
 
 namespace vec = svector;
@@ -46,6 +47,8 @@ class Robot : public frc::TimedRobot {
   // inputs
   frc::Joystick m_lJoy;
   frc::Joystick m_rJoy;
+  frc::Joystick m_xbox;
+  // frc::Joystick m_buttonBoard;
 
   // IMU
   std::shared_ptr<AHRS> m_navx;
@@ -54,6 +57,9 @@ class Robot : public frc::TimedRobot {
   SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
   vec::Vector2D m_rFr, m_rBr, m_rFl, m_rBl;
   std::shared_ptr<SwerveControl> m_swerveController;
+
+  //climb
+  Climb m_climb;
 
   // temp odometry
   vec::Vector2D m_pos;

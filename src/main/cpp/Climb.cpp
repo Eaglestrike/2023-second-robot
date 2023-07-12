@@ -19,34 +19,32 @@ void Climb::updatePos(){
  m_currentPos = rad;
 }
 
-void Climb::Periodic() {
+void Climb::TeleopPeriodic() {
   updatePos();
-
+  double controllerOut, volts;
   switch (m_state) {
-    case State::STOWED:
-    case State::EXTENDED:
+    case STOWED:
+    case EXTENDED:
       m_motor.SetVoltage((units::volt_t)0);
       break;
-    case State::STOWING:
-      double controllerOut = m_regPID.Calculate(m_currentPos, ClimbConstants::STOWED_POS);
-      double volts = std::clamp(controllerOut, -ClimbConstants::EXTND_STOW_MAX_VOLTAGE, ClimbConstants::EXTND_STOW_MAX_VOLTAGE);
+    case STOWING:
+      controllerOut = m_regPID.Calculate(m_currentPos, ClimbConstants::STOWED_POS);
+      volts = std::clamp(controllerOut, -ClimbConstants::EXTND_STOW_MAX_VOLTAGE, ClimbConstants::EXTND_STOW_MAX_VOLTAGE);
       m_motor.SetVoltage((units::volt_t)volts);
       if (m_regPID.AtSetpoint())
         m_state = STOWED;
       break;
-    case State::EXTENDING:
-      double controllerOut = m_regPID.Calculate(m_currentPos, ClimbConstants::EXTENDED_POS);
-      double volts = std::clamp(controllerOut, -ClimbConstants::EXTND_STOW_MAX_VOLTAGE, ClimbConstants::EXTND_STOW_MAX_VOLTAGE);
+    case EXTENDING:
+      controllerOut = m_regPID.Calculate(m_currentPos, ClimbConstants::EXTENDED_POS);
+      volts = std::clamp(controllerOut, -ClimbConstants::EXTND_STOW_MAX_VOLTAGE, ClimbConstants::EXTND_STOW_MAX_VOLTAGE);
       m_motor.SetVoltage((units::volt_t)volts);
       if (m_regPID.AtSetpoint())
         m_state = EXTENDED;
       break;
-    case State::LIFTING:
-      double controllerOut = m_climbPID.Calculate(m_currentPos, ClimbConstants::LIFTED_POS);
-      double volts = std::clamp(controllerOut, -ClimbConstants::CLIMB_MAX_VOLTAGE, ClimbConstants::CLIMB_MAX_VOLTAGE);
+    case LIFTING:
+      controllerOut = m_climbPID.Calculate(m_currentPos, ClimbConstants::LIFTED_POS);
+      volts = std::clamp(controllerOut, -ClimbConstants::CLIMB_MAX_VOLTAGE, ClimbConstants::CLIMB_MAX_VOLTAGE);
       m_motor.SetVoltage((units::volt_t)volts);
-      // if (m_PID.AtSetpoint())
-      //   m_state = LIFTEDa;
       break;
   } 
 }
@@ -62,7 +60,6 @@ void Climb::Extend() {
 }
 
 void Climb::Lift() {
-  // if (m_state == State::LIFTED) return;
   changeState(State::LIFTING);
 }
 
@@ -72,10 +69,12 @@ void Climb::changeState(Climb::State newState) {
   ResetPIDs();
 }
 
-Climb::State Climb::getState() { return m_state; }
+Climb::State Climb::getState() {
+  return m_state; 
+}
 
 void Climb::ZeroEncoder(){
-    m_motor.SetSelectedSensorPosition(0);
+  m_motor.SetSelectedSensorPosition(0);
 }
 
 void Climb::ResetPIDs(){

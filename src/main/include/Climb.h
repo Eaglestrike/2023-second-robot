@@ -1,7 +1,6 @@
 #include <Constants.h>
 #include <ctre/Phoenix.h>
 #include <frc/controller/PIDController.h>
-
 #include <iostream>
 
 class Climb {
@@ -9,16 +8,15 @@ class Climb {
   enum State {
     STOWED,
     EXTENDED,
-
     STOWING,
     EXTENDING,
-    LIFTING, // did not include lifted bc if its at the lifted pos still needs to correct
+    LIFTING, // did not include lifted bc should always be correcting
   };
 
   Climb();
 
   void RobotInit();
-  void Periodic();
+  void TeleopPeriodic();
 
   void Stow();
   void Extend();

@@ -1,10 +1,10 @@
-#pragma once
-
-#include <cstddef>
-
 /**
  * A file of constants for the drivebase
  */
+
+#pragma once
+
+#include <cstddef>
 
 namespace SwerveConstants
 {

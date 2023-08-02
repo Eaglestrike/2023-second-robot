@@ -37,10 +37,10 @@ namespace SwerveConstants
   const bool BL_INVERTED = 0;
 
   // degrees, subtracted from reading
-  const double FR_OFFSET = -160.9;
-  const double BR_OFFSET = 6.0;
-  const double FL_OFFSET = -79.4;
-  const double BL_OFFSET = -67.5;
+  const double FR_OFFSET = 161.99;
+  const double BR_OFFSET = 5.2;
+  const double FL_OFFSET = -107.1;
+  const double BL_OFFSET = -109.96;
 
   const double TURN_P = 4.0;
   const double TURN_I = 0;

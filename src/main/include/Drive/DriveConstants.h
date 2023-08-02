@@ -16,33 +16,33 @@ namespace SwerveConstants
   // meters
   const double CENTER_TO_EDGE = 0.368;
 
-  const std::size_t FR_DRIVE_ID = 4;
-  const std::size_t BR_DRIVE_ID = 1;
-  const std::size_t FL_DRIVE_ID = 23;
-  const std::size_t BL_DRIVE_ID = 22;
+  const std::size_t FR_DRIVE_ID = 14;
+  const std::size_t BR_DRIVE_ID = 11;
+  const std::size_t FL_DRIVE_ID = 21;
+  const std::size_t BL_DRIVE_ID = 17;
 
-  const std::size_t FR_TURN_ID = 10;
-  const std::size_t BR_TURN_ID = 7;
-  const std::size_t FL_TURN_ID = 5;
-  const std::size_t BL_TURN_ID = 19;
+  const std::size_t FR_TURN_ID = 13;
+  const std::size_t BR_TURN_ID = 12;
+  const std::size_t FL_TURN_ID = 15;
+  const std::size_t BL_TURN_ID = 18;
 
-  const std::size_t FR_ENCODER_ID = 8;
-  const std::size_t BR_ENCODER_ID = 9;
-  const std::size_t FL_ENCODER_ID = 2;
-  const std::size_t BL_ENCODER_ID = 6;
+  const std::size_t FR_ENCODER_ID = 42;
+  const std::size_t BR_ENCODER_ID = 10;
+  const std::size_t FL_ENCODER_ID = 62;
+  const std::size_t BL_ENCODER_ID = 8;
 
   const bool FR_INVERTED = 0;
-  const bool BR_INVERTED = 1;
+  const bool BR_INVERTED = 0;
   const bool FL_INVERTED = 0;
-  const bool BL_INVERTED = 1;
+  const bool BL_INVERTED = 0;
 
-  // degrees
-  const double FR_OFFSET = 12.5;
-  const double BR_OFFSET = -148.7;
-  const double FL_OFFSET = 7.29;
-  const double BL_OFFSET = -83.7;
+  // degrees, subtracted from reading
+  const double FR_OFFSET = -160.9;
+  const double BR_OFFSET = 6.0;
+  const double FL_OFFSET = -79.4;
+  const double BL_OFFSET = -67.5;
 
-  const double TURN_P = 3.5;
+  const double TURN_P = 1.3;
   const double TURN_I = 0;
   const double TURN_D = 0;
 
@@ -50,7 +50,7 @@ namespace SwerveConstants
   const double ANG_CORRECT_I = 0;
   const double ANG_CORRECT_D = 0.1;
 
-  const double MAX_VOLTS = 12.0; 
+  const double MAX_VOLTS = 6.0; 
 }
 
 namespace OdometryConstants {

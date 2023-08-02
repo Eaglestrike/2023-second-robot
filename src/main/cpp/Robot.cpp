@@ -35,7 +35,7 @@ Robot::Robot()
   // navx
   try
   {
-    m_navx = std::make_shared<AHRS>(frc::SerialPort::kUSB);
+    m_navx = std::make_shared<AHRS>(frc::SerialPort::Port::kUSB);
   }
   catch (const std::exception &e)
   {

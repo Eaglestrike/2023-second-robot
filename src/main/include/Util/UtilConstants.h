@@ -1,6 +1,6 @@
 
 /**
- * A file of general constants for helper functions
+ * A file of constants for helper functions
  */
 
 #pragma once

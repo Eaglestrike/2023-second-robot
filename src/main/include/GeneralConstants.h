@@ -1,5 +1,5 @@
 /**
- * A file of constants
+ * A file of general constants
  */
 
 #pragma once

@@ -42,9 +42,9 @@ namespace SwerveConstants
   const double FL_OFFSET = -79.4;
   const double BL_OFFSET = -67.5;
 
-  const double TURN_P = 1.3;
+  const double TURN_P = 4.0;
   const double TURN_I = 0;
-  const double TURN_D = 0;
+  const double TURN_D = 0.2;
 
   const double ANG_CORRECT_P = 20; // ±20 is good number, if you find yourself changing this you're brwoning
   const double ANG_CORRECT_I = 0;

@@ -15,9 +15,11 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Drive/DriveConstants.h"
+#include "Controller/ControllerMap.h"
 
-Robot::Robot()
-    : m_lJoy{0}, m_rJoy{1},
+using namespace Actions;
+
+Robot::Robot():
       m_swerveFr{SwerveConstants::FR_DRIVE_ID, SwerveConstants::FR_TURN_ID, SwerveConstants::FR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FR_INVERTED, SwerveConstants::FR_OFFSET},
       m_swerveBr{SwerveConstants::BR_DRIVE_ID, SwerveConstants::BR_TURN_ID, SwerveConstants::BR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BR_INVERTED, SwerveConstants::BR_OFFSET},
       m_swerveFl{SwerveConstants::FL_DRIVE_ID, SwerveConstants::FL_TURN_ID, SwerveConstants::FL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FL_INVERTED, SwerveConstants::FL_OFFSET},
@@ -66,7 +68,7 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
-  if (m_lJoy.GetTrigger())
+  if (m_controller.get(ZERO_DRIVE_PID).boolVal)
   {
     double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
     double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
@@ -83,7 +85,7 @@ void Robot::RobotPeriodic()
     m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
   }
 
-  if (m_rJoy.GetTrigger())
+  if (m_controller.get(ZERO_YAW).boolVal)
   {
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection();
@@ -123,10 +125,10 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  double lx = m_lJoy.GetRawAxis(0);
-  double ly = -m_lJoy.GetRawAxis(1);
+  double lx = m_controller.get(SWERVE_STRAFEX).doubleVal;
+  double ly = m_controller.get(SWERVE_STRAFEY).doubleVal;
 
-  double rx = m_rJoy.GetRawAxis(0);
+  double rx = m_controller.get(SWERVE_ROTATION).doubleVal;
 
   double vx = std::clamp(ly, -1.0, 1.0) * 12.0;
   double vy = std::clamp(lx, -1.0, 1.0) * 12.0;

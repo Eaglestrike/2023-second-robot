@@ -1,4 +1,4 @@
-#include "SwerveModule.h"
+#include "Drive/SwerveModule.h"
 
 #include <algorithm>
 #include <cmath>
@@ -7,8 +7,8 @@
 #define M_PI 3.141592653589793238462643383279502884197169399
 #endif
 
-#include "Constants.h"
-#include "Mathutil.h"
+#include "Drive/DriveConstants.h"
+#include "Util/Mathutil.h"
 
 /**
  * Constructor
@@ -24,7 +24,7 @@
  * @param offset Offset, in DEGREES
  */
 SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool inverted, double offset)
-    : m_driveMotor{driveMotorId, "drivebase"}, m_angleMotor{angleMotorId, "drivebase"}, m_encoder{encoderId, "drivebase"}, m_controller{kP, kI, kD},
+    : m_driveMotor{driveMotorId, "Drivebase"}, m_angleMotor{angleMotorId, "Drivebase"}, m_encoder{encoderId, "Drivebase"}, m_controller{kP, kI, kD},
       m_inverted{inverted}, m_targetSpeed{0}, m_offset{offset}
 {
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);

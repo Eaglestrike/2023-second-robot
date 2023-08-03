@@ -14,7 +14,8 @@
 #include <fmt/core.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
-#include "Constants.h"
+#include "Drive/DriveConstants.h"
+#include "GeneralConstants.h"
 
 Robot::Robot()
     : m_lJoy{InputConstants::LJOY_PORT}, m_rJoy{InputConstants::RJOY_PORT}, m_xbox{InputConstants::XBOX_PORT},
@@ -35,7 +36,7 @@ Robot::Robot()
   // navx
   try
   {
-    m_navx = std::make_shared<AHRS>(frc::SerialPort::kUSB);
+    m_navx = std::make_shared<AHRS>(frc::SerialPort::Port::kUSB);
   }
   catch (const std::exception &e)
   {
@@ -159,13 +160,13 @@ void Robot::TeleopPeriodic() {
   frc::SmartDashboard::PutString("setVel:", setVel.toString());
 
   //climb
-  if (m_xbox.GetRawButtonPressed(ClimbConstants::EXTEND_BUTTON)){
+  if (m_xbox.GetRawButtonPressed(GeneralConstants::EXTEND_BUTTON)){
     m_climb.Extend();
   }
-  if (m_xbox.GetRawButtonPressed(ClimbConstants::STOW_BUTTON)){
+  if (m_xbox.GetRawButtonPressed(GeneralConstants::STOW_BUTTON)){
     m_climb.Stow();
   }
-  if (m_xbox.GetRawButtonPressed(ClimbConstants::LIFT_BUTTON)){
+  if (m_xbox.GetRawButtonPressed(GeneralConstants::LIFT_BUTTON)){
     m_climb.Lift();
   }
   m_climb.TeleopPeriodic();

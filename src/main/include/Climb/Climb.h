@@ -1,7 +1,10 @@
-#include <Constants.h>
+#pragma once
+
 #include <ctre/Phoenix.h>
 #include <frc/controller/PIDController.h>
 #include <iostream>
+
+#include "ClimbConstants.h"
 
 class Climb {
  public:

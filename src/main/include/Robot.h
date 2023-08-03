@@ -13,10 +13,10 @@
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
 
-#include "SwerveModule.h"
-#include "SwerveControl.h"
-#include "Climb.h"
-#include "thirdparty/simplevectors.hpp"
+#include "Drive/SwerveControl.h"
+#include "Drive/SwerveModule.h"
+#include "Climb/Climb.h"
+#include "Util/thirdparty/simplevectors.hpp"
 
 namespace vec = svector;
 

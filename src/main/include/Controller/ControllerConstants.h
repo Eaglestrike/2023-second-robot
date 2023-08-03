@@ -46,4 +46,6 @@ namespace ControllerConstants{
     const Button XBOX_B_BUTTON   = {XBOX, {BUTTON, 2}};
     const Button XBOX_X_BUTTON   = {XBOX, {BUTTON, 3}};
     const Button XBOX_Y_BUTTON   = {XBOX, {BUTTON, 4}};
+    const Button XBOX_L_BUMPER   = {XBOX, {BUTTON, 5}};
+    const Button XBOX_R_BUMPER   = {XBOX, {BUTTON, 6}};
 }

@@ -31,10 +31,11 @@ namespace SwerveConstants
   const std::size_t FL_ENCODER_ID = 62;
   const std::size_t BL_ENCODER_ID = 8;
 
-  const bool FR_INVERTED = 0;
-  const bool BR_INVERTED = 0;
-  const bool FL_INVERTED = 0;
-  const bool BL_INVERTED = 0;
+  //If the orientation of the motor and encoder are opposite, invert the motor's actions
+  const bool FR_INVERTED = true;
+  const bool BR_INVERTED = true;
+  const bool FL_INVERTED = true;
+  const bool BL_INVERTED = true;
 
   // degrees, subtracted from reading
   const double FR_OFFSET = 161.99;

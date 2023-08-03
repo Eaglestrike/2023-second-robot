@@ -20,7 +20,7 @@
  * @param kI i-value
  * @param kD d-value
  * @param maxVolts maximum volts
- * @param inverted inverted
+ * @param inverted if the motor is inverted
  * @param offset Offset, in DEGREES
  */
 SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool inverted, double offset)
@@ -44,12 +44,6 @@ vec::Vector2D SwerveModule::GetVelocity()
   double curAng = GetEncoderReading() * (M_PI / 180);
 
   auto resVec = vec::Vector2D{std::cos(curAng), std::sin(curAng)} * curMotorSpeed;
-
-  if (m_inverted)
-  {
-    return -resVec;
-  }
-
   return resVec;
 }
 
@@ -137,18 +131,11 @@ void SwerveModule::Periodic()
 
   // calculates PID from error
   double angleOutput = m_controller.Calculate(angVec.angle(), m_targetAngle.angle());
+  angleOutput *= m_inverted?-1.0:1.0; //If inverted, spin the motor in the opposite direction
   angleOutput = std::clamp(angleOutput, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
 
   // speed calculations
   double speed = 0;
-  if (m_flipped)
-  {
-    speed = m_inverted ? m_targetSpeed : -m_targetSpeed;
-  }
-  else
-  {
-    speed = m_inverted ? -m_targetSpeed : m_targetSpeed;
-  }
   speed = std::clamp(speed, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
 
   // set voltages to motor

@@ -21,7 +21,9 @@ class Controller{
 
         //Get Functions
         Output get(ControllerMapData::Action action);
+        double getRawAxis(ControllerMapData::Action action);
         double getDead(ControllerMapData::Action action, double deadbandVal = 0.1);
+        bool getPressed(ControllerMapData::Action action);
 
     private:
         //Maps Actions -> Buttons

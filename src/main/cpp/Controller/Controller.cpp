@@ -108,12 +108,40 @@ Controller::Output Controller::get(Action action){
 }
 
 /**
- * Gets the data from the controllers, based of an action key
+ * Gets the data from an axis
+ * 
+ * returns should always be in the [-1.0, 1.0] range
+ * 
+ * prints error if bad action and returns 0
+ * 
+ * @param action the action key for the date, reference is in ControllerMap.h
+ * @returns a double in the range [-1.0, 1.0] (not enforced)
+*/
+double Controller::getRawAxis(Action action){
+    Button button = actionMap_[action];
+    switch(button.data.type){
+        case AXIS:
+            return joysticks_[button.joystick]->GetRawAxis(button.data.id);
+        case BUTTON:
+        case TRIGGER_:
+            std::cout<<"Not applicable for Raw Axis: Action " << action << " call"<<std::endl;
+            break;
+        default:
+            std::cout<<"Bad Button Mapping for Action" << action << std::endl;
+    };
+    return 0.0;
+}
+
+/**
+ * Gets the data from an axis and applies a deadband
  * 
  * double returns should always be in the [-1.0, 1.0] range
  * 
+ * prints error if bad action and returns 0
+ * 
  * @param action the action key for the date, reference is in ControllerMap.h
- * @returns a union of double and bool, depending on whenever the button is an axis or button
+ * @param deadbandVal value range in which the output will be reduced to 0
+ * @returns a double in the range [-1.0, 1.0] (not enforced)
 */
 double Controller::getDead(Action action, double deadbandVal){
     Button button = actionMap_[action];
@@ -124,10 +152,37 @@ double Controller::getDead(Action action, double deadbandVal){
             return Deadband(raw, deadbandVal);
         case BUTTON:
         case TRIGGER_:
-            std::cout<<"Not applicable for deadband: Action " << action << " call"<<std::endl;
+            std::cout<<"Not applicable for Deadband: Action " << action << " call"<<std::endl;
             break;
         default:
             std::cout<<"Bad Button Mapping for Action" << action << std::endl;
     };
     return 0.0;
+}
+
+/**
+ * Gets if the action's button is pressed
+ * 
+ * double returns should always be in the [-1.0, 1.0] range
+ * 
+ * prints error if bad action and returns false
+ * 
+ * @param action the action key for the date, reference is in ControllerMap.h
+ * @returns a union of double and bool, depending on whenever the button is an axis or button
+*/
+bool Controller::getPressed(Action action){
+    Output o;
+    Button button = actionMap_[action];
+    switch(button.data.type){
+        case AXIS:
+            std::cout<<"Not applicable for getPressed: Action " << action << " call"<<std::endl;
+            break;
+        case BUTTON:
+            return joysticks_[button.joystick]->GetRawButtonPressed(button.data.id);
+        case TRIGGER_:
+            return joysticks_[button.joystick]->GetTriggerPressed();
+        default:
+            std::cout<<"Bad Button Mapping for Action"<< action << std::endl;
+    };
+    return false;
 }

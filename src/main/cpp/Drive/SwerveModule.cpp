@@ -117,17 +117,18 @@ void SwerveModule::Periodic()
   double ang = GetEncoderReading() * (M_PI / 180.0);
   vec::Vector2D angVec = {std::cos(ang), std::sin(ang)};
 
-  // check if module should be flipped
-  if (ShouldFlip(angVec, m_targetAngle))
-  {
-    m_flipped = !m_flipped;
-    m_controller.Reset(); //Reset because integral and derivative terms will behave wonky
-  }
-
   // flip angle if currently flipped
   if (m_flipped)
   {
     angVec = -angVec;
+  }
+
+  // check if module should be flipped
+  if (ShouldFlip(angVec, m_targetAngle))
+  {
+    m_flipped = !m_flipped;
+    angVec = -angVec;
+    m_controller.Reset(); //Reset because integral and derivative terms will behave wonky
   }
 
   // calculates PID from error
@@ -158,5 +159,5 @@ bool SwerveModule::ShouldFlip(vec::Vector2D curVec, vec::Vector2D targetVec)
   double angle1 = std::acos(std::clamp(
       dot(curVec, targetVec) / (magn(curVec) * magn(targetVec)), -1.0, 1.0));
 
-  return angle1 > M_PI;
+  return angle1 > M_PI/2.0;
 }

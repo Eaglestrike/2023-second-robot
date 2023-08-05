@@ -17,7 +17,10 @@
   "C_Cpp.default.configurationProvider": "vscode-wpilib",
   "files.associations": {
     "array": "cpp",
+<<<<<<< HEAD
     "iostream": "cpp",
+=======
+>>>>>>> solve-inversion
     "atomic": "cpp",
     "bit": "cpp",
     "*.tcc": "cpp",
@@ -70,6 +73,10 @@
     "initializer_list": "cpp",
     "iomanip": "cpp",
     "iosfwd": "cpp",
+<<<<<<< HEAD
+=======
+    "iostream": "cpp",
+>>>>>>> solve-inversion
     "istream": "cpp",
     "limits": "cpp",
     "mutex": "cpp",
@@ -86,7 +93,11 @@
     "cinttypes": "cpp",
     "typeindex": "cpp",
     "typeinfo": "cpp",
+<<<<<<< HEAD
     "variant": "cpp",
     "*.mac": "cpp"
+=======
+    "variant": "cpp"
+>>>>>>> solve-inversion
   }
 }

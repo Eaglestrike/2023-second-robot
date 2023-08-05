@@ -108,9 +108,9 @@ Controller::Output Controller::get(Action action){
 }
 
 /**
- * Gets the data from an axis
+ * Gets the data from an axis.
  * 
- * returns should always be in the [-1.0, 1.0] range
+ * returns should always be in the [-1.0, 1.0] range.
  * 
  * prints error if bad action and returns 0
  * 

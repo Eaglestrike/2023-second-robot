@@ -8,8 +8,9 @@ namespace ControllerConstants{
         XBOX,
         BUTTONBOARD
     };
-    const int NUM_JOYSTICKS = 2;
+    const int NUM_JOYSTICKS = 4;
     const int JOYSTICK_PORTS[] = {0, 1, 2, 3};
+
     const double DEFAULT_DEAD = 0.05;
 
     //Holds information of what to return: double or bool and what function to call

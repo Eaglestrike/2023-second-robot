@@ -68,7 +68,7 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
-  if (m_controller.get(ZERO_DRIVE_PID).boolVal)
+  if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
     double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
     double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
@@ -85,7 +85,7 @@ void Robot::RobotPeriodic()
     m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
   }
 
-  if (m_controller.get(ZERO_YAW).boolVal)
+  if (m_controller.getPressed(ZERO_YAW))
   {
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection();
@@ -128,7 +128,7 @@ void Robot::TeleopPeriodic() {
   double lx = m_controller.get(SWERVE_STRAFEX).doubleVal;
   double ly = m_controller.get(SWERVE_STRAFEY).doubleVal;
 
-  double rx = m_controller.get(SWERVE_ROTATION).doubleVal;
+  double rx = m_controller.getDead(SWERVE_ROTATION);
 
   double vx = std::clamp(ly, -1.0, 1.0) * 12.0;
   double vy = std::clamp(lx, -1.0, 1.0) * 12.0;
@@ -138,9 +138,6 @@ void Robot::TeleopPeriodic() {
   if (std::abs(lx) < 0.1 && std::abs(ly) < 0.1) {
     vx = 0;
     vy = 0;
-  }
-  if (std::abs(rx) < 0.1) {
-    w = 0;
   }
 
   double curYaw = m_navx->GetYaw();

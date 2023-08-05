@@ -20,10 +20,10 @@ class Controller{
         static inline double Deadband(double value, double deadbandVal = ControllerConstants::DEFAULT_DEAD);
 
         //Get Functions
-        Output get(ControllerMapData::Action action);
-        double getRawAxis(ControllerMapData::Action action);
-        double getDead(ControllerMapData::Action action, double deadbandVal = 0.1);
-        bool getPressed(ControllerMapData::Action action);
+        Output get(Actions::Action action);
+        double getRawAxis(Actions::Action action);
+        double getDead(Actions::Action action, double deadbandVal = 0.1);
+        bool getPressed(Actions::Action action);
 
     private:
         //Maps Actions -> Buttons

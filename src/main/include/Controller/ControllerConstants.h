@@ -6,9 +6,9 @@ namespace ControllerConstants{
         LJOY,
         RJOY,
         XBOX,
-        BUTTONBOARD
+        BUTTONBOARD,
+        NUM_JOYSTICKS //Counts the number of Joysticks since this is an enum
     };
-    const int NUM_JOYSTICKS = 4;
     const int JOYSTICK_PORTS[] = {0, 1, 2, 3};
 
     const double DEFAULT_DEAD = 0.05;

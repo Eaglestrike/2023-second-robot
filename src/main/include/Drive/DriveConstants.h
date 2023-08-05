@@ -38,20 +38,20 @@ namespace SwerveConstants
   const bool BL_INVERTED = true;
 
   // degrees, subtracted from reading
-  const double FR_OFFSET = 161.99;
-  const double BR_OFFSET = 5.2;
-  const double FL_OFFSET = -107.1;
-  const double BL_OFFSET = -109.96;
+  const double FR_OFFSET = -161.28; //18.72
+  const double BR_OFFSET = 6.50;
+  const double FL_OFFSET = 104.4;
+  const double BL_OFFSET = 108.95;
 
   const double TURN_P = 4.0;
   const double TURN_I = 0;
-  const double TURN_D = 0.2;
+  const double TURN_D = 0.0;
 
   const double ANG_CORRECT_P = 20; // ±20 is good number, if you find yourself changing this you're brwoning
   const double ANG_CORRECT_I = 0;
   const double ANG_CORRECT_D = 0.1;
 
-  const double MAX_VOLTS = 6.0; 
+  const double MAX_VOLTS = 12.0; 
 }
 
 namespace OdometryConstants {

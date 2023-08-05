@@ -15,10 +15,10 @@ namespace ControllerConstants{
     //Holds information of what to return: double or bool and what function to call
     enum ButtonType{
         NO_BUTTON = -1,
-        AXIS,
-        BUTTON,
-        TRIGGER_, //Added _ to end bc the naming schemes of ButtonData below
-        POV
+        AXIS_BUTTON, //Axis, which returns a double not boolean
+        BUTTON_BUTTON, //Normal "Push down to activate" button
+        TRIGGER_BUTTON, //Trigger on a joystick
+        POV_BUTTON //TODO: NOT IMPLEMENTED
     };
 
     struct ButtonData{
@@ -26,9 +26,9 @@ namespace ControllerConstants{
         int id;
     };
     //Button data for generic joystics
-    const ButtonData TRIGGER = {ButtonType::TRIGGER_, -1};
-    const ButtonData X_AXIS = {ButtonType::AXIS, 0};
-    const ButtonData Y_AXIS = {ButtonType::AXIS, 1};
+    const ButtonData TRIGGER = {ButtonType::TRIGGER_BUTTON, -1};
+    const ButtonData X_AXIS = {ButtonType::AXIS_BUTTON, 0};
+    const ButtonData Y_AXIS = {ButtonType::AXIS_BUTTON, 1};
 
     //Default is None
     struct Button{
@@ -36,16 +36,16 @@ namespace ControllerConstants{
         ButtonData data = {NO_BUTTON, -1};
     };
 
-    const Button XBOX_LJOY_X     = {XBOX, {AXIS,   0}};
-    const Button XBOX_LJOY_Y     = {XBOX, {AXIS,   1}};
-    const Button XBOX_LTRIGGER   = {XBOX, {AXIS,   2}};
-    const Button XBOX_RTRIGGER   = {XBOX, {AXIS,   3}};
-    const Button XBOX_RJOY_X     = {XBOX, {AXIS,   4}};
-    const Button XBOX_RJOY_Y     = {XBOX, {AXIS,   5}};
-    const Button XBOX_A_BUTTON   = {XBOX, {BUTTON, 1}};
-    const Button XBOX_B_BUTTON   = {XBOX, {BUTTON, 2}};
-    const Button XBOX_X_BUTTON   = {XBOX, {BUTTON, 3}};
-    const Button XBOX_Y_BUTTON   = {XBOX, {BUTTON, 4}};
-    const Button XBOX_L_BUMPER   = {XBOX, {BUTTON, 5}};
-    const Button XBOX_R_BUMPER   = {XBOX, {BUTTON, 6}};
+    const Button XBOX_LJOY_X     = {XBOX, {AXIS_BUTTON,   0}};
+    const Button XBOX_LJOY_Y     = {XBOX, {AXIS_BUTTON,   1}};
+    const Button XBOX_LTRIGGER   = {XBOX, {AXIS_BUTTON,   2}};
+    const Button XBOX_RTRIGGER   = {XBOX, {AXIS_BUTTON,   3}};
+    const Button XBOX_RJOY_X     = {XBOX, {AXIS_BUTTON,   4}};
+    const Button XBOX_RJOY_Y     = {XBOX, {AXIS_BUTTON,   5}};
+    const Button XBOX_A_BUTTON   = {XBOX, {BUTTON_BUTTON, 1}};
+    const Button XBOX_B_BUTTON   = {XBOX, {BUTTON_BUTTON, 2}};
+    const Button XBOX_X_BUTTON   = {XBOX, {BUTTON_BUTTON, 3}};
+    const Button XBOX_Y_BUTTON   = {XBOX, {BUTTON_BUTTON, 4}};
+    const Button XBOX_L_BUMPER   = {XBOX, {BUTTON_BUTTON, 5}};
+    const Button XBOX_R_BUMPER   = {XBOX, {BUTTON_BUTTON, 6}};
 }

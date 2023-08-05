@@ -92,13 +92,13 @@ Controller::Output Controller::get(Action action){
     Output o;
     Button button = actionMap_[action];
     switch(button.data.type){
-        case AXIS:
+        case AXIS_BUTTON:
             o.doubleVal = joysticks_[button.joystick]->GetRawAxis(button.data.id);
             break;
-        case BUTTON:
+        case BUTTON_BUTTON:
             o.boolVal = joysticks_[button.joystick]->GetRawButtonPressed(button.data.id);
             break;
-        case TRIGGER_:
+        case TRIGGER_BUTTON:
             o.boolVal = joysticks_[button.joystick]->GetTriggerPressed();
             break;
         default:
@@ -120,10 +120,10 @@ Controller::Output Controller::get(Action action){
 double Controller::getRawAxis(Action action){
     Button button = actionMap_[action];
     switch(button.data.type){
-        case AXIS:
+        case AXIS_BUTTON:
             return joysticks_[button.joystick]->GetRawAxis(button.data.id);
-        case BUTTON:
-        case TRIGGER_:
+        case BUTTON_BUTTON:
+        case TRIGGER_BUTTON:
             std::cout<<"Not applicable for Raw Axis: Action " << action << " call"<<std::endl;
             break;
         default:
@@ -147,11 +147,11 @@ double Controller::getDead(Action action, double deadbandVal){
     Button button = actionMap_[action];
     double raw;
     switch(button.data.type){
-        case AXIS:
+        case AXIS_BUTTON:
             raw = joysticks_[button.joystick]->GetRawAxis(button.data.id);
             return Deadband(raw, deadbandVal);
-        case BUTTON:
-        case TRIGGER_:
+        case BUTTON_BUTTON:
+        case TRIGGER_BUTTON:
             std::cout<<"Not applicable for Deadband: Action " << action << " call"<<std::endl;
             break;
         default:
@@ -171,15 +171,14 @@ double Controller::getDead(Action action, double deadbandVal){
  * @returns a union of double and bool, depending on whenever the button is an axis or button
 */
 bool Controller::getPressed(Action action){
-    Output o;
     Button button = actionMap_[action];
     switch(button.data.type){
-        case AXIS:
+        case AXIS_BUTTON:
             std::cout<<"Not applicable for getPressed: Action " << action << " call"<<std::endl;
             break;
-        case BUTTON:
+        case BUTTON_BUTTON:
             return joysticks_[button.joystick]->GetRawButtonPressed(button.data.id);
-        case TRIGGER_:
+        case TRIGGER_BUTTON:
             return joysticks_[button.joystick]->GetTriggerPressed();
         default:
             std::cout<<"Bad Button Mapping for Action"<< action << std::endl;

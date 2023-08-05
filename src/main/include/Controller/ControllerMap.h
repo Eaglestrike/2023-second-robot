@@ -13,7 +13,7 @@ namespace Actions{
         SWERVE_ROTATION,
         ZERO_DRIVE_PID,
         ZERO_YAW,
-        ACTION_COUNT //Just numbers the number of actions, as it is at the end of a enum
+        ACTION_COUNT //Just the number of actions, as it is at the end of a enum
     };
 }
 
@@ -26,11 +26,9 @@ namespace ControllerMapData{
         Action action;
     };
 
-
     //Maps Buttons -> Actions
     //Buttons are structs in the form of {Joystick, ButtonData}
     //There are already some named ButtonData and Buttons
-    const Action NONE = Action::NONE;
     const std::vector<ControlMapElement> ButtonMap = {
         {{LJOY, X_AXIS},        SWERVE_STRAFEX},
         {{LJOY, Y_AXIS},        SWERVE_STRAFEY},

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <utility>
+
 namespace ControllerConstants{
     enum Joysticks{
         NO_JOYSTICK = -1,
@@ -9,7 +12,15 @@ namespace ControllerConstants{
         BUTTONBOARD,
         NUM_JOYSTICKS //Counts the number of Joysticks since this is an enum
     };
-    const int JOYSTICK_PORTS[] = {0, 1, 2, 3};
+
+    typedef std::pair<Joysticks, int> JoystickPortMap;
+    /// maps the joysticks to their ports
+    const std::vector<JoystickPortMap> JOYSTICK_PORTS = {
+        {LJOY, 0},
+        {RJOY, 1},
+        {XBOX, 2},
+        {BUTTONBOARD, 3}
+    };
 
     const double DEFAULT_DEAD = 0.05;
 

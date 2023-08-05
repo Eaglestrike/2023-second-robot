@@ -10,8 +10,20 @@ using namespace ControllerConstants;
 */
 Controller::Controller(){
     //Initialize Joysticks
+    for(JoystickPortMap map: JOYSTICK_PORTS){
+        int joystickID = map.first;
+        if( (joystickID < 0) || (joystickID >= NUM_JOYSTICKS) ){ // If the joystick id is out of bounds
+            std::cout<<"Bad joystick id "<<joystickID<<std::endl;
+        }
+        else{
+            joysticks_[joystickID] = new frc::Joystick(map.second);
+        }
+    }
+    //check if any joysticks are nullptr
     for(int i = 0; i<NUM_JOYSTICKS; i++){
-        joysticks_[i] = new frc::Joystick(JOYSTICK_PORTS[i]);
+        if(joysticks_[i]){
+            std::cout<<"No joystick map for id " << i<< std::endl;
+        }
     }
 
     //Initialize the mapping from Actions -> Buttons 

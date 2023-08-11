@@ -44,7 +44,8 @@ vec::Vector2D SwerveModule::GetVelocity()
   double curAng = GetEncoderReading() * (M_PI / 180);
 
   auto resVec = vec::Vector2D{std::cos(curAng), std::sin(curAng)} * curMotorSpeed;
-  return resVec;
+
+  return m_inverted ? -resVec : resVec;
 }
 
 /**
@@ -128,16 +129,23 @@ void SwerveModule::Periodic()
   {
     m_flipped = !m_flipped;
     angVec = -angVec;
-    m_controller.Reset(); //Reset because integral and derivative terms will behave wonky
+    m_controller.Reset(); // Reset because integral and derivative terms will behave wonky
   }
 
   // calculates PID from error
   double angleOutput = m_controller.Calculate(angVec.angle(), m_targetAngle.angle());
-  angleOutput *= m_inverted?-1.0:1.0; //If inverted, spin the turn motor in the opposite direction to the encoder PID
   angleOutput = std::clamp(angleOutput, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
 
   // speed calculations
-  double speed = m_flipped?-m_targetSpeed:m_targetSpeed; //if flipped, spin drive motor in opposite direction
+  double speed = 0;
+  if (m_flipped)
+  {
+    speed = m_inverted ? m_targetSpeed : -m_targetSpeed;
+  }
+  else
+  {
+    speed = m_inverted ? -m_targetSpeed : m_targetSpeed;
+  }
   speed = std::clamp(speed, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
 
   // set voltages to motor
@@ -155,9 +163,15 @@ void SwerveModule::Periodic()
  */
 bool SwerveModule::ShouldFlip(vec::Vector2D curVec, vec::Vector2D targetVec)
 {
+  vec::Vector2D curNeg = -curVec;
+
   // positive angle
   double angle1 = std::acos(std::clamp(
       dot(curVec, targetVec) / (magn(curVec) * magn(targetVec)), -1.0, 1.0));
 
-  return angle1 > M_PI/2.0;
+  // negative angle
+  double angle2 = std::acos(std::clamp(
+      dot(curNeg, targetVec) / (magn(curNeg) * magn(targetVec)), -1.0, 1.0));
+
+  return angle2 < angle1;
 }

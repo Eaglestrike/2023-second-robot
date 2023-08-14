@@ -26,7 +26,7 @@
  */
 SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, double offset)
     : m_driveMotor{driveMotorId, "Drivebase"}, m_angleMotor{angleMotorId, "Drivebase"}, m_encoder{encoderId, "Drivebase"}, m_controller{kP, kI, kD},
-      m_driveInverted{driveInverted}, m_encoderInverted{encoderInverted}, m_flipped{false}, m_targetSpeed{0}, m_offset{offset}
+      m_flipped{false}, m_driveInverted{driveInverted}, m_encoderInverted{encoderInverted}, m_targetSpeed{0}, m_offset{offset}
 {
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);
   // m_encoder.ConfigMagnetOffset(offset);

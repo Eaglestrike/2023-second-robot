@@ -20,12 +20,13 @@
  * @param kI i-value
  * @param kD d-value
  * @param maxVolts maximum volts
- * @param inverted if the motor is inverted
+ * @param driveInverted if the drive motor is inverted (at angle = 0, positive votlage = negative movement)
+ * @param encoderInverted // if encoder direction does not match with angle motor direction (positive angle voltage = negative encoder direction)
  * @param offset Offset, in DEGREES
  */
-SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool inverted, double offset)
+SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, double offset)
     : m_driveMotor{driveMotorId, "Drivebase"}, m_angleMotor{angleMotorId, "Drivebase"}, m_encoder{encoderId, "Drivebase"}, m_controller{kP, kI, kD},
-      m_inverted{inverted}, m_flipped{false}, m_targetSpeed{0}, m_offset{offset}
+      m_driveInverted{driveInverted}, m_encoderInverted{encoderInverted}, m_flipped{false}, m_targetSpeed{0}, m_offset{offset}
 {
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);
   // m_encoder.ConfigMagnetOffset(offset);
@@ -45,7 +46,7 @@ vec::Vector2D SwerveModule::GetVelocity()
 
   auto resVec = vec::Vector2D{std::cos(curAng), std::sin(curAng)} * curMotorSpeed;
 
-  return m_inverted ? -resVec : resVec;
+  return m_driveInverted ? -resVec : resVec;
 }
 
 /**
@@ -136,15 +137,19 @@ void SwerveModule::Periodic()
   double angleOutput = m_controller.Calculate(angVec.angle(), m_targetAngle.angle());
   angleOutput = std::clamp(angleOutput, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
 
+  if (m_encoderInverted) {
+    angleOutput = -angleOutput;
+  }
+
   // speed calculations
   double speed = 0;
   if (m_flipped)
   {
-    speed = m_inverted ? m_targetSpeed : -m_targetSpeed;
+    speed = m_driveInverted ? m_targetSpeed : -m_targetSpeed;
   }
   else
   {
-    speed = m_inverted ? -m_targetSpeed : m_targetSpeed;
+    speed = m_driveInverted ? -m_targetSpeed : m_targetSpeed;
   }
   speed = std::clamp(speed, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
 

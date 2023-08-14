@@ -12,7 +12,7 @@ namespace vec = svector; //!< Alias to vector namespace
 */
 class SwerveModule {
 public:
-  SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool inverted, double offset);
+  SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, double offset);
 
   double GetEncoderReading();
   vec::Vector2D GetVelocity();
@@ -33,7 +33,8 @@ private:
   frc2::PIDController m_controller;
 
   bool m_flipped;
-  bool m_inverted;
+  bool m_driveInverted; // if the drive motor is inverted (at angle = 0, positive voltage = negative movement)
+  bool m_encoderInverted; // if encoder direction does not match with angle motor direction (positive angle voltage = negative encoder direction)
   vec::Vector2D m_targetAngle;
   double m_targetSpeed;
   double m_offset;

@@ -31,17 +31,23 @@ namespace SwerveConstants
   const std::size_t FL_ENCODER_ID = 62;
   const std::size_t BL_ENCODER_ID = 8;
 
-  // If the orientation of the motor and encoder are opposite, invert the motor's actions
-  const bool FR_INVERTED = true;
-  const bool BR_INVERTED = true;
-  const bool FL_INVERTED = true;
-  const bool BL_INVERTED = true;
+  // If positive drive motor does not move swerve module forward when angle is 0
+  const bool FR_DRIVE_INVERTED = false;
+  const bool BR_DRIVE_INVERTED = false;
+  const bool FL_DRIVE_INVERTED = false;
+  const bool BL_DRIVE_INVERTED = false;
 
-  // if encoder positive does not match voltage positive
-  const bool FR_ENCODER_INVERTED = true;
-  const bool BR_ENCODER_INVERTED = true;
-  const bool FL_ENCODER_INVERTED = true;
-  const bool BL_ENCODER_INVERTED = true;
+  // if positive encoder != CCW movement
+  const bool FR_ENCODER_INVERTED = false;
+  const bool BR_ENCODER_INVERTED = false;
+  const bool FL_ENCODER_INVERTED = false;
+  const bool BL_ENCODER_INVERTED = false;
+
+  // if positive angle motor != CCW movement
+  const bool FR_ANG_INVERTED = true;
+  const bool BR_ANG_INVERTED = true;
+  const bool FL_ANG_INVERTED = true;
+  const bool BL_ANG_INVERTED = true;
 
   // degrees, subtracted from reading
   const double FR_OFFSET = -161.28; //18.72

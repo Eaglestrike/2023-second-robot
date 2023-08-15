@@ -21,12 +21,13 @@
  * @param kD d-value
  * @param maxVolts maximum volts
  * @param driveInverted if the drive motor is inverted (at angle = 0, positive votlage = negative movement)
- * @param encoderInverted // if encoder direction does not match with angle motor direction (positive angle voltage = negative encoder direction)
+ * @param encoderInverted if positive encoder values = clockwise when robot is upright
+ * @param angMotorInverted if positive angle motor voltage = clockwise when robot is upright
  * @param offset Offset, in DEGREES
  */
-SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, double offset)
+SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, bool angMotorInverted, double offset)
     : m_driveMotor{driveMotorId, "Drivebase"}, m_angleMotor{angleMotorId, "Drivebase"}, m_encoder{encoderId, "Drivebase"}, m_controller{kP, kI, kD},
-      m_flipped{false}, m_driveInverted{driveInverted}, m_encoderInverted{encoderInverted}, m_targetSpeed{0}, m_offset{offset}
+      m_flipped{false}, m_driveInverted{driveInverted}, m_encoderInverted{encoderInverted}, m_angMotorInverted{angMotorInverted}, m_targetSpeed{0}, m_offset{offset}
 {
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);
   // m_encoder.ConfigMagnetOffset(offset);
@@ -56,7 +57,13 @@ vec::Vector2D SwerveModule::GetVelocity()
  */
 double SwerveModule::GetEncoderReading()
 {
-  return m_encoder.GetAbsolutePosition() - m_offset;
+  double val = m_encoder.GetAbsolutePosition() - m_offset;
+
+  if (m_encoderInverted) {
+    val = -val;
+  }
+
+  return val;
 }
 
 /**
@@ -137,7 +144,8 @@ void SwerveModule::Periodic()
   double angleOutput = m_controller.Calculate(angVec.angle(), m_targetAngle.angle());
   angleOutput = std::clamp(angleOutput, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
 
-  if (m_encoderInverted) {
+  // make sure positive angle motor voltage = CCW
+  if (m_angMotorInverted) {
     angleOutput = -angleOutput;
   }
 

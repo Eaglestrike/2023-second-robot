@@ -20,10 +20,10 @@
 using namespace Actions;
 
 Robot::Robot():
-      m_swerveFr{SwerveConstants::FR_DRIVE_ID, SwerveConstants::FR_TURN_ID, SwerveConstants::FR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FR_INVERTED, SwerveConstants::FR_ENCODER_INVERTED, SwerveConstants::FR_OFFSET},
-      m_swerveBr{SwerveConstants::BR_DRIVE_ID, SwerveConstants::BR_TURN_ID, SwerveConstants::BR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BR_INVERTED, SwerveConstants::BR_ENCODER_INVERTED, SwerveConstants::BR_OFFSET},
-      m_swerveFl{SwerveConstants::FL_DRIVE_ID, SwerveConstants::FL_TURN_ID, SwerveConstants::FL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FL_INVERTED, SwerveConstants::FL_ENCODER_INVERTED, SwerveConstants::FL_OFFSET},
-      m_swerveBl{SwerveConstants::BL_DRIVE_ID, SwerveConstants::BL_TURN_ID, SwerveConstants::BL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BL_INVERTED, SwerveConstants::BL_ENCODER_INVERTED, SwerveConstants::BL_OFFSET},
+      m_swerveFr{SwerveConstants::FR_DRIVE_ID, SwerveConstants::FR_TURN_ID, SwerveConstants::FR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FR_DRIVE_INVERTED, SwerveConstants::FR_ENCODER_INVERTED, SwerveConstants::FR_ANG_INVERTED, SwerveConstants::FR_OFFSET},
+      m_swerveBr{SwerveConstants::BR_DRIVE_ID, SwerveConstants::BR_TURN_ID, SwerveConstants::BR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BR_DRIVE_INVERTED, SwerveConstants::BR_ENCODER_INVERTED, SwerveConstants::BR_ANG_INVERTED, SwerveConstants::BR_OFFSET},
+      m_swerveFl{SwerveConstants::FL_DRIVE_ID, SwerveConstants::FL_TURN_ID, SwerveConstants::FL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FL_DRIVE_INVERTED, SwerveConstants::FL_ENCODER_INVERTED, SwerveConstants::FL_ANG_INVERTED, SwerveConstants::FL_OFFSET},
+      m_swerveBl{SwerveConstants::BL_DRIVE_ID, SwerveConstants::BL_TURN_ID, SwerveConstants::BL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BL_DRIVE_INVERTED, SwerveConstants::BL_ENCODER_INVERTED, SwerveConstants::BL_ANG_INVERTED, SwerveConstants::BL_OFFSET},
       m_rFr{SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
       m_rBr{-SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
       m_rFl{SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE},

@@ -125,13 +125,13 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  double lx = m_controller.get(SWERVE_STRAFEX).doubleVal;
-  double ly = m_controller.get(SWERVE_STRAFEY).doubleVal;
+  double lx = m_controller.getRawAxis(SWERVE_STRAFEX);
+  double ly = m_controller.getRawAxis(SWERVE_STRAFEY);
 
   double rx = m_controller.getDead(SWERVE_ROTATION);
 
-  double vx = std::clamp(ly, -1.0, 1.0) * 12.0;
-  double vy = std::clamp(lx, -1.0, 1.0) * 12.0;
+  double vx = std::clamp(lx, -1.0, 1.0) * 12.0;
+  double vy = std::clamp(ly, -1.0, 1.0) * 12.0;
   double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
 
   // dead zones
@@ -143,7 +143,10 @@ void Robot::TeleopPeriodic() {
   double curYaw = m_navx->GetYaw();
   curYaw = curYaw * (M_PI / 180);
 
-  vec::Vector2D setVel = {vx, -vy};
+  // TODO delete line below
+  curYaw = 0;
+
+  vec::Vector2D setVel = {-vy, -vx};
   m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.02);
 
   m_swerveController->Periodic();
@@ -155,6 +158,7 @@ void Robot::TeleopPeriodic() {
   frc::SmartDashboard::PutString("pos:", m_pos.toString());
   frc::SmartDashboard::PutString("vel:", vel.toString());
   frc::SmartDashboard::PutString("setVel:", setVel.toString());
+  frc::SmartDashboard::PutNumber("setAngVel:", w);
 }
 
 void Robot::DisabledInit() {}

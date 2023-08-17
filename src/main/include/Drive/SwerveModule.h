@@ -14,7 +14,8 @@ class SwerveModule {
 public:
   SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, bool angMotorInverted, double offset);
 
-  double GetEncoderReading();
+  double GetCorrectedEncoderReading();
+  double GetRawEncoderReading();
   vec::Vector2D GetVelocity();
 
   void SetVector(vec::Vector2D vec);

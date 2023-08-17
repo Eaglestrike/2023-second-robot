@@ -43,7 +43,7 @@ vec::Vector2D SwerveModule::GetVelocity()
 {
   //                                   (x ticks / 1 100ms) * (10 100ms / 1 s) * (2π motor radians / TALON_FX_COUNTS_PER_REV ticks) * (1 wheel radian / WHEEL_GEAR_RATIO motor radians) * (WHEEL_RADIUS m / 1 wheel radian)
   double curMotorSpeed = m_driveMotor.GetSelectedSensorVelocity() * 10.0 * (2.0 * M_PI / SwerveConstants::TALON_FX_COUNTS_PER_REV) * (1 / SwerveConstants::WHEEL_GEAR_RATIO) * SwerveConstants::WHEEL_RADIUS;
-  double curAng = GetEncoderReading() * (M_PI / 180);
+  double curAng = GetCorrectedEncoderReading() * (M_PI / 180);
 
   auto resVec = vec::Vector2D{std::cos(curAng), std::sin(curAng)} * curMotorSpeed;
 
@@ -51,11 +51,11 @@ vec::Vector2D SwerveModule::GetVelocity()
 }
 
 /**
- * Gets angle encoder reading
+ * Gets corrected angle encoder reading, after applying offset and encoder inversion
  *
  * @returns angle encoder reading, in degrees
  */
-double SwerveModule::GetEncoderReading()
+double SwerveModule::GetCorrectedEncoderReading()
 {
   double val = m_encoder.GetAbsolutePosition() - m_offset;
 
@@ -63,6 +63,16 @@ double SwerveModule::GetEncoderReading()
     val = -val;
   }
 
+  return val;
+}
+
+/**
+ * Gets raw angle encoder reading
+ * 
+ * @returns Raw encoder reading
+ */
+double SwerveModule::GetRawEncoderReading() {
+  double val = m_encoder.GetAbsolutePosition();
   return val;
 }
 
@@ -123,7 +133,8 @@ void SwerveModule::SetPID(double kP, double kI, double kD)
 void SwerveModule::Periodic()
 {
   // get current angle
-  double ang = GetEncoderReading() * (M_PI / 180.0);
+  double correctedEncoderReading = GetCorrectedEncoderReading();
+  double ang = correctedEncoderReading * (M_PI / 180.0);
   vec::Vector2D angVec = {std::cos(ang), std::sin(ang)};
 
   // flip angle if currently flipped

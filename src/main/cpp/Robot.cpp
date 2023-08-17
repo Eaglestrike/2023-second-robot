@@ -92,10 +92,10 @@ void Robot::RobotPeriodic()
     m_pos = {0, 0};
   }
 
-  frc::SmartDashboard::PutNumber("fl encoder", m_swerveFl.GetEncoderReading());
-  frc::SmartDashboard::PutNumber("fr encoder", m_swerveFr.GetEncoderReading());
-  frc::SmartDashboard::PutNumber("bl encoder", m_swerveBl.GetEncoderReading());
-  frc::SmartDashboard::PutNumber("br encoder", m_swerveBr.GetEncoderReading());
+  frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
+  frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
+  frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
+  frc::SmartDashboard::PutNumber("br raw encoder", m_swerveBr.GetRawEncoderReading());
 
   frc::SmartDashboard::PutString("fl velocity", m_swerveFl.GetVelocity().toString());
   frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());

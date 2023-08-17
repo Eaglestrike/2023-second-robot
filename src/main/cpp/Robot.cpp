@@ -128,7 +128,7 @@ void Robot::TeleopPeriodic() {
   double lx = m_controller.getRawAxis(SWERVE_STRAFEX);
   double ly = m_controller.getRawAxis(SWERVE_STRAFEY);
 
-  double rx = m_controller.getDead(SWERVE_ROTATION);
+  double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION);
 
   double vx = std::clamp(lx, -1.0, 1.0) * 12.0;
   double vy = std::clamp(ly, -1.0, 1.0) * 12.0;

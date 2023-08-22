@@ -63,3 +63,13 @@ namespace OdometryConstants {
   const double MEASURE_STD_DEV = 0.1;
   const double CAMERA_TRUST_K = -10.0;
 }
+
+namespace ElevatorConstants {
+  const double MOTOR_VOLTAGE = 1.0;
+
+  // m/s
+  const double MAX_ELEVATOR_VELOCITY = 4.20116;
+
+  // m
+  const double MAX_ELEVATOR_EXTENSION = 0.5588;
+}

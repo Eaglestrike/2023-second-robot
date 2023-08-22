@@ -1,4 +1,4 @@
-#include "SwerveModule.h"
+#include "Drive/SwerveModule.h"
 
 #include <algorithm>
 #include <cmath>
@@ -7,8 +7,8 @@
 #define M_PI 3.141592653589793238462643383279502884197169399
 #endif
 
-#include "Constants.h"
-#include "Utils.h"
+#include "Drive/DriveConstants.h"
+#include "Util/Mathutil.h"
 
 /**
  * Constructor
@@ -20,12 +20,14 @@
  * @param kI i-value
  * @param kD d-value
  * @param maxVolts maximum volts
- * @param inverted inverted
+ * @param driveInverted if the drive motor is inverted (at angle = 0, positive votlage = negative movement)
+ * @param encoderInverted if positive encoder values = clockwise when robot is upright
+ * @param angMotorInverted if positive angle motor voltage = clockwise when robot is upright
  * @param offset Offset, in DEGREES
  */
-SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool inverted, double offset)
-    : m_driveMotor{driveMotorId, "drivebase"}, m_angleMotor{angleMotorId, "drivebase"}, m_encoder{encoderId, "drivebase"}, m_controller{kP, kI, kD},
-      m_inverted{inverted}, m_targetSpeed{0}, m_offset{offset}
+SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, bool angMotorInverted, double offset)
+    : m_driveMotor{driveMotorId, "Drivebase"}, m_angleMotor{angleMotorId, "Drivebase"}, m_encoder{encoderId, "Drivebase"}, m_controller{kP, kI, kD},
+      m_flipped{false}, m_driveInverted{driveInverted}, m_encoderInverted{encoderInverted}, m_angMotorInverted{angMotorInverted}, m_targetSpeed{0}, m_offset{offset}
 {
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);
   // m_encoder.ConfigMagnetOffset(offset);
@@ -41,26 +43,37 @@ vec::Vector2D SwerveModule::GetVelocity()
 {
   //                                   (x ticks / 1 100ms) * (10 100ms / 1 s) * (2π motor radians / TALON_FX_COUNTS_PER_REV ticks) * (1 wheel radian / WHEEL_GEAR_RATIO motor radians) * (WHEEL_RADIUS m / 1 wheel radian)
   double curMotorSpeed = m_driveMotor.GetSelectedSensorVelocity() * 10.0 * (2.0 * M_PI / SwerveConstants::TALON_FX_COUNTS_PER_REV) * (1 / SwerveConstants::WHEEL_GEAR_RATIO) * SwerveConstants::WHEEL_RADIUS;
-  double curAng = GetEncoderReading() * (M_PI / 180);
+  double curAng = GetCorrectedEncoderReading() * (M_PI / 180);
 
   auto resVec = vec::Vector2D{std::cos(curAng), std::sin(curAng)} * curMotorSpeed;
 
-  if (m_inverted)
-  {
-    return -resVec;
-  }
-
-  return resVec;
+  return m_driveInverted ? -resVec : resVec;
 }
 
 /**
- * Gets angle encoder reading
+ * Gets corrected angle encoder reading, after applying offset and encoder inversion
  *
  * @returns angle encoder reading, in degrees
  */
-double SwerveModule::GetEncoderReading()
+double SwerveModule::GetCorrectedEncoderReading()
 {
-  return m_encoder.GetAbsolutePosition() - m_offset;
+  double val = m_encoder.GetAbsolutePosition() - m_offset;
+
+  if (m_encoderInverted) {
+    val = -val;
+  }
+
+  return val;
+}
+
+/**
+ * Gets raw angle encoder reading
+ * 
+ * @returns Raw encoder reading
+ */
+double SwerveModule::GetRawEncoderReading() {
+  double val = m_encoder.GetAbsolutePosition();
+  return val;
 }
 
 /**
@@ -120,7 +133,8 @@ void SwerveModule::SetPID(double kP, double kI, double kD)
 void SwerveModule::Periodic()
 {
   // get current angle
-  double ang = GetEncoderReading() * (M_PI / 180);
+  double correctedEncoderReading = GetCorrectedEncoderReading();
+  double ang = correctedEncoderReading * (M_PI / 180.0);
   vec::Vector2D angVec = {std::cos(ang), std::sin(ang)};
 
   // flip angle if currently flipped
@@ -133,21 +147,28 @@ void SwerveModule::Periodic()
   if (ShouldFlip(angVec, m_targetAngle))
   {
     m_flipped = !m_flipped;
+    angVec = -angVec;
+    m_controller.Reset(); // Reset because integral and derivative terms will behave wonky
   }
 
   // calculates PID from error
   double angleOutput = m_controller.Calculate(angVec.angle(), m_targetAngle.angle());
   angleOutput = std::clamp(angleOutput, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
 
+  // make sure positive angle motor voltage = CCW
+  if (m_angMotorInverted) {
+    angleOutput = -angleOutput;
+  }
+
   // speed calculations
   double speed = 0;
   if (m_flipped)
   {
-    speed = m_inverted ? m_targetSpeed : -m_targetSpeed;
+    speed = m_driveInverted ? m_targetSpeed : -m_targetSpeed;
   }
   else
   {
-    speed = m_inverted ? -m_targetSpeed : m_targetSpeed;
+    speed = m_driveInverted ? -m_targetSpeed : m_targetSpeed;
   }
   speed = std::clamp(speed, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
 

@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <chrono>
 
-#include "SocketClient.h"
+#include "Util/SocketClient.h"
 
 #define SOCK_CLIENT_BUF_SIZE 128
 

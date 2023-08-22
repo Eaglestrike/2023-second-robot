@@ -1,4 +1,4 @@
-#include "SwerveControl.h"
+#include "Drive/SwerveControl.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -6,8 +6,8 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-#include "Constants.h"
-#include "Utils.h"
+#include "Drive/DriveConstants.h"
+#include "Util/Mathutil.h"
 
 /**
  * Constructor
@@ -33,7 +33,7 @@ SwerveControl::SwerveControl(RefArray<SwerveModule> modules, std::array<vec::Vec
  *
  * @note Assumes modules have the same mass
  * 
- * @param ang world frame angle, in radians
+ * @param ang NavX angle
  *
  * @returns Robot velocity
  */
@@ -46,7 +46,7 @@ vec::Vector2D SwerveControl::GetRobotVelocity(double ang)
   }
 
   auto avg = Utils::GetVecAverage(vectors);
-  return vec::rotate(avg, ang); // rotate by world frame ang
+  return vec::rotate(avg, ang); // rotate by navx ang
 }
 
 /**
@@ -58,11 +58,7 @@ void SwerveControl::ResetFeedForward()
 }
 
 /**
- * Resets angle correction angle to zero
- * 
- * @todo Change this to go into odometry
- * 
- * @param startAng the starting angle of robot
+ * Resets angle correction angle to a certain angle
  *
  * @note Always call this after calling navx::ZeroYaw()
  */
@@ -102,7 +98,7 @@ void SwerveControl::SetAngleCorrectionPID(double kP, double kI, double kD)
  *
  * @param vel Velocity to set
  * @param angVel Angular velocity, + is counterclockwise, - is clockwise
- * @param ang Current world frame angle, in radians
+ * @param ang Current navX angle, in radians
  * @param time Time between readings
  */
 void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double ang, double time)
@@ -110,8 +106,7 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
   std::vector<vec::Vector2D> vecPrints;
   vecPrints.resize(4);
 
-  frc::SmartDashboard::PutNumber("cur angle", ang);
-  frc::SmartDashboard::PutNumber("tgt angle", m_curAngle);
+  frc::SmartDashboard::PutNumber("cjurrent angle", m_curAngle);
 
   if (!Utils::NearZero(angVel))
   {
@@ -123,7 +118,7 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
   {
     // if not turning, correct robot so that it doesnt turn
     angVel = m_angleCorrector.Calculate(ang, m_curAngle);
-    // frc::SmartDashboard::PutNumber("pidout", angVel);
+    frc::SmartDashboard::PutNumber("pidout", angVel);
     angVel = std::clamp(angVel, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
   }
 
@@ -160,23 +155,9 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 }
 
 /**
- * Sets robot velocity using absolute coordinates
- * 
- * Coordinates of joystick do not always match coordinates of field depending on where the driver station is
- * 
- * @param vel Velocity to set (from joystick inputs)
- * @param angVel Angular velocity, + is counterclockwise, - is clockwise
- * @param ang Current world frame angle, in radians
- * @param time Time between readings
- * @param angOfJoystick angle of +y on joysticks with respect to +x of field
-*/
-void SwerveControl::SetRobotVelocityAbs(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick) {
-  vec::Vector2D velRot = rotate(vel, angOfJoystick);
-  SetRobotVelocity(velRot, angVel, ang, time);
-}
-
-/**
  * Periodic function
+ *
+ * @note to self: CALL ME!!!! cALLL ME!!!!! you blITHERignnGG IDIOT!
  */
 void SwerveControl::Periodic()
 {

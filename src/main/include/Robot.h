@@ -9,16 +9,16 @@
 #include <string>
 
 #include <AHRS.h>
-#include <frc/Joystick.h>
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/Field2d.h>
 #include <frc/smartdashboard/SendableChooser.h>
 
-#include "Odometry.h"
-#include "SocketClient.h"
-#include "SwerveControl.h"
-#include "SwerveModule.h"
-#include "thirdparty/simplevectors.hpp"
+#include "Controller/Controller.h"
+#include "Drive/Odometry.h"
+#include "Drive/SwerveControl.h"
+#include "Drive/SwerveModule.h"
+#include "Util/SocketClient.h"
+#include "Util/thirdparty/simplevectors.hpp"
 
 namespace vec = svector;
 
@@ -44,12 +44,9 @@ class Robot : public frc::TimedRobot {
   frc::SendableChooser<std::string> m_startPosChooser;
   frc::Field2d m_field;
 
-  // inputs
-  frc::Joystick m_lJoy;
-  frc::Joystick m_rJoy;
-
-  // IMU
-  AHRS *m_navx;
+  // IMU acclerometer and gyroscope
+  // Gives information on orientation and acceleration
+  std::shared_ptr<AHRS> m_navx;
 
   // swerve
   SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
@@ -61,6 +58,12 @@ class Robot : public frc::TimedRobot {
   double m_startAng; // offset; starting angle (radians) on field relative to +x axis of apriltag coords, can use for trim
   double m_joystickAng;
   Odometry m_odometry;
+
+  //Controller
+  Controller m_controller;
+
+  // temp odometry
+  vec::Vector2D m_pos;
 
   // jetson
   SocketClient m_client;

@@ -7,7 +7,7 @@
 
 #include "KalmanFilter.h"
 #include "SwerveControl.h"
-#include "thirdparty/simplevectors.hpp"
+#include "Util/thirdparty/simplevectors.hpp"
 
 namespace vec = svector;
 

@@ -130,7 +130,6 @@ void Robot::TeleopPeriodic() {
 
   double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION, 0.1);
 
-  // TODO change back to 12.0 after contorller works
   double vx = std::clamp(lx, -1.0, 1.0) * 12.0;
   double vy = std::clamp(ly, -1.0, 1.0) * 12.0;
   double w = -std::clamp(rx, -1.0, 1.0) * 12.0;

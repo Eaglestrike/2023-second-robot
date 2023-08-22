@@ -5,11 +5,8 @@
 #pragma once
 
 namespace InputConstants{
-    const int LJOY_PORT = 0;
-
-    const int RJOY_PORT = 1;
-
-    const int XBOX_PORT = 2;
+    
+    const int XBOX_PORT = 0;
     const int XBOX_LJOY_X = 0;
     const int XBOX_LJOY_Y = 1;
     const int XBOX_LTRIGGER = 2;

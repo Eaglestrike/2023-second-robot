@@ -12,8 +12,8 @@ class Climb {
   enum State {
     STOWED,
     EXTENDED,
-    STOWING,
-    EXTENDING,
+    STOWING, 
+    EXTENDING, 
     LIFTING, // did not include lifted because while climbing robot should never stop correcting 
              // since the final "lifted" position is not sustainable unlike the stowed and extended positions
 };
@@ -54,11 +54,15 @@ class Climb {
                                 units::unit_t<kv_unit>(ClimbConstants::FF_V), //volts*seconds/rad
                                 units::unit_t<ka_unit>(ClimbConstants::FF_A)}; //volts*seconds^2/rad
   
-  State m_state;
+  State m_state = State::STOWED;
 
   double m_currentPos; //in radians 
   double m_currentVel; //in rad/sec
   double m_currentAcc; //in rad/sec^2
 
+  std::vector<double> vel, volts; 
+  double vlts =0.0;
+
   bool dbg = true; //to enable/disable smartdashboard stuff
+
 };

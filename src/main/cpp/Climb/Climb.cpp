@@ -11,7 +11,6 @@ Climb::Climb() {
 
 // assumes climb is stowed, and zeros encoders accordingly
 void Climb::RobotInit(){
-  m_state = State::STOWED;
   ZeroEncoder();
   ResetPIDs();
 }
@@ -28,9 +27,9 @@ void Climb::UpdatePos(){
 // calculates motor velocity in rad/sec
 // and acceleration in rad/sec^2 using the old velocity value 
 void Climb::UpdateVelAcc(){
- double stepsPerSec = m_motor.GetSelectedSensorVelocity() * 10000; // fn returns steps per 100 ms so multiply by 10,000 for per sec
+ double stepsPerSec = m_motor.GetSelectedSensorVelocity() * 10; // fn returns steps per 100 ms so multiply by 10 for per sec
  double newVel = StepsToRad(stepsPerSec);
- m_currentAcc = (newVel - m_currentVel)/0.00002;  // periodic is called every 20 ms
+ m_currentAcc = (newVel - m_currentVel)/0.02;  // periodic is called every 20 ms
  m_currentVel = newVel;
  if (dbg){
   frc::SmartDashboard::PutNumber("cur vel", m_currentVel);
@@ -49,7 +48,20 @@ double Climb::StepsToRad(double steps){
 // itll use a controller (either PID or FF) to set the voltage
 // in places where it uses PID it constantly checks wether its done with its task and changes the state accordingly
 void Climb::TeleopPeriodic() {
+  double curvel = m_motor.GetSelectedSensorVelocity();
+  if (curvel != 0.1 ){
+    vel.push_back(curvel);
+    volts.push_back(vlts)
+  }
+  vlts += 0.1;
+  m_motor.SetVoltage((units::volt_t)vlts);
+  frc::SmartDashboard::PutNumberArray();
+  return;
+
   UpdatePos();
+  UpdateVelAcc();
+  if(dbg)
+    frc::SmartDashboard::PutNumber("climb state:", m_state);
   double controllerOut, volts;
   switch (m_state) {
     case STOWED:
@@ -97,13 +109,13 @@ void Climb::TeleopPeriodic() {
 
 //if already stowed, wont do anything, otherwise will initiate stowing
 void Climb::Stow() {
-  if (m_state == State::STOWED) return;
+  // if (m_state == State::STOWED) return;
   ChangeState(State::STOWING);
 }
 
 //same function as the last one but extending instead of stowing
 void Climb::Extend() {
-  if (m_state == State::EXTENDED) return;
+  // if (m_state == State::EXTENDED) return;
   ChangeState(State::EXTENDING);
 }
 

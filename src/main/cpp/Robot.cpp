@@ -37,7 +37,7 @@ Robot::Robot():
   // navx
   try
   {
-    m_navx = std::make_shared<AHRS>(frc::SerialPort::Port::kUSB);
+    m_navx = std::make_shared<AHRS>(frc::SerialPort::kMXP);
   }
   catch (const std::exception &e)
   {
@@ -128,11 +128,12 @@ void Robot::TeleopPeriodic() {
   double lx = m_controller.getRawAxis(SWERVE_STRAFEX);
   double ly = m_controller.getRawAxis(SWERVE_STRAFEY);
 
-  double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION);
+  double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION, 0);
 
-  double vx = std::clamp(lx, -1.0, 1.0) * 12.0;
-  double vy = std::clamp(ly, -1.0, 1.0) * 12.0;
-  double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
+  // TODO change back to 12.0 after contorller works
+  double vx = std::clamp(lx, -1.0, 1.0) * 8.0;
+  double vy = std::clamp(ly, -1.0, 1.0) * 8.0;
+  double w = -std::clamp(rx, -1.0, 1.0) * 8.0;
 
   // dead zones
   if (std::abs(lx) < 0.1 && std::abs(ly) < 0.1) {
@@ -143,8 +144,7 @@ void Robot::TeleopPeriodic() {
   double curYaw = m_navx->GetYaw();
   curYaw = curYaw * (M_PI / 180);
 
-  // TODO delete line below
-  curYaw = 0;
+  frc::SmartDashboard::PutNumber("curYaw", curYaw);
 
   vec::Vector2D setVel = {-vy, -vx};
   m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.02);

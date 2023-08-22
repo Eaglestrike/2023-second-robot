@@ -18,6 +18,7 @@ namespace Actions{
     //Different enum for POV actions because logic is different
     enum POVAction{
         NO_POV_ACTION = -1,
+        I_PUT_A_NEW_FORGIS_ON_THE_JEEP,
         ACTION_COUNT_POV //Just the number of actions, as it is at the end of a enum
     };
 }

@@ -3,7 +3,7 @@
 #include <ctre/Phoenix.h>
 #include <frc/controller/PIDController.h>
 
-#include "thirdparty/simplevectors.hpp"
+#include "Util/thirdparty/simplevectors.hpp"
 
 namespace vec = svector; //!< Alias to vector namespace
 
@@ -12,9 +12,10 @@ namespace vec = svector; //!< Alias to vector namespace
 */
 class SwerveModule {
 public:
-  SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool inverted, double offset);
+  SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, bool angMotorInverted, double offset);
 
-  double GetEncoderReading();
+  double GetCorrectedEncoderReading();
+  double GetRawEncoderReading();
   vec::Vector2D GetVelocity();
 
   void SetVector(vec::Vector2D vec);
@@ -33,7 +34,9 @@ private:
   frc2::PIDController m_controller;
 
   bool m_flipped;
-  bool m_inverted;
+  bool m_driveInverted; // if the drive motor is inverted (at angle = 0, positive voltage = negative movement)
+  bool m_encoderInverted; // if positive encoder values = clockwise when robot is upright
+  bool m_angMotorInverted; // if positive angle motor voltage = clockwise when robot is upright
   vec::Vector2D m_targetAngle;
   double m_targetSpeed;
   double m_offset;

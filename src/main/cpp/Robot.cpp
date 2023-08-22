@@ -14,14 +14,16 @@
 #include <fmt/core.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
-#include "Constants.h"
+#include "Drive/DriveConstants.h"
+#include "Controller/ControllerMap.h"
 
-Robot::Robot()
-    : m_lJoy{0}, m_rJoy{1},
-      m_swerveFr{SwerveConstants::FR_DRIVE_ID, SwerveConstants::FR_TURN_ID, SwerveConstants::FR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FR_INVERTED, SwerveConstants::FR_OFFSET},
-      m_swerveBr{SwerveConstants::BR_DRIVE_ID, SwerveConstants::BR_TURN_ID, SwerveConstants::BR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BR_INVERTED, SwerveConstants::BR_OFFSET},
-      m_swerveFl{SwerveConstants::FL_DRIVE_ID, SwerveConstants::FL_TURN_ID, SwerveConstants::FL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FL_INVERTED, SwerveConstants::FL_OFFSET},
-      m_swerveBl{SwerveConstants::BL_DRIVE_ID, SwerveConstants::BL_TURN_ID, SwerveConstants::BL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BL_INVERTED, SwerveConstants::BL_OFFSET},
+using namespace Actions;
+
+Robot::Robot():
+      m_swerveFr{SwerveConstants::FR_DRIVE_ID, SwerveConstants::FR_TURN_ID, SwerveConstants::FR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FR_DRIVE_INVERTED, SwerveConstants::FR_ENCODER_INVERTED, SwerveConstants::FR_ANG_INVERTED, SwerveConstants::FR_OFFSET},
+      m_swerveBr{SwerveConstants::BR_DRIVE_ID, SwerveConstants::BR_TURN_ID, SwerveConstants::BR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BR_DRIVE_INVERTED, SwerveConstants::BR_ENCODER_INVERTED, SwerveConstants::BR_ANG_INVERTED, SwerveConstants::BR_OFFSET},
+      m_swerveFl{SwerveConstants::FL_DRIVE_ID, SwerveConstants::FL_TURN_ID, SwerveConstants::FL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FL_DRIVE_INVERTED, SwerveConstants::FL_ENCODER_INVERTED, SwerveConstants::FL_ANG_INVERTED, SwerveConstants::FL_OFFSET},
+      m_swerveBl{SwerveConstants::BL_DRIVE_ID, SwerveConstants::BL_TURN_ID, SwerveConstants::BL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BL_DRIVE_INVERTED, SwerveConstants::BL_ENCODER_INVERTED, SwerveConstants::BL_ANG_INVERTED, SwerveConstants::BL_OFFSET},
       m_rFr{SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
       m_rBr{-SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
       m_rFl{SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE},
@@ -35,7 +37,7 @@ Robot::Robot()
   // navx
   try
   {
-    m_navx = std::make_shared<AHRS>(frc::SerialPort::kUSB);
+    m_navx = std::make_shared<AHRS>(frc::SerialPort::kMXP);
   }
   catch (const std::exception &e)
   {
@@ -66,7 +68,7 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
-  if (m_lJoy.GetTrigger())
+  if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
     double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
     double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
@@ -83,17 +85,17 @@ void Robot::RobotPeriodic()
     m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
   }
 
-  if (m_rJoy.GetTrigger())
+  if (m_controller.getPressed(ZERO_YAW))
   {
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection();
     m_pos = {0, 0};
   }
 
-  frc::SmartDashboard::PutNumber("fl encoder", m_swerveFl.GetEncoderReading());
-  frc::SmartDashboard::PutNumber("fr encoder", m_swerveFr.GetEncoderReading());
-  frc::SmartDashboard::PutNumber("bl encoder", m_swerveBl.GetEncoderReading());
-  frc::SmartDashboard::PutNumber("br encoder", m_swerveBr.GetEncoderReading());
+  frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
+  frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
+  frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
+  frc::SmartDashboard::PutNumber("br raw encoder", m_swerveBr.GetRawEncoderReading());
 
   frc::SmartDashboard::PutString("fl velocity", m_swerveFl.GetVelocity().toString());
   frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
@@ -123,28 +125,28 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  double lx = m_lJoy.GetRawAxis(0);
-  double ly = -m_lJoy.GetRawAxis(1);
+  double lx = m_controller.getRawAxis(SWERVE_STRAFEX);
+  double ly = m_controller.getRawAxis(SWERVE_STRAFEY);
 
-  double rx = m_rJoy.GetRawAxis(0);
+  double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION, 0);
 
-  double vx = std::clamp(ly, -1.0, 1.0) * 12.0;
-  double vy = std::clamp(lx, -1.0, 1.0) * 12.0;
-  double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
+  // TODO change back to 12.0 after contorller works
+  double vx = std::clamp(lx, -1.0, 1.0) * 8.0;
+  double vy = std::clamp(ly, -1.0, 1.0) * 8.0;
+  double w = -std::clamp(rx, -1.0, 1.0) * 8.0;
 
   // dead zones
   if (std::abs(lx) < 0.1 && std::abs(ly) < 0.1) {
     vx = 0;
     vy = 0;
   }
-  if (std::abs(rx) < 0.1) {
-    w = 0;
-  }
 
   double curYaw = m_navx->GetYaw();
   curYaw = curYaw * (M_PI / 180);
 
-  vec::Vector2D setVel = {vx, -vy};
+  frc::SmartDashboard::PutNumber("curYaw", curYaw);
+
+  vec::Vector2D setVel = {-vy, -vx};
   m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.02);
 
   m_swerveController->Periodic();
@@ -156,6 +158,7 @@ void Robot::TeleopPeriodic() {
   frc::SmartDashboard::PutString("pos:", m_pos.toString());
   frc::SmartDashboard::PutString("vel:", vel.toString());
   frc::SmartDashboard::PutString("setVel:", setVel.toString());
+  frc::SmartDashboard::PutNumber("setAngVel:", w);
 }
 
 void Robot::DisabledInit() {}

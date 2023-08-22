@@ -1,5 +1,6 @@
 #include "Controller/Controller.h"
 
+#include <cmath>
 #include <iostream>
 
 using namespace ControllerMapData;
@@ -81,7 +82,7 @@ bool Controller::isDead(Output value, double deadbandVal){
  * @param deadbandVal value range
 */
 inline bool Controller::isDead(double value, double deadbandVal){
-    return abs(value) < deadbandVal;
+    return std::abs(value) < deadbandVal;
 }
 
 /**
@@ -108,7 +109,7 @@ double Controller::Deadband(Output value, double deadbandVal){
  * @param deadbandVal value range in which the output will be reduced to 0
 */
 inline double Controller::Deadband(double value, double deadbandVal){
-    return (abs(value)<deadbandVal)? 0.0 : value;
+    return (std::abs(value)<deadbandVal)? 0.0 : value;
 }
 
 /**
@@ -219,6 +220,9 @@ double Controller::getWithDeadContinuous(Action action, double deadbandVal){
         case AXIS_BUTTON:
             raw = joysticks_[button.joystick]->GetRawAxis(button.data.id);
             dead = Deadband(raw, deadbandVal);
+            if (dead == 0) {
+                return 0.0;
+            }
             dead += (dead>0)?(-deadbandVal):(deadbandVal);//Shift ranges to meet at 0
             return dead/(1.0-deadbandVal); //Scale to [-1,1] range
         case BUTTON_BUTTON:

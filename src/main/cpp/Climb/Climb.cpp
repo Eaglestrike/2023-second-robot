@@ -42,22 +42,24 @@ double Climb::StepsToRad(double steps){
   return steps * (2.0 * M_PI / 2048.0); // falcon is 2048 ticks per revolution
 }
 
+void Climb::CollectTuningData(){
+  double curvel = m_motor.GetSelectedSensorVelocity();
+  if (curvel != 0.1 ){
+    vel.push_back(curvel);
+    volts.push_back(vlts);
+  }
+  vlts += 0.1;
+  m_motor.SetVoltage((units::volt_t)vlts);
+  frc::SmartDashboard::PutNumberArray();
+  return;
+}
+
 // This function runs during teleop periodic and does the following:
 // Updates the position variable
 // then based on the state and consequently the objective position at the moment
 // itll use a controller (either PID or FF) to set the voltage
 // in places where it uses PID it constantly checks wether its done with its task and changes the state accordingly
 void Climb::TeleopPeriodic() {
-  double curvel = m_motor.GetSelectedSensorVelocity();
-  if (curvel != 0.1 ){
-    vel.push_back(curvel);
-    volts.push_back(vlts)
-  }
-  vlts += 0.1;
-  m_motor.SetVoltage((units::volt_t)vlts);
-  frc::SmartDashboard::PutNumberArray();
-  return;
-
   UpdatePos();
   UpdateVelAcc();
   if(dbg)
@@ -89,12 +91,14 @@ void Climb::TeleopPeriodic() {
         m_state = EXTENDED;
       break;
     case LIFTING:
+    // need pid 
       controllerOut;
       if (ClimbConstants::FEEDFORWARD){
         auto s = units::radian_t(m_currentPos); // rads
         auto v = units::radians_per_second_t(m_currentVel); // rad/sec
         auto a = units::unit_t<Acceleration>(m_currentAcc); // rad/sec^2
-        controllerOut = double(m_climbFF.Calculate(s, v, a)); // returns volts
+        double ff = double(m_climbFF.Calculate(s, v, a)); // returns volts
+        controllerOut = ff + (m_targetPos - m_currentPos)*ClimbConstants::CLIMB_P + (m_targetVel-m_currentVel)*ClimbConstants::CLIMB_D;
       } else {
         controllerOut = m_climbPID.Calculate(m_currentPos, ClimbConstants::LIFTED_POS);
       } 
@@ -111,16 +115,25 @@ void Climb::TeleopPeriodic() {
 void Climb::Stow() {
   // if (m_state == State::STOWED) return;
   ChangeState(State::STOWING);
+  m_regPID.SetSetpoint(ClimbConstants::STOWED_POS);
 }
 
 //same function as the last one but extending instead of stowing
 void Climb::Extend() {
   // if (m_state == State::EXTENDED) return;
   ChangeState(State::EXTENDING);
+  m_regPID.SetSetpoint(ClimbConstants::EXTENDED_POS);
 }
 
 void Climb::Lift() {
   ChangeState(State::LIFTING);
+}
+
+void Climb::UpdateTargetPosVel(){
+  m_targetVel = std::min(ClimbConstants::MAX_ACC + m_targetVel, ClimbConstants::MAX_VEL);
+  m_targetVel = std::min(ClimbConstants::MAX_ACC + m_targetVel, ClimbConstants::MAX_VEL);
+
+
 }
 
 // changes the state and resets PIDS but only if requested state is actually a change

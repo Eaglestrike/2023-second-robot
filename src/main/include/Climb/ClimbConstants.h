@@ -26,9 +26,12 @@ namespace ClimbConstants {
         const double FF_A = 0.0; // volts*seconds^2/rad
         //small value
 
+        const double MAX_ACC =0.0; // rad/sec^2
+        const double MAX_VEL =0.0; // rad/sec
+
         // pid is rad -> volts
         const double CLIMB_P = 0.0;
-        const double CLIMB_I = 0.0;
+        const double CLIMB_I = 0.0; // not used for ff-pid
         const double CLIMB_D = 0.0;
         const double EXTND_STOW_P = 0.0;
         const double EXTND_STOW_I = 0.0;

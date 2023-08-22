@@ -40,7 +40,9 @@ class Climb {
  private:
   void ChangeState(State newState);
   void UpdatePos();
+  void CollectTuningData();
   void UpdateVelAcc();
+  void UpdateTargetPosVel();
   double StepsToRad(double steps);
   
   WPI_TalonFX m_motor{ClimbConstants::MOTOR_ID};
@@ -60,8 +62,14 @@ class Climb {
   double m_currentVel; //in rad/sec
   double m_currentAcc; //in rad/sec^2
 
+  // to collect tuning data for feedforward
   std::vector<double> vel, volts; 
   double vlts =0.0;
+
+  double m_targetPos;
+  double m_targetVel;
+
+  double m_posTurnPt;
 
   bool dbg = true; //to enable/disable smartdashboard stuff
 

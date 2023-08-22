@@ -178,7 +178,8 @@ void SwerveModule::Periodic()
 }
 
 /**
- * Given current angle and target angle, determines
+ * Given current angle and target angle, determines whether current angle vector should be
+ * flipped so that it minimizes angular distance to target angle.
  *
  * @param curVec current angle, vector form
  * @param targetVec target angle, vector form

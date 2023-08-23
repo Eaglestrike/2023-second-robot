@@ -3,7 +3,10 @@
 Climb::Climb() {
   m_regPID.SetTolerance(ClimbConstants::EXTND_STOW_POS_ERR_TOLERANCE,
                             ClimbConstants::EXTND_STOW_VEL_ERR_TOLERANCE);
-  if (!ClimbConstants::FEEDFORWARD){
+  if (ClimbConstants::FEEDFORWARD){
+    m_FFPID.SetPIDConsts(ClimbConstants::CLIMB_P, ClimbConstants::CLIMB_D);
+    m_FFPID.SetFeedForwardConsts(ClimbConstants::FF_S, ClimbConstants::FF_G, ClimbConstants::FF_V, ClimbConstants::FF_A);
+  } else {
     m_climbPID.SetTolerance(ClimbConstants::CLIMB_POS_ERR_TOLERANCE,
                             ClimbConstants::CLIMB_VEL_ERR_TOLERANCE);
   }
@@ -50,33 +53,29 @@ void Climb::CollectTuningData(){
   }
   vlts += 0.1;
   m_motor.SetVoltage((units::volt_t)vlts);
-  frc::SmartDashboard::PutNumberArray();
+  // frc::SmartDashboard::PutNumberArray();
   return;
 }
 
 // This function runs during teleop periodic and does the following:
-// Updates the position variable
+// Updates the position velocity and acceleration variables
 // then based on the state and consequently the objective position at the moment
-// itll use a controller (either PID or FF) to set the voltage
-// in places where it uses PID it constantly checks wether its done with its task and changes the state accordingly
+// itll use a controller (either PID or PIDFF) to set the voltage
+// in places where it uses simple PID it constantly checks wether its done with its task and changes the state accordingly
 void Climb::TeleopPeriodic() {
   UpdatePos();
   UpdateVelAcc();
   if(dbg)
     frc::SmartDashboard::PutNumber("climb state:", m_state);
-  double controllerOut, volts;
+  
+  double controllerOut, volts, maxVolts;
   switch (m_state) {
-    case STOWED:
-    case EXTENDED:
-      m_motor.SetVoltage((units::volt_t)0);
-      break;
     case STOWING:
       controllerOut = m_regPID.Calculate(m_currentPos, ClimbConstants::STOWED_POS);
       if (dbg){
         frc::SmartDashboard::PutNumber("stowing ctrlr out", controllerOut);
       }
-      volts = std::clamp(controllerOut, -ClimbConstants::EXTND_STOW_MAX_VOLTAGE, ClimbConstants::EXTND_STOW_MAX_VOLTAGE);
-      m_motor.SetVoltage((units::volt_t)volts);
+      maxVolts = ClimbConstants::EXTND_STOW_MAX_VOLTAGE;
       if (m_regPID.AtSetpoint())
         m_state = STOWED;
       break;
@@ -85,30 +84,26 @@ void Climb::TeleopPeriodic() {
       if (dbg){
         frc::SmartDashboard::PutNumber("extending ctrlr out", controllerOut);
       }
-      volts = std::clamp(controllerOut, -ClimbConstants::EXTND_STOW_MAX_VOLTAGE, ClimbConstants::EXTND_STOW_MAX_VOLTAGE);
-      m_motor.SetVoltage((units::volt_t)volts);
+      maxVolts = ClimbConstants::EXTND_STOW_MAX_VOLTAGE;
       if (m_regPID.AtSetpoint())
         m_state = EXTENDED;
       break;
     case LIFTING:
-    // need pid 
-      controllerOut;
       if (ClimbConstants::FEEDFORWARD){
-        auto s = units::radian_t(m_currentPos); // rads
-        auto v = units::radians_per_second_t(m_currentVel); // rad/sec
-        auto a = units::unit_t<Acceleration>(m_currentAcc); // rad/sec^2
-        double ff = double(m_climbFF.Calculate(s, v, a)); // returns volts
-        controllerOut = ff + (m_targetPos - m_currentPos)*ClimbConstants::CLIMB_P + (m_targetVel-m_currentVel)*ClimbConstants::CLIMB_D;
+        m_FFPID.UpdateTargetVelAndPos();
+        controllerOut = m_FFPID.Calculate(m_currentPos, m_currentVel, m_currentAcc);
       } else {
         controllerOut = m_climbPID.Calculate(m_currentPos, ClimbConstants::LIFTED_POS);
       } 
       if (dbg){
         frc::SmartDashboard::PutNumber("lifting ctrlr out", controllerOut);
       }
-      volts = std::clamp(controllerOut, -ClimbConstants::CLIMB_MAX_VOLTAGE, ClimbConstants::CLIMB_MAX_VOLTAGE);
-      m_motor.SetVoltage((units::volt_t)volts);
+      maxVolts = ClimbConstants::CLIMB_MAX_VOLTAGE;
       break;
   } 
+
+  volts = std::clamp(controllerOut, -maxVolts, maxVolts);
+  m_motor.SetVoltage((units::volt_t)volts);
 }
 
 //if already stowed, wont do anything, otherwise will initiate stowing
@@ -127,13 +122,7 @@ void Climb::Extend() {
 
 void Climb::Lift() {
   ChangeState(State::LIFTING);
-}
-
-void Climb::UpdateTargetPosVel(){
-  m_targetVel = std::min(ClimbConstants::MAX_ACC + m_targetVel, ClimbConstants::MAX_VEL);
-  m_targetVel = std::min(ClimbConstants::MAX_ACC + m_targetVel, ClimbConstants::MAX_VEL);
-
-
+  m_FFPID.SetSetpoint(ClimbConstants::LIFTED_POS, m_currentPos);
 }
 
 // changes the state and resets PIDS but only if requested state is actually a change

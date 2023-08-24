@@ -11,16 +11,17 @@ namespace ClimbConstants {
         const double CLIMB_MAX_VOLTAGE = 5.0;
         const double EXTND_STOW_MAX_VOLTAGE = 0.0;
 
-        //this boolean controls whether climb is PID or FF 
+        //this boolean controls whether climb is PID or ff-pid 
         //doesn't effect extending and stowing of climb
         const bool FEEDFORWARD = true;
 
+        //enable or disable smart dashboard prints
+        const bool SMART_DASH = true;
+
         // feedforward consts
         // ff is rad, rad/sec, rad/sec^2 -> volts
-        const double FF_S = 0.0; // volts
-        // where 0 vel stops in volts
-        const double FF_G = 0.0; // volts
-        // volts needed to keep bar hroizontal
+        const double FF_S = 0.0; // smallest amount of volts to get a non-neg velocity
+        const double FF_G = 0.0; // volts needed to keep bar hroizontal
         const double FF_V = 0.0; // volts*seconds/rad
         // inverse of slope
         const double FF_A = 0.0; // volts*seconds^2/rad
@@ -38,7 +39,7 @@ namespace ClimbConstants {
         const double EXTND_STOW_D = 0.0;
 
         //rad
-        const double CLIMB_POS_ERR_TOLERANCE = 0.01;    
+        const double CLIMB_POS_ERR_TOLERANCE = 0.01;  
         const double EXTND_STOW_POS_ERR_TOLERANCE = 0.01;
 
         //rad per sec

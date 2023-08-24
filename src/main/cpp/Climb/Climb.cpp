@@ -6,6 +6,8 @@ Climb::Climb() {
   if (ClimbConstants::FEEDFORWARD){
     m_FFPID.SetPIDConsts(ClimbConstants::CLIMB_P, ClimbConstants::CLIMB_D);
     m_FFPID.SetFeedForwardConsts(ClimbConstants::FF_S, ClimbConstants::FF_G, ClimbConstants::FF_V, ClimbConstants::FF_A);
+    m_FFPID.SetTolerance(ClimbConstants::CLIMB_POS_ERR_TOLERANCE,
+                            ClimbConstants::CLIMB_VEL_ERR_TOLERANCE);
   } else {
     m_climbPID.SetTolerance(ClimbConstants::CLIMB_POS_ERR_TOLERANCE,
                             ClimbConstants::CLIMB_VEL_ERR_TOLERANCE);
@@ -47,7 +49,7 @@ double Climb::StepsToRad(double steps){
 
 void Climb::CollectTuningData(){
   double curvel = m_motor.GetSelectedSensorVelocity();
-  if (curvel != 0.1 ){
+  if (curvel != 0.0){
     vel.push_back(curvel);
     volts.push_back(vlts);
   }
@@ -63,61 +65,57 @@ void Climb::CollectTuningData(){
 // itll use a controller (either PID or PIDFF) to set the voltage
 // in places where it uses simple PID it constantly checks wether its done with its task and changes the state accordingly
 void Climb::TeleopPeriodic() {
+  CollectTuningData();
+  return;
   UpdatePos();
-  UpdateVelAcc();
-  if(dbg)
-    frc::SmartDashboard::PutNumber("climb state:", m_state);
-  
+  UpdateVelAcc(); 
+  if (dbg)
+    frc::SmartDashboard::PutString("state", StateToString());
+
   double controllerOut, volts, maxVolts;
   switch (m_state) {
     case STOWING:
       controllerOut = m_regPID.Calculate(m_currentPos, ClimbConstants::STOWED_POS);
-      if (dbg){
-        frc::SmartDashboard::PutNumber("stowing ctrlr out", controllerOut);
-      }
       maxVolts = ClimbConstants::EXTND_STOW_MAX_VOLTAGE;
       if (m_regPID.AtSetpoint())
         m_state = STOWED;
       break;
     case EXTENDING:
       controllerOut = m_regPID.Calculate(m_currentPos, ClimbConstants::EXTENDED_POS);
-      if (dbg){
-        frc::SmartDashboard::PutNumber("extending ctrlr out", controllerOut);
-      }
       maxVolts = ClimbConstants::EXTND_STOW_MAX_VOLTAGE;
       if (m_regPID.AtSetpoint())
         m_state = EXTENDED;
       break;
     case LIFTING:
+      maxVolts = ClimbConstants::CLIMB_MAX_VOLTAGE;
       if (ClimbConstants::FEEDFORWARD){
         m_FFPID.UpdateTargetVelAndPos();
         controllerOut = m_FFPID.Calculate(m_currentPos, m_currentVel, m_currentAcc);
       } else {
         controllerOut = m_climbPID.Calculate(m_currentPos, ClimbConstants::LIFTED_POS);
       } 
-      if (dbg){
-        frc::SmartDashboard::PutNumber("lifting ctrlr out", controllerOut);
-      }
       maxVolts = ClimbConstants::CLIMB_MAX_VOLTAGE;
       break;
   } 
-
+  if (dbg)
+    frc::SmartDashboard::PutNumber("ctrlr out", controllerOut);
   volts = std::clamp(controllerOut, -maxVolts, maxVolts);
   m_motor.SetVoltage((units::volt_t)volts);
 }
 
 //if already stowed, wont do anything, otherwise will initiate stowing
 void Climb::Stow() {
-  // if (m_state == State::STOWED) return;
+  if (m_state == State::STOWED) return;
   ChangeState(State::STOWING);
   m_regPID.SetSetpoint(ClimbConstants::STOWED_POS);
 }
 
 //same function as the last one but extending instead of stowing
 void Climb::Extend() {
-  // if (m_state == State::EXTENDED) return;
+  if (m_state == State::EXTENDED) return;
   ChangeState(State::EXTENDING);
   m_regPID.SetSetpoint(ClimbConstants::EXTENDED_POS);
+
 }
 
 void Climb::Lift() {
@@ -134,6 +132,17 @@ void Climb::ChangeState(Climb::State newState) {
 
 Climb::State Climb::GetState() {
   return m_state; 
+}
+
+std::string Climb::StateToString() {
+  switch(m_state){
+    case LIFTING: return "lifting";
+    case EXTENDED: return "extended";
+    case EXTENDING: return "extending";
+    case STOWED: return "stow";
+    case STOWING: return "stowing";
+  }
+  return "";
 }
 
 void Climb::ZeroEncoder(){

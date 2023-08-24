@@ -9,7 +9,7 @@ class FeedForwardPID{
         using kv_unit = units::compound_unit<units::volts, units::inverse<units::radians_per_second>>;
         using ka_unit = units::compound_unit<units::volts, units::inverse<AccelerationV>>;
 
-        FeedForwardPID(const double MAX_VEL, const double MAX_ACC): MAX_ACC(MAX_ACC), MAX_VEL(MAX_VEL){}
+        FeedForwardPID(double MAX_VEL, double MAX_ACC): MAX_ACC(MAX_ACC), MAX_VEL(MAX_VEL){}
 
         void SetFeedForwardConsts(double ks, double kg, double kv, double ka){
             m_ff = frc::ArmFeedforward{units::volt_t(ks), // volts
@@ -20,6 +20,11 @@ class FeedForwardPID{
         
         void SetPIDConsts(double kp, double kd){
             m_kp = kp; m_kd = kd;
+        }
+
+        void SetTolerance(double posTolerance, double velTolerance){
+           m_posTolerance = posTolerance;
+           m_velTolerance = velTolerance;
         }
 
         // Assuming is called 1x every TeleopPeriodic call so called every 20 ms
@@ -37,30 +42,35 @@ class FeedForwardPID{
             auto s = units::radian_t(curPos); // rads
             auto v = units::radians_per_second_t(curVel); // rad/sec
             auto a = units::unit_t<Acceleration>(curAcc); // rad/sec^2
-            double ff = double(m_ff.Calculate(s,v,a));
-            return ff + (m_targetPos - curPos) * m_kp + (m_targetVel - curVel)* m_kd;
+            double ff = double(m_ff.Calculate(s,v,a)),
+            posErr = m_targetPos - curPos,
+            velErr = m_targetVel - curVel;
+            return ff + posErr * m_kp + velErr* m_kd;
         }
 
         void SetSetpoint(double setpt, double curPos){
             m_setPoint = setpt;
             m_targetPos = curPos;
             m_targetVel = 0.0;
-            CalcTurnPoint();
+            CalcTurnPoint(curPos);
+        }
+
+        bool AtSetPoint(double curPos){
+            return abs(curPos - m_setPoint) < m_posTolerance;
         }
 
     private:
         // calculates what Pos should be when the velocity begins decreasing 
-        void CalcTurnPoint(){
-            if (m_curPos > m_targetPos)
+        void CalcTurnPoint(double curPos){
+            if (curPos > m_targetPos)
                 m_velTurnPt = MAX_VEL*(MAX_VEL - 2.0)/(MAX_ACC*2) + m_setPoint;
             else 
                 m_velTurnPt = -MAX_VEL*(MAX_VEL - 2.0)/(MAX_ACC*2) + m_setPoint;
         }
 
-        const double MAX_VEL, MAX_ACC; // volts
+        double MAX_VEL, MAX_ACC; // volts
         double m_setPoint;
-
-        double m_curPos, m_curVel;
+        double m_posTolerance, m_velTolerance;
         double m_targetPos, m_targetVel; // in rad and rad/sec
         double m_velTurnPt; // the position at which the velocity begins to decrease in the trapexoidal motion profile
         

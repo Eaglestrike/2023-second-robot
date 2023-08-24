@@ -35,16 +35,19 @@ class Climb {
  private:
   void ChangeState(State newState);
   void UpdatePos();
-  void CollectTuningData();
   void UpdateVelAcc();
   double StepsToRad(double steps);
+
+  //for tuning and debug
+  void CollectTuningData();
+  std::string StateToString();
   
   WPI_TalonFX m_motor{ClimbConstants::MOTOR_ID};
   frc2::PIDController m_regPID{ClimbConstants::EXTND_STOW_P, ClimbConstants::EXTND_STOW_I,
                                    ClimbConstants::EXTND_STOW_D};
   frc2::PIDController m_climbPID{ClimbConstants::CLIMB_P, ClimbConstants::CLIMB_I,
                                    ClimbConstants::CLIMB_D};
-  FeedForwardPID m_FFPID{ClimbConstants::MAX_VEL, ClimbConstants::MAX_ACC}; // feed forward PID
+  FeedForwardPID m_FFPID{ClimbConstants::MAX_VEL, ClimbConstants::MAX_ACC}; // feed forward PID for climb
   
   State m_state = State::STOWED;
 
@@ -56,6 +59,6 @@ class Climb {
   std::vector<double> vel, volts; 
   double vlts = 0.0;
 
-  bool dbg = true; //to enable/disable smartdashboard stuff
+  bool dbg = ClimbConstants::SMART_DASH; //to enable/disable smartdashboard stuff
 
 };

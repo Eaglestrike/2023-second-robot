@@ -22,7 +22,7 @@
  * @note feedforward relates speed to voltage
  */
 SwerveControl::SwerveControl(RefArray<SwerveModule> modules, std::array<vec::Vector2D, 4> radii, double kS, double kV, double kA)
-    : m_modules{modules}, m_radii{radii}, m_kS{kS}, m_kV{kV}, m_kA{kA}, m_curAngle{0}, m_angleCorrector{0.1, 0, 0.01}
+    : m_modules{modules}, m_radii{radii}, m_kS{kS}, m_kV{kV}, m_kA{kA}, m_curAngle{0}, m_angleCorrector{SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D}
 {
   m_angleCorrector.EnableContinuousInput(-M_PI, M_PI);
   ResetFeedForward();
@@ -156,8 +156,6 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 
 /**
  * Periodic function
- *
- * @note to self: CALL ME!!!! cALLL ME!!!!! you blITHERignnGG IDIOT!
  */
 void SwerveControl::Periodic()
 {

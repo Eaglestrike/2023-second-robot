@@ -6,6 +6,9 @@
 
 #include <cstddef>
 
+#include "Util/thirdparty/simplevectors.hpp"
+namespace vec = svector;
+
 namespace SwerveConstants
 {
   const double MAG_ENCODER_COUNTS_PER_REV = 4096;
@@ -71,4 +74,13 @@ namespace OdometryConstants {
   const double POS_STD_DEV = 0.1;
   const double MEASURE_STD_DEV = 0.1;
   const double CAMERA_TRUST_K = -10.0;
+
+  const struct CarpetConfig{
+    vec::Vector2D direction = vec::Vector2D{1, 0}.rotate(0); //Where the carpet points
+    vec::Vector2D perpDirection = direction.rotate(M_PI/2.0);
+    double shiftDistance = 0.0; //Distance shifted by driving along carpet hairs -> m
+    double shiftDistanceK = 1.0; //Distance gained by driving with hair -> extra m/m
+    double perpShiftDistance = 0.0; //Distance shifted by driving perpendicularly to the hair -> m
+    double perpShiftDistanceK = 1.0; //Distance gained by driving perpendicularly with hair -> extra m/m
+  } CARPET_CONFIG;
 }

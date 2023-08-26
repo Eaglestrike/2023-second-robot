@@ -4,6 +4,7 @@
 // #include <cstdlib>
 
 // #include "Constants.h"
+typedef vec::Vector2D Vector;
 
 /**
  * Constrcutor
@@ -43,16 +44,52 @@ void Odometry::Reset(std::size_t curTime) {
 void Odometry::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::size_t curTime)
 {
   auto lastIt = m_states.rbegin();
+
   std::size_t kPrev = lastIt->first;
-  auto posPrev = lastIt->second.pos;
-  auto vAvgPrev = lastIt->second.vAvg;
+  Vector posPrev = lastIt->second.pos;
+  Vector vAvgPrev = lastIt->second.vAvg;
   double ePrev = lastIt->second.E;
   double angPrev = lastIt->second.ang;
 
+  //Euler's method
   double timeDiff = static_cast<double>(curTime - kPrev);
+  if(timeDiff == 0){
+    return;
+  }
+  Vector posDiff = vAvgCur * timeDiff;
 
-  auto pos = posPrev + vAvgCur * timeDiff;
-  auto vAvg = vAvgCur;
+  //Carpet math, different behavior depending on how the drivebase drives on the carpet
+  double carpetAlignment = posDiff.dot(m_carpetConfig.direction);
+  double carpetPerpAlignment = posDiff.dot(m_carpetConfig.perpDirection);
+  Vector carpetAlignmentX = m_carpetConfig.direction * carpetAlignment; 
+  Vector carpetAlignmentY = m_carpetConfig.perpDirection * carpetPerpAlignment;
+  //Moving along = pushing back hairs
+  if(carpetAlignment > 0){ //If moving in direction of carpet
+    carpetAlignmentX *= m_carpetConfig.perpShiftDistanceK; //wheels are moving more, odometry excess
+    if(m_lastCarpetDir.x() < 0){ //If changed from moving along carpet to not, shifts hairs back
+       carpetAlignmentX += -m_carpetConfig.direction * m_carpetConfig.perpShiftDistance; //Shift odometry back against direction of hairs
+    }
+  }
+  else if(m_lastCarpetDir.x() > 0){//If changed from moving against carpet to not, shifts hairs forward
+    carpetAlignmentX += m_carpetConfig.direction * m_carpetConfig.perpShiftDistance; //Shift odometry forward with direction of hairs
+  }
+  //Perpendicular movement (if it exists)
+  carpetAlignmentY *= m_carpetConfig.perpShiftDistanceK; //Always shifts by a factor (hair can move side to side)
+  if(carpetPerpAlignment > 0){ //Check change direction
+    if(m_lastCarpetDir.y() < 0){ //If changed from moving along carpet to not, shifts hairs back
+      carpetAlignmentY += -m_carpetConfig.direction * m_carpetConfig.perpShiftDistance; //Shift odometry back against direction of hairs
+    }
+  }
+  else if(m_lastCarpetDir.y() > 0){//If changed from moving against carpet to not, shifts hairs forward
+    carpetAlignmentY += m_carpetConfig.direction * m_carpetConfig.perpShiftDistance; //Shift odometry forward with direction of hairs
+  }
+  m_lastCarpetDir = {carpetAlignment, carpetPerpAlignment};
+
+  posDiff = carpetAlignmentX + carpetAlignmentY;
+
+  //Store into map
+  Vector pos = posPrev + posDiff;
+  Vector vAvg = vAvgCur;
   double ang = navXAng;
   double E = ePrev + m_Q;
 

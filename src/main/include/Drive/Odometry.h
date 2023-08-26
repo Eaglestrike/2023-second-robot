@@ -4,6 +4,7 @@
 #include <map>
 
 #include "Util/thirdparty/simplevectors.hpp"
+#include "DriveConstants.h"
 
 namespace vec = svector;
 
@@ -43,6 +44,9 @@ private:
   double m_kAng;
   double m_k;
   double m_maxTime;
+
+  OdometryConstants::CarpetConfig m_carpetConfig = OdometryConstants::CARPET_CONFIG;
+  vec::Vector2D m_lastCarpetDir{0.0, 0.0}; //Direction the robot was driving along carpet
 
   std::map<std::size_t, KalmanState> m_states;
 };

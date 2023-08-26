@@ -22,11 +22,11 @@ Odometry::Odometry(double E0, double Q, double kAng, double k, double maxTime)
   m_states[0].E = E0;
   m_states[0].ang = 0;
   if(useSmartDashboard){
-    frc::SmartDashboard::PutNumber("Carpet Angle", m_carpetConfig.direction.angle());
-    frc::SmartDashboard::PutNumber("shiftDistance", m_carpetConfig.shiftDistance);
-    frc::SmartDashboard::PutNumber("shiftDistanceK", m_carpetConfig.shiftDistanceK);
-    frc::SmartDashboard::PutNumber("perpShiftDistance", m_carpetConfig.perpShiftDistance);
-    frc::SmartDashboard::PutNumber("perpShiftDistanceK", m_carpetConfig.perpShiftDistanceK);
+    frc::SmartDashboard::PutNumber("rug Angle", m_rugConfig.direction.angle());
+    frc::SmartDashboard::PutNumber("shiftDistance", m_rugConfig.shiftDistance);
+    frc::SmartDashboard::PutNumber("shiftDistanceK", m_rugConfig.shiftDistanceK);
+    frc::SmartDashboard::PutNumber("perpShiftDistance", m_rugConfig.perpShiftDistance);
+    frc::SmartDashboard::PutNumber("perpShiftDistanceK", m_rugConfig.perpShiftDistanceK);
   }
 }
 
@@ -67,43 +67,43 @@ void Odometry::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::siz
   Vector posDiff = vAvgCur * timeDiff;
 
   if(useSmartDashboard){
-    double newAngle = frc::SmartDashboard::GetNumber("Carpet Angle", m_carpetConfig.direction.angle());
-    m_carpetConfig.direction = vec::Vector2D{1, 0}.rotate(newAngle); //Where the carpet points
-    m_carpetConfig.perpDirection = m_carpetConfig.direction.rotate(M_PI/2.0);
-    m_carpetConfig.shiftDistance = frc::SmartDashboard::GetNumber("shiftDistance", m_carpetConfig.shiftDistance);
-    m_carpetConfig.shiftDistanceK = frc::SmartDashboard::GetNumber("shiftDistanceK", m_carpetConfig.shiftDistanceK);
-    m_carpetConfig.perpShiftDistance = frc::SmartDashboard::GetNumber("perpShiftDistance", m_carpetConfig.perpShiftDistance);
-    m_carpetConfig.perpShiftDistanceK = frc::SmartDashboard::GetNumber("perpShiftDistanceK", m_carpetConfig.perpShiftDistanceK);
+    double newAngle = frc::SmartDashboard::GetNumber("rug Angle", m_rugConfig.direction.angle());
+    m_rugConfig.direction = vec::Vector2D{1, 0}.rotate(newAngle); //Where the rug points
+    m_rugConfig.perpDirection = m_rugConfig.direction.rotate(M_PI/2.0);
+    m_rugConfig.shiftDistance = frc::SmartDashboard::GetNumber("shiftDistance", m_rugConfig.shiftDistance);
+    m_rugConfig.shiftDistanceK = frc::SmartDashboard::GetNumber("shiftDistanceK", m_rugConfig.shiftDistanceK);
+    m_rugConfig.perpShiftDistance = frc::SmartDashboard::GetNumber("perpShiftDistance", m_rugConfig.perpShiftDistance);
+    m_rugConfig.perpShiftDistanceK = frc::SmartDashboard::GetNumber("perpShiftDistanceK", m_rugConfig.perpShiftDistanceK);
   }
 
-  //Carpet math, different behavior depending on how the drivebase drives on the carpet
-  double carpetAlignment = posDiff.dot(m_carpetConfig.direction);
-  double carpetPerpAlignment = posDiff.dot(m_carpetConfig.perpDirection);
-  Vector carpetAlignmentX = m_carpetConfig.direction * carpetAlignment; 
-  Vector carpetAlignmentY = m_carpetConfig.perpDirection * carpetPerpAlignment;
+  //carpet math, different behavior depending on how the drivebase drives on the rug
+  double rugAlignment = posDiff.dot(m_rugConfig.direction);
+  double rugPerpAlignment = posDiff.dot(m_rugConfig.perpDirection);
+  Vector rugAlignmentX = m_rugConfig.direction * rugAlignment; 
+  Vector rugAlignmentY = m_rugConfig.perpDirection * rugPerpAlignment;
   //Moving along = pushing back hairs
-  if(carpetAlignment > 0){ //If moving in direction of carpet
-    carpetAlignmentX *= m_carpetConfig.perpShiftDistanceK; //wheels are moving more, odometry excess
-    if(m_lastCarpetDir.x() < 0){ //If changed from moving along carpet to not, shifts hairs back
-       carpetAlignmentX += -m_carpetConfig.direction * m_carpetConfig.perpShiftDistance; //Shift odometry back against direction of hairs
+  if(rugAlignment > 0){ //If moving in direction of rug
+    rugAlignmentX *= m_rugConfig.perpShiftDistanceK; //wheels are moving more, odometry excess
+    if(m_lastRugDir.x() < 0){ //If changed from moving along rug to not, shifts hairs back
+       rugAlignmentX += -m_rugConfig.direction * m_rugConfig.perpShiftDistance; //Shift odometry back against direction of hairs
     }
   }
-  else if(m_lastCarpetDir.x() > 0){//If changed from moving against carpet to not, shifts hairs forward
-    carpetAlignmentX += m_carpetConfig.direction * m_carpetConfig.perpShiftDistance; //Shift odometry forward with direction of hairs
+  else if(m_lastRugDir.x() > 0){//If changed from moving against rug to not, shifts hairs forward
+    rugAlignmentX += m_rugConfig.direction * m_rugConfig.perpShiftDistance; //Shift odometry forward with direction of hairs
   }
   //Perpendicular movement (if it exists)
-  carpetAlignmentY *= m_carpetConfig.perpShiftDistanceK; //Always shifts by a factor (hair can move side to side)
-  if(carpetPerpAlignment > 0){ //Check change direction
-    if(m_lastCarpetDir.y() < 0){ //If changed from moving along carpet to not, shifts hairs back
-      carpetAlignmentY += -m_carpetConfig.direction * m_carpetConfig.perpShiftDistance; //Shift odometry back against direction of hairs
+  rugAlignmentY *= m_rugConfig.perpShiftDistanceK; //Always shifts by a factor (hair can move side to side)
+  if(rugPerpAlignment > 0){ //Check change direction
+    if(m_lastRugDir.y() < 0){ //If changed from moving along rug to not, shifts hairs back
+      rugAlignmentY += -m_rugConfig.direction * m_rugConfig.perpShiftDistance; //Shift odometry back against direction of hairs
     }
   }
-  else if(m_lastCarpetDir.y() > 0){//If changed from moving against carpet to not, shifts hairs forward
-    carpetAlignmentY += m_carpetConfig.direction * m_carpetConfig.perpShiftDistance; //Shift odometry forward with direction of hairs
+  else if(m_lastRugDir.y() > 0){//If changed from moving against rug to not, shifts hairs forward
+    rugAlignmentY += m_rugConfig.direction * m_rugConfig.perpShiftDistance; //Shift odometry forward with direction of hairs
   }
-  m_lastCarpetDir = {carpetAlignment, carpetPerpAlignment};
+  m_lastRugDir = {rugAlignment, rugPerpAlignment};
 
-  posDiff = carpetAlignmentX + carpetAlignmentY;
+  posDiff = rugAlignmentX + rugAlignmentY;
 
   //Store into map
   Vector pos = posPrev + posDiff;

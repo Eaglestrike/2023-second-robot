@@ -45,8 +45,8 @@ private:
   double m_k;
   double m_maxTime;
 
-  OdometryConstants::CarpetConfig m_carpetConfig = OdometryConstants::CARPET_CONFIG;
-  vec::Vector2D m_lastCarpetDir{0.0, 0.0}; //Direction the robot was driving along carpet
+  OdometryConstants::RugConfig m_rugConfig = OdometryConstants::RUG_CONFIG;
+  vec::Vector2D m_lastRugDir{0.0, 0.0}; //Direction the robot was driving along carpet
 
   std::map<std::size_t, KalmanState> m_states;
 

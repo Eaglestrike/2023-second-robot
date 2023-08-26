@@ -222,7 +222,7 @@ void Robot::TeleopPeriodic() {
   frc::SmartDashboard::PutNumber("curYaw", curYaw);
 
   vec::Vector2D setVel = {-vy, -vx};
-  m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.02);
+  m_swerveController->SetRobotVelocityAbs(setVel, w, curYaw, 0.02, m_joystickAng);
 
   m_swerveController->Periodic();
 
@@ -230,8 +230,8 @@ void Robot::TeleopPeriodic() {
   auto vel = m_swerveController->GetRobotVelocity(curYaw);
   m_pos += vel * 0.02;
 
-  frc::SmartDashboard::PutString("pos:", m_pos.toString());
-  frc::SmartDashboard::PutString("vel:", vel.toString());
+  // frc::SmartDashboard::PutString("pos:", m_pos.toString());
+  // frc::SmartDashboard::PutString("vel:", vel.toString());
   frc::SmartDashboard::PutString("setVel:", setVel.toString());
   frc::SmartDashboard::PutNumber("setAngVel:", w);
 }

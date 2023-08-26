@@ -80,8 +80,10 @@ bool Utils::NearZero(const vec::Vector2D vec, const double tolerance)
 
 /**
  * Normalizes angle to (180, -180]
+ * 
+ * @returns normalized angle
 */
-static double NormalizeAng(const double ang) {
+double Utils::NormalizeAng(const double ang) {
   const vec::Vector2D vec{std::cos(ang), std::sin(ang)};
   return vec.angle();
 }

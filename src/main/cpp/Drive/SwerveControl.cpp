@@ -122,7 +122,6 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
     angVel = std::clamp(angVel, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
   }
 
-
   for (std::size_t i = 0; i < 4; i++)
   {
     // computes vectors in 3D
@@ -152,6 +151,20 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
     vecPrints[i] = velBody;
     m_modules[i].get().SetVector(velBody);
   }
+}
+
+/**
+ * Sets robot absolute velocity given relative joystick inputs
+ *
+ * @param vel Velocity to set
+ * @param angVel Angular velocity, + is counterclockwise, - is clockwise
+ * @param ang Current navX angle, in radians
+ * @param time Time between readings
+ * @param angOfJoystick angle of joystick relative to field
+ */
+void SwerveControl::SetRobotVelocityAbs(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick) {
+  vec::Vector2D velAbs = vec::rotate(vel, angOfJoystick);
+  SetRobotVelocity(velAbs, angVel, ang, time);
 }
 
 /**

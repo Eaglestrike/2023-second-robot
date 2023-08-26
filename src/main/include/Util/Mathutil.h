@@ -19,6 +19,7 @@ public:
   static vec::Vector2D GetVecAverage(const std::vector<vec::Vector2D>);
   static bool NearZero(const double num, const double tolerance = UtilConstants::NEAR_ZERO_TOLERANCE);
   static bool NearZero(const vec::Vector2D vec, const double tolerance = UtilConstants::NEAR_ZERO_TOLERANCE);
+  static double NormalizeAng(const double ang);
   static std::size_t GetCurTimeMs();
   static double DegToRad(const double deg);
   static double RadToDeg(const double rad);

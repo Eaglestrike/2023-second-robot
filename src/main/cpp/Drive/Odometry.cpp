@@ -139,7 +139,8 @@ vec::Vector2D Odometry::GetPosition() const {
  * @returns estimated angle, in radians
 */
 double Odometry::GetAng() const {
-  return m_filter.GetEstimatedAng();
+  const double ang = m_filter.GetEstimatedAng();
+  return Utils::NormalizeAng(ang);
 }
 
 /**

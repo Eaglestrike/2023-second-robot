@@ -1,5 +1,6 @@
 #include "Drive/Odometry.h"
 
+#include <frc/smartdashboard/SmartDashboard.h>
 // #include <cmath>
 // #include <cstdlib>
 
@@ -20,6 +21,13 @@ Odometry::Odometry(double E0, double Q, double kAng, double k, double maxTime)
 {
   m_states[0].E = E0;
   m_states[0].ang = 0;
+  if(useSmartDashboard){
+    frc::SmartDashboard::PutNumber("Carpet Angle", m_carpetConfig.direction.angle());
+    frc::SmartDashboard::PutNumber("shiftDistance", m_carpetConfig.shiftDistance);
+    frc::SmartDashboard::PutNumber("shiftDistanceK", m_carpetConfig.shiftDistanceK);
+    frc::SmartDashboard::PutNumber("perpShiftDistance", m_carpetConfig.perpShiftDistance);
+    frc::SmartDashboard::PutNumber("perpShiftDistanceK", m_carpetConfig.perpShiftDistanceK);
+  }
 }
 
 /**
@@ -57,6 +65,16 @@ void Odometry::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::siz
     return;
   }
   Vector posDiff = vAvgCur * timeDiff;
+
+  if(useSmartDashboard){
+    double newAngle = frc::SmartDashboard::GetNumber("Carpet Angle", m_carpetConfig.direction.angle());
+    m_carpetConfig.direction = vec::Vector2D{1, 0}.rotate(newAngle); //Where the carpet points
+    m_carpetConfig.perpDirection = m_carpetConfig.direction.rotate(M_PI/2.0);
+    m_carpetConfig.shiftDistance = frc::SmartDashboard::GetNumber("shiftDistance", m_carpetConfig.shiftDistance);
+    m_carpetConfig.shiftDistanceK = frc::SmartDashboard::GetNumber("shiftDistanceK", m_carpetConfig.shiftDistanceK);
+    m_carpetConfig.perpShiftDistance = frc::SmartDashboard::GetNumber("perpShiftDistance", m_carpetConfig.perpShiftDistance);
+    m_carpetConfig.perpShiftDistanceK = frc::SmartDashboard::GetNumber("perpShiftDistanceK", m_carpetConfig.perpShiftDistanceK);
+  }
 
   //Carpet math, different behavior depending on how the drivebase drives on the carpet
   double carpetAlignment = posDiff.dot(m_carpetConfig.direction);

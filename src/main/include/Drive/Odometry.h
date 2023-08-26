@@ -49,4 +49,6 @@ private:
   vec::Vector2D m_lastCarpetDir{0.0, 0.0}; //Direction the robot was driving along carpet
 
   std::map<std::size_t, KalmanState> m_states;
+
+  bool useSmartDashboard = true;
 };

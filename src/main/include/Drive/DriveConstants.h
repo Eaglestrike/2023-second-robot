@@ -79,7 +79,8 @@ namespace OdometryConstants {
     vec::Vector2D direction = vec::Vector2D{1, 0}.rotate(1.57); //Where the carpet points
     vec::Vector2D perpDirection = direction.rotate(M_PI/2.0);
     double shiftDistance = 0.0; //Distance shifted by driving along carpet hairs -> m
-    double shiftDistanceK = 0.835; //Distance gained by driving with hair -> extra m/m
+    // double shiftDistanceK = 0.835; //Distance gained by driving with hair -> extra m/m
+    double shiftDistanceK = 1; // disable shiftDistanceK
     double perpShiftDistance = 0.0; //Distance shifted by driving perpendicularly to the hair -> m
     double perpShiftDistanceK = 1.0; //Distance gained by driving perpendicularly with hair -> extra m/m
   } RUG_CONFIG;

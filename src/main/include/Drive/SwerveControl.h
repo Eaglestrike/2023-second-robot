@@ -21,11 +21,12 @@ public:
 
   vec::Vector2D GetRobotVelocity(double ang);
 
-  void ResetAngleCorrection();
+  void ResetAngleCorrection(double startAng = 0);
   void ResetFeedForward();
   void SetFeedForward(double kS, double kV, double kA);
   void SetAngleCorrectionPID(double kP, double kI, double kD);
   void SetRobotVelocity(vec::Vector2D vel, double angVel, double ang, double time);
+  void SetRobotVelocityAbs(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick);
 
   void Periodic();
 

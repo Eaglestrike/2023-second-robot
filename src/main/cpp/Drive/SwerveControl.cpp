@@ -45,7 +45,7 @@ vec::Vector2D SwerveControl::GetRobotVelocity(double ang)
     vectors.push_back(module.get().GetVelocity());
   }
 
-  auto avg = Mathutil::GetVecAverage(vectors);
+  auto avg = Utils::GetVecAverage(vectors);
   return vec::rotate(avg, ang); // rotate by navx ang
 }
 
@@ -58,13 +58,13 @@ void SwerveControl::ResetFeedForward()
 }
 
 /**
- * Resets angle correction angle to zero
+ * Resets angle correction angle to a certain angle
  *
  * @note Always call this after calling navx::ZeroYaw()
  */
-void SwerveControl::ResetAngleCorrection()
+void SwerveControl::ResetAngleCorrection(double startAng)
 {
-  m_curAngle = 0;
+  m_curAngle = startAng;
 }
 
 /**
@@ -108,13 +108,13 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 
   frc::SmartDashboard::PutNumber("cjurrent angle", m_curAngle);
 
-  if (!Mathutil::NearZero(angVel))
+  if (!Utils::NearZero(angVel))
   {
     // if turning, track current angle
     m_curAngle = ang;
   }
 
-  if (!Mathutil::NearZero(vel) && Mathutil::NearZero(angVel))
+  if (!Utils::NearZero(vel) && Utils::NearZero(angVel))
   {
     // if not turning, correct robot so that it doesnt turn
     angVel = m_angleCorrector.Calculate(ang, m_curAngle);
@@ -142,7 +142,7 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 
     // speed from ff calculations, then resize velBody to match ff calculations
     double speed = m_kS + m_kV * magn(velBody) + m_kA * (magn(velBody) - m_prevSpeeds[i]) / time;
-    if (!Mathutil::NearZero(velBody) && !Mathutil::NearZero(speed))
+    if (!Utils::NearZero(velBody) && !Utils::NearZero(speed))
     {
       velBody = normalize(velBody) * speed;
     }

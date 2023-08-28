@@ -2,6 +2,12 @@
 
 #include <cmath>
 
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643383279502884197169399
+#endif
+
+#include <frc/Timer.h>
+
 /**
  * Gets the value with the minimum absolute value between two numbers
  *
@@ -10,7 +16,7 @@
  *
  * @returns a or b, depending on which one has a lesser absolute value
  */
-double Mathutil::AbsMin(const double a, const double b)
+double Utils::AbsMin(const double a, const double b)
 {
   return std::abs(a) < std::abs(b) ? a : b;
 }
@@ -24,7 +30,7 @@ double Mathutil::AbsMin(const double a, const double b)
  *
  * @returns The averaged vector
  */
-vec::Vector2D Mathutil::GetVecAverage(const std::vector<vec::Vector2D> vectors)
+vec::Vector2D Utils::GetVecAverage(const std::vector<vec::Vector2D> vectors)
 {
   vec::Vector2D res;
   if (vectors.size() == 0)
@@ -48,7 +54,7 @@ vec::Vector2D Mathutil::GetVecAverage(const std::vector<vec::Vector2D> vectors)
  * @param num Number
  * @param tolerance Tolerance for being near zero
  */
-bool Mathutil::NearZero(const double num, const double tolerance)
+bool Utils::NearZero(const double num, const double tolerance)
 {
   return std::abs(num) <= tolerance;
 }
@@ -59,7 +65,7 @@ bool Mathutil::NearZero(const double num, const double tolerance)
  * @param vec Vector
  * @param tolerance Tolerance for being near zero
  */
-bool Mathutil::NearZero(const vec::Vector2D vec, const double tolerance)
+bool Utils::NearZero(const vec::Vector2D vec, const double tolerance)
 {
   for (auto component : vec)
   {
@@ -69,4 +75,37 @@ bool Mathutil::NearZero(const vec::Vector2D vec, const double tolerance)
     }
   }
   return true;
+}
+
+/**
+ * Gets the current time from robot start in ms
+ * 
+ * @returns Current robot time in ms
+*/
+std::size_t Utils::GetCurTimeMs() {
+  auto curTime = frc::Timer::GetFPGATimestamp();
+  auto timeMs = curTime.convert<units::millisecond>();
+  return static_cast<std::size_t>(timeMs.value());
+}
+
+/**
+ * Converst degrees to radians
+ * 
+ * @param deg Angle in degrees
+ * 
+ * @returns Angle in radians
+*/
+double Utils::DegToRad(const double deg) {
+  return deg * (M_PI / 180.0);
+}
+
+/**
+ * Converts radians to degrees
+ * 
+ * @param rad Angle in radians
+ * 
+ * @returns Angle in degrees
+*/
+double Utils::RadToDeg(const double rad) {
+  return rad * (180.0 / M_PI);
 }

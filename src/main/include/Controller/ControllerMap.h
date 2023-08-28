@@ -37,11 +37,11 @@ namespace ControllerMapData{
     //There are already some named ButtonData and Buttons
     const std::vector<ControlMapElement> ButtonMap = {
         {{LJOY, X_AXIS},        SWERVE_STRAFEX},
-        {{LJOY, Y_AXIS},        SWERVE_STRAFEY},
+        {{LJOY, Y_AXIS},        NONE},
         {{LJOY, TRIGGER},       ZERO_DRIVE_PID},
 
         {{RJOY, X_AXIS},        SWERVE_ROTATION},
-        {{RJOY, Y_AXIS},        NONE},
+        {{RJOY, Y_AXIS},        SWERVE_STRAFEY},
         {{RJOY, TRIGGER},       ZERO_YAW},
         
         {XBOX_LJOY_X,           NONE},

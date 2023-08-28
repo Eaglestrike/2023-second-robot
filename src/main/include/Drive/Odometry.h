@@ -1,54 +1,42 @@
 #pragma once
 
 #include <cstddef>
-#include <map>
+#include <memory>
 
+#include <AHRS.h>
+
+#include "KalmanFilter.h"
+#include "SwerveControl.h"
 #include "Util/thirdparty/simplevectors.hpp"
-#include "DriveConstants.h"
 
 namespace vec = svector;
 
 /**
- * Tracking posititon of robot usign scuffe` Kalman filter
+ * Gets information about robot's velocity, position, and heading
  * 
- * kalman filters le x and y pos on field
- * does complementary filters angle but alpha depends on speed (literally what alex did)
- * 
- * i truly have no clue what im doing
- */
-class Odometry
-{
+ * Uses an absolute coordinate system on field, units are in meters.
+ * Coordinate system: https://firstfrc.blob.core.windows.net/frc2023/FieldAssets/2023LayoutMarkingDiagram.pdf
+ * Apriltag origin = coordinate origin
+ * +x is towards red driver stations, +y is towrads human player stations, +z is up
+ * 0 degree angle is facing +x direction, 90 degree is facing +y
+*/
+class Odometry {
 public:
-  struct KalmanState {
-    vec::Vector2D pos;
-    vec::Vector2D vAvg;
-    double ang;
-    double E;
-  };
+  Odometry(vec::Vector2D *posOffset, double *angOffset);
+  
+  void SetKFTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime);
+  void SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId);
+  void Reset();
 
-  Odometry(double E0, double Q, double kAng, double k, double maxTime);
+  vec::Vector2D GetPosition() const;
+  double GetAng() const;
 
-  void PredictFromWheels(vec::Vector2D vAvg, double navXAng, std::size_t curTime);
-  void UpdateFromCamera(double x, double y, double angZ, std::size_t timeOffset, std::size_t curTime);
-
-  void Reset(std::size_t curTime);
-  void SetTerms(double E0, double Q, double kAng, double k, double maxTime);
-
-  double GetEstimatedX() const;
-  double GetEstimatedY() const;
-  double GetEstimatedAng() const;
+  void Periodic(double ang, vec::Vector2D avgVelocity);
 
 private:
-  double m_E0;
-  double m_Q;
-  double m_kAng;
-  double m_k;
-  double m_maxTime;
+  vec::Vector2D *m_posOffset;
+  double *m_angOffset;
+  KalmanFilter m_filter;
 
-  OdometryConstants::RugConfig m_rugConfig = OdometryConstants::RUG_CONFIG;
-  vec::Vector2D m_lastRugDir{0.0, 0.0}; //Direction the robot was driving along carpet
-
-  std::map<std::size_t, KalmanState> m_states;
-
-  bool useSmartDashboard = true;
+  long long m_prevId;
 };

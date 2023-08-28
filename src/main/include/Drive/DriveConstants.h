@@ -13,7 +13,7 @@ namespace SwerveConstants
 {
   const double MAG_ENCODER_COUNTS_PER_REV = 4096;
   const double TALON_FX_COUNTS_PER_REV = 2048;
-  const double WHEEL_RADIUS = 0.0508; // in meters
+  const double WHEEL_RADIUS = 0.0500; // in meters
   const double WHEEL_GEAR_RATIO = 6.12; // stolen from Alex, 6.12 motor spins = 1 wheel spin
 
   // meters
@@ -76,11 +76,18 @@ namespace OdometryConstants {
   const double CAMERA_TRUST_K = -10.0;
 
   const struct RugConfig{
-    vec::Vector2D direction = vec::Vector2D{1, 0}.rotate(0); //Where the carpet points
+    vec::Vector2D direction = vec::Vector2D{1, 0}.rotate(1.57); //Where the carpet points
     vec::Vector2D perpDirection = direction.rotate(M_PI/2.0);
     double shiftDistance = 0.0; //Distance shifted by driving along carpet hairs -> m
-    double shiftDistanceK = 1.0; //Distance gained by driving with hair -> extra m/m
+    double shiftDistanceK = 0.835; //Distance gained by driving with hair -> extra m/m
     double perpShiftDistance = 0.0; //Distance shifted by driving perpendicularly to the hair -> m
     double perpShiftDistanceK = 1.0; //Distance gained by driving perpendicularly with hair -> extra m/m
   } RUG_CONFIG;
+
+  const double E0 = 1.0;
+  const double Q = 0.01;
+  const double CAM_TRUST_KANG = 10.0; // unused for now, can use if relying on apriltag angle
+  const double CAM_TRUST_KPOS = 500.0;
+  const double CAM_TRUST_KPOSINT = 100.0;
+  const double MAX_TIME = 0.5;
 }

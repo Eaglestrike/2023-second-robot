@@ -7,6 +7,8 @@
 #define M_PI 3.141592653589793238462643383279502884197169399
 #endif
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 #include "Drive/DriveConstants.h"
 #include "Util/Mathutil.h"
 
@@ -32,6 +34,7 @@ SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, do
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);
   // m_encoder.ConfigMagnetOffset(offset);
   m_controller.EnableContinuousInput(-M_PI, M_PI);
+  frc::SmartDashboard::PutNumber("Wheel Radius", SwerveConstants::WHEEL_RADIUS);
 }
 
 /**
@@ -42,7 +45,8 @@ SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, do
 vec::Vector2D SwerveModule::GetVelocity()
 {
   //                                   (x ticks / 1 100ms) * (10 100ms / 1 s) * (2π motor radians / TALON_FX_COUNTS_PER_REV ticks) * (1 wheel radian / WHEEL_GEAR_RATIO motor radians) * (WHEEL_RADIUS m / 1 wheel radian)
-  double curMotorSpeed = m_driveMotor.GetSelectedSensorVelocity() * 10.0 * (2.0 * M_PI / SwerveConstants::TALON_FX_COUNTS_PER_REV) * (1 / SwerveConstants::WHEEL_GEAR_RATIO) * SwerveConstants::WHEEL_RADIUS;
+  double wheelRad = frc::SmartDashboard::GetNumber("Wheel Radius", SwerveConstants::WHEEL_RADIUS);
+  double curMotorSpeed = m_driveMotor.GetSelectedSensorVelocity() * 10.0 * (2.0 * M_PI / SwerveConstants::TALON_FX_COUNTS_PER_REV) * (1 / SwerveConstants::WHEEL_GEAR_RATIO) * wheelRad;
   double curAng = GetCorrectedEncoderReading() * (M_PI / 180);
 
   auto resVec = vec::Vector2D{std::cos(curAng), std::sin(curAng)} * curMotorSpeed;
@@ -87,7 +91,7 @@ void SwerveModule::SetVector(vec::Vector2D vec)
 {
   m_targetSpeed = vec::magn(vec);
 
-  if (!Mathutil::NearZero(vec))
+  if (!Utils::NearZero(vec))
   {
     m_targetAngle = vec::normalize(vec);
   }
@@ -178,7 +182,8 @@ void SwerveModule::Periodic()
 }
 
 /**
- * Given current angle and target angle, determines
+ * Given current angle and target angle, determines whether current angle vector should be
+ * flipped so that it minimizes angular distance to target angle.
  *
  * @param curVec current angle, vector form
  * @param targetVec target angle, vector form

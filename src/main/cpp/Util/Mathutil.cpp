@@ -77,6 +77,17 @@ bool Utils::NearZero(const vec::Vector2D vec, const double tolerance)
   return true;
 }
 
+
+/**
+ * Normalizes angle to (180, -180]
+ * 
+ * @returns normalized angle
+*/
+double Utils::NormalizeAng(const double ang) {
+  const vec::Vector2D vec{std::cos(ang), std::sin(ang)};
+  return vec.angle();
+}
+
 /**
  * Gets the current time from robot start in ms
  * 

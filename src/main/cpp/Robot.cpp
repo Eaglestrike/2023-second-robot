@@ -69,17 +69,17 @@ Robot::Robot():
     frc::SmartDashboard::PutData("Field", &m_field);
 
     // process camera data
-    std::vector<double> camData = m_client.GetData();
-    if (m_client.HasConn() && !m_client.IsStale()) {
-      int tagId = static_cast<int>(camData[1]);
-      double x = camData[2];
-      double y = camData[3];
-      double angZ = camData[4];
-      long long age = static_cast<long long>(camData[5]);
-      unsigned long long uniqueId = static_cast<unsigned long long>(camData[6]);
+    // std::vector<double> camData = m_client.GetData();
+    // if (m_client.HasConn() && !m_client.IsStale()) {
+    //   int tagId = static_cast<int>(camData[1]);
+    //   double x = camData[2];
+    //   double y = camData[3];
+    //   double angZ = camData[4];
+    //   long long age = static_cast<long long>(camData[5]);
+    //   unsigned long long uniqueId = static_cast<unsigned long long>(camData[6]);
 
-      m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
-    }
+    //   m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
+    // }
 
     // other odometry
     double angNavX = Utils::DegToRad(m_navx->GetYaw());
@@ -217,13 +217,12 @@ void Robot::TeleopPeriodic() {
   double vy = std::clamp(ly, -1.0, 1.0) * 12.0;
   double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
 
-  double curYaw = m_navx->GetYaw();
-  curYaw = curYaw * (M_PI / 180);
+  double curYaw = m_odometry.GetAng();
 
   frc::SmartDashboard::PutNumber("curYaw", curYaw);
 
   vec::Vector2D setVel = {-vy, -vx};
-  m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.02);
+  m_swerveController->SetRobotVelocityAbs(setVel, w, curYaw, 0.02, m_joystickAng);
 
   m_swerveController->Periodic();
 
@@ -231,8 +230,8 @@ void Robot::TeleopPeriodic() {
   auto vel = m_swerveController->GetRobotVelocity(curYaw);
   m_pos += vel * 0.02;
 
-  frc::SmartDashboard::PutString("pos:", m_pos.toString());
-  frc::SmartDashboard::PutString("vel:", vel.toString());
+  // frc::SmartDashboard::PutString("pos:", m_pos.toString());
+  // frc::SmartDashboard::PutString("vel:", vel.toString());
   frc::SmartDashboard::PutString("setVel:", setVel.toString());
   frc::SmartDashboard::PutNumber("setAngVel:", w);
 }

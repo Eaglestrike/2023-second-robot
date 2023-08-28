@@ -34,7 +34,11 @@ SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, do
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);
   // m_encoder.ConfigMagnetOffset(offset);
   m_controller.EnableContinuousInput(-M_PI, M_PI);
+
   frc::SmartDashboard::PutNumber("Wheel Radius", SwerveConstants::WHEEL_RADIUS);
+
+  m_angleMotor.SetNeutralMode(NeutralMode::Brake);
+  m_driveMotor.SetNeutralMode(NeutralMode::Brake);
 }
 
 /**
@@ -175,6 +179,11 @@ void SwerveModule::Periodic()
     speed = m_driveInverted ? -m_targetSpeed : m_targetSpeed;
   }
   speed = std::clamp(speed, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
+
+  // don't set angle motor voltage if speed = 0
+  if (Utils::NearZero(speed)) {
+    return;
+  }
 
   // set voltages to motor
   m_driveMotor.SetVoltage(units::volt_t{speed});

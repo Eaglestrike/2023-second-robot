@@ -22,7 +22,7 @@
  * @note feedforward relates speed to voltage
  */
 SwerveControl::SwerveControl(RefArray<SwerveModule> modules, std::array<vec::Vector2D, 4> radii, double kS, double kV, double kA)
-    : m_modules{modules}, m_radii{radii}, m_kS{kS}, m_kV{kV}, m_kA{kA}, m_curAngle{0}, m_angleCorrector{0.1, 0, 0.01}
+    : m_modules{modules}, m_radii{radii}, m_kS{kS}, m_kV{kV}, m_kA{kA}, m_curAngle{0}, m_angleCorrector{SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D}
 {
   m_angleCorrector.EnableContinuousInput(-M_PI, M_PI);
   ResetFeedForward();
@@ -122,7 +122,6 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
     angVel = std::clamp(angVel, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
   }
 
-
   for (std::size_t i = 0; i < 4; i++)
   {
     // computes vectors in 3D
@@ -155,9 +154,21 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 }
 
 /**
- * Periodic function
+ * Sets robot absolute velocity given relative joystick inputs
  *
- * @note to self: CALL ME!!!! cALLL ME!!!!! you blITHERignnGG IDIOT!
+ * @param vel Velocity to set
+ * @param angVel Angular velocity, + is counterclockwise, - is clockwise
+ * @param ang Current navX angle, in radians
+ * @param time Time between readings
+ * @param angOfJoystick angle of joystick relative to field
+ */
+void SwerveControl::SetRobotVelocityAbs(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick) {
+  vec::Vector2D velAbs = vec::rotate(vel, angOfJoystick);
+  SetRobotVelocity(velAbs, angVel, ang, time);
+}
+
+/**
+ * Periodic function
  */
 void SwerveControl::Periodic()
 {

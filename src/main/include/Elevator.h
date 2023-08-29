@@ -30,13 +30,13 @@ class Elevator {
 
         // util methods
         void periodic();
-        void setState(Elevator::ElevatorState new_pos);
+        void setState(ElevatorState new_pos);
 
         void zero_motors();
         void stop();
     private:
         // member variables
-        Elevator::ElevatorState current_state;
+        ElevatorState current_state;
         Feedforward feedforward_;
 
         // motors

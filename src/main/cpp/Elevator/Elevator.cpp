@@ -2,7 +2,7 @@
 // Created by Vir Shah on 6/14/23.
 //
 
-#include "Elevator.h"
+#include "Elevator/Elevator.h"
 #include "frc/controller/ElevatorFeedforward.h"
 
 // debug getters

@@ -159,3 +159,49 @@ void Feedforward::setPIDConstants(double kp, double kd)
     this->kp = kp;
     this->kd = kd;
 }
+
+// getters and setters
+
+double Feedforward::getKs() {
+    return ks;
+}
+
+void Feedforward::setKs(double ks) {
+    this->ks = ks;
+}
+
+
+double Feedforward::getKv() {
+    return kv;
+}
+
+void Feedforward::setKv(double kv) {
+    this->kv = kv;
+}
+
+
+double Feedforward::getKa() {
+    return ka;
+}
+
+void Feedforward::setKa(double ka) {
+    this->ka = ka;
+}
+
+
+double Feedforward::getMaxAcceleration() {
+    return max_acceleration;
+}
+
+void Feedforward::setMaxAcceleration(double new_acc) {
+    max_acceleration = new_acc;
+}
+
+
+double Feedforward::getMaxVelocity() {
+    return max_velocity;
+}
+
+void Feedforward::setMaxVelocity(double new_vel) {
+    max_velocity = new_vel;
+}

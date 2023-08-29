@@ -12,22 +12,16 @@
 #include <frc/Timer.h>
 #include <units/velocity.h>
 #include <units/acceleration.h>
+#include "Constants.h"
 
 class Feedforward
 {
 public:
-    struct Pose
-    {
-        double velocity;
-        double acceleration;
-        double distance;
-    };
-
     double calculate(double velocity, double acceleration);
-    Pose getExpectedPose(double time);
+    Poses::Pose1D getExpectedPose(double time);
     void start();
-    double pid_calculations(std::pair<double, double> expected, std::pair<double, double> current);
-    double periodic(std::pair<double, double> current_values);
+    double pid_calculations(Poses::Pose1D expected, Poses::Pose1D current);
+    double periodic(Poses::Pose1D current_values);
 
     // getters and setters
     double getKs();

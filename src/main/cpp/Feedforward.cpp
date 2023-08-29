@@ -32,16 +32,16 @@ Feedforward::Feedforward(double ks, double kv, double ka, double kg, double kp, 
  * @param current_values a pair containing the velocity and distance (respectively) of the current system.
  * @return a voltage that a motor is expected to use
  */
-double Feedforward::periodic(std::pair<double, double> current_values)
+double Feedforward::periodic(Poses::Pose1D current_values)
 {
     if (!isRunning) {
         start();
     }
 
-    Pose expected_values = getExpectedPose(timer.Get().value());
+    Poses::Pose1D expected_values = getExpectedPose(timer.Get().value());
 
     double feedforward_voltage = calculate(expected_values.velocity, expected_values.acceleration);
-    double pid_voltage = pid_calculations({expected_values.velocity, expected_values.distance}, current_values);
+    double pid_voltage = pid_calculations({expected_values.velocity, expected_values.position}, current_values);
 
     return feedforward_voltage + pid_voltage;
 }
@@ -53,9 +53,9 @@ double Feedforward::periodic(std::pair<double, double> current_values)
  * @param current Pose containing information about where system actually is
  * @return double voltage to add to feedforward loop to compensate for inaccuracies in velocity/position.
  */
-double Feedforward::pid_calculations(std::pair<double, double> expected, std::pair<double, double> current)
+double Feedforward::pid_calculations(Poses::Pose1D expected, Poses::Pose1D current)
 {
-    return kp * (expected.first - current.first) + kd * (expected.second - current.second);
+    return kp * (expected.velocity - current.velocity) + kd * (expected.position - current.position);
 }
 
 /**
@@ -99,9 +99,9 @@ void Feedforward::start()
  * @param time current system time
  * @return pose a pose containing the distance
  */
-Feedforward::Pose Feedforward::getExpectedPose(double time)
+Poses::Pose1D Feedforward::getExpectedPose(double time)
 {
-    Pose pose;
+    Poses::Pose1D pose;
 
     // the time spent accelerating (or decelerating)
     double acceleration_time = max_velocity / max_acceleration;
@@ -114,7 +114,7 @@ Feedforward::Pose Feedforward::getExpectedPose(double time)
     {
         pose.acceleration = max_acceleration;
         pose.velocity = max_acceleration * time;
-        pose.distance = 0.5 * pose.velocity * time;
+        pose.position = 0.5 * pose.velocity * time;
     }
 
     // if in the velocity phase
@@ -123,7 +123,7 @@ Feedforward::Pose Feedforward::getExpectedPose(double time)
         pose.acceleration = 0.0;
         pose.velocity = max_velocity;
         // adds phase 1 to however much of phase 2 has been gone through
-        pose.distance = 0.5 * max_velocity * acceleration_time + max_velocity * (time - acceleration_time);
+        pose.position = 0.5 * max_velocity * acceleration_time + max_velocity * (time - acceleration_time);
     }
 
     // if in the deceleration phase
@@ -131,7 +131,7 @@ Feedforward::Pose Feedforward::getExpectedPose(double time)
     {
         pose.acceleration = -1.0 * max_acceleration;
         pose.velocity = max_velocity - (max_acceleration * (time - (acceleration_time + velocity_time)));
-        pose.distance = 0.5 * max_velocity * acceleration_time + max_velocity * velocity_time + (pose.velocity * pose.velocity - max_velocity * max_velocity) / (2.0 * max_acceleration);
+        pose.position = 0.5 * max_velocity * acceleration_time + max_velocity * velocity_time + (pose.velocity * pose.velocity - max_velocity * max_velocity) / (2.0 * max_acceleration);
     }
 
     return pose;

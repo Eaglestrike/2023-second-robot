@@ -85,3 +85,11 @@ namespace ElevatorConstants {
   const double KP = 0.0;
   const double KD = 0.0;
 }
+
+namespace Poses {
+  struct Pose1D {
+    double velocity;
+    double acceleration;
+    double position;
+  };
+};

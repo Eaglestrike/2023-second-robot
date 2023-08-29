@@ -12,20 +12,13 @@ class Elevator {
         Elevator(int leftID, int rightID);
 
         // possible states that the elevator can be in
-        enum ELEVATOR_STATE {
+        enum ElevatorState {
             MOVING_TO_DOCKED,
             MOVING_TO_RAISED,
             DOCKED,
             RAISED,
             STOPPED, // setState must be called to escape this state.
         };
-
-        struct ElevatorPose {
-            double velocity;
-            double acceleration;
-            double distance;
-        };
-
 
         // debug getters
         double getElevatorHeight();
@@ -37,13 +30,13 @@ class Elevator {
 
         // util methods
         void periodic();
-        void setState(Elevator::ELEVATOR_STATE new_pos);
+        void setState(Elevator::ElevatorState new_pos);
 
         void zero_motors();
         void stop();
     private:
         // member variables
-        Elevator::ELEVATOR_STATE current_state;
+        Elevator::ElevatorState current_state;
         Feedforward feedforward_;
 
         // motors

@@ -50,9 +50,9 @@ void Elevator::periodic() {
         return;
     }
 
-    std::pair<double, double> current_values;
-    current_values.first = left_.GetSelectedSensorVelocity();
-    current_values.second = (left_.GetSelectedSensorPosition() / SwerveConstants::TALON_FX_COUNTS_PER_REV) * ElevatorConstants::ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED;
+    Poses::Pose1D current_values;
+    current_values.velocity = left_.GetSelectedSensorVelocity();
+    current_values.position = (left_.GetSelectedSensorPosition() / SwerveConstants::TALON_FX_COUNTS_PER_REV) * ElevatorConstants::ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED;
 
     double motor_output = feedforward_.periodic(current_values);
 
@@ -69,7 +69,7 @@ void Elevator::periodic() {
  * This will be used to set the next position that the elevator should move to 
  * @param new_pos the next state that the elevator should be in
  */
-void Elevator::setState(Elevator::ELEVATOR_STATE new_pos) {
+void Elevator::setState(Elevator::ElevatorState new_pos) {
     current_state = new_pos;
 }
 
@@ -90,7 +90,7 @@ void Elevator::zero_motors() {
  * 
  */
 void Elevator::stop() {
-    setState(ELEVATOR_STATE::STOPPED);
+    setState(ElevatorState::STOPPED);
     left_.SetVoltage(units::volt_t{0});
     right_.SetVoltage(units::volt_t{0});
 }

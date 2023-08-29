@@ -7,7 +7,7 @@
 
 // debug getters
 double Elevator::getElevatorHeight() {
-    return elevator_height;
+    return (left_.GetSelectedSensorPosition() + right_.GetSelectedSensorPosition()) / 2.0
 }
 
 double Elevator::getLeftRotation() {
@@ -70,13 +70,12 @@ void Elevator::setState(Elevator::ELEVATOR_STATE new_pos) {
 // util methods
 
 /**
- * @brief Resets elevator height, left and right motor rotation 
+ * @brief Resets left and right motor rotation 
  * 
  */
-void Elevator::zero() {
+void Elevator::zero_motors() {
     left_.SetSelectedSensorPosition(0);
     right_.SetSelectedSensorPosition(0);
-    elevator_height = 0.0;
 }
 
 /**

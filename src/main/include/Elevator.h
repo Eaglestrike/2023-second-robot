@@ -36,14 +36,12 @@ class Elevator {
         void periodic();
         void setState(Elevator::ELEVATOR_STATE new_pos);
 
-        void zero();
+        void zero_motors();
         void stop();
     private:
         // member variables
         Elevator::ELEVATOR_STATE current_state;
         Feedforward feedforward_;
-
-        double elevator_height = 0.0;
 
         // motors
         WPI_TalonFX left_;

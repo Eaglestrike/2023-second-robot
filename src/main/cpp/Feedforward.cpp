@@ -9,14 +9,8 @@
  * @param kg constant to account for acceleration of gravity
  * @param distance the total distance needed to travel by the system
  */
-Feedforward::Feedforward(double ks, double kv, double ka, double kg, double distance)
-{
-    this->ks = ks;
-    this->kv = kv;
-    this->ka = ka;
-    this->kg = kg;
-    this->max_distance_ = distance;
-}
+Feedforward::Feedforward(double ks, double kv, double ka, double kg, double distance):
+    ks(ks), kv(kv), ka(ka), kg(kg), max_distance_(distance) {};
 
 /**
  * @brief Constructor meant for when you want to initialize PID constants.
@@ -29,18 +23,8 @@ Feedforward::Feedforward(double ks, double kv, double ka, double kg, double dist
  * @param kp change in velocity to volts constant
  * @param kd change in position to volts constant
  */
-Feedforward::Feedforward(double ks, double kv, double ka, double kg, double kp, double kd, double distance)
-{
-    this->ks = ks;
-    this->kv = kv;
-    this->ka = ka;
-    this->kg = kg;
-    this->max_distance_ = distance;
-
-    // plus PD constants
-    this->kp = kp;
-    this->kd = kd;
-}
+Feedforward::Feedforward(double ks, double kv, double ka, double kg, double kp, double kd, double distance): 
+    ks(ks), kv(kv), ka(ka), kg(kg), kp(kp), kd(kd), max_distance_(distance) {};
 
 /**
  * @brief Runs every periodic cycle.

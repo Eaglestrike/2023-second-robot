@@ -95,4 +95,6 @@ namespace OdometryConstants {
   const double CAM_TRUST_KPOS = 500.0;
   const double CAM_TRUST_KPOSINT = 100.0;
   const double MAX_TIME = 0.5;
+
+  const double ALPHA = 1.0;
 }

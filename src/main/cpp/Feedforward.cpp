@@ -1,6 +1,73 @@
 #include "Feedforward.h"
 
 /**
+ * @brief Basic constructor meant for feedforward without PID use.
+ * 
+ * @param ks static constant
+ * @param kv velocity to volts constant
+ * @param ka acceleration to volts constant
+ * @param kg constant to account for acceleration of gravity
+ * @param distance the total distance needed to travel by the system
+ */
+Feedforward::Feedforward(double ks, double kv, double ka, double kg, double distance) {
+    this->ks = ks;
+    this->kv = kv;
+    this->ka = ka;
+    this->kg = kg;
+    this->max_distance_ = distance;
+}
+
+/**
+ * @brief Constructor meant for when you want to initialize PID constants.
+ * 
+ * @param ks static constant
+ * @param kv velocity to volts constant
+ * @param ka acceleration to volts constant
+ * @param kg constant to account for acceleration of gravity
+ * @param distance the total distance needed to travel by the system
+ * @param kp change in velocity to volts constant
+ * @param kd change in position to volts constant
+ */
+Feedforward::Feedforward(double ks, double kv, double ka, double kg, double kp, double kd, double distance) {
+    this->ks = ks;
+    this->kv = kv;
+    this->ka = ka;
+    this->kg = kg;
+    this->max_distance_ = distance;
+
+    // plus PD constants
+    this->kp = kp;
+    this->kd = kd;
+}
+
+/**
+ * @brief Runs every periodic cycle. 
+ * 
+ * @param current_values a Pose containing the current distance, velocity, and acceleration of the system.
+ * @return a voltage that a motor is expected to use
+ */
+double Feedforward::periodic(Pose current_values) {
+    Pose expected_values = getExpectedPose(timer.Get().value());
+
+    double feedforward_voltage = calculate(expected_values.velocity, expected_values.acceleration);
+    double pid_voltage = pid_calculations(expected_values, current_values);
+
+    return feedforward_voltage + pid_voltage;
+}
+
+/**
+ * @brief PID calculations to make feedforward loop more accurate
+ * 
+ * @param expected Pose containing information about where system should be
+ * @param current Pose containing information about where system actually is
+ * @return double voltage to add to feedforward loop to compensate for inaccuracies in velocity/position.
+ */
+double Feedforward::pid_calculations(Pose expected, Pose current) {
+    return kp * (expected.velocity - current.velocity) + kd * (expected.distance - current.distance);
+}
+
+
+/**
  * @brief Returns the voltage based on the feedforward formula
  *  
  * @param velocity - expected velocity, based on motion profile
@@ -23,11 +90,61 @@ double Feedforward::sign(double value) {
 }
 
 /**
- * @brief Gets the elevator pose
+ * @brief Resets and starts the timer
  * 
- * @param distance 
- * @return double 
  */
-double Feedforward::getExpectedPose(double distance) {
+void Feedforward::start() {
+    timer.Reset();
+    timer.Start();
+}
 
+/**
+ * @brief A feedforward function that gets the elevator pose based on current time
+ * 
+ * @param time current system time
+ * @return pose a pose containing the distance 
+ */
+Feedforward::Pose Feedforward::getExpectedPose(double time) {
+    Pose pose;
+
+    // the time spent accelerating (or decelerating)
+    double acceleration_time = max_velocity / max_acceleration;
+
+    // the time spent maintaining a constant velocity
+    double velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
+
+    // if in the acceleration phase
+    if (0 < time && time < acceleration_time) {
+        pose.acceleration = max_acceleration;
+        pose.velocity = max_acceleration * time;
+        pose.distance = 0.5 * pose.velocity * time;
+    }
+
+    // if in the velocity phase
+    else if (time < acceleration_time + velocity_time) {
+        pose.acceleration = 0.0;
+        pose.velocity = max_velocity;
+        // adds phase 1 to however much of phase 2 has been gone through
+        pose.distance = 0.5*max_velocity*acceleration_time + max_velocity * (time - acceleration_time);
+    }
+
+    // if in the deceleration phase
+    else {
+        pose.acceleration = -1.0 * max_acceleration;
+        pose.velocity = max_velocity - (max_acceleration * (time - (acceleration_time + velocity_time)));
+        pose.distance = 0.5*max_velocity*acceleration_time + max_velocity*velocity_time + (pose.velocity*pose.velocity - max_velocity*max_velocity) / (2.0 * max_acceleration);
+    }
+
+    return pose;
+}
+
+/**
+ * @brief Optional method that must be called if PID calculations are wanted.
+ * 
+ * @param kp kp constant, converts change in velocity to voltage
+ * @param kd kd constant, converts change in position to voltage
+ */
+void Feedforward::setPIDConstants(double kp, double kd) {
+    this->kp = kp;
+    this->kd = kd;
 }

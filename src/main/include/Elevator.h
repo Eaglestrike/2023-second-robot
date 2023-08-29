@@ -32,6 +32,9 @@ class Elevator {
         double getLeftRotation();
         double getRightRotation();
 
+        void setFeedforwardConstants(double ks, double kv, double kg, double ka);
+        void setPIDConstants(double kp, double kd);
+
         // util methods
         void periodic();
         void setState(Elevator::ELEVATOR_STATE new_pos);

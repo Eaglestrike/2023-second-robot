@@ -35,6 +35,9 @@ public:
     double getKa();
     double getKg();
 
+    double getKp();
+    double getKd();
+
     double getMaxVelocity();
     double getMaxAcceleration();
 

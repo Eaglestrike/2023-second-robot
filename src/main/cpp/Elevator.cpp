@@ -88,3 +88,22 @@ void Elevator::stop() {
     left_.SetVoltage(units::volt_t{0});
     right_.SetVoltage(units::volt_t{0});
 }
+
+/**
+ * @brief Method to allow updates to feedforward constants.
+ * 
+ * @param ks 
+ * @param kv 
+ * @param kd 
+ * @param ka 
+ */
+void Elevator::setFeedforwardConstants(double ks, double kv, double kd, double ka) {
+    feedforward_.setKs(ks);
+    feedforward_.setKv(kv);
+    feedforward_.setKd(kd);
+    feedforward_.setKa(ka);
+}
+
+void Elevator::setPIDConstants(double kp, double kd) {
+    feedforward_.setPIDConstants(kp, kd);
+}

@@ -193,6 +193,13 @@ void Feedforward::setKa(double ka) {
     this->ka = ka;
 }
 
+double Feedforward::getKp() {
+    return kp;
+}
+
+double Feedforward::getKd() {
+    return kd;
+}
 
 double Feedforward::getMaxAcceleration() {
     return max_acceleration;

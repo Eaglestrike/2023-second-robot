@@ -29,8 +29,8 @@ public:
   void SetAlpha(double alpha);
   void Reset(std::size_t curTime);
 
-  double GetAlpha();
-  vec::Vector2D GetPos();
+  double GetAlpha() const;
+  vec::Vector2D GetPos() const;
 
 private:
   double m_alpha;

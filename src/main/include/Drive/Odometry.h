@@ -5,6 +5,7 @@
 
 #include <AHRS.h>
 
+#include "CompFilter.h"
 #include "KalmanFilter.h"
 #include "SwerveControl.h"
 #include "Util/thirdparty/simplevectors.hpp"
@@ -24,7 +25,8 @@ class Odometry {
 public:
   Odometry(vec::Vector2D *posOffset, double *angOffset);
   
-  void SetKFTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime);
+  // void SetKFTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime);
+  void SetAlpha(double alpha);
   void SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId);
   void Reset();
 
@@ -36,7 +38,10 @@ public:
 private:
   vec::Vector2D *m_posOffset;
   double *m_angOffset;
-  KalmanFilter m_filter;
+  // KalmanFilter m_filter;
+  CompFilter m_filter;
+
+  double m_ang;
 
   long long m_prevId;
 };

@@ -21,8 +21,11 @@
  * @param angOffset pointer to angle offset in robot cpp
  */
 Odometry::Odometry(vec::Vector2D *posOffset, double *angOffset)
-  : m_posOffset{posOffset}, m_angOffset{angOffset}, m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::CAM_TRUST_KPOSINT, OdometryConstants::MAX_TIME,
-  posOffset, angOffset}, m_prevId{-1} {}
+  : m_posOffset{posOffset}, m_angOffset{angOffset}, 
+    // m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::CAM_TRUST_KPOSINT, OdometryConstants::MAX_TIME, posOffset, angOffset},
+    m_filter{OdometryConstants::ALPHA, OdometryConstants::MAX_TIME, m_posOffset},
+    m_ang{0},
+    m_prevId{-1} {}
 
 /**
  * Sets Kalman filter terms
@@ -40,9 +43,9 @@ Odometry::Odometry(vec::Vector2D *posOffset, double *angOffset)
  * @param kPosInt constant of camera noise when robot not moving
  * @param maxTime max time before ignore, in s
 */
-void Odometry::SetKFTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime) {
-  m_filter.SetTerms(E0, Q, kAng, k, kPosInt, maxTime);
-}
+// void Odometry::SetKFTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime) {
+//   m_filter.SetTerms(E0, Q, kAng, k, kPosInt, maxTime);
+// }
 
 /**
  * Applies corrections from camera data
@@ -112,7 +115,8 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
   // @todo figure out if ^^^ is right
   std::size_t curTimeMs = Utils::GetCurTimeMs();
   //         substituting angnavX here vvvvvv becaues of waht's mentioned in comment above
-  m_filter.UpdateFromCamera(robotPos, Utils::DegToRad(angNavX), age, curTimeMs);
+  // m_filter.UpdateFromCamera(robotPos, Utils::DegToRad(angNavX), age, curTimeMs);
+  m_filter.AddCamPos(robotPos, age, curTimeMs);
 }
 
 /**
@@ -131,7 +135,8 @@ void Odometry::Reset() {
  * @returns current predicted position
 */
 vec::Vector2D Odometry::GetPosition() const {
-  return m_filter.GetEstimatedPos() + *m_posOffset;
+  // return m_filter.GetEstimatedPos() + *m_posOffset;
+  return m_filter.GetPos() + *m_posOffset;
 }
 
 /**
@@ -140,8 +145,8 @@ vec::Vector2D Odometry::GetPosition() const {
  * @returns estimated angle, in radians
 */
 double Odometry::GetAng() const {
-  const double ang = m_filter.GetEstimatedAng();
-  return Utils::NormalizeAng(ang);
+  // const double ang = m_filter.GetEstimatedAng();
+  return Utils::NormalizeAng(m_ang + *m_angOffset);
 }
 
 /**
@@ -152,5 +157,7 @@ double Odometry::GetAng() const {
 */
 void Odometry::Periodic(double ang, vec::Vector2D avgVelocity) {
   std::size_t curTimeMs = Utils::GetCurTimeMs();
-  m_filter.PredictFromWheels(avgVelocity, ang + *m_angOffset, curTimeMs);
+  m_ang = ang;
+  // m_filter.PredictFromWheels(avgVelocity, ang + *m_angOffset, curTimeMs);
+  m_filter.AddWheelVel(avgVelocity, curTimeMs);
 }

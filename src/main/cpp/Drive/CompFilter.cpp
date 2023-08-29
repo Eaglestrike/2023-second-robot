@@ -131,7 +131,7 @@ void CompFilter::Reset(std::size_t curTime) {
  * 
  * @returns Wheel odometry trust term
 */
-double CompFilter::GetAlpha() {
+double CompFilter::GetAlpha() const {
   return m_alpha;
 }
 
@@ -140,7 +140,7 @@ double CompFilter::GetAlpha() {
  * 
  * @returns Estimated position
 */
-vec::Vector2D CompFilter::GetPos() {
+vec::Vector2D CompFilter::GetPos() const {
   auto itLatest = m_states.rbegin();
 
   if (itLatest == m_states.rend()) {

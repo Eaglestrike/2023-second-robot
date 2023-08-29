@@ -4,6 +4,7 @@
 
 #include <ctre/Phoenix.h>
 #include "Constants.h"
+#include "Feedforward.h"
 
 class Elevator {
     public:
@@ -40,23 +41,11 @@ class Elevator {
     private:
         // member variables
         Elevator::ELEVATOR_STATE current_state;
+        Feedforward feedforward_;
 
-        double left_motor_rotation = 0.0;
-        double right_motor_rotation = 0.0;
         double elevator_height = 0.0;
-
-        // feedforward constants
-        double ks, kv, ka, kg;
-
-        // pid constants
-        double kp, kd;
 
         // motors
         WPI_TalonFX left_;
         WPI_TalonFX right_;
-
-        // functions
-        double calculateFeedforward(double velocity, double acc);
-        ElevatorPose getExpectedPose();
-        double elevatorPID();
 };

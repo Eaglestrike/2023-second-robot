@@ -72,4 +72,16 @@ namespace ElevatorConstants {
 
   // m
   const double MAX_ELEVATOR_EXTENSION = 0.5588;
+
+  const double ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED = 0.0465582;
+
+  // feedforward constants
+  const double KS = 0.0;
+  const double KV = 0.0;
+  const double KA = 0.0;
+  const double KG = 0.0;
+
+  // pid constants
+  const double KP = 0.0;
+  const double KD = 0.0;
 }

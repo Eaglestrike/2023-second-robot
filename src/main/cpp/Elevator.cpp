@@ -11,24 +11,29 @@ double Elevator::getElevatorHeight() {
 }
 
 double Elevator::getLeftRotation() {
-    return left_motor_rotation;
+    return left_.GetSelectedSensorPosition();
 }
 
 double Elevator::getRightRotation() {
-    return right_motor_rotation;
+    return right_.GetSelectedSensorPosition();
 }
 
 /**
  * @brief Construct a new Elevator:: Elevator object
  * 
- * @param ks ks constant -- static friction
- * @param kv kv constant -- velocity to volts coefficient
- * @param ka ka constant -- acceleration to volts coefficient
- * @param kg kg constant -- gravity coefficient
  * @param leftID the ID for the left motor
  * @param rightID  the ID for the right motor
  */
-Elevator::Elevator(double ks, double kv, double ka, double kg, int leftID, int rightID): ks(ks), kv(kv), ka(ka), kg(kg), left(leftID, "canbus"), right(rightID, "canbus") {};
+Elevator::Elevator(int leftID, int rightID): left(leftID, "canbus"), right(rightID, "canbus"),
+feedforward_(
+    ElevatorConstants::KS,
+    ElevatorConstants::KV,
+    ElevatorConstants::KA,
+    ElevatorConstants::KG,
+    ElevatorConstants::KP,
+    ElevatorConstants::KD,
+    ElevatorConstants::MAX_ELEVATOR_EXTENSION
+) {};
 
 /**
  * Called every periodic cycle, handles all movement
@@ -40,18 +45,18 @@ void Elevator::periodic() {
         return;
     }
 
-    if (current_state == DOCKED) {
-        // take action to ensure it is still docked
-    } else if (current_state == RAISED) {
-        // take action to ensure still raised
-    } else if (current_state == MOVING_TO_DOCKED) {
-        // continue docking process
-    } else if (current_state == MOVING_TO_RAISED) {
-        // continue raising process
+    std::pair<double, double> current_values;
+    current_values.first = left_.GetSelectedSensorVelocity();
+    current_values.second = (left_.GetSelectedSensorPosition() / SwerveConstants::TALON_FX_COUNTS_PER_REV) * ElevatorConstants::ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED;
+
+    double motor_output = feedforward_.periodic(current_values);
+
+    if (current_state == MOVING_TO_DOCKED) {
+        motor_output *= -1.0;
     }
 
-    left_.SetVoltage(ElevatorConstants::MOTOR_VOLTAGE_t);
-    right_.SetVoltage(-1.0*ElevatorConstants::MOTOR_VOLTAGE_t);
+    left_.setVoltage(motor_output_t);
+    right_.setVoltage(-1.0 * motor_output_t);
 }
 
 /**
@@ -63,24 +68,14 @@ void Elevator::setState(Elevator::ELEVATOR_STATE new_pos) {
 }
 
 // util methods
-/**
- * Calculates the value based on the feedforward loop
- * @param velocity - expected velocity, based on motion profile
- * @param acc - expected acceleration, based on motion profile
- * @return the values that the motor should move to get to the desired state
- */
-double Elevator::calculateFeedforward(double velocity, double acc) {
-    return kS * wpi::sgn(velocity) + kG + kV * velocity + kA * acceleration;
-}
-
 
 /**
  * @brief Resets elevator height, left and right motor rotation 
  * 
  */
 void Elevator::zero() {
-    left_motor_rotation = 0.0;
-    right_motor_rotation = 0.0;
+    left_.SetSelectedSensorPosition(0);
+    right_.SetSelectedSensorPosition(0);
     elevator_height = 0.0;
 }
 
@@ -93,14 +88,4 @@ void Elevator::stop() {
     setState(ELEVATOR_STATE::STOPPED);
     left_.SetVoltage(units::volt_t{0});
     right_.SetVoltage(units::volt_t{0});
-}
-
-/**
- * @brief Uses distance travelled in the motion profile to determine what velocity and acceleration should be.
- * 
- * @return Elevator::ElevatorPose a struct combining velocity, acceleration, and distance
- */
-Elevator::ElevatorPose Elevator::getExpectedPose() {
-    // elevator_height -> current elevator height
-    
 }

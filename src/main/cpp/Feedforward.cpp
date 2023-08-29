@@ -45,15 +45,19 @@ Feedforward::Feedforward(double ks, double kv, double ka, double kg, double kp, 
 /**
  * @brief Runs every periodic cycle.
  *
- * @param current_values a Pose containing the current distance, velocity, and acceleration of the system.
+ * @param current_values a pair containing the velocity and distance (respectively) of the current system.
  * @return a voltage that a motor is expected to use
  */
-double Feedforward::periodic(Pose current_values)
+double Feedforward::periodic(std::pair<double, double> current_values)
 {
+    if (!isRunning) {
+        start();
+    }
+
     Pose expected_values = getExpectedPose(timer.Get().value());
 
     double feedforward_voltage = calculate(expected_values.velocity, expected_values.acceleration);
-    double pid_voltage = pid_calculations(expected_values, current_values);
+    double pid_voltage = pid_calculations({expected_values.velocity, expected_values.distance}, current_values);
 
     return feedforward_voltage + pid_voltage;
 }
@@ -65,9 +69,9 @@ double Feedforward::periodic(Pose current_values)
  * @param current Pose containing information about where system actually is
  * @return double voltage to add to feedforward loop to compensate for inaccuracies in velocity/position.
  */
-double Feedforward::pid_calculations(Pose expected, Pose current)
+double Feedforward::pid_calculations(std::pair<double, double> expected, std::pair<double, double> current)
 {
-    return kp * (expected.velocity - current.velocity) + kd * (expected.distance - current.distance);
+    return kp * (expected.first - current.first) + kd * (expected.second - current.second);
 }
 
 /**
@@ -102,6 +106,7 @@ void Feedforward::start()
 {
     timer.Reset();
     timer.Start();
+    isRunning = true;
 }
 
 /**

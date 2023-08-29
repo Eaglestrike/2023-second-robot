@@ -24,10 +24,10 @@ public:
     };
 
     double calculate(double velocity, double acceleration);
-    Pose getExpectedPose(double distance);
+    Pose getExpectedPose(double time);
     void start();
-    double pid_calculations(Pose expected, Pose current);
-    double periodic(Pose current_values);
+    double pid_calculations(std::pair<double, double> expected, std::pair<double, double> current);
+    double periodic(std::pair<double, double> current_values);
 
     // getters and setters
     double getKs();
@@ -69,6 +69,8 @@ private:
     // velocity, acceleration constants
     double max_velocity;
     double max_acceleration;
+
+    double isRunning = false;
 
     // timer
     frc::Timer timer{};

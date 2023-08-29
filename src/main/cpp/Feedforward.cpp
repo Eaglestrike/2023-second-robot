@@ -2,14 +2,15 @@
 
 /**
  * @brief Basic constructor meant for feedforward without PID use.
- * 
+ *
  * @param ks static constant
  * @param kv velocity to volts constant
  * @param ka acceleration to volts constant
  * @param kg constant to account for acceleration of gravity
  * @param distance the total distance needed to travel by the system
  */
-Feedforward::Feedforward(double ks, double kv, double ka, double kg, double distance) {
+Feedforward::Feedforward(double ks, double kv, double ka, double kg, double distance)
+{
     this->ks = ks;
     this->kv = kv;
     this->ka = ka;
@@ -19,7 +20,7 @@ Feedforward::Feedforward(double ks, double kv, double ka, double kg, double dist
 
 /**
  * @brief Constructor meant for when you want to initialize PID constants.
- * 
+ *
  * @param ks static constant
  * @param kv velocity to volts constant
  * @param ka acceleration to volts constant
@@ -28,7 +29,8 @@ Feedforward::Feedforward(double ks, double kv, double ka, double kg, double dist
  * @param kp change in velocity to volts constant
  * @param kd change in position to volts constant
  */
-Feedforward::Feedforward(double ks, double kv, double ka, double kg, double kp, double kd, double distance) {
+Feedforward::Feedforward(double ks, double kv, double ka, double kg, double kp, double kd, double distance)
+{
     this->ks = ks;
     this->kv = kv;
     this->ka = ka;
@@ -41,12 +43,13 @@ Feedforward::Feedforward(double ks, double kv, double ka, double kg, double kp, 
 }
 
 /**
- * @brief Runs every periodic cycle. 
- * 
+ * @brief Runs every periodic cycle.
+ *
  * @param current_values a Pose containing the current distance, velocity, and acceleration of the system.
  * @return a voltage that a motor is expected to use
  */
-double Feedforward::periodic(Pose current_values) {
+double Feedforward::periodic(Pose current_values)
+{
     Pose expected_values = getExpectedPose(timer.Get().value());
 
     double feedforward_voltage = calculate(expected_values.velocity, expected_values.acceleration);
@@ -57,54 +60,58 @@ double Feedforward::periodic(Pose current_values) {
 
 /**
  * @brief PID calculations to make feedforward loop more accurate
- * 
+ *
  * @param expected Pose containing information about where system should be
  * @param current Pose containing information about where system actually is
  * @return double voltage to add to feedforward loop to compensate for inaccuracies in velocity/position.
  */
-double Feedforward::pid_calculations(Pose expected, Pose current) {
+double Feedforward::pid_calculations(Pose expected, Pose current)
+{
     return kp * (expected.velocity - current.velocity) + kd * (expected.distance - current.distance);
 }
 
-
 /**
  * @brief Returns the voltage based on the feedforward formula
- *  
+ *
  * @param velocity - expected velocity, based on motion profile
  * @param acceleration - expected acceleration, based on motion profile
- * 
+ *
  * @return the voltage to move
  */
-double Feedforward::calculate(double velocity, double acceleration) {
+double Feedforward::calculate(double velocity, double acceleration)
+{
     return ks * sign(velocity) + kg + kv * velocity + ka * acceleration;
 }
 
 /**
  * @brief The sign of a double
- * 
+ *
  * @param value the value to get the sign of
- * @return 1.0 if the value is greater than 0, or -1.0 otherwise 
+ * @return 1.0 if the value is greater than 0, or -1.0 otherwise
  */
-double Feedforward::sign(double value) {
+double Feedforward::sign(double value)
+{
     return value > 0.0 ? 1.0 : -1.0;
 }
 
 /**
  * @brief Resets and starts the timer
- * 
+ *
  */
-void Feedforward::start() {
+void Feedforward::start()
+{
     timer.Reset();
     timer.Start();
 }
 
 /**
  * @brief A feedforward function that gets the elevator pose based on current time
- * 
+ *
  * @param time current system time
- * @return pose a pose containing the distance 
+ * @return pose a pose containing the distance
  */
-Feedforward::Pose Feedforward::getExpectedPose(double time) {
+Feedforward::Pose Feedforward::getExpectedPose(double time)
+{
     Pose pose;
 
     // the time spent accelerating (or decelerating)
@@ -114,25 +121,28 @@ Feedforward::Pose Feedforward::getExpectedPose(double time) {
     double velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
 
     // if in the acceleration phase
-    if (0 < time && time < acceleration_time) {
+    if (0 < time && time < acceleration_time)
+    {
         pose.acceleration = max_acceleration;
         pose.velocity = max_acceleration * time;
         pose.distance = 0.5 * pose.velocity * time;
     }
 
     // if in the velocity phase
-    else if (time < acceleration_time + velocity_time) {
+    else if (time < acceleration_time + velocity_time)
+    {
         pose.acceleration = 0.0;
         pose.velocity = max_velocity;
         // adds phase 1 to however much of phase 2 has been gone through
-        pose.distance = 0.5*max_velocity*acceleration_time + max_velocity * (time - acceleration_time);
+        pose.distance = 0.5 * max_velocity * acceleration_time + max_velocity * (time - acceleration_time);
     }
 
     // if in the deceleration phase
-    else {
+    else
+    {
         pose.acceleration = -1.0 * max_acceleration;
         pose.velocity = max_velocity - (max_acceleration * (time - (acceleration_time + velocity_time)));
-        pose.distance = 0.5*max_velocity*acceleration_time + max_velocity*velocity_time + (pose.velocity*pose.velocity - max_velocity*max_velocity) / (2.0 * max_acceleration);
+        pose.distance = 0.5 * max_velocity * acceleration_time + max_velocity * velocity_time + (pose.velocity * pose.velocity - max_velocity * max_velocity) / (2.0 * max_acceleration);
     }
 
     return pose;
@@ -140,11 +150,12 @@ Feedforward::Pose Feedforward::getExpectedPose(double time) {
 
 /**
  * @brief Optional method that must be called if PID calculations are wanted.
- * 
+ *
  * @param kp kp constant, converts change in velocity to voltage
  * @param kd kd constant, converts change in position to voltage
  */
-void Feedforward::setPIDConstants(double kp, double kd) {
+void Feedforward::setPIDConstants(double kp, double kd)
+{
     this->kp = kp;
     this->kd = kd;
 }

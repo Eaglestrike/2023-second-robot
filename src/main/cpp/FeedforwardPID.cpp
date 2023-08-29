@@ -1,4 +1,4 @@
-#include "Feedforward.h"
+#include "FeedforwardPID.h"
 
 /**
  * @brief Basic constructor meant for feedforward without PID use.
@@ -9,7 +9,7 @@
  * @param kg constant to account for acceleration of gravity
  * @param distance the total distance needed to travel by the system
  */
-Feedforward::Feedforward(double ks, double kv, double ka, double kg, double distance):
+FeedforwardPID::FeedforwardPID(double ks, double kv, double ka, double kg, double distance):
     ks(ks), kv(kv), ka(ka), kg(kg), max_distance_(distance) {};
 
 /**
@@ -23,7 +23,7 @@ Feedforward::Feedforward(double ks, double kv, double ka, double kg, double dist
  * @param kp change in velocity to volts constant
  * @param kd change in position to volts constant
  */
-Feedforward::Feedforward(double ks, double kv, double ka, double kg, double kp, double kd, double distance): 
+FeedforwardPID::FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double kd, double distance): 
     ks(ks), kv(kv), ka(ka), kg(kg), kp(kp), kd(kd), max_distance_(distance) {};
 
 /**
@@ -32,7 +32,7 @@ Feedforward::Feedforward(double ks, double kv, double ka, double kg, double kp, 
  * @param current_values a pair containing the velocity and distance (respectively) of the current system.
  * @return a voltage that a motor is expected to use
  */
-double Feedforward::periodic(Poses::Pose1D current_values)
+double FeedforwardPID::periodic(Poses::Pose1D current_values)
 {
     if (!isRunning) {
         start();
@@ -53,7 +53,7 @@ double Feedforward::periodic(Poses::Pose1D current_values)
  * @param current Pose containing information about where system actually is
  * @return double voltage to add to feedforward loop to compensate for inaccuracies in velocity/position.
  */
-double Feedforward::pid_calculations(Poses::Pose1D expected, Poses::Pose1D current)
+double FeedforwardPID::pid_calculations(Poses::Pose1D expected, Poses::Pose1D current)
 {
     return kp * (expected.velocity - current.velocity) + kd * (expected.position - current.position);
 }
@@ -66,7 +66,7 @@ double Feedforward::pid_calculations(Poses::Pose1D expected, Poses::Pose1D curre
  *
  * @return the voltage to move
  */
-double Feedforward::calculate(double velocity, double acceleration)
+double FeedforwardPID::calculate(double velocity, double acceleration)
 {
     return ks * sign(velocity) + kg + kv * velocity + ka * acceleration;
 }
@@ -77,7 +77,7 @@ double Feedforward::calculate(double velocity, double acceleration)
  * @param value the value to get the sign of
  * @return 1.0 if the value is greater than 0, or -1.0 otherwise
  */
-double Feedforward::sign(double value)
+double FeedforwardPID::sign(double value)
 {
     return value > 0.0 ? 1.0 : -1.0;
 }
@@ -86,7 +86,7 @@ double Feedforward::sign(double value)
  * @brief Resets and starts the timer
  *
  */
-void Feedforward::start()
+void FeedforwardPID::start()
 {
     timer.Reset();
     timer.Start();
@@ -99,7 +99,7 @@ void Feedforward::start()
  * @param time current system time
  * @return pose a pose containing the distance
  */
-Poses::Pose1D Feedforward::getExpectedPose(double time)
+Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
 {
     Poses::Pose1D pose;
 
@@ -143,7 +143,7 @@ Poses::Pose1D Feedforward::getExpectedPose(double time)
  * @param kp kp constant, converts change in velocity to voltage
  * @param kd kd constant, converts change in position to voltage
  */
-void Feedforward::setPIDConstants(double kp, double kd)
+void FeedforwardPID::setPIDConstants(double kp, double kd)
 {
     this->kp = kp;
     this->kd = kd;
@@ -151,56 +151,56 @@ void Feedforward::setPIDConstants(double kp, double kd)
 
 // getters and setters
 
-double Feedforward::getKs() {
+double FeedforwardPID::getKs() {
     return ks;
 }
 
-void Feedforward::setKs(double ks) {
+void FeedforwardPID::setKs(double ks) {
     this->ks = ks;
 }
 
-void Feedforward::setKg(double kg) {
+void FeedforwardPID::setKg(double kg) {
     this->kg = kg;
 }
 
-double Feedforward::getKv() {
+double FeedforwardPID::getKv() {
     return kv;
 }
 
-void Feedforward::setKv(double kv) {
+void FeedforwardPID::setKv(double kv) {
     this->kv = kv;
 }
 
 
-double Feedforward::getKa() {
+double FeedforwardPID::getKa() {
     return ka;
 }
 
-void Feedforward::setKa(double ka) {
+void FeedforwardPID::setKa(double ka) {
     this->ka = ka;
 }
 
-double Feedforward::getKp() {
+double FeedforwardPID::getKp() {
     return kp;
 }
 
-double Feedforward::getKd() {
+double FeedforwardPID::getKd() {
     return kd;
 }
 
-double Feedforward::getMaxAcceleration() {
+double FeedforwardPID::getMaxAcceleration() {
     return max_acceleration;
 }
 
-void Feedforward::setMaxAcceleration(double new_acc) {
+void FeedforwardPID::setMaxAcceleration(double new_acc) {
     max_acceleration = new_acc;
 }
 
 
-double Feedforward::getMaxVelocity() {
+double FeedforwardPID::getMaxVelocity() {
     return max_velocity;
 }
 
-void Feedforward::setMaxVelocity(double new_vel) {
+void FeedforwardPID::setMaxVelocity(double new_vel) {
     max_velocity = new_vel;
 }

@@ -14,7 +14,7 @@
 #include <units/acceleration.h>
 #include "Constants.h"
 
-class Feedforward
+class FeedforwardPID
 {
 public:
     double calculate(double velocity, double acceleration);
@@ -46,8 +46,8 @@ public:
     void setMaxAcceleration(double max_acc);
 
     // constructor
-    Feedforward(double ks, double kv, double ka, double kg, double distance);
-    Feedforward(double ks, double kv, double ka, double kg, double kp, double kd, double distance);
+    FeedforwardPID(double ks, double kv, double ka, double kg, double distance);
+    FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double kd, double distance);
 
 private:
     // member functions

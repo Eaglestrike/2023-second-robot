@@ -62,7 +62,8 @@ void Elevator::periodic() {
     }
 
     left_.SetVoltage(units::volt_t{motor_output});
-    right_.SetVoltage(-1.0 * units::volt_t{motor_output});
+    right_.SetInverted(true);
+    right_.Follow(left_, FollowerType::FollowerType_PercentOutput);
 }
 
 /**

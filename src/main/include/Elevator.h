@@ -4,7 +4,7 @@
 
 #include <ctre/Phoenix.h>
 #include "Constants.h"
-#include "Feedforward.h"
+#include "FeedforwardPID.h"
 
 class Elevator {
     public:
@@ -37,7 +37,7 @@ class Elevator {
     private:
         // member variables
         ElevatorState current_state;
-        Feedforward feedforward_;
+        FeedforwardPID feedforward_;
 
         // motors
         WPI_TalonFX left_;

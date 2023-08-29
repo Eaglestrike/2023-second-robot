@@ -18,13 +18,13 @@ class Elevator {
             DOCKED,
             RAISED,
             STOPPED, // setState must be called to escape this state.
-        }
+        };
 
         struct ElevatorPose {
             double velocity;
             double acceleration;
             double distance;
-        }
+        };
 
 
         // debug getters

@@ -159,6 +159,9 @@ void Feedforward::setKs(double ks) {
     this->ks = ks;
 }
 
+void Feedforward::setKg(double kg) {
+    this->kg = kg;
+}
 
 double Feedforward::getKv() {
     return kv;

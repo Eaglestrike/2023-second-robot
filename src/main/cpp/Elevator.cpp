@@ -7,7 +7,7 @@
 
 // debug getters
 double Elevator::getElevatorHeight() {
-    return (left_.GetSelectedSensorPosition() + right_.GetSelectedSensorPosition()) / 2.0
+    return (left_.GetSelectedSensorPosition() + right_.GetSelectedSensorPosition()) / 2.0;
 }
 
 double Elevator::getLeftRotation() {
@@ -24,16 +24,21 @@ double Elevator::getRightRotation() {
  * @param leftID the ID for the left motor
  * @param rightID  the ID for the right motor
  */
-Elevator::Elevator(int leftID, int rightID): left(leftID, "canbus"), right(rightID, "canbus"),
-feedforward_(
-    ElevatorConstants::KS,
-    ElevatorConstants::KV,
-    ElevatorConstants::KA,
-    ElevatorConstants::KG,
-    ElevatorConstants::KP,
-    ElevatorConstants::KD,
-    ElevatorConstants::MAX_ELEVATOR_EXTENSION
-) {};
+Elevator::Elevator(int leftID, int rightID):
+    left_(leftID, "canbus"),
+    right_(rightID, "canbus"),
+    feedforward_(
+        ElevatorConstants::KS,
+        ElevatorConstants::KV,
+        ElevatorConstants::KA,
+        ElevatorConstants::KG,
+        ElevatorConstants::KP,
+        ElevatorConstants::KD,
+        ElevatorConstants::MAX_ELEVATOR_EXTENSION
+        ) 
+{
+
+};
 
 /**
  * Called every periodic cycle, handles all movement
@@ -51,12 +56,13 @@ void Elevator::periodic() {
 
     double motor_output = feedforward_.periodic(current_values);
 
+    // sketch
     if (current_state == MOVING_TO_DOCKED) {
         motor_output *= -1.0;
     }
 
-    left_.setVoltage(motor_output_t);
-    right_.setVoltage(-1.0 * motor_output_t);
+    left_.SetVoltage(units::volt_t{motor_output});
+    right_.SetVoltage(-1.0 * units::volt_t{motor_output});
 }
 
 /**
@@ -97,10 +103,10 @@ void Elevator::stop() {
  * @param kd 
  * @param ka 
  */
-void Elevator::setFeedforwardConstants(double ks, double kv, double kd, double ka) {
+void Elevator::setFeedforwardConstants(double ks, double kv, double kg, double ka) {
     feedforward_.setKs(ks);
     feedforward_.setKv(kv);
-    feedforward_.setKd(kd);
+    feedforward_.setKg(kg);
     feedforward_.setKa(ka);
 }
 

@@ -180,13 +180,14 @@ void SwerveModule::Periodic()
   }
   speed = std::clamp(speed, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
 
+  // set voltages to motor
+  m_driveMotor.SetVoltage(units::volt_t{speed});
+
   // don't set angle motor voltage if speed = 0
   if (Utils::NearZero(speed)) {
     return;
   }
 
-  // set voltages to motor
-  m_driveMotor.SetVoltage(units::volt_t{speed});
   m_angleMotor.SetVoltage(units::volt_t{angleOutput});
 }
 

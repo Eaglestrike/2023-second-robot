@@ -114,6 +114,19 @@ void CompFilter::SetAlpha(double alpha) {
 }
 
 /**
+ * Sets maximum time before discaarding time
+ * 
+ * @param maxTime max time
+*/
+void CompFilter::SetMaxTime(double maxTime) {
+  if (maxTime <= 0) {
+    return;
+  }
+
+  m_maxTime = maxTime;
+}
+
+/**
  * Resets all odometry by clearing states map
  * 
  * @param curTime current robot time (from startup), in ms

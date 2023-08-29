@@ -150,6 +150,15 @@ double Odometry::GetAng() const {
 }
 
 /**
+ * Sets maximum time
+ * 
+ * @param maxTime maximum time before discarding values
+*/
+void Odometry::SetMaxTime(double maxTime) {
+  m_filter.SetMaxTime(maxTime);
+}
+
+/**
  * Periodic function
  * 
  * @param ang navX angle of robot, radians

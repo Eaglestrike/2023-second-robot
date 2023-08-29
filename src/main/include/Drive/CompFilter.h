@@ -27,6 +27,7 @@ public:
   void AddCamPos(vec::Vector2D camPos, std::size_t timeOffset, std::size_t curTime);
 
   void SetAlpha(double alpha);
+  void SetMaxTime(double maxTime);
   void Reset(std::size_t curTime);
 
   double GetAlpha() const;

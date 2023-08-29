@@ -60,8 +60,8 @@ Robot::Robot():
 
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
 
-    frc::SmartDashboard::PutString("KF pos", pos.toString());
-    frc::SmartDashboard::PutNumber("KF ang", ang);
+    frc::SmartDashboard::PutString("Filter pos", pos.toString());
+    frc::SmartDashboard::PutNumber("Filter ang", ang);
 
     frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
     frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
@@ -108,12 +108,13 @@ void Robot::RobotInit()
   m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
 
   // kalman filter constants
-  frc::SmartDashboard::PutNumber("KF E0", OdometryConstants::E0);
-  frc::SmartDashboard::PutNumber("KF Q", OdometryConstants::Q);
-  frc::SmartDashboard::PutNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
-  frc::SmartDashboard::PutNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
-  frc::SmartDashboard::PutNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
-  frc::SmartDashboard::PutNumber("KF maxtime", OdometryConstants::MAX_TIME);
+  // frc::SmartDashboard::PutNumber("KF E0", OdometryConstants::E0);
+  // frc::SmartDashboard::PutNumber("KF Q", OdometryConstants::Q);
+  // frc::SmartDashboard::PutNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
+  // frc::SmartDashboard::PutNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
+  // frc::SmartDashboard::PutNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
+  frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
+  frc::SmartDashboard::PutNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
   // starting position
   m_startPosChooser.SetDefaultOption("Debug", "Debug");
@@ -158,14 +159,18 @@ void Robot::RobotPeriodic()
     // double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
     // m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
 
-    double E0 = frc::SmartDashboard::GetNumber("KF E0", OdometryConstants::E0);
-    double Q = frc::SmartDashboard::GetNumber("KF Q", OdometryConstants::Q);
-    double kAng = frc::SmartDashboard::GetNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
-    double kPos = frc::SmartDashboard::GetNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
-    double kPosInt = frc::SmartDashboard::GetNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
-    double maxTime = frc::SmartDashboard::GetNumber("KF maxtime", OdometryConstants::MAX_TIME);
+    // double E0 = frc::SmartDashboard::GetNumber("KF E0", OdometryConstants::E0);
+    // double Q = frc::SmartDashboard::GetNumber("KF Q", OdometryConstants::Q);
+    // double kAng = frc::SmartDashboard::GetNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
+    // double kPos = frc::SmartDashboard::GetNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
+    // double kPosInt = frc::SmartDashboard::GetNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
+    double alpha = frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
+    double maxTime = frc::SmartDashboard::GetNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
-    m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
+    m_odometry.SetAlpha(alpha); 
+    m_odometry.SetMaxTime(maxTime);
+
+    // m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
   }
 
   if (m_controller.getPressed(ZERO_YAW))

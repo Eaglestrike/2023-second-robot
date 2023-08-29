@@ -199,13 +199,17 @@ void Robot::RobotPeriodic()
  */
 void Robot::AutonomousInit()
 {
+  m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
 }
 
 void Robot::AutonomousPeriodic()
 {
+  
 }
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() {
+  m_swerveController->SetFeedForward(0, 1, 0);
+}
 
 void Robot::TeleopPeriodic() {
   double lx = m_controller.getWithDeadContinuous(SWERVE_STRAFEX, 0.1);

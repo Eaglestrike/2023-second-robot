@@ -5,7 +5,7 @@
 #include <functional>
 
 #include "SwerveModule.h"
-#include "thirdparty/simplevectors.hpp"
+#include "Util/thirdparty/simplevectors.hpp"
 
 namespace vec = svector; //!< Alias to vector namespace
 

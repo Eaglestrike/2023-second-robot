@@ -21,6 +21,7 @@ public:
   static bool NearZero(const vec::Vector2D vec, const double tolerance = UtilConstants::NEAR_ZERO_TOLERANCE);
   static double NormalizeAng(const double ang);
   static std::size_t GetCurTimeMs();
+  static double GetCurTimeS();
   static double DegToRad(const double deg);
   static double RadToDeg(const double rad);
 };

@@ -100,6 +100,17 @@ std::size_t Utils::GetCurTimeMs() {
 }
 
 /**
+ * Gets current time from robot start in s
+ * 
+ * @returns Current robot time in s
+*/
+double Utils::GetCurTimeS() {
+  auto curTime = frc::Timer::GetFPGATimestamp();
+  auto timeMs = curTime.convert<units::second>(); 
+  return timeMs.value();
+}
+
+/**
  * Converst degrees to radians
  * 
  * @param deg Angle in degrees

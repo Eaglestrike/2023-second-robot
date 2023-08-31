@@ -204,3 +204,7 @@ double FeedforwardPID::getMaxVelocity() {
 void FeedforwardPID::setMaxVelocity(double new_vel) {
     max_velocity = new_vel;
 }
+
+void FeedforwardPID::setMaxDistance(double distance) {
+    max_distance_ = distance;
+}

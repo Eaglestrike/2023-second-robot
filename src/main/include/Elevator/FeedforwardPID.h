@@ -39,6 +39,7 @@ public:
     void setKv(double kv);
     void setKa(double ka);
     void setKg(double kg);
+    void setMaxDistance(double distance);
 
     void setPIDConstants(double kp, double kd);
 

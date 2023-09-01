@@ -1,4 +1,5 @@
 #include "Elevator/FeedforwardPID.h"
+#include <frc/smartdashboard/SmartDashboard.h>
 
 /**
  * @brief Basic constructor meant for feedforward without PID use.
@@ -24,7 +25,9 @@ FeedforwardPID::FeedforwardPID(double ks, double kv, double ka, double kg, doubl
  * @param kd change in position to volts constant
  */
 FeedforwardPID::FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double kd, double distance): 
-    ks(ks), kv(kv), ka(ka), kg(kg), kp(kp), kd(kd), max_distance_(distance) {};
+    ks(ks), kv(kv), ka(ka), kg(kg), kp(kp), kd(kd), max_distance_(distance) {
+        frc::SmartDashboard::PutNumber("position error", 0.0);
+    };
 
 /**
  * @brief Runs every periodic cycle.
@@ -38,10 +41,15 @@ double FeedforwardPID::periodic(Poses::Pose1D current_values)
         start();
     }
 
+    frc::SmartDashboard::PutNumber("timer value: ", timer.Get().value());
     Poses::Pose1D expected_values = getExpectedPose(timer.Get().value());
-
+    frc::SmartDashboard::PutNumber("expected ev velocity", expected_values.velocity);
+    frc::SmartDashboard::PutNumber("expected ev position", expected_values.position);
+    frc::SmartDashboard::PutNumber("position error", expected_values.position-current_values.position);
     double feedforward_voltage = calculate(expected_values.velocity, expected_values.acceleration);
+    frc::SmartDashboard::PutNumber("ff voltage", feedforward_voltage);
     double pid_voltage = pid_calculations({expected_values.velocity, expected_values.position}, current_values);
+    frc::SmartDashboard::PutNumber("pid voltage", pid_voltage);
 
     return feedforward_voltage + pid_voltage;
 }
@@ -105,9 +113,11 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
 
     // the time spent accelerating (or decelerating)
     double acceleration_time = max_velocity / max_acceleration;
+    frc::SmartDashboard::PutNumber("acc time: ", acceleration_time);
 
     // the time spent maintaining a constant velocity
     double velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
+    frc::SmartDashboard::PutNumber("vel time: ", velocity_time);
 
     // if in the acceleration phase
     if (0 < time && time < acceleration_time)

@@ -16,6 +16,7 @@
 #include "Drive/SwerveControl.h"
 #include "Drive/SwerveModule.h"
 #include "Util/thirdparty/simplevectors.hpp"
+#include "Elevator/Elevator.h"
 
 namespace vec = svector;
 
@@ -36,6 +37,9 @@ class Robot : public frc::TimedRobot {
   void SimulationInit() override;
   void SimulationPeriodic() override;
 
+
+  // elevator
+  Elevator elevator_{2, 0};
  private:
   // IMU acclerometer and gyroscope
   // Gives information on orientation and acceleration

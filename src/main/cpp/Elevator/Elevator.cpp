@@ -4,6 +4,8 @@
 
 #include "Elevator/Elevator.h"
 #include "frc/controller/ElevatorFeedforward.h"
+#include <stdio.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 // debug getters
 double Elevator::getElevatorHeight() {
@@ -25,8 +27,8 @@ double Elevator::getRightRotation() {
  * @param rightID  the ID for the right motor
  */
 Elevator::Elevator(int leftID, int rightID):
-    left_(leftID, "canbus"),
-    right_(rightID, "canbus"),
+    left_(leftID, "rio"),
+    right_(rightID, "rio"),
     feedforward_(
         ElevatorConstants::KS,
         ElevatorConstants::KV,
@@ -37,6 +39,8 @@ Elevator::Elevator(int leftID, int rightID):
         ElevatorConstants::MAX_ELEVATOR_EXTENSION
         ) 
 {
+    feedforward_.setMaxVelocity(ElevatorConstants::MAX_ELEVATOR_VELOCITY);
+    feedforward_.setMaxAcceleration(0.4);
 
 };
 
@@ -52,16 +56,20 @@ void Elevator::periodic() {
 
     Poses::Pose1D current_values;
     current_values.velocity = left_.GetSelectedSensorVelocity();
-    current_values.position = (left_.GetSelectedSensorPosition() / SwerveConstants::TALON_FX_COUNTS_PER_REV) * ElevatorConstants::ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED;
+    frc::SmartDashboard::PutNumber("current ev velocity", current_values.velocity);
+    current_values.position = (left_.GetSelectedSensorPosition() / ElevatorConstants::TALON_FX_COUNTS_PER_REV) * ElevatorConstants::ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED;
+    frc::SmartDashboard::PutNumber("current ev position", current_values.position);
 
     double motor_output = feedforward_.periodic(current_values);
 
     // sketch
-    if (current_state == MOVING_TO_DOCKED) {
-        motor_output *= -1.0;
-    }
+    // if (current_state == MOVING_TO_DOCKED) {
+    //     motor_output *= -1.0;
+    // }
+    // motor_output = 0.65;
+    frc::SmartDashboard::PutNumber("motor output", motor_output);
 
-    left_.SetVoltage(units::volt_t{motor_output});
+    left_.SetVoltage(units::volt_t{std::clamp(motor_output, -2.0, 2.0)});
     right_.SetInverted(true);
     right_.Follow(left_, FollowerType::FollowerType_PercentOutput);
 }
@@ -113,4 +121,8 @@ void Elevator::setFeedforwardConstants(double ks, double kv, double kg, double k
 
 void Elevator::setPIDConstants(double kp, double kd) {
     feedforward_.setPIDConstants(kp, kd);
+}
+
+void Elevator::setMaxDistance(double distance) {
+    feedforward_.setMaxDistance(distance);
 }

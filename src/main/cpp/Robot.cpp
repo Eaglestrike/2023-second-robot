@@ -54,8 +54,15 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
   frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
+  frc::SmartDashboard::PutNumber("elevator ks", 0.2);
+  frc::SmartDashboard::PutNumber("elevator ka", 0.2);
+  frc::SmartDashboard::PutNumber("elevator kv", 0.2);
+  frc::SmartDashboard::PutNumber("elevator kg", 0.2);
+
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
+
+  elevator_.setMaxDistance(90);
 }
 
 /**
@@ -92,6 +99,10 @@ void Robot::RobotPeriodic()
     m_pos = {0, 0};
   }
 
+  if (m_controller.getPressed(ZERO_FEEDFORWARD)) {
+    elevator_.zero_motors();
+  }
+
   frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
   frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
   frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
@@ -101,6 +112,18 @@ void Robot::RobotPeriodic()
   frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
   frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
   frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
+
+  frc::SmartDashboard::PutString("left elevator rotation", std::to_string(elevator_.getLeftRotation()));
+  frc::SmartDashboard::PutString("right elevator rotation", std::to_string(elevator_.getRightRotation()));
+
+
+  double dash_ks = frc::SmartDashboard::GetNumber("elevator ks", 0.2);
+  double dash_kv = frc::SmartDashboard::GetNumber("elevator kv", 0.2);
+  double dash_kg = frc::SmartDashboard::GetNumber("elevator kg", 0.2);
+  double dash_ka = frc::SmartDashboard::GetNumber("elevator ka", 0.2);
+
+
+  elevator_.setFeedforwardConstants(dash_ks, dash_kv, dash_kg, dash_ka);
 }
 
 /**
@@ -152,6 +175,8 @@ void Robot::TeleopPeriodic() {
   frc::SmartDashboard::PutString("vel:", vel.toString());
   frc::SmartDashboard::PutString("setVel:", setVel.toString());
   frc::SmartDashboard::PutNumber("setAngVel:", w);
+
+  elevator_.periodic();
 }
 
 void Robot::DisabledInit() {}

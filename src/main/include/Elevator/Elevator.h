@@ -27,6 +27,7 @@ class Elevator {
 
         void setFeedforwardConstants(double ks, double kv, double kg, double ka);
         void setPIDConstants(double kp, double kd);
+        void setMaxDistance(double distance);
 
         // util methods
         void periodic();

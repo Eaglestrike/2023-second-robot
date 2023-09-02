@@ -45,15 +45,15 @@ namespace FieldConstants {
   const double BR_ANG = M_PI;
   const double BR_JANG = 0;
 
-  const vec::Vector2D RL_POS = {14.35, 1};
+  const vec::Vector2D RL_POS = {14.5, 1};
   const double RL_ANG = 0;
   const double RL_JANG = M_PI;
 
-  const vec::Vector2D RM_POS = {14.35, 2.5};
+  const vec::Vector2D RM_POS = {14.5, 2.75};
   const double RM_ANG = 0;
   const double RM_JANG = M_PI;
 
-  const vec::Vector2D RR_POS = {10, 5};
+  const vec::Vector2D RR_POS = {14.5, 4.42};
   const double RR_ANG = 0;
   const double RR_JANG = M_PI;
 }

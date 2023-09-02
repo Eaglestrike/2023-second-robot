@@ -1,6 +1,10 @@
 #include "Drive/CompFilter.h"
 
 #include <algorithm>
+#include <iostream>
+#include <frc/smartdashboard/SmartDashboard.h>
+
+#include "Util/Mathutil.h"
 
 /**
  * Constructor
@@ -11,7 +15,7 @@
 */
 CompFilter::CompFilter(double alpha, double maxTime, vec::Vector2D *posOffset) 
   : m_alpha{std::clamp(alpha, 0.0, 1.0)}, m_maxTime{maxTime}, m_posOffset{posOffset} {
-  m_states[0].pos = {0, 0};
+  m_states[0].pos = *posOffset;
   m_states[0].vel = {0, 0};
 }
 
@@ -41,7 +45,7 @@ void CompFilter::AddWheelVel(vec::Vector2D worldVel, std::size_t curTime) {
   // if empty, insert zeroes
   // we want to make sure there is at least one value at all times
   if (m_states.size() == 0) {
-    m_states[curTime].pos = {0, 0};
+    m_states[curTime].pos = *m_posOffset;
     m_states[curTime].vel = {0, 0};
   }
   // this will mess up odometry but at least no runtime errors
@@ -64,9 +68,11 @@ void CompFilter::AddCamPos(vec::Vector2D camPos, std::size_t timeOffset, std::si
   }
 
   // correct position at time of receiving data from camera
-  std::size_t timeNearCam = itOfCam->first;
+  // std::size_t timeNearCam = itOfCam->first;
   vec::Vector2D posNearTime = itOfCam->second.pos;
   vec::Vector2D correctedPosCam = posNearTime * m_alpha + camPos * (1 - m_alpha);
+
+  itOfCam->second.pos = correctedPosCam;
 
   // correct position from iterator to end
   for (auto it = ++itOfCam; it != m_states.end(); it++) {
@@ -90,7 +96,6 @@ void CompFilter::AddCamPos(vec::Vector2D camPos, std::size_t timeOffset, std::si
     it->second = newState;
   }
 
-
   // delete map values > maxTime seconds ago, unless it's the last value in the map
   auto firstIt = m_states.lower_bound(curTime - static_cast<std::size_t>(m_maxTime * 1000.0)); // first iterator to include
   m_states.erase(m_states.begin(), firstIt);
@@ -98,7 +103,7 @@ void CompFilter::AddCamPos(vec::Vector2D camPos, std::size_t timeOffset, std::si
   // if empty, insert zeroes
   // we want to make sure there is at least one value at all times
   if (m_states.size() == 0) {
-    m_states[curTime].pos = {0, 0};
+    m_states[curTime].pos = *m_posOffset;
     m_states[curTime].vel = {0, 0};
   }
   // this will mess up odometry but at least no runtime errors
@@ -135,7 +140,7 @@ void CompFilter::Reset(std::size_t curTime) {
   m_states.clear();
 
   // add value; we want to make sure there's at least one value in the map at all times
-  m_states[curTime].pos = {0, 0};
+  m_states[curTime].pos = *m_posOffset;
   m_states[curTime].vel = {0, 0};
 }
 
@@ -157,7 +162,7 @@ vec::Vector2D CompFilter::GetPos() const {
   auto itLatest = m_states.rbegin();
 
   if (itLatest == m_states.rend()) {
-    return;
+    return {0, 0};
   }
 
   return itLatest->second.pos;

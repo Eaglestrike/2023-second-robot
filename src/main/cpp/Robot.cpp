@@ -36,7 +36,7 @@ Robot::Robot():
       m_startAng{0},
       m_joystickAng{0},
       m_odometry{&m_startPos, &m_startAng},
-      m_client{"10.1.14.43", 5807, 500, 5000}
+      m_client{"10.1.14.107", 5807, 500, 5000}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
@@ -69,17 +69,22 @@ Robot::Robot():
     frc::SmartDashboard::PutData("Field", &m_field);
 
     // process camera data
-    // std::vector<double> camData = m_client.GetData();
-    // if (m_client.HasConn() && !m_client.IsStale()) {
-    //   int tagId = static_cast<int>(camData[1]);
-    //   double x = camData[2];
-    //   double y = camData[3];
-    //   double angZ = camData[4];
-    //   long long age = static_cast<long long>(camData[5]);
-    //   unsigned long long uniqueId = static_cast<unsigned long long>(camData[6]);
+    std::vector<double> camData = m_client.GetData();
+    if (m_client.HasConn() && !m_client.IsStale()) {
+      int tagId = static_cast<int>(camData[1]);
+      double x = camData[2];
+      double y = camData[3];
+      double angZ = camData[4];
+      long long age = static_cast<long long>(camData[5]);
+      unsigned long long uniqueId = static_cast<unsigned long long>(camData[6]);
 
-    //   m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
-    // }
+      frc::SmartDashboard::PutNumber("tag Id", tagId);
+      frc::SmartDashboard::PutNumber("camX", x);
+      frc::SmartDashboard::PutNumber("camY", y);
+
+      bool res = m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
+      frc::SmartDashboard::PutBoolean("Good ID", res);
+    }
 
     // other odometry
     double angNavX = Utils::DegToRad(m_navx->GetYaw());
@@ -164,7 +169,7 @@ void Robot::RobotPeriodic()
     // double kAng = frc::SmartDashboard::GetNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
     // double kPos = frc::SmartDashboard::GetNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
     // double kPosInt = frc::SmartDashboard::GetNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
-    double alpha = frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
+    double alpha = frc::SmartDashboard::GetNumber("Filter Alpha", OdometryConstants::ALPHA);
     double maxTime = frc::SmartDashboard::GetNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
     m_odometry.SetAlpha(alpha); 

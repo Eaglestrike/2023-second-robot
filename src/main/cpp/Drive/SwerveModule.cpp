@@ -185,6 +185,7 @@ void SwerveModule::Periodic()
 
   // don't set angle motor voltage if speed = 0
   if (Utils::NearZero(speed)) {
+    m_angleMotor.SetVoltage(units::volt_t{0});
     return;
   }
 

@@ -42,12 +42,15 @@ double FeedforwardPID::periodic(Poses::Pose1D current_values)
     }
 
     frc::SmartDashboard::PutNumber("timer value: ", timer.Get().value());
+
     Poses::Pose1D expected_values = getExpectedPose(timer.Get().value());
     frc::SmartDashboard::PutNumber("expected ev velocity", expected_values.velocity);
     frc::SmartDashboard::PutNumber("expected ev position", expected_values.position);
     frc::SmartDashboard::PutNumber("position error", expected_values.position-current_values.position);
+
     double feedforward_voltage = calculate(expected_values.velocity, expected_values.acceleration);
     frc::SmartDashboard::PutNumber("ff voltage", feedforward_voltage);
+
     double pid_voltage = pid_calculations({expected_values.velocity, expected_values.position}, current_values);
     frc::SmartDashboard::PutNumber("pid voltage", pid_voltage);
 
@@ -119,10 +122,12 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     double velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
     frc::SmartDashboard::PutNumber("vel time: ", velocity_time);
 
+    double reversed_coefficient = reversed ? -1.0 : 1.0;
+
     // if in the acceleration phase
     if (0 < time && time < acceleration_time)
     {
-        pose.acceleration = max_acceleration;
+        pose.acceleration = reversed_coefficient * max_acceleration;
         pose.velocity = max_acceleration * time;
         pose.position = 0.5 * pose.velocity * time;
     }
@@ -131,7 +136,7 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     else if (time < acceleration_time + velocity_time)
     {
         pose.acceleration = 0.0;
-        pose.velocity = max_velocity;
+        pose.velocity = reversed_coefficient * max_velocity;
         // adds phase 1 to however much of phase 2 has been gone through
         pose.position = 0.5 * max_velocity * acceleration_time + max_velocity * (time - acceleration_time);
     }
@@ -139,8 +144,8 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     // if in the deceleration phase
     else
     {
-        pose.acceleration = -1.0 * max_acceleration;
-        pose.velocity = max_velocity - (max_acceleration * (time - (acceleration_time + velocity_time)));
+        pose.acceleration = -1.0 * reversed_coefficient * max_acceleration;
+        pose.velocity = reversed_coefficient * max_velocity - (reversed_coefficient * max_acceleration * (time - (acceleration_time + velocity_time)));
         pose.position = 0.5 * max_velocity * acceleration_time + max_velocity * velocity_time + (pose.velocity * pose.velocity - max_velocity * max_velocity) / (2.0 * max_acceleration);
     }
 
@@ -206,7 +211,6 @@ void FeedforwardPID::setMaxAcceleration(double new_acc) {
     max_acceleration = new_acc;
 }
 
-
 double FeedforwardPID::getMaxVelocity() {
     return max_velocity;
 }
@@ -217,4 +221,12 @@ void FeedforwardPID::setMaxVelocity(double new_vel) {
 
 void FeedforwardPID::setMaxDistance(double distance) {
     max_distance_ = distance;
+}
+
+bool FeedforwardPID::getReversed() {
+    return reversed;
+}
+
+void FeedforwardPID::setReversed(bool reversed) {
+    this->reversed = reversed;
 }

@@ -33,6 +33,10 @@ namespace ElevatorConstants {
   // pid constants
   const double KP = 0.0;
   const double KD = 0.0;
+
+  // left motor
+  const int LEFT_MOTOR_ID = 2;
+  const int RIGHT_MOTOR_ID = 0;
 }
 
 namespace Poses {

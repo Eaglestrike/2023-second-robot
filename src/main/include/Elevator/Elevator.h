@@ -9,7 +9,7 @@
 class Elevator {
     public:
         // functions
-        Elevator(int leftID, int rightID);
+        Elevator();
 
         // possible states that the elevator can be in
         enum ElevatorState {
@@ -43,4 +43,6 @@ class Elevator {
         // motors
         WPI_TalonFX left_;
         WPI_TalonFX right_;
+
+        double talonUnitsToMeters(double motor_units);
 };

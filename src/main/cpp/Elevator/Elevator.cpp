@@ -12,23 +12,30 @@ double Elevator::getElevatorHeight() {
     return (left_.GetSelectedSensorPosition() + right_.GetSelectedSensorPosition()) / 2.0;
 }
 
+/**
+ * @brief Gets the position of the left motor
+ * 
+ * @return double the sensor position in raw sensor units
+ */
 double Elevator::getLeftRotation() {
     return left_.GetSelectedSensorPosition();
 }
 
+/**
+ * @brief Gets the position of the right motor
+ * 
+ * @return double the sensor position in raw sensor units
+ */
 double Elevator::getRightRotation() {
     return right_.GetSelectedSensorPosition();
 }
 
 /**
  * @brief Construct a new Elevator:: Elevator object
- * 
- * @param leftID the ID for the left motor
- * @param rightID  the ID for the right motor
  */
-Elevator::Elevator(int leftID, int rightID):
-    left_(leftID, "rio"),
-    right_(rightID, "rio"),
+Elevator::Elevator():
+    left_(ElevatorConstants::LEFT_MOTOR_ID, "rio"),
+    right_(ElevatorConstants::RIGHT_MOTOR_ID, "rio"),
     feedforward_(
         ElevatorConstants::KS,
         ElevatorConstants::KV,
@@ -39,8 +46,12 @@ Elevator::Elevator(int leftID, int rightID):
         ElevatorConstants::MAX_ELEVATOR_EXTENSION
         ) 
 {
+    right_.SetInverted(true);
+    right_.Follow(left_, FollowerType::FollowerType_PercentOutput);
     feedforward_.setMaxVelocity(ElevatorConstants::MAX_ELEVATOR_VELOCITY);
     feedforward_.setMaxAcceleration(ElevatorConstants::MAX_ELEVATOR_ACCELERATION);
+    feedforward_.setMaxDistance(90); // while testing
+    // feedforward_.setMaxDistance(ElevatorConstants::MAX_ELEVATOR_EXTENSION);
 };
 
 /**
@@ -48,30 +59,23 @@ Elevator::Elevator(int leftID, int rightID):
  * Acts on the difference between current position and next position
  */
 void Elevator::periodic() {
-
     if (current_state == STOPPED) {
         return;
     }
 
     Poses::Pose1D current_values;
-    current_values.velocity = left_.GetSelectedSensorVelocity();
-    frc::SmartDashboard::PutNumber("current ev velocity", current_values.velocity);
-    current_values.position = (left_.GetSelectedSensorPosition() / ElevatorConstants::TALON_FX_COUNTS_PER_REV) * ElevatorConstants::ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED;
-    // current_values.position = left_.GetSelectedSensorPosition();
-    frc::SmartDashboard::PutNumber("current ev position", current_values.position);
+
+    // dividing by 10 to convert from 100 milliseconds to seconds.
+    current_values.velocity = talonUnitsToMeters(left_.GetSelectedSensorVelocity()) / 10.0;
+    current_values.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
 
     double motor_output = feedforward_.periodic(current_values);
 
-    // sketch
-    // if (current_state == MOVING_TO_DOCKED) {
-    //     motor_output *= -1.0;
-    // }
-    // motor_output = 0.65;
+    frc::SmartDashboard::PutNumber("current ev velocity", current_values.velocity);
+    frc::SmartDashboard::PutNumber("current ev position", current_values.position);
     frc::SmartDashboard::PutNumber("motor output", motor_output);
 
     left_.SetVoltage(units::volt_t{std::clamp(motor_output, 0.0, 2.0)});
-    right_.SetInverted(true);
-    right_.Follow(left_, FollowerType::FollowerType_PercentOutput);
 }
 
 /**
@@ -125,4 +129,14 @@ void Elevator::setPIDConstants(double kp, double kd) {
 
 void Elevator::setMaxDistance(double distance) {
     feedforward_.setMaxDistance(distance);
+}
+
+/**
+ * @brief This function converts the motor units used by the talon to meters.
+ * 
+ * @param motor_units the raw sensor units
+ * @return double the unit in meters
+ */
+double Elevator::talonUnitsToMeters(double motor_units) {
+    return motor_units / ElevatorConstants::TALON_FX_COUNTS_PER_REV * ElevatorConstants::ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED;
 }

@@ -35,11 +35,14 @@ public:
     double getMaxVelocity();
     double getMaxAcceleration();
 
+    bool getReversed();
+
     void setKs(double ks);
     void setKv(double kv);
     void setKa(double ka);
     void setKg(double kg);
     void setMaxDistance(double distance);
+    void setReversed(bool reversed);
 
     void setPIDConstants(double kp, double kd);
 
@@ -68,7 +71,10 @@ private:
     double max_velocity;
     double max_acceleration;
 
+    // used to control the timer
     double isRunning = false;
+
+    bool reversed = false;
 
     // timer
     frc::Timer timer{};

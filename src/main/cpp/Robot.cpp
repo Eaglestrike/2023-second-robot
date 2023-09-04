@@ -47,12 +47,12 @@ Robot::Robot():
 
 void Robot::RobotInit()
 {
-  frc::SmartDashboard::PutNumber("wheel kP", SwerveConstants::TURN_P);
-  frc::SmartDashboard::PutNumber("wheel kI", SwerveConstants::TURN_I);
-  frc::SmartDashboard::PutNumber("wheel kD", SwerveConstants::TURN_D);
-  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+  // frc::SmartDashboard::PutNumber("wheel kP", SwerveConstants::TURN_P);
+  // frc::SmartDashboard::PutNumber("wheel kI", SwerveConstants::TURN_I);
+  // frc::SmartDashboard::PutNumber("wheel kD", SwerveConstants::TURN_D);
+  // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+  // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+  // frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
   frc::SmartDashboard::PutNumber("elevator ks", 0.2);
   frc::SmartDashboard::PutNumber("elevator ka", 0.2);
@@ -77,19 +77,19 @@ void Robot::RobotPeriodic()
 {
   if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
-    double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
-    double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
-    double kD = frc::SmartDashboard::GetNumber("wheel kD", SwerveConstants::TURN_D);
-    double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-    double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-    double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+    // double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
+    // double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
+    // double kD = frc::SmartDashboard::GetNumber("wheel kD", SwerveConstants::TURN_D);
+    // double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+    // double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+    // double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
-    m_swerveFl.SetPID(kP, kI, kD);
-    m_swerveFr.SetPID(kP, kI, kD);
-    m_swerveBl.SetPID(kP, kI, kD);
-    m_swerveBr.SetPID(kP, kI, kD);
+    // m_swerveFl.SetPID(kP, kI, kD);
+    // m_swerveFr.SetPID(kP, kI, kD);
+    // m_swerveBl.SetPID(kP, kI, kD);
+    // m_swerveBr.SetPID(kP, kI, kD);
 
-    m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
+    // m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
   }
 
   if (m_controller.getPressed(ZERO_YAW))
@@ -103,15 +103,15 @@ void Robot::RobotPeriodic()
     elevator_.zero_motors();
   }
 
-  frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
-  frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
-  frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
-  frc::SmartDashboard::PutNumber("br raw encoder", m_swerveBr.GetRawEncoderReading());
+  // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
+  // frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
+  // frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
+  // frc::SmartDashboard::PutNumber("br raw encoder", m_swerveBr.GetRawEncoderReading());
 
-  frc::SmartDashboard::PutString("fl velocity", m_swerveFl.GetVelocity().toString());
-  frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
-  frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
-  frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
+  // frc::SmartDashboard::PutString("fl velocity", m_swerveFl.GetVelocity().toString());
+  // frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
+  // frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
+  // frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
 
   frc::SmartDashboard::PutString("left elevator rotation", std::to_string(elevator_.getLeftRotation()));
   frc::SmartDashboard::PutString("right elevator rotation", std::to_string(elevator_.getRightRotation()));
@@ -160,7 +160,7 @@ void Robot::TeleopPeriodic() {
   double curYaw = m_navx->GetYaw();
   curYaw = curYaw * (M_PI / 180);
 
-  frc::SmartDashboard::PutNumber("curYaw", curYaw);
+  // frc::SmartDashboard::PutNumber("curYaw", curYaw);
 
   vec::Vector2D setVel = {-vy, -vx};
   m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.02);
@@ -171,10 +171,10 @@ void Robot::TeleopPeriodic() {
   auto vel = m_swerveController->GetRobotVelocity(curYaw);
   m_pos += vel * 0.02;
 
-  frc::SmartDashboard::PutString("pos:", m_pos.toString());
-  frc::SmartDashboard::PutString("vel:", vel.toString());
-  frc::SmartDashboard::PutString("setVel:", setVel.toString());
-  frc::SmartDashboard::PutNumber("setAngVel:", w);
+  // frc::SmartDashboard::PutString("pos:", m_pos.toString());
+  // frc::SmartDashboard::PutString("vel:", vel.toString());
+  // frc::SmartDashboard::PutString("setVel:", setVel.toString());
+  // frc::SmartDashboard::PutNumber("setAngVel:", w);
 
   elevator_.periodic();
 }

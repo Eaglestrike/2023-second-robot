@@ -39,7 +39,7 @@ class Robot : public frc::TimedRobot {
 
 
   // elevator
-  Elevator elevator_{2, 0};
+  Elevator elevator_;
  private:
   // IMU acclerometer and gyroscope
   // Gives information on orientation and acceleration

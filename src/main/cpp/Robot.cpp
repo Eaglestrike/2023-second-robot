@@ -117,10 +117,10 @@ void Robot::RobotPeriodic()
   frc::SmartDashboard::PutString("right elevator rotation", std::to_string(elevator_.getRightRotation()));
 
 
-  double dash_ks = frc::SmartDashboard::GetNumber("elevator ks", 0.2);
-  double dash_kv = frc::SmartDashboard::GetNumber("elevator kv", 0.2);
-  double dash_kg = frc::SmartDashboard::GetNumber("elevator kg", 0.2);
-  double dash_ka = frc::SmartDashboard::GetNumber("elevator ka", 0.2);
+  double dash_ks = frc::SmartDashboard::GetNumber("elevator ks", ElevatorConstants::KS);
+  double dash_kv = frc::SmartDashboard::GetNumber("elevator kv", ElevatorConstants::KV);
+  double dash_kg = frc::SmartDashboard::GetNumber("elevator kg", ElevatorConstants::KG);
+  double dash_ka = frc::SmartDashboard::GetNumber("elevator ka", ElevatorConstants::KA);
 
 
   elevator_.setFeedforwardConstants(dash_ks, dash_kv, dash_kg, dash_ka);

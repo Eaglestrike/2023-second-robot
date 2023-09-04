@@ -40,8 +40,7 @@ Elevator::Elevator(int leftID, int rightID):
         ) 
 {
     feedforward_.setMaxVelocity(ElevatorConstants::MAX_ELEVATOR_VELOCITY);
-    feedforward_.setMaxAcceleration(0.4);
-
+    feedforward_.setMaxAcceleration(ElevatorConstants::MAX_ELEVATOR_ACCELERATION);
 };
 
 /**
@@ -58,6 +57,7 @@ void Elevator::periodic() {
     current_values.velocity = left_.GetSelectedSensorVelocity();
     frc::SmartDashboard::PutNumber("current ev velocity", current_values.velocity);
     current_values.position = (left_.GetSelectedSensorPosition() / ElevatorConstants::TALON_FX_COUNTS_PER_REV) * ElevatorConstants::ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED;
+    // current_values.position = left_.GetSelectedSensorPosition();
     frc::SmartDashboard::PutNumber("current ev position", current_values.position);
 
     double motor_output = feedforward_.periodic(current_values);
@@ -69,7 +69,7 @@ void Elevator::periodic() {
     // motor_output = 0.65;
     frc::SmartDashboard::PutNumber("motor output", motor_output);
 
-    left_.SetVoltage(units::volt_t{std::clamp(motor_output, -2.0, 2.0)});
+    left_.SetVoltage(units::volt_t{std::clamp(motor_output, 0.0, 2.0)});
     right_.SetInverted(true);
     right_.Follow(left_, FollowerType::FollowerType_PercentOutput);
 }

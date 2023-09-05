@@ -46,6 +46,7 @@ double FeedforwardPID::periodic(Poses::Pose1D current_values)
     Poses::Pose1D expected_values = getExpectedPose(timer.Get().value());
     frc::SmartDashboard::PutNumber("expected ev velocity", expected_values.velocity);
     frc::SmartDashboard::PutNumber("expected ev position", expected_values.position);
+    frc::SmartDashboard::PutNumber("expected acceleration", expected_values.acceleration);
     frc::SmartDashboard::PutNumber("position error", expected_values.position-current_values.position);
 
     double feedforward_voltage = calculate(expected_values.velocity, expected_values.acceleration);
@@ -120,21 +121,30 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
 
     // the time spent maintaining a constant velocity
     double velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
+
+    // velocity should never be negative
+    velocity_time = velocity_time < 0 ? 0.0 : velocity_time;
     frc::SmartDashboard::PutNumber("vel time: ", velocity_time);
 
     double reversed_coefficient = reversed ? -1.0 : 1.0;
 
+    frc::SmartDashboard::PutBoolean("phase 1", false);
+    frc::SmartDashboard::PutBoolean("phase 2", false);
+    frc::SmartDashboard::PutBoolean("phase 3", false);
+
     // if in the acceleration phase
     if (0 < time && time < acceleration_time)
     {
+        frc::SmartDashboard::PutBoolean("phase 1", true);
         pose.acceleration = reversed_coefficient * max_acceleration;
         pose.velocity = max_acceleration * time;
         pose.position = 0.5 * pose.velocity * time;
     }
 
     // if in the velocity phase
-    else if (time < acceleration_time + velocity_time)
+    else if (velocity_time != 0 && time < acceleration_time + velocity_time)
     {
+        frc::SmartDashboard::PutBoolean("phase 2", true);
         pose.acceleration = 0.0;
         pose.velocity = reversed_coefficient * max_velocity;
         // adds phase 1 to however much of phase 2 has been gone through
@@ -144,7 +154,9 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     // if in the deceleration phase
     else
     {
+        frc::SmartDashboard::PutBoolean("phase 3", true);
         pose.acceleration = -1.0 * reversed_coefficient * max_acceleration;
+        frc::SmartDashboard::PutNumber("SHOULD BE DECELERATING", pose.acceleration);
         pose.velocity = reversed_coefficient * max_velocity - (reversed_coefficient * max_acceleration * (time - (acceleration_time + velocity_time)));
         pose.position = 0.5 * max_velocity * acceleration_time + max_velocity * velocity_time + (pose.velocity * pose.velocity - max_velocity * max_velocity) / (2.0 * max_acceleration);
     }

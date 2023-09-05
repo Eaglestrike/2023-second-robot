@@ -51,6 +51,8 @@ Elevator::Elevator():
     feedforward_.setMaxVelocity(ElevatorConstants::MAX_ELEVATOR_VELOCITY);
     feedforward_.setMaxAcceleration(ElevatorConstants::MAX_ELEVATOR_ACCELERATION);
     feedforward_.setMaxDistance(90); // while testing
+
+    frc::SmartDashboard::PutNumber("max distance", 90.0);
     // feedforward_.setMaxDistance(ElevatorConstants::MAX_ELEVATOR_EXTENSION);
 };
 
@@ -59,6 +61,7 @@ Elevator::Elevator():
  * Acts on the difference between current position and next position
  */
 void Elevator::periodic() {
+    setMaxDistance(frc::SmartDashboard::GetNumber("max distance", 90.0));
     if (current_state == STOPPED) {
         return;
     }
@@ -73,9 +76,8 @@ void Elevator::periodic() {
 
     frc::SmartDashboard::PutNumber("current ev velocity", current_values.velocity);
     frc::SmartDashboard::PutNumber("current ev position", current_values.position);
-    frc::SmartDashboard::PutNumber("motor output", motor_output);
 
-    left_.SetVoltage(units::volt_t{std::clamp(motor_output, 0.0, 2.0)});
+    left_.SetVoltage(units::volt_t{std::clamp(motor_output, -1.0, 1.0)});
 }
 
 /**
@@ -128,7 +130,11 @@ void Elevator::setPIDConstants(double kp, double kd) {
 }
 
 void Elevator::setMaxDistance(double distance) {
-    feedforward_.setMaxDistance(distance);
+
+    // ok for now assuming that distance is an angle on the rod
+    // radius is 19 in
+    double adjusted_distance = (distance / 360.0) * 2 * 3.141 * 0.48;
+    feedforward_.setMaxDistance(adjusted_distance);
 }
 
 /**

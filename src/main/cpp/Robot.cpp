@@ -54,10 +54,10 @@ void Robot::RobotInit()
   // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
   // frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
-  frc::SmartDashboard::PutNumber("elevator ks", 0.2);
-  frc::SmartDashboard::PutNumber("elevator ka", 0.2);
-  frc::SmartDashboard::PutNumber("elevator kv", 0.2);
-  frc::SmartDashboard::PutNumber("elevator kg", 0.2);
+  frc::SmartDashboard::PutNumber("elevator ks", ElevatorConstants::KS);
+  frc::SmartDashboard::PutNumber("elevator ka", ElevatorConstants::KA);
+  frc::SmartDashboard::PutNumber("elevator kv", ElevatorConstants::KV);
+  frc::SmartDashboard::PutNumber("elevator kg", ElevatorConstants::KG);
 
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();

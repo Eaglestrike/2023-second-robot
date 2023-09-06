@@ -35,6 +35,9 @@ class Elevator {
 
         void zero_motors();
         void stop();
+        void start();
+
+        ElevatorState getState();
     private:
         // member variables
         ElevatorState current_state;

@@ -105,6 +105,10 @@ void FeedforwardPID::start()
     isRunning = true;
 }
 
+void FeedforwardPID::stop() {
+    timer.Stop();
+}
+
 /**
  * @brief A feedforward function that gets the elevator pose based on current time
  *
@@ -152,13 +156,20 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     }
 
     // if in the deceleration phase
-    else
+    else if (time < velocity_time + acceleration_time * 2)
     {
+        double first_phase_distance = 0.5 * max_velocity * acceleration_time;
+        double second_phase_distance = max_velocity * velocity_time;
+
         frc::SmartDashboard::PutBoolean("phase 3", true);
         pose.acceleration = -1.0 * reversed_coefficient * max_acceleration;
         frc::SmartDashboard::PutNumber("SHOULD BE DECELERATING", pose.acceleration);
-        pose.velocity = reversed_coefficient * max_velocity - (reversed_coefficient * max_acceleration * (time - (acceleration_time + velocity_time)));
-        pose.position = 0.5 * max_velocity * acceleration_time + max_velocity * velocity_time + (pose.velocity * pose.velocity - max_velocity * max_velocity) / (2.0 * max_acceleration);
+        double time_in_triangle = time - (acceleration_time + velocity_time);
+
+        pose.velocity = reversed_coefficient * max_velocity - (reversed_coefficient * max_acceleration * (time_in_triangle));
+        // pose.position = 0.5 * max_velocity * acceleration_time + max_velocity * velocity_time + (pose.velocity * pose.velocity - max_velocity * max_velocity) / (2.0 * max_acceleration);
+        double third_phase_distance = (max_velocity + pose.velocity) / 2.0 * time_in_triangle;
+        pose.position = first_phase_distance + second_phase_distance + third_phase_distance;
     }
 
     return pose;

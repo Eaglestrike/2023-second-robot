@@ -148,6 +148,10 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
+  if (elevator_.getState() == Elevator::STOPPED) {
+    elevator_.start();
+    elevator_.setState(Elevator::ElevatorState::MOVING_TO_DOCKED);
+  }
   double lx = m_controller.getWithDeadContinuous(SWERVE_STRAFEX, 0.1);
   double ly = m_controller.getWithDeadContinuous(SWERVE_STRAFEY, 0.1);
 
@@ -181,7 +185,9 @@ void Robot::TeleopPeriodic() {
 
 void Robot::DisabledInit() {}
 
-void Robot::DisabledPeriodic() {}
+void Robot::DisabledPeriodic() {
+  elevator_.stop();
+}
 
 void Robot::TestInit() {}
 

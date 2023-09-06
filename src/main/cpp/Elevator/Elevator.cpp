@@ -108,6 +108,7 @@ void Elevator::stop() {
     setState(ElevatorState::STOPPED);
     left_.SetVoltage(units::volt_t{0});
     right_.SetVoltage(units::volt_t{0});
+    feedforward_.stop();
 }
 
 /**
@@ -145,4 +146,12 @@ void Elevator::setMaxDistance(double distance) {
  */
 double Elevator::talonUnitsToMeters(double motor_units) {
     return motor_units / ElevatorConstants::TALON_FX_COUNTS_PER_REV * ElevatorConstants::ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED;
+}
+
+Elevator::ElevatorState Elevator::getState() {
+    return current_state;
+}
+
+void Elevator::start() {
+    feedforward_.start();
 }

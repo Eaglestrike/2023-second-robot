@@ -17,9 +17,9 @@ namespace ElevatorConstants {
 
   // m/s
   // const double MAX_ELEVATOR_VELOCITY = 4.20116;
-    const double MAX_ELEVATOR_VELOCITY = 0.8;
+    const double MAX_ELEVATOR_VELOCITY = 0.2;
 
-  const double MAX_ELEVATOR_ACCELERATION = 0.1;
+  const double MAX_ELEVATOR_ACCELERATION = 0.8;
 
   // m
   const double MAX_ELEVATOR_EXTENSION = 0.5588;

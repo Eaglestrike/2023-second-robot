@@ -49,6 +49,8 @@ public:
     void setMaxVelocity(double max_vel);
     void setMaxAcceleration(double max_acc);
 
+    void stop();
+
     // constructor
     FeedforwardPID(double ks, double kv, double ka, double kg, double distance);
     FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double kd, double distance);

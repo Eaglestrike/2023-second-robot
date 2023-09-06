@@ -23,4 +23,7 @@ public:
   static std::size_t GetCurTimeMs();
   static double DegToRad(const double deg);
   static double RadToDeg(const double rad);
+  static vec::Vector2D GetUnitVecDir(const double ang);
+  static vec::Vector2D GetProjection(const vec::Vector2D v, const vec::Vector2D w);
+  static double GetAngBetweenVec(const vec::Vector2D v1, const vec::Vector2D v2);
 };

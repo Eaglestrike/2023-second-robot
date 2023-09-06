@@ -106,7 +106,7 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
   std::vector<vec::Vector2D> vecPrints;
   vecPrints.resize(4);
 
-  frc::SmartDashboard::PutNumber("cjurrent angle", m_curAngle);
+  // frc::SmartDashboard::PutNumber("cjurrent angle", m_curAngle);
 
   if (!Utils::NearZero(angVel))
   {
@@ -118,7 +118,7 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
   {
     // if not turning, correct robot so that it doesnt turn
     angVel = m_angleCorrector.Calculate(ang, m_curAngle);
-    frc::SmartDashboard::PutNumber("pidout", angVel);
+    // frc::SmartDashboard::PutNumber("pidout", angVel);
     angVel = std::clamp(angVel, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
   }
 

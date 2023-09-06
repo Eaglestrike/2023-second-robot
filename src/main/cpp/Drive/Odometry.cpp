@@ -117,6 +117,30 @@ bool Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
     return false;
   }
 
+  // reject if apriltag is not facing the robot (false dtection)
+  double angRobot = GetAng();
+  vec::Vector2D unitVec = Utils::GetUnitVecDir(angRobot);
+  vec::Vector2D vecToTag = tagPos - odomPos;
+
+  // check that robot is not behind tag
+  if (tagID != 4 && tagID != 5 && (odomPos.x() < FieldConstants::TAG8.x() || odomPos.x() > FieldConstants::TAG1.x())) {
+    // std::cout << "bad 1" << std::endl;
+    return false;
+  }
+  if ((tagID == 4 || tagID == 5) && (odomPos.x() < FieldConstants::TAG5.x() || odomPos.x() > FieldConstants::TAG4.x())) {
+    // std::cout << "bad 2" << std::endl;
+    return false;
+  }
+
+  double angToCam = Utils::GetAngBetweenVec(unitVec, vecToTag);
+  // frc::SmartDashboard::PutString("tag vec", tagPos.toString());
+  // frc::SmartDashboard::PutString("cam vec", vecToTag.toString());
+  // frc::SmartDashboard::PutNumber("Angle to Cam", angToCam);
+  // return false;
+  if (std::abs(angToCam) >= M_PI / 2) {
+    return false;
+  }
+
   // not using camAng, because it relies on existing odometry measurements to get accurate and ideally it's its own, independent measurement
   // @todo figure out if ^^^ is right
   std::size_t curTimeMs = Utils::GetCurTimeMs();

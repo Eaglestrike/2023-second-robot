@@ -1,5 +1,6 @@
 #include "Util/Mathutil.h"
 
+#include <algorithm>
 #include <cmath>
 
 #ifndef M_PI
@@ -119,4 +120,40 @@ double Utils::DegToRad(const double deg) {
 */
 double Utils::RadToDeg(const double rad) {
   return rad * (180.0 / M_PI);
+}
+
+/**
+ * Gets unit vector from a direction angle
+ * 
+ * @param ang Direction angle
+ * 
+ * @returns Unit vector with a direction in the indicated angle
+*/
+vec::Vector2D Utils::GetUnitVecDir(const double ang) {
+  return vec::Vector2D{std::cos(ang), std::sin(ang)};
+}
+
+/**
+ * Gets component of v in the direction of w
+ * 
+ * @param v Vector to project
+ * @param w Reference vector, must be nonzero
+ * 
+ * @returns Component of v in the direction of w
+*/
+vec::Vector2D Utils::GetProjection(const vec::Vector2D v, const vec::Vector2D w) {
+  return w * (dot(v, w) / (magn(w) * magn(w)));
+}
+
+/**
+ * Gets angle between two vectors
+ * 
+ * @param v1 First vector (must be nonzero)
+ * @param v2 Second vector (must be nonzero)
+ * 
+ * @returns Angle between two vectors
+*/
+double Utils::GetAngBetweenVec(const vec::Vector2D v1, const vec::Vector2D v2) {
+ return std::acos(std::clamp(
+      dot(v1, v2) / (magn(v1) * magn(v2)), -1.0, 1.0));
 }

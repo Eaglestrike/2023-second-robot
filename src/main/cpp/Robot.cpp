@@ -78,12 +78,17 @@ Robot::Robot():
       long long age = static_cast<long long>(camData[5]);
       unsigned long long uniqueId = static_cast<unsigned long long>(camData[6]);
 
-      frc::SmartDashboard::PutNumber("tag Id", tagId);
-      frc::SmartDashboard::PutNumber("camX", x);
-      frc::SmartDashboard::PutNumber("camY", y);
+      // frc::SmartDashboard::PutNumber("camX", x);
+      // frc::SmartDashboard::PutNumber("camY", y);
 
       bool res = m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
-      frc::SmartDashboard::PutBoolean("Good ID", res);
+      // frc::SmartDashboard::PutBoolean("Good ID", res);
+      if (!res) {
+        tagId = 0;
+      } else {
+        // std::cout << "good " << tagId << " " << Utils::GetCurTimeMs() << std::endl;
+      }
+      frc::SmartDashboard::PutNumber("tag Id", tagId);
     }
 
     // other odometry
@@ -185,10 +190,10 @@ void Robot::RobotPeriodic()
     m_odometry.Reset();
   }
 
-  frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
-  frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
-  frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
-  frc::SmartDashboard::PutNumber("br raw encoder", m_swerveBr.GetRawEncoderReading());
+  // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
+  // frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
+  // frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
+  // frc::SmartDashboard::PutNumber("br raw encoder", m_swerveBr.GetRawEncoderReading());
 
   // frc::SmartDashboard::PutString("fl velocity", m_swerveFl.GetVelocity().toString());
   // frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
@@ -229,7 +234,7 @@ void Robot::TeleopPeriodic() {
 
   double curYaw = m_odometry.GetAng();
 
-  frc::SmartDashboard::PutNumber("curYaw", curYaw);
+  // frc::SmartDashboard::PutNumber("curYaw", curYaw);
 
   vec::Vector2D setVel = {-vy, -vx};
   m_swerveController->SetRobotVelocityAbs(setVel, w, curYaw, 0.02, m_joystickAng);
@@ -242,8 +247,8 @@ void Robot::TeleopPeriodic() {
 
   // frc::SmartDashboard::PutString("pos:", m_pos.toString());
   // frc::SmartDashboard::PutString("vel:", vel.toString());
-  frc::SmartDashboard::PutString("setVel:", setVel.toString());
-  frc::SmartDashboard::PutNumber("setAngVel:", w);
+  // frc::SmartDashboard::PutString("setVel:", setVel.toString());
+  // frc::SmartDashboard::PutNumber("setAngVel:", w);
 }
 
 void Robot::DisabledInit() {}

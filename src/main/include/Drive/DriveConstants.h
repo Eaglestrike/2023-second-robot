@@ -96,5 +96,9 @@ namespace OdometryConstants {
   const double CAM_TRUST_KPOSINT = 100.0;
   const double MAX_TIME = 0.5;
 
-  const double ALPHA = 1.0;
+  // trust term for wheels
+  const double ALPHA = 0.98;
+
+  // for cam data greater than AT_REJECT meters, we reject
+  const double AT_REJECT = 6;
 }

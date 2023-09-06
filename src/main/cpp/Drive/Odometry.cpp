@@ -55,8 +55,10 @@ Odometry::Odometry(vec::Vector2D *posOffset, double *angOffset)
  * @param tagID Apriltag ID
  * @param age delay measurement from camera (combined delay from camera to jetson and from jetson to rio through network)
  * @param uniqueId unique ID from camera
+ * 
+ * @returns Wheter data is valid (new uniqueID)
 */
-void Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId)
+bool Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId)
 {
   double angNavX = GetAng();
   vec::Vector2D vecRot = rotate(camPos, angNavX - M_PI / 2);
@@ -64,7 +66,7 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
 
   // check that ID is actually unique
   if (static_cast<long long>(uniqueId) == m_prevId) {
-    return;
+    return false;
   }
   m_prevId = static_cast<long long>(uniqueId);
 
@@ -104,12 +106,40 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
       break;
     default:
       // std::cout << "bad detect" << std::endl;
-      return; // unrecognized tag; don't process
+      return false; // unrecognized tag; don't process
   }
 
   vec::Vector2D robotPos = tagPos - vecRot;
 
-  // std::cout << robotPos.toString() << std::endl;
+  // reject if april tag pos is too far away
+  vec::Vector2D odomPos = GetPosition();
+  if (vec::magn(odomPos - robotPos) > OdometryConstants::AT_REJECT) {
+    return false;
+  }
+
+  // reject if apriltag is not facing the robot (false dtection)
+  double angRobot = GetAng();
+  vec::Vector2D unitVec = Utils::GetUnitVecDir(angRobot);
+  vec::Vector2D vecToTag = tagPos - odomPos;
+
+  // check that robot is not behind tag
+  if (tagID != 4 && tagID != 5 && (odomPos.x() < FieldConstants::TAG8.x() || odomPos.x() > FieldConstants::TAG1.x())) {
+    // std::cout << "bad 1" << std::endl;
+    return false;
+  }
+  if ((tagID == 4 || tagID == 5) && (odomPos.x() < FieldConstants::TAG5.x() || odomPos.x() > FieldConstants::TAG4.x())) {
+    // std::cout << "bad 2" << std::endl;
+    return false;
+  }
+
+  double angToCam = Utils::GetAngBetweenVec(unitVec, vecToTag);
+  // frc::SmartDashboard::PutString("tag vec", tagPos.toString());
+  // frc::SmartDashboard::PutString("cam vec", vecToTag.toString());
+  // frc::SmartDashboard::PutNumber("Angle to Cam", angToCam);
+  // return false;
+  if (std::abs(angToCam) >= M_PI / 2) {
+    return false;
+  }
 
   // not using camAng, because it relies on existing odometry measurements to get accurate and ideally it's its own, independent measurement
   // @todo figure out if ^^^ is right
@@ -117,6 +147,8 @@ void Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
   //         substituting angnavX here vvvvvv becaues of waht's mentioned in comment above
   // m_filter.UpdateFromCamera(robotPos, Utils::DegToRad(angNavX), age, curTimeMs);
   m_filter.AddCamPos(robotPos, age, curTimeMs);
+
+  return true;
 }
 
 /**
@@ -136,7 +168,7 @@ void Odometry::Reset() {
 */
 vec::Vector2D Odometry::GetPosition() const {
   // return m_filter.GetEstimatedPos() + *m_posOffset;
-  return m_filter.GetPos() + *m_posOffset;
+  return m_filter.GetPos();
 }
 
 /**
@@ -147,6 +179,15 @@ vec::Vector2D Odometry::GetPosition() const {
 double Odometry::GetAng() const {
   // const double ang = m_filter.GetEstimatedAng();
   return Utils::NormalizeAng(m_ang + *m_angOffset);
+}
+
+/**
+ * Sets alpha term, a term between 0 and 1 that de4termines weight given to wheels
+ * 
+ * @param alpha Alpha term
+*/
+void Odometry::SetAlpha(double alpha) {
+  m_filter.SetAlpha(alpha);
 }
 
 /**

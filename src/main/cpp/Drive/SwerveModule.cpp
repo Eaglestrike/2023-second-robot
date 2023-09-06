@@ -35,7 +35,7 @@ SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, do
   // m_encoder.ConfigMagnetOffset(offset);
   m_controller.EnableContinuousInput(-M_PI, M_PI);
 
-  frc::SmartDashboard::PutNumber("Wheel Radius", SwerveConstants::WHEEL_RADIUS);
+  // frc::SmartDashboard::PutNumber("Wheel Radius", SwerveConstants::WHEEL_RADIUS);
 
   m_angleMotor.SetNeutralMode(NeutralMode::Brake);
   m_driveMotor.SetNeutralMode(NeutralMode::Brake);
@@ -185,6 +185,7 @@ void SwerveModule::Periodic()
 
   // don't set angle motor voltage if speed = 0
   if (Utils::NearZero(speed)) {
+    m_angleMotor.SetVoltage(units::volt_t{0});
     return;
   }
 
@@ -205,12 +206,10 @@ bool SwerveModule::ShouldFlip(vec::Vector2D curVec, vec::Vector2D targetVec)
   vec::Vector2D curNeg = -curVec;
 
   // positive angle
-  double angle1 = std::acos(std::clamp(
-      dot(curVec, targetVec) / (magn(curVec) * magn(targetVec)), -1.0, 1.0));
+  double angle1 = Utils::GetAngBetweenVec(curVec, targetVec);
 
   // negative angle
-  double angle2 = std::acos(std::clamp(
-      dot(curNeg, targetVec) / (magn(curNeg) * magn(targetVec)), -1.0, 1.0));
+  double angle2 = Utils::GetAngBetweenVec(curNeg, targetVec);
 
   return angle2 < angle1;
 }

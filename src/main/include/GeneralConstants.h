@@ -33,27 +33,27 @@ namespace FieldConstants {
 
   // TODO find accurate starting values
   // Red left and red middle are close but still need to tune
-  const vec::Vector2D BL_POS = {0, 5};
+  const vec::Vector2D BL_POS = {1.9, 4.42};
   const double BL_ANG = M_PI;
   const double BL_JANG = 0;
 
-  const vec::Vector2D BM_POS = {0, 3};
+  const vec::Vector2D BM_POS = {1.9, 2.75};
   const double BM_ANG = M_PI;
   const double BM_JANG = 0;
 
-  const vec::Vector2D BR_POS = {0, 1};
+  const vec::Vector2D BR_POS = {1.9, 1.07};
   const double BR_ANG = M_PI;
   const double BR_JANG = 0;
 
-  const vec::Vector2D RL_POS = {14.35, 1};
+  const vec::Vector2D RL_POS = {14.5, 1.07};
   const double RL_ANG = 0;
   const double RL_JANG = M_PI;
 
-  const vec::Vector2D RM_POS = {14.35, 2.5};
+  const vec::Vector2D RM_POS = {14.5, 2.75};
   const double RM_ANG = 0;
   const double RM_JANG = M_PI;
 
-  const vec::Vector2D RR_POS = {10, 5};
+  const vec::Vector2D RR_POS = {14.5, 4.42};
   const double RR_ANG = 0;
   const double RR_JANG = M_PI;
 }

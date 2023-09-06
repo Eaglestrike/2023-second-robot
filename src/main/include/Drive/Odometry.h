@@ -28,7 +28,7 @@ public:
   // void SetKFTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime);
   void SetAlpha(double alpha);
   void SetMaxTime(double maxTime);
-  void SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId);
+  bool SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId);
   void Reset();
 
   vec::Vector2D GetPosition() const;

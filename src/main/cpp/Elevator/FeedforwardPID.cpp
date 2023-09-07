@@ -41,18 +41,22 @@ double FeedforwardPID::periodic(Poses::Pose1D current_values)
         start();
     }
 
+    Poses::Pose1D expected_values = getExpectedPose(timer.Get().value());
+    double feedforward_voltage = calculate(expected_values.velocity, expected_values.acceleration);
+    double pid_voltage = pid_calculations({expected_values.velocity, expected_values.position}, current_values);
+
+    // debug prints
     frc::SmartDashboard::PutNumber("timer value: ", timer.Get().value());
 
-    Poses::Pose1D expected_values = getExpectedPose(timer.Get().value());
     frc::SmartDashboard::PutNumber("expected ev velocity", expected_values.velocity);
     frc::SmartDashboard::PutNumber("expected ev position", expected_values.position);
     frc::SmartDashboard::PutNumber("expected acceleration", expected_values.acceleration);
-    frc::SmartDashboard::PutNumber("position error", expected_values.position-current_values.position);
 
-    double feedforward_voltage = calculate(expected_values.velocity, expected_values.acceleration);
+    frc::SmartDashboard::PutNumber("position error", expected_values.position - current_values.position);
+    frc::SmartDashboard::PutNumber("velocity error", expected_values.velocity - current_values.velocity);
+    frc::SmartDashboard::PutNumber("acceleration error", expected_values.acceleration - current_values.acceleration);
+
     frc::SmartDashboard::PutNumber("ff voltage", feedforward_voltage);
-
-    double pid_voltage = pid_calculations({expected_values.velocity, expected_values.position}, current_values);
     frc::SmartDashboard::PutNumber("pid voltage", pid_voltage);
 
     return feedforward_voltage + pid_voltage;
@@ -158,17 +162,18 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     // if in the deceleration phase
     else if (time < velocity_time + acceleration_time * 2)
     {
+        frc::SmartDashboard::PutBoolean("phase 3", true);
+
         double first_phase_distance = 0.5 * max_velocity * acceleration_time;
         double second_phase_distance = max_velocity * velocity_time;
-
-        frc::SmartDashboard::PutBoolean("phase 3", true);
-        pose.acceleration = -1.0 * reversed_coefficient * max_acceleration;
-        frc::SmartDashboard::PutNumber("SHOULD BE DECELERATING", pose.acceleration);
         double time_in_triangle = time - (acceleration_time + velocity_time);
 
+        pose.acceleration = -1.0 * reversed_coefficient * max_acceleration;
         pose.velocity = reversed_coefficient * max_velocity - (reversed_coefficient * max_acceleration * (time_in_triangle));
-        // pose.position = 0.5 * max_velocity * acceleration_time + max_velocity * velocity_time + (pose.velocity * pose.velocity - max_velocity * max_velocity) / (2.0 * max_acceleration);
+
+        // trapezoidal area
         double third_phase_distance = (max_velocity + pose.velocity) / 2.0 * time_in_triangle;
+
         pose.position = first_phase_distance + second_phase_distance + third_phase_distance;
     }
 

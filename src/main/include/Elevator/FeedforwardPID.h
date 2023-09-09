@@ -17,10 +17,16 @@
 class FeedforwardPID
 {
 public:
-    double calculate(double velocity, double acceleration);
-    Poses::Pose1D getExpectedPose(double time);
-    double pid_calculations(Poses::Pose1D expected, Poses::Pose1D current);
+    // constructor
+    FeedforwardPID(double ks, double kv, double ka, double kg, double distance);
+    FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double kd, double distance);
+
+    // main methods to use
     double periodic(Poses::Pose1D current_values);
+
+    void start();
+    void reset();
+    void stop();
 
     // getters and setters
     double getKs();
@@ -35,6 +41,7 @@ public:
     double getMaxAcceleration();
 
     bool getReversed();
+    Poses::Pose1D getExpectedPose(double time);
 
     void setKs(double ks);
     void setKv(double kv);
@@ -48,17 +55,11 @@ public:
     void setMaxVelocity(double max_vel);
     void setMaxAcceleration(double max_acc);
 
-    void start();
-    void reset();
-    void stop();
-
-    // constructor
-    FeedforwardPID(double ks, double kv, double ka, double kg, double distance);
-    FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double kd, double distance);
-
 private:
     // member functions
     double sign(double value);
+    double calculateFeedforwardVoltage(double velocity, double acceleration);
+    double calculatePIDVoltage(Poses::Pose1D expected, Poses::Pose1D current);
 
     // total distance needed to travel
     double max_distance_;
@@ -77,6 +78,7 @@ private:
     // used to control the timer
     double isRunning = false;
 
+    // to control direction of feedforward path
     bool reversed = false;
 
     // timer

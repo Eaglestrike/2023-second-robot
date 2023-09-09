@@ -42,8 +42,8 @@ double FeedforwardPID::periodic(Poses::Pose1D current_values)
     }
 
     Poses::Pose1D expected_values = getExpectedPose(timer.Get().value());
-    double feedforward_voltage = calculate(expected_values.velocity, expected_values.acceleration);
-    double pid_voltage = pid_calculations({expected_values.velocity, expected_values.position}, current_values);
+    double feedforward_voltage = calculateFeedforwardVoltage(expected_values.velocity, expected_values.acceleration);
+    double pid_voltage = calculatePIDVoltage({expected_values.velocity, expected_values.position}, current_values);
 
     // debug prints
     frc::SmartDashboard::PutNumber("timer value: ", timer.Get().value());
@@ -69,7 +69,7 @@ double FeedforwardPID::periodic(Poses::Pose1D current_values)
  * @param current Pose containing information about where system actually is
  * @return double voltage to add to feedforward loop to compensate for inaccuracies in velocity/position.
  */
-double FeedforwardPID::pid_calculations(Poses::Pose1D expected, Poses::Pose1D current)
+double FeedforwardPID::calculatePIDVoltage(Poses::Pose1D expected, Poses::Pose1D current)
 {
     return kp * (expected.velocity - current.velocity) + kd * (expected.position - current.position);
 }
@@ -82,7 +82,7 @@ double FeedforwardPID::pid_calculations(Poses::Pose1D expected, Poses::Pose1D cu
  *
  * @return the voltage to move
  */
-double FeedforwardPID::calculate(double velocity, double acceleration)
+double FeedforwardPID::calculateFeedforwardVoltage(double velocity, double acceleration)
 {
     return ks * sign(velocity) + kg + kv * velocity + ka * acceleration;
 }

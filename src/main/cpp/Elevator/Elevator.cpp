@@ -69,8 +69,12 @@ void Elevator::periodic() {
     Poses::Pose1D current_values;
 
     // dividing by 10 to convert from 100 milliseconds to seconds.
-    current_values.velocity = talonUnitsToMeters(left_.GetSelectedSensorVelocity()) / 10.0;
-    current_values.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
+    // current_values.velocity = talonUnitsToMeters(left_.GetSelectedSensorVelocity()) * 10.0;
+    // current_values.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
+
+    // used to test elevator on arm rig
+    current_values.velocity = talonUnitsToAngle(left_.GetSelectedSensorVelocity()) * 10.0;
+    current_values.position = talonUnitsToAngle(left_.GetSelectedSensorPosition());
 
     double motor_output = feedforward_.periodic(current_values);
 
@@ -105,7 +109,7 @@ void Elevator::zero_motors() {
  * 
  */
 void Elevator::stop() {
-    setState(ElevatorState::STOPPED);
+    current_state = ElevatorState::STOPPED;
     left_.SetVoltage(units::volt_t{0});
     right_.SetVoltage(units::volt_t{0});
     feedforward_.stop();
@@ -131,11 +135,7 @@ void Elevator::setPIDConstants(double kp, double kd) {
 }
 
 void Elevator::setMaxDistance(double distance) {
-
-    // ok for now assuming that distance is an angle on the rod
-    // radius is 19 in
-    double adjusted_distance = (distance / 360.0) * 2 * 3.141 * 0.48;
-    feedforward_.setMaxDistance(adjusted_distance);
+    feedforward_.setMaxDistance(distance);
 }
 
 /**
@@ -146,6 +146,16 @@ void Elevator::setMaxDistance(double distance) {
  */
 double Elevator::talonUnitsToMeters(double motor_units) {
     return motor_units / ElevatorConstants::TALON_FX_COUNTS_PER_REV * ElevatorConstants::ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED;
+}
+
+/**
+ * @brief Converts the talon motor units to an angle in degrees
+ *  
+ * @param motor_units the raw sensor units
+ * @return double the angle of the motor in degrees
+ */
+double Elevator::talonUnitsToAngle(double motor_units) {
+    return int(motor_units * 360.0 / ElevatorConstants::TALON_FX_COUNTS_PER_REV) % 360;
 }
 
 Elevator::ElevatorState Elevator::getState() {

@@ -8,7 +8,7 @@
 
 class Elevator {
     public:
-        // functions
+        // constructor
         Elevator();
 
         // possible states that the elevator can be in
@@ -24,20 +24,20 @@ class Elevator {
         double getElevatorHeight();
         double getLeftRotation();
         double getRightRotation();
+        ElevatorState getState();
 
         void setFeedforwardConstants(double ks, double kv, double kg, double ka);
         void setPIDConstants(double kp, double kd);
         void setMaxDistance(double distance);
+        void setState(ElevatorState new_pos);
 
         // util methods
         void periodic();
-        void setState(ElevatorState new_pos);
 
         void zero_motors();
         void stop();
         void start();
 
-        ElevatorState getState();
     private:
         // member variables
         ElevatorState current_state;
@@ -48,4 +48,5 @@ class Elevator {
         WPI_TalonFX right_;
 
         double talonUnitsToMeters(double motor_units);
+        double talonUnitsToAngle(double motor_units);
 };

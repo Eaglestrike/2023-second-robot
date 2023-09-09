@@ -27,10 +27,10 @@ namespace ElevatorConstants {
   const double ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED = 0.0465582;
 
   // feedforward constants
-  const double KS = 0.2;
-  const double KV = 0.65;
-  const double KA = 0.2;
-  const double KG = 0.2;
+  const double KS = 0.0;
+  const double KV = 0.62;
+  const double KA = 0.0;
+  const double KG = 0.0;
 
   // pid constants
   const double KP = 0.0;

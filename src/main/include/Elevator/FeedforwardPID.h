@@ -19,7 +19,6 @@ class FeedforwardPID
 public:
     double calculate(double velocity, double acceleration);
     Poses::Pose1D getExpectedPose(double time);
-    void start();
     double pid_calculations(Poses::Pose1D expected, Poses::Pose1D current);
     double periodic(Poses::Pose1D current_values);
 
@@ -49,6 +48,8 @@ public:
     void setMaxVelocity(double max_vel);
     void setMaxAcceleration(double max_acc);
 
+    void start();
+    void reset();
     void stop();
 
     // constructor

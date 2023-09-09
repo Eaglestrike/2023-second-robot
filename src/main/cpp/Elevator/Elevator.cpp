@@ -97,11 +97,11 @@ void Elevator::setState(Elevator::ElevatorState new_pos) {
 void Elevator::zero_motors() {
     left_.SetSelectedSensorPosition(0);
     right_.SetSelectedSensorPosition(0);
+    feedforward_.reset();
 }
 
 /**
- * @brief Stops all motors. Used in situations when estop is triggered,
- * or when elevator height is close to exceeding max distance (22 inches).
+ * @brief Stops all motors, and pauses the feedforward calculations
  * 
  */
 void Elevator::stop() {

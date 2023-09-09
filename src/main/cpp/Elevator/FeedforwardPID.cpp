@@ -99,18 +99,30 @@ double FeedforwardPID::sign(double value)
 }
 
 /**
- * @brief Resets and starts the timer
+ * @brief Starts the timer
  *
  */
 void FeedforwardPID::start()
 {
-    timer.Reset();
     timer.Start();
     isRunning = true;
 }
 
+/**
+ * @brief Stops the timer
+ *  
+ */
 void FeedforwardPID::stop() {
     timer.Stop();
+}
+
+/**
+ * Resets and starts the timer 
+ * 
+ */
+void FeedforwardPID::reset() {
+    timer.Reset();
+    start();
 }
 
 /**

@@ -61,8 +61,6 @@ void Robot::RobotInit()
 
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
-
-  elevator_.setMaxDistance(90);
 }
 
 /**
@@ -113,8 +111,8 @@ void Robot::RobotPeriodic()
   // frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
   // frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
 
-  frc::SmartDashboard::PutString("left elevator rotation", std::to_string(elevator_.getLeftRotation()));
-  frc::SmartDashboard::PutString("right elevator rotation", std::to_string(elevator_.getRightRotation()));
+  frc::SmartDashboard::PutNumber("lm rotation", elevator_.getLeftRotation());
+  frc::SmartDashboard::PutNumber("rm rotation", elevator_.getRightRotation());
 
 
   double dash_ks = frc::SmartDashboard::GetNumber("elevator ks", ElevatorConstants::KS);

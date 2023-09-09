@@ -22,7 +22,8 @@ namespace ElevatorConstants {
   const double MAX_ELEVATOR_ACCELERATION = 0.8;
 
   // m
-  const double MAX_ELEVATOR_EXTENSION = 0.5588;
+  // const double MAX_ELEVATOR_EXTENSION = 0.5588;
+  const double MAX_ELEVATOR_EXTENSION = 90;
 
   const double ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED = 0.0465582;
 

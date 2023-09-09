@@ -7,29 +7,6 @@
 #include <stdio.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
-// debug getters
-double Elevator::getElevatorHeight() {
-    return (left_.GetSelectedSensorPosition() + right_.GetSelectedSensorPosition()) / 2.0;
-}
-
-/**
- * @brief Gets the position of the left motor
- * 
- * @return double the sensor position in raw sensor units
- */
-double Elevator::getLeftRotation() {
-    return left_.GetSelectedSensorPosition();
-}
-
-/**
- * @brief Gets the position of the right motor
- * 
- * @return double the sensor position in raw sensor units
- */
-double Elevator::getRightRotation() {
-    return right_.GetSelectedSensorPosition();
-}
-
 /**
  * @brief Construct a new Elevator:: Elevator object
  */
@@ -50,9 +27,9 @@ Elevator::Elevator():
     right_.Follow(left_, FollowerType::FollowerType_PercentOutput);
     feedforward_.setMaxVelocity(ElevatorConstants::MAX_ELEVATOR_VELOCITY);
     feedforward_.setMaxAcceleration(ElevatorConstants::MAX_ELEVATOR_ACCELERATION);
-    feedforward_.setMaxDistance(90); // while testing
+    feedforward_.setMaxDistance(ElevatorConstants::MAX_ELEVATOR_EXTENSION); // while testing
 
-    frc::SmartDashboard::PutNumber("max distance", 90.0);
+    frc::SmartDashboard::PutNumber("max distance", ElevatorConstants::MAX_ELEVATOR_EXTENSION);
     // feedforward_.setMaxDistance(ElevatorConstants::MAX_ELEVATOR_EXTENSION);
 };
 
@@ -61,7 +38,7 @@ Elevator::Elevator():
  * Acts on the difference between current position and next position
  */
 void Elevator::periodic() {
-    setMaxDistance(frc::SmartDashboard::GetNumber("max distance", 90.0));
+    setMaxDistance(frc::SmartDashboard::GetNumber("max distance", ElevatorConstants::MAX_ELEVATOR_EXTENSION));
     if (current_state == STOPPED) {
         return;
     }
@@ -102,6 +79,10 @@ void Elevator::zero_motors() {
     left_.SetSelectedSensorPosition(0);
     right_.SetSelectedSensorPosition(0);
     feedforward_.reset();
+}
+
+void Elevator::start() {
+    feedforward_.start();
 }
 
 /**
@@ -158,10 +139,29 @@ double Elevator::talonUnitsToAngle(double motor_units) {
     return int(motor_units * 360.0 / ElevatorConstants::TALON_FX_COUNTS_PER_REV) % 360;
 }
 
+// debug getters
 Elevator::ElevatorState Elevator::getState() {
     return current_state;
 }
 
-void Elevator::start() {
-    feedforward_.start();
+double Elevator::getElevatorHeight() {
+    return (left_.GetSelectedSensorPosition() + right_.GetSelectedSensorPosition()) / 2.0;
+}
+
+/**
+ * @brief Gets the position of the left motor
+ * 
+ * @return double the sensor position in raw sensor units
+ */
+double Elevator::getLeftRotation() {
+    return left_.GetSelectedSensorPosition();
+}
+
+/**
+ * @brief Gets the position of the right motor
+ * 
+ * @return double the sensor position in raw sensor units
+ */
+double Elevator::getRightRotation() {
+    return right_.GetSelectedSensorPosition();
 }

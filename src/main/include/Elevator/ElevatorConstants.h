@@ -37,9 +37,12 @@ namespace ElevatorConstants {
   const double KP = 0.0;
   const double KD = 0.0;
 
-  // left motor
+  // motor ids
   const int LEFT_MOTOR_ID = 2;
   const int RIGHT_MOTOR_ID = 0;
+
+  // m
+  const double POSITION_ERROR_TOLERANCE = 0.1;
 }
 
 namespace Poses {

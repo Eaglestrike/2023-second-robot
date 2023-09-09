@@ -41,20 +41,20 @@ double FeedforwardPID::periodic(Poses::Pose1D current_values)
         start();
     }
 
-    Poses::Pose1D expected_values = getExpectedPose(timer.Get().value());
-    double feedforward_voltage = calculateFeedforwardVoltage(expected_values.velocity, expected_values.acceleration);
-    double pid_voltage = calculatePIDVoltage({expected_values.velocity, expected_values.position}, current_values);
+    Poses::Pose1D expected_pose = getExpectedPose(timer.Get().value());
+    double feedforward_voltage = calculateFeedforwardVoltage(expected_pose.velocity, expected_pose.acceleration);
+    double pid_voltage = calculatePIDVoltage({expected_pose.velocity, expected_pose.position}, current_values);
 
     // debug prints
     frc::SmartDashboard::PutNumber("timer value: ", timer.Get().value());
 
-    frc::SmartDashboard::PutNumber("expected ev velocity", expected_values.velocity);
-    frc::SmartDashboard::PutNumber("expected ev position", expected_values.position);
-    frc::SmartDashboard::PutNumber("expected acceleration", expected_values.acceleration);
+    frc::SmartDashboard::PutNumber("expected ev velocity", expected_pose.velocity);
+    frc::SmartDashboard::PutNumber("expected ev position", expected_pose.position);
+    frc::SmartDashboard::PutNumber("expected acceleration", expected_pose.acceleration);
 
-    frc::SmartDashboard::PutNumber("position error", expected_values.position - current_values.position);
-    frc::SmartDashboard::PutNumber("velocity error", expected_values.velocity - current_values.velocity);
-    frc::SmartDashboard::PutNumber("acceleration error", expected_values.acceleration - current_values.acceleration);
+    frc::SmartDashboard::PutNumber("position error", expected_pose.position - current_values.position);
+    frc::SmartDashboard::PutNumber("velocity error", expected_pose.velocity - current_values.velocity);
+    frc::SmartDashboard::PutNumber("acceleration error", expected_pose.acceleration - current_values.acceleration);
 
     frc::SmartDashboard::PutNumber("ff voltage", feedforward_voltage);
     frc::SmartDashboard::PutNumber("pid voltage", pid_voltage);

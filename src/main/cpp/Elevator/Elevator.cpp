@@ -43,30 +43,62 @@ void Elevator::periodic() {
         return;
     }
 
-    Poses::Pose1D current_values;
+    Poses::Pose1D current_pose;
 
     // dividing by 10 to convert from 100 milliseconds to seconds.
-    // current_values.velocity = talonUnitsToMeters(left_.GetSelectedSensorVelocity()) * 10.0;
-    // current_values.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
+    // current_pose.velocity = talonUnitsToMeters(left_.GetSelectedSensorVelocity()) * 10.0;
+    // current_pose.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
 
     // used to test elevator on arm rig
-    current_values.velocity = talonUnitsToAngle(left_.GetSelectedSensorVelocity()) * 10.0;
-    current_values.position = talonUnitsToAngle(left_.GetSelectedSensorPosition());
+    current_pose.velocity = talonUnitsToAngle(left_.GetSelectedSensorVelocity()) * 10.0;
+    current_pose.position = talonUnitsToAngle(left_.GetSelectedSensorPosition());
 
-    double motor_output = feedforward_.periodic(current_values);
+    evaluateState();
+    evaluateDirection();
 
-    frc::SmartDashboard::PutNumber("current ev velocity", current_values.velocity);
-    frc::SmartDashboard::PutNumber("current ev position", current_values.position);
+    double motor_output = feedforward_.periodic(current_pose);
+
+    frc::SmartDashboard::PutNumber("current ev velocity", current_pose.velocity);
+    frc::SmartDashboard::PutNumber("current ev position", current_pose.position);
 
     left_.SetVoltage(units::volt_t{std::clamp(motor_output, -1.0, 1.0)});
 }
 
 /**
- * This will be used to set the next position that the elevator should move to 
- * @param new_pos the next state that the elevator should be in
+ * @brief Takes in current values and decides whether to move from the "MOVING_TO" state to the location state.
  */
-void Elevator::setState(Elevator::ElevatorState new_pos) {
-    current_state = new_pos;
+void Elevator::evaluateState() {
+    double left_position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
+
+    if (ElevatorConstants::MAX_ELEVATOR_EXTENSION - left_position < ElevatorConstants::POSITION_ERROR_TOLERANCE) {
+        if (current_state == MOVING_TO_DOCKED) {
+            current_state = DOCKED;
+        }
+
+        if (current_state == MOVING_TO_RAISED) {
+            current_state = RAISED;
+        }
+    }
+}
+
+/**
+ * @brief Changes feedforward direction based on current state
+ */
+void Elevator::evaluateDirection() {
+    if (current_state == DOCKED || current_state == MOVING_TO_RAISED) {
+        feedforward_.setReversed(false);
+    }
+    else if (current_state == RAISED || current_state == MOVING_TO_DOCKED) {
+        feedforward_.setReversed(true);
+    }
+}
+
+/**
+ * This will be used to set the next position that the elevator should move to 
+ * @param new_state the next state that the elevator should be in
+ */
+void Elevator::setState(Elevator::ElevatorState new_state) {
+    current_state = new_state;
 }
 
 // util methods

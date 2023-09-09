@@ -29,7 +29,7 @@ class Elevator {
         void setFeedforwardConstants(double ks, double kv, double kg, double ka);
         void setPIDConstants(double kp, double kd);
         void setMaxDistance(double distance);
-        void setState(ElevatorState new_pos);
+        void setState(ElevatorState new_state);
 
         // util methods
         void periodic();
@@ -49,4 +49,6 @@ class Elevator {
 
         double talonUnitsToMeters(double motor_units);
         double talonUnitsToAngle(double motor_units);
+        void evaluateState();
+        void evaluateDirection();
 };

@@ -9,13 +9,13 @@ class FeedForwardPID{
         using kv_unit = units::compound_unit<units::volts, units::inverse<units::radians_per_second>>;
         using ka_unit = units::compound_unit<units::volts, units::inverse<AccelerationV>>;
 
-        FeedForwardPID(double MAX_VEL, double MAX_ACC): MAX_ACC(MAX_ACC), MAX_VEL(MAX_VEL){}
+        FeedForwardPID(double MAX_VEL, double MAX_ACC): MAX_VEL{MAX_VEL},  MAX_ACC{MAX_ACC}{}
 
         void SetFeedForwardConsts(double ks, double kg, double kv, double ka){
-            m_ff = frc::ArmFeedforward{units::volt_t(ks), // volts
-                                units::volt_t(kg), // volts
-                                units::unit_t<kv_unit>(kv), //volts*seconds/rad
-                                units::unit_t<ka_unit>(ka)}; //volts*seconds^2/rad}
+           m_s = ks; // volts
+                                m_g = kg; // volts
+                               m_v = kv; //volts*seconds/rad
+                                m_a = ka; //volts*seconds^2/rad}
         }
         
         void SetPIDConsts(double kp, double kd){
@@ -29,23 +29,45 @@ class FeedForwardPID{
 
         // Assuming is called 1x every TeleopPeriodic call so called every 20 ms
         void UpdateTargetVelAndPos(){
+            double newTargVel;
+
             if (m_targetPos >= m_velTurnPt){
-                m_targetVel = std::clamp(m_targetVel - MAX_ACC*0.02, -MAX_VEL, MAX_VEL); 
+                newTargVel = m_targetVel - MAX_ACC*0.02;
             } else {
-                m_targetVel = std::clamp(m_targetVel + MAX_ACC*0.02, -MAX_VEL, MAX_VEL); 
+                newTargVel = m_targetVel + MAX_ACC*0.02; 
             }
+
+            if (m_velTurnPt > 0)
+                newTargVel = std::clamp(newTargVel, 0.0, MAX_VEL); 
+            else 
+                newTargVel = std::clamp(newTargVel, -MAX_VEL, 0.0); 
+        
+            if (newTargVel>m_targetVel)
+                m_targetAcc = MAX_ACC;
+            else if (newTargVel == m_targetVel)
+                m_targetAcc = 0;
+            else m_targetAcc = -MAX_ACC;
+            m_targetVel = newTargVel;
             m_targetPos += m_targetVel*0.02;
+            frc::SmartDashboard::PutNumber("target pos", m_targetPos);
+            frc::SmartDashboard::PutNumber("target vel", m_targetVel);
+            frc::SmartDashboard::PutNumber("target acc", m_targetAcc);
+
         } 
 
         // Returns sum of pid and feedforward control
-        double Calculate(double curPos, double curVel, double curAcc){
-            auto s = units::radian_t(curPos); // rads
-            auto v = units::radians_per_second_t(curVel); // rad/sec
-            auto a = units::unit_t<Acceleration>(curAcc); // rad/sec^2
-            double ff = double(m_ff.Calculate(s,v,a)),
+        double Calculate(double curPos, double curVel){
+            double ff = m_s*m_targetPos + m_g + m_v*m_targetVel+m_a*m_targetAcc,
             posErr = m_targetPos - curPos,
             velErr = m_targetVel - curVel;
-            return ff + posErr * m_kp + velErr* m_kd;
+            frc::SmartDashboard::PutNumber("position err", posErr);
+            frc::SmartDashboard::PutNumber("velocity err", velErr);
+
+            frc::SmartDashboard::PutNumber("ff out", ff);
+            auto pidOut =  posErr * m_kp + velErr* m_kd;
+            frc::SmartDashboard::PutNumber("pd out", pidOut);
+            UpdateTargetVelAndPos();
+            return ff +pidOut;
         }
 
         void SetSetpoint(double setpt, double curPos){
@@ -71,10 +93,11 @@ class FeedForwardPID{
         double MAX_VEL, MAX_ACC; // volts
         double m_setPoint;
         double m_posTolerance, m_velTolerance;
-        double m_targetPos, m_targetVel; // in rad and rad/sec
+        double m_targetPos, m_targetVel, m_targetAcc; // in rad, rad/sec, rad/sec^2
         double m_velTurnPt; // the position at which the velocity begins to decrease in the trapexoidal motion profile
         
         //pid constants
         double m_kp, m_kd;
+        double m_s, m_g, m_v, m_a;
         frc::ArmFeedforward m_ff; 
 };

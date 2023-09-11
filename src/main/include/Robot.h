@@ -14,6 +14,7 @@
 #include <frc/smartdashboard/SendableChooser.h>
 
 #include "Controller/Controller.h"
+#include "Drive/AutoDrive.h"
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
 #include "Drive/SwerveModule.h"
@@ -62,8 +63,8 @@ class Robot : public frc::TimedRobot {
   //Controller
   Controller m_controller;
 
-  // temp odometry
-  vec::Vector2D m_pos;
+  // auto
+  AutoDrive m_autoDrive;
 
   // jetson
   SocketClient m_client;

@@ -18,36 +18,57 @@ public:
     double maxAccel;
   };
 
+  struct Times {
+    double startT;
+    double maxSpeedT;
+    double descentT;
+    double endT;
+  };
+
   enum ExecuteState {
     NOT_EXECUTING,
     EXECUTING_PATH,
     EXECUTING_TARGET
   };
 
-  AutoDrive(SwerveControl *swerveController, Odometry *m_odometry);
+  AutoDrive(Odometry *m_odometry);
 
   // void SetAutoPath();
+  // void StartPath();
   void SetAbsTargetPose(vec::Vector2D target, double ang);
-  void SetRelTargetPose(vec::Vector2D deltaX, double ang);
+  void SetRelTargetPose(vec::Vector2D delta, double ang);
   void SetFFPos(FFConfig ffPos);
   void SetFFAng(FFConfig ffAng);
-  void StartPath();
   void StartMove();
   void StopCmd();
-  void Periodic();  
+  void Periodic();
 
-  ExecuteState GetExecuteState();
+  vec::Vector2D GetVel();
+  double GetAngVel();
+  vec::Vector2D GetExpectedPos();
+  double GetExpectedAng();
+
+  ExecuteState GetExecuteState() const;
 
 private:
-  SwerveControl *m_swerveController;
   Odometry *m_odometry;
 
   vec::Vector2D m_targetPos;
   double m_targetAng;
 
-  double m_startTime;
+  vec::Vector2D m_curVel;
+  double m_curAng;
+
+  Times m_posTimes;
+  Times m_angTimes;
+  vec::Vector2D m_posVecDir;
+  double m_angVecDir;
   FFConfig m_ffPos;
   FFConfig m_ffAng;
 
   ExecuteState m_state;
+
+  void StartMove(FFConfig &config, double dist, Times &times);
+
+  double GetSpeed(FFConfig &config, Times &times);
 };

@@ -36,6 +36,7 @@ Robot::Robot():
       m_startAng{0},
       m_joystickAng{0},
       m_odometry{&m_startPos, &m_startAng},
+      m_autoDrive{&m_odometry},
       m_client{"10.1.14.107", 5807, 500, 5000}
 {
   // swerve
@@ -126,6 +127,9 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
   frc::SmartDashboard::PutNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
+  frc::SmartDashboard::PutNumber("Delta X", 0);
+  frc::SmartDashboard::PutNumber("Delta Y", 0);
+
   // starting position
   m_startPosChooser.SetDefaultOption("Debug", "Debug");
   m_startPosChooser.AddOption("Blue L", "Blue L");
@@ -153,6 +157,8 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
+  frc::SmartDashboard::PutBoolean("Currently executing", m_autoDrive.GetExecuteState() != AutoDrive::NOT_EXECUTING);
+
   if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
     // double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
@@ -176,6 +182,11 @@ void Robot::RobotPeriodic()
     // double kPosInt = frc::SmartDashboard::GetNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
     double alpha = frc::SmartDashboard::GetNumber("Filter Alpha", OdometryConstants::ALPHA);
     double maxTime = frc::SmartDashboard::GetNumber("Filter maxtime", OdometryConstants::MAX_TIME);
+
+    // delete later
+    double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
+    double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
+    m_autoDrive.SetRelTargetPose({deltaX, deltaY}, 0);
 
     m_odometry.SetAlpha(alpha); 
     m_odometry.SetMaxTime(maxTime);
@@ -219,7 +230,22 @@ void Robot::AutonomousInit()
 
 void Robot::AutonomousPeriodic()
 {
-  
+  if (m_controller.getPressed(START_AUTO)) {
+    if (m_autoDrive.GetExecuteState() == AutoDrive::NOT_EXECUTING) {
+      m_autoDrive.StartMove();
+    } else {
+      m_autoDrive.StopCmd();
+    }
+  }
+
+  vec::Vector2D vel = m_autoDrive.GetVel();
+  double angVel = m_autoDrive.GetAngVel();
+  double curYaw = m_odometry.GetAng();
+
+  m_swerveController->SetRobotVelocity(vel, angVel, curYaw, 0.02);
+
+  m_autoDrive.Periodic();
+  m_swerveController->Periodic();
 }
 
 void Robot::TeleopInit() {
@@ -244,10 +270,6 @@ void Robot::TeleopPeriodic() {
   m_swerveController->SetRobotVelocityAbs(setVel, w, curYaw, 0.02, m_joystickAng);
 
   m_swerveController->Periodic();
-
-  // temporary
-  auto vel = m_swerveController->GetRobotVelocity(curYaw);
-  m_pos += vel * 0.02;
 
   // frc::SmartDashboard::PutString("pos:", m_pos.toString());
   // frc::SmartDashboard::PutString("vel:", vel.toString());

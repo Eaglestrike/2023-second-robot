@@ -43,10 +43,8 @@ public:
   void StopCmd();
   void Periodic();
 
-  vec::Vector2D GetVel();
-  double GetAngVel();
-  vec::Vector2D GetExpectedPos();
-  double GetExpectedAng();
+  vec::Vector2D GetVel() const;
+  double GetAngVel() const;
 
   ExecuteState GetExecuteState() const;
 
@@ -69,6 +67,8 @@ private:
   ExecuteState m_state;
 
   void StartMove(FFConfig &config, double dist, Times &times);
-
   double GetSpeed(FFConfig &config, Times &times);
+
+  // TEMP
+  double m_dist;
 };

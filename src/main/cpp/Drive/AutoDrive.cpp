@@ -1,6 +1,7 @@
 #include "Drive/AutoDrive.h"
 
 #include <cmath>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Util/Mathutil.h"
 
@@ -39,11 +40,11 @@ void AutoDrive::SetRelTargetPose(vec::Vector2D delta, double ang) {
   double curAng = m_odometry->GetAng();
 
   m_targetPos = curPos + delta;
-  m_targetAng = Utils::NormalizeAng(ang);
+  m_targetAng = Utils::NormalizeAng(curAng + ang);
 }
 
 /**
- * Sets robot target position
+ * Sets feed forward parameters for translational motion
  * 
  * @param ffPos Feed forward parameters
 */
@@ -53,15 +54,20 @@ void AutoDrive::SetFFPos(FFConfig ffPos) {
 }
 
 /**
+ * Sets feed forward parameters for angular motion
  * 
+ * @param ffAng Feed fowrad parameters
 */
 void AutoDrive::SetFFAng(FFConfig ffAng) {
   m_ffAng.maxAccel = ffAng.maxAccel;
   m_ffAng.maxSpeed = ffAng.maxSpeed;
 }
 
+/**
+ * Starts executing the move both in the translational and rotational motion
+*/
 void AutoDrive::StartMove() {
-  if (m_state == EXECUTING_PATH) {
+  if (m_state == EXECUTING_TARGET) {
     return;
   }
 
@@ -69,6 +75,7 @@ void AutoDrive::StartMove() {
   vec::Vector2D posDiff = m_targetPos - curPos;
   double curAng = m_odometry->GetAng();
 
+  // calculates angular distance
   double dist;
   if (std::abs(m_targetAng - curAng) < 180) {
     if (curAng < m_targetAng) {
@@ -95,9 +102,16 @@ void AutoDrive::StartMove() {
     m_posVecDir = normalize(posDiff);
   }
 
-  m_state = EXECUTING_PATH;
+  m_state = EXECUTING_TARGET;
 }
 
+/**
+ * Starts executing the move in one of translational/rotational
+ * 
+ * @param config The ff config parameters
+ * @param dist The distance to move
+ * @param times The tiemes parameters
+*/
 void AutoDrive::StartMove(FFConfig &config, double dist, Times &times) {
   double curT = Utils::GetCurTimeS();
 
@@ -123,43 +137,84 @@ void AutoDrive::StartMove(FFConfig &config, double dist, Times &times) {
   times.endT = curT + increaseT * 2 + maintainT;
 }
 
+/**
+ * Stops executing command
+*/
 void AutoDrive::StopCmd() {
   m_state = NOT_EXECUTING;
 }
 
+/**
+ * Gets current execute state
+ * 
+ * @returns Current execute state
+*/
 AutoDrive::ExecuteState AutoDrive::GetExecuteState() const {
   return m_state;
 }
 
-void AutoDrive::Periodic() {
+/**
+ * Periodic function
+*/
+void AutoDrive::Periodic() { 
+  frc::SmartDashboard::PutNumber("m state", m_state);
   switch (m_state) {
     case NOT_EXECUTING:
       m_curVel = {0, 0};
       m_curAng = 0;
+      m_dist = 0;
       break;
     case EXECUTING_PATH:
+      // TEMP
       m_curVel = {0, 0};
       m_curAng = 0;
       break;
     case EXECUTING_TARGET:
     {
       double speed = GetSpeed(m_ffPos, m_posTimes);
-      // TODO figure out angle
-      m_curVel = m_posVecDir * speed;
+      frc::SmartDashboard::PutString("taarget pos", m_targetPos.toString());
+      frc::SmartDashboard::PutNumber("cur speed", speed);
+      frc::SmartDashboard::PutString("vec dir", m_posVecDir.toString());
+      frc::SmartDashboard::PutNumber("cur dist", m_dist);
+      m_dist += speed * 0.02;
+
+      // double angSpeed = GetSpeed(m_ffAng, m_angTimes);
+
+      if (speed >= 0) {
+        m_curVel = m_posVecDir * speed;
+      } else {
+        m_curVel = {0, 0};
+        m_state = NOT_EXECUTING;
+      }
+
+      // if (angSpeed >= 0) {
+      //   m_curAng = m_angVecDir * angSpeed;
+      // } else {
+      //   // TODO have separate state mahcine for angle
+      //   m_curAng = 0;
+      // }
       break;
     }
   }
 }
 
+/**
+ * Gets current speed in one of rotational/translational motion
+ * 
+ * @param config One of rotational/translational ff paraameters
+ * @param times The times parameters for rotational/translational
+ * 
+ * @returns Speed
+*/
 double AutoDrive::GetSpeed(FFConfig &config, Times &times) {
   double curT = Utils::GetCurTimeS();
   if (curT < times.startT) {
     // shouldn't be here
-    return;
+    return -1;
   }
   if (curT > times.endT) {
     StopCmd();
-    return;
+    return -1;
   }
 
   double speed;
@@ -172,4 +227,22 @@ double AutoDrive::GetSpeed(FFConfig &config, Times &times) {
   }
 
   return speed;
+}
+
+/**
+ * Gets current translational velocity
+ * 
+ * @returns Translational velocity
+*/
+vec::Vector2D AutoDrive::GetVel() const {
+  return m_curVel;
+}
+
+/**
+ * Gets current rotational velocity
+ * 
+ * @returns Rotational velocity
+*/
+double AutoDrive::GetAngVel() const {
+  return m_curAng;
 }

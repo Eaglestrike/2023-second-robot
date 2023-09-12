@@ -61,13 +61,13 @@ Robot::Robot():
 
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
 
-    frc::SmartDashboard::PutString("Filter pos", pos.toString());
-    frc::SmartDashboard::PutNumber("Filter ang", ang);
-
-    frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
-    frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
-
-    frc::SmartDashboard::PutData("Field", &m_field);
+    // UNCOMMENT BELOW
+    // frc::SmartDashboard::PutString("Filter pos", pos.toString());
+    // frc::SmartDashboard::PutNumber("Filter ang", ang);
+    // frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
+    // frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
+    // frc::SmartDashboard::PutData("Field", &m_field);
+    // END UNCOMMENT
 
     // process camera data
     std::vector<double> camData = m_client.GetData();
@@ -183,11 +183,6 @@ void Robot::RobotPeriodic()
     double alpha = frc::SmartDashboard::GetNumber("Filter Alpha", OdometryConstants::ALPHA);
     double maxTime = frc::SmartDashboard::GetNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
-    // delete later
-    double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
-    double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
-    m_autoDrive.SetRelTargetPose({deltaX, deltaY}, 0);
-
     m_odometry.SetAlpha(alpha); 
     m_odometry.SetMaxTime(maxTime);
 
@@ -199,6 +194,13 @@ void Robot::RobotPeriodic()
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection(m_startAng);
     m_odometry.Reset();
+  }
+
+  // delete later
+  if (m_controller.getPressed(ZERO_AUTO)) {
+    double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
+    double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
+    m_autoDrive.SetRelTargetPose({deltaX, deltaY}, 0);
   }
 
   // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
@@ -225,27 +227,10 @@ void Robot::RobotPeriodic()
  */
 void Robot::AutonomousInit()
 {
-  m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
 }
 
 void Robot::AutonomousPeriodic()
 {
-  if (m_controller.getPressed(START_AUTO)) {
-    if (m_autoDrive.GetExecuteState() == AutoDrive::NOT_EXECUTING) {
-      m_autoDrive.StartMove();
-    } else {
-      m_autoDrive.StopCmd();
-    }
-  }
-
-  vec::Vector2D vel = m_autoDrive.GetVel();
-  double angVel = m_autoDrive.GetAngVel();
-  double curYaw = m_odometry.GetAng();
-
-  m_swerveController->SetRobotVelocity(vel, angVel, curYaw, 0.02);
-
-  m_autoDrive.Periodic();
-  m_swerveController->Periodic();
 }
 
 void Robot::TeleopInit() {
@@ -317,9 +302,31 @@ void Robot::DisabledPeriodic() {
   }
 }
 
-void Robot::TestInit() {}
+void Robot::TestInit() {
+  m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
+  m_autoDrive.SetFFPos({1, 1});
+}
 
-void Robot::TestPeriodic() {}
+void Robot::TestPeriodic() {
+  if (m_controller.getPressed(START_AUTO)) {
+    if (m_autoDrive.GetExecuteState() == AutoDrive::NOT_EXECUTING) {
+      m_autoDrive.StartMove();
+    } else {
+      m_autoDrive.StopCmd();
+    }
+  }
+
+  vec::Vector2D vel = m_autoDrive.GetVel();
+  double angVel = m_autoDrive.GetAngVel();
+  // double curYaw = m_odometry.GetAng();
+
+  frc::SmartDashboard::PutString("AutoVel", vel.toString());
+
+  m_swerveController->SetRobotVelocity(vel, angVel, 0, 0.02);
+
+  m_autoDrive.Periodic();
+  m_swerveController->Periodic();
+}
 
 void Robot::SimulationInit() {}
 

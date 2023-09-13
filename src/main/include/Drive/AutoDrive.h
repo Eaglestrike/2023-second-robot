@@ -39,14 +39,17 @@ public:
   void SetRelTargetPose(vec::Vector2D delta, double ang);
   void SetFFPos(FFConfig ffPos);
   void SetFFAng(FFConfig ffAng);
-  void StartMove();
-  void StopCmd();
+  void StartPosMove();
+  void StartAngMove();
+  void StopPos();
+  void StopAng();
   void Periodic();
 
   vec::Vector2D GetVel() const;
   double GetAngVel() const;
 
-  ExecuteState GetExecuteState() const;
+  ExecuteState GetPosExecuteState() const;
+  ExecuteState GetAngExecuteState() const;
 
 private:
   Odometry *m_odometry;
@@ -64,9 +67,10 @@ private:
   FFConfig m_ffPos;
   FFConfig m_ffAng;
 
-  ExecuteState m_state;
+  ExecuteState m_posState;
+  ExecuteState m_angState;
 
-  void StartMove(FFConfig &config, double dist, Times &times);
+  void CalcTimes(FFConfig &config, double dist, Times &times);
   double GetSpeed(FFConfig &config, Times &times);
 
   // TEMP

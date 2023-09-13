@@ -7,7 +7,7 @@
 
 AutoDrive::AutoDrive(Odometry *odometry)
   : m_odometry{odometry}, m_targetAng{0}, m_curAng{0}, m_posTimes{0, 0, 0, 0},
-  m_angTimes{0, 0, 0, 0}, m_angVecDir{0}, m_ffPos{0, 0}, m_ffAng{0, 0}, m_state{NOT_EXECUTING} {}
+  m_angTimes{0, 0, 0, 0}, m_angVecDir{0}, m_ffPos{0, 0}, m_ffAng{0, 0}, m_posState{NOT_EXECUTING} {}
 
 
 /**
@@ -17,7 +17,7 @@ AutoDrive::AutoDrive(Odometry *odometry)
  * @param ang Target orientation, in radians
 */
 void AutoDrive::SetAbsTargetPose(vec::Vector2D target, double ang) {
-  if (m_state != NOT_EXECUTING) {
+  if (m_posState != NOT_EXECUTING) {
     return;
   }
 
@@ -32,12 +32,14 @@ void AutoDrive::SetAbsTargetPose(vec::Vector2D target, double ang) {
  * @param ang Target orientation relative to current oreintaion, in radians
 */
 void AutoDrive::SetRelTargetPose(vec::Vector2D delta, double ang) {
-  if (m_state != NOT_EXECUTING) {
+  if (m_posState != NOT_EXECUTING) {
     return;
   }
 
   vec::Vector2D curPos = m_odometry->GetPosition();
   double curAng = m_odometry->GetAng();
+
+  frc::SmartDashboard::PutString("Cur Pos", curPos.toString());
 
   m_targetPos = curPos + delta;
   m_targetAng = Utils::NormalizeAng(curAng + ang);
@@ -64,15 +66,34 @@ void AutoDrive::SetFFAng(FFConfig ffAng) {
 }
 
 /**
- * Starts executing the move both in the translational and rotational motion
+ * Starts executing the move both in translational motion
 */
-void AutoDrive::StartMove() {
-  if (m_state == EXECUTING_TARGET) {
+void AutoDrive::StartPosMove() {
+  if (m_posState == EXECUTING_TARGET) {
     return;
   }
 
   vec::Vector2D curPos = m_odometry->GetPosition();
   vec::Vector2D posDiff = m_targetPos - curPos;
+
+  CalcTimes(m_ffPos, magn(posDiff), m_posTimes);  
+
+  if (Utils::NearZero(posDiff)) {
+    m_posVecDir = {1, 0};
+  } else {
+    m_posVecDir = normalize(posDiff);
+  }
+
+  m_posState = EXECUTING_TARGET;
+}
+
+/**
+ * Start execuitng move in angular motion
+*/
+void AutoDrive::StartAngMove() {
+  if (m_angState == EXECUTING_TARGET) {
+    return;
+  }  
   double curAng = m_odometry->GetAng();
 
   // calculates angular distance
@@ -93,16 +114,9 @@ void AutoDrive::StartMove() {
     dist = 2 * M_PI - std::abs(m_targetAng - curAng);
   }
 
-  StartMove(m_ffPos, magn(posDiff), m_posTimes);  
-  StartMove(m_ffAng, dist, m_angTimes);
-
-  if (Utils::NearZero(posDiff)) {
-    m_posVecDir = {1, 0};
-  } else {
-    m_posVecDir = normalize(posDiff);
-  }
-
-  m_state = EXECUTING_TARGET;
+  CalcTimes(m_ffAng, dist, m_angTimes);
+  
+  m_angState = EXECUTING_TARGET;
 }
 
 /**
@@ -112,7 +126,7 @@ void AutoDrive::StartMove() {
  * @param dist The distance to move
  * @param times The tiemes parameters
 */
-void AutoDrive::StartMove(FFConfig &config, double dist, Times &times) {
+void AutoDrive::CalcTimes(FFConfig &config, double dist, Times &times) {
   double curT = Utils::GetCurTimeS();
 
   if (Utils::NearZero(config.maxAccel) || Utils::NearZero(config.maxSpeed)) {
@@ -138,61 +152,89 @@ void AutoDrive::StartMove(FFConfig &config, double dist, Times &times) {
 }
 
 /**
- * Stops executing command
+ * Stops executing position command
 */
-void AutoDrive::StopCmd() {
-  m_state = NOT_EXECUTING;
+void AutoDrive::StopPos() {
+  m_posState = NOT_EXECUTING;
 }
 
 /**
- * Gets current execute state
+ * Stops executing angle command
+*/
+void AutoDrive::StopAng() {
+  m_angState = NOT_EXECUTING;
+}
+
+/**
+ * Gets current position execute state
  * 
  * @returns Current execute state
 */
-AutoDrive::ExecuteState AutoDrive::GetExecuteState() const {
-  return m_state;
+AutoDrive::ExecuteState AutoDrive::GetPosExecuteState() const {
+  return m_posState;
+}
+
+/**
+ * Get current ang execute state
+ * 
+ * @returns Current ang execute state
+*/
+AutoDrive::ExecuteState AutoDrive::GetAngExecuteState() const {
+  return m_angState;
 }
 
 /**
  * Periodic function
 */
 void AutoDrive::Periodic() { 
-  frc::SmartDashboard::PutNumber("m state", m_state);
-  switch (m_state) {
+  switch (m_posState) {
     case NOT_EXECUTING:
       m_curVel = {0, 0};
+      break;
+    case EXECUTING_PATH:
+      // TEMP
+      m_curVel = {0, 0};
+      break;
+    case EXECUTING_TARGET:
+    {
+      double transSpeed = GetSpeed(m_ffPos, m_posTimes);
+
+      if (transSpeed >= 0) {
+        m_curVel = m_posVecDir * transSpeed;
+      } else {
+        m_curVel = {0, 0};
+        m_posState = NOT_EXECUTING;
+      }
+
+      break;
+    }
+  }
+
+  frc::SmartDashboard::PutNumber("m state", m_angState);
+  switch (m_angState) {
+    case NOT_EXECUTING:
       m_curAng = 0;
       m_dist = 0;
       break;
     case EXECUTING_PATH:
       // TEMP
-      m_curVel = {0, 0};
       m_curAng = 0;
       break;
     case EXECUTING_TARGET:
     {
-      double speed = GetSpeed(m_ffPos, m_posTimes);
-      frc::SmartDashboard::PutString("taarget pos", m_targetPos.toString());
-      frc::SmartDashboard::PutNumber("cur speed", speed);
-      frc::SmartDashboard::PutString("vec dir", m_posVecDir.toString());
+      double angSpeed = GetSpeed(m_ffAng, m_angTimes);
+      frc::SmartDashboard::PutNumber("taarget ang", m_targetAng);
+      frc::SmartDashboard::PutNumber("cur speed", angSpeed);
+      frc::SmartDashboard::PutNumber("ang dir", m_angVecDir);
       frc::SmartDashboard::PutNumber("cur dist", m_dist);
-      m_dist += speed * 0.02;
+      m_dist += angSpeed * 0.02;
 
-      // double angSpeed = GetSpeed(m_ffAng, m_angTimes);
-
-      if (speed >= 0) {
-        m_curVel = m_posVecDir * speed;
+      if (angSpeed >= 0) {
+        m_curAng = m_angVecDir * angSpeed;
       } else {
-        m_curVel = {0, 0};
-        m_state = NOT_EXECUTING;
+        m_curAng = 0;
+        m_angState = NOT_EXECUTING;
       }
-
-      // if (angSpeed >= 0) {
-      //   m_curAng = m_angVecDir * angSpeed;
-      // } else {
-      //   // TODO have separate state mahcine for angle
-      //   m_curAng = 0;
-      // }
       break;
     }
   }
@@ -213,7 +255,7 @@ double AutoDrive::GetSpeed(FFConfig &config, Times &times) {
     return -1;
   }
   if (curT > times.endT) {
-    StopCmd();
+    StopPos();
     return -1;
   }
 

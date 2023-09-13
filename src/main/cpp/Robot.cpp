@@ -127,8 +127,9 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
   frc::SmartDashboard::PutNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
-  frc::SmartDashboard::PutNumber("Delta X", 0);
-  frc::SmartDashboard::PutNumber("Delta Y", 0);
+  // frc::SmartDashboard::PutNumber("Delta X", 0);
+  // frc::SmartDashboard::PutNumber("Delta Y", 0);
+  frc::SmartDashboard::PutNumber("Delta Ang", 0);
 
   // starting position
   m_startPosChooser.SetDefaultOption("Debug", "Debug");
@@ -157,7 +158,7 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
-  frc::SmartDashboard::PutBoolean("Currently executing", m_autoDrive.GetExecuteState() != AutoDrive::NOT_EXECUTING);
+  frc::SmartDashboard::PutBoolean("Ang Currently executing", m_autoDrive.GetAngExecuteState() != AutoDrive::NOT_EXECUTING);
 
   if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
@@ -198,9 +199,10 @@ void Robot::RobotPeriodic()
 
   // delete later
   if (m_controller.getPressed(ZERO_AUTO)) {
-    double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
-    double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
-    m_autoDrive.SetRelTargetPose({deltaX, deltaY}, 0);
+    // double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
+    // double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
+    double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
+    m_autoDrive.SetRelTargetPose({0, 0}, deltaAng);
   }
 
   // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
@@ -305,14 +307,16 @@ void Robot::DisabledPeriodic() {
 void Robot::TestInit() {
   m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
   m_autoDrive.SetFFPos({1, 1});
+  m_autoDrive.SetFFAng({5, 5});
 }
 
 void Robot::TestPeriodic() {
   if (m_controller.getPressed(START_AUTO)) {
-    if (m_autoDrive.GetExecuteState() == AutoDrive::NOT_EXECUTING) {
-      m_autoDrive.StartMove();
+    if (m_autoDrive.GetAngExecuteState() == AutoDrive::NOT_EXECUTING) {
+      m_autoDrive.StartAngMove();
     } else {
-      m_autoDrive.StopCmd();
+      std::cout << "hehehehe" << std::endl;
+      m_autoDrive.StopAng();
     }
   }
 
@@ -321,6 +325,7 @@ void Robot::TestPeriodic() {
   // double curYaw = m_odometry.GetAng();
 
   frc::SmartDashboard::PutString("AutoVel", vel.toString());
+  frc::SmartDashboard::PutNumber("angVel", angVel);
 
   m_swerveController->SetRobotVelocity(vel, angVel, 0, 0.02);
 

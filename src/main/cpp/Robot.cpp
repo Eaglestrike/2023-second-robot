@@ -145,6 +145,14 @@ void Robot::RobotInit()
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
 
+  // Starts recording to data log
+  frc::DataLogManager::Start();
+
+  // Set up custom log entries
+  wpi::log::DataLog& log = frc::DataLogManager::GetLog();
+  m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
+  m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
+
   m_client.Init();
 }
 
@@ -308,28 +316,46 @@ void Robot::TestInit() {
   m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
   m_autoDrive.SetFFPos({1, 1});
   m_autoDrive.SetFFAng({5, 5});
+
+  m_curVolts = 0;
 }
 
 void Robot::TestPeriodic() {
-  if (m_controller.getPressed(START_AUTO)) {
-    if (m_autoDrive.GetAngExecuteState() == AutoDrive::NOT_EXECUTING) {
-      m_autoDrive.StartAngMove();
-    } else {
-      std::cout << "hehehehe" << std::endl;
-      m_autoDrive.StopAng();
-    }
+  // if (m_controller.getPressed(START_AUTO)) {
+  //   if (m_autoDrive.GetAngExecuteState() == AutoDrive::NOT_EXECUTING) {
+  //     m_autoDrive.StartAngMove();
+  //   } else {
+  //     m_autoDrive.StopAng();
+  //   }
+  // }
+
+  // vec::Vector2D vel = m_autoDrive.GetVel();
+  // double angVel = m_autoDrive.GetAngVel();
+  double curYaw = m_odometry.GetAng();
+
+  // frc::SmartDashboard::PutString("AutoVel", vel.toString());
+  // frc::SmartDashboard::PutNumber("angVel", angVel);
+
+  if (m_curVolts >= 5) {
+    m_curVolts = 5;
   }
 
-  vec::Vector2D vel = m_autoDrive.GetVel();
-  double angVel = m_autoDrive.GetAngVel();
-  // double curYaw = m_odometry.GetAng();
+  m_swerveController->SetRobotVelocity({m_curVolts, 0}, 0, curYaw, 0.02);
 
-  frc::SmartDashboard::PutString("AutoVel", vel.toString());
-  frc::SmartDashboard::PutNumber("angVel", angVel);
+  double curS = Utils::GetCurTimeS();
+  if (curS - m_prevTime > 0.2) {
+    m_prevTime = curS;
+    m_curVolts += 0.1;
+  }
 
-  m_swerveController->SetRobotVelocity(vel, angVel, 0, 0.02);
+  // m_autoDrive.Periodic();
+  vec::Vector2D robotVel = m_swerveController->GetRobotVelocity(curYaw);
 
-  m_autoDrive.Periodic();
+  auto curTime = frc::Timer::GetFPGATimestamp();
+  auto timeus = curTime.convert<units::microsecond>(); 
+
+  m_voltsLog.Append(m_curVolts, timeus.value());
+  m_speedLog.Append(magn(robotVel), timeus.value());
   m_swerveController->Periodic();
 }
 

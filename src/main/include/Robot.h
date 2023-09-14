@@ -12,6 +12,8 @@
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/Field2d.h>
 #include <frc/smartdashboard/SendableChooser.h>
+#include <frc/DataLogManager.h>
+#include <wpi/DataLog.h>
 
 #include "Controller/Controller.h"
 #include "Drive/AutoDrive.h"
@@ -65,6 +67,12 @@ class Robot : public frc::TimedRobot {
 
   // auto
   AutoDrive m_autoDrive;
+  // TEMP
+  double m_curVolts;
+  double m_prevTime;
+  wpi::log::DoubleLogEntry m_speedLog;
+  wpi::log::DoubleLogEntry m_voltsLog;
+  // END TEMP
 
   // jetson
   SocketClient m_client;

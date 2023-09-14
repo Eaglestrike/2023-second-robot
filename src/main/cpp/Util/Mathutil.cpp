@@ -107,8 +107,8 @@ std::size_t Utils::GetCurTimeMs() {
 */
 double Utils::GetCurTimeS() {
   auto curTime = frc::Timer::GetFPGATimestamp();
-  auto timeMs = curTime.convert<units::second>(); 
-  return timeMs.value();
+  auto timeS = curTime.convert<units::second>(); 
+  return timeS.value();
 }
 
 /**

@@ -62,7 +62,7 @@ namespace SwerveConstants
   const double TURN_I = 0;
   const double TURN_D = 0.0;
 
-  const double ANG_CORRECT_P = 15;
+  const double ANG_CORRECT_P = 6.5;
   const double ANG_CORRECT_I = 0;
   const double ANG_CORRECT_D = 0.1;
 

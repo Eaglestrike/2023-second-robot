@@ -43,6 +43,9 @@ class Robot : public frc::TimedRobot {
   void SimulationPeriodic() override;
 
  private:
+  // timer
+  double m_prevTime;
+
   // smartdashboard
   frc::SendableChooser<std::string> m_startPosChooser;
   frc::Field2d m_field;
@@ -67,7 +70,7 @@ class Robot : public frc::TimedRobot {
 
   // auto
   AutoDrive m_autoDrive;
-  // TEMP
+  // TEMP, for testing
   double m_curVolts;
   double m_prevTime;
   wpi::log::DoubleLogEntry m_speedLog;

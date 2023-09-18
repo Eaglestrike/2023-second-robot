@@ -24,6 +24,7 @@
 using namespace Actions;
 
 Robot::Robot():
+      m_prevTime{0},
       m_swerveFr{SwerveConstants::FR_DRIVE_ID, SwerveConstants::FR_TURN_ID, SwerveConstants::FR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FR_DRIVE_INVERTED, SwerveConstants::FR_ENCODER_INVERTED, SwerveConstants::FR_ANG_INVERTED, SwerveConstants::FR_OFFSET},
       m_swerveBr{SwerveConstants::BR_DRIVE_ID, SwerveConstants::BR_TURN_ID, SwerveConstants::BR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BR_DRIVE_INVERTED, SwerveConstants::BR_ENCODER_INVERTED, SwerveConstants::BR_ANG_INVERTED, SwerveConstants::BR_OFFSET},
       m_swerveFl{SwerveConstants::FL_DRIVE_ID, SwerveConstants::FL_TURN_ID, SwerveConstants::FL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FL_DRIVE_INVERTED, SwerveConstants::FL_ENCODER_INVERTED, SwerveConstants::FL_ANG_INVERTED, SwerveConstants::FL_OFFSET},
@@ -195,6 +196,12 @@ void Robot::RobotPeriodic()
     m_odometry.SetAlpha(alpha); 
     m_odometry.SetMaxTime(maxTime);
 
+    double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
+    double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
+    // double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
+    // m_autoDrive.SetRelTargetPose({0, 0}, deltaAng);
+    m_autoDrive.SetRelTargetPose({deltaX, deltaY}, 0);
+
     // m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
   }
 
@@ -206,12 +213,8 @@ void Robot::RobotPeriodic()
   }
 
   // delete later
-  if (m_controller.getPressed(ZERO_AUTO)) {
-    // double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
-    // double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
-    double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
-    m_autoDrive.SetRelTargetPose({0, 0}, deltaAng);
-  }
+  // if (m_controller.getPressed(ZERO_AUTO)) {
+  // }
 
   // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
   // frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
@@ -248,6 +251,9 @@ void Robot::TeleopInit() {
 }
 
 void Robot::TeleopPeriodic() {
+  double curTime = Utils::GetCurTimeS();
+  double deltaT = curTime - m_prevTime;
+
   double lx = m_controller.getWithDeadContinuous(SWERVE_STRAFEX, 0.1);
   double ly = m_controller.getWithDeadContinuous(SWERVE_STRAFEY, 0.1);
 
@@ -262,14 +268,37 @@ void Robot::TeleopPeriodic() {
   // frc::SmartDashboard::PutNumber("curYaw", curYaw);
 
   vec::Vector2D setVel = {-vy, -vx};
-  m_swerveController->SetRobotVelocityAbs(setVel, w, curYaw, 0.02, m_joystickAng);
 
+  // cancel auto if joysticks move
+  if (!Utils::NearZero(setVel)) {
+    m_autoDrive.StopPos();
+  }
+
+  if (m_controller.getPressed(START_AUTO)) {
+    if (m_autoDrive.GetPosExecuteState() == AutoDrive::NOT_EXECUTING) {
+      m_autoDrive.StartPosMove();
+    } else {
+      m_autoDrive.StopPos();
+    }
+  }
+
+  if (m_autoDrive.GetPosExecuteState() == AutoDrive::NOT_EXECUTING) {
+    m_swerveController->SetRobotVelocityAbs(setVel, w, curYaw, deltaT, m_joystickAng);
+  } else {
+    vec::Vector2D driveVel = m_autoDrive.GetVel();
+    double angVel = m_autoDrive.GetAngVel();
+
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  }
+
+  m_autoDrive.Periodic();
   m_swerveController->Periodic();
 
   // frc::SmartDashboard::PutString("pos:", m_pos.toString());
   // frc::SmartDashboard::PutString("vel:", vel.toString());
   // frc::SmartDashboard::PutString("setVel:", setVel.toString());
   // frc::SmartDashboard::PutNumber("setAngVel:", w);
+  m_prevTime = curTime;
 }
 
 void Robot::DisabledInit() {}

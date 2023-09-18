@@ -9,6 +9,11 @@
 
 #include "Util/Mathutil.h"
 
+/**
+ * Constructor
+ * 
+ * @param odometry Pointer to odometry object
+*/
 AutoDrive::AutoDrive(Odometry *odometry)
   : m_odometry{odometry}, m_prevTime{0}, m_curExpectedAng{0}, m_targetAng{0}, m_curAngVel{0}, m_posTimes{0, 0, 0, 0},
   m_angTimes{0, 0, 0, 0}, m_angVecDir{0}, m_ffPos{0, 0}, m_ffAng{0, 0}, m_posState{NOT_EXECUTING},
@@ -361,7 +366,7 @@ double AutoDrive::GetPIDAng(double deltaT) {
   double err;
   double dir;
   if (std::abs(m_curExpectedAng - curAng) < 180) {
-    if (curAng < m_targetAng) {
+    if (curAng < m_curExpectedAng) {
       dir = 1;
     } else {
       dir = -1;

@@ -17,8 +17,8 @@
 AutoDrive::AutoDrive(Odometry *odometry)
   : m_odometry{odometry}, m_prevTime{0}, m_curExpectedAng{0}, m_targetAng{0}, m_curAngVel{0}, m_posTimes{0, 0, 0, 0},
   m_angTimes{0, 0, 0, 0}, m_angVecDir{0}, m_ffPos{0, 0}, m_ffAng{0, 0}, m_posState{NOT_EXECUTING},
-  m_prevPosErr{0}, m_prevAngErr{0}, m_totalPosErr{0}, m_totalAngErr{0},
-  m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0} {}
+  m_prevPos{0}, m_prevAng{0}, m_prevPosErr{0}, m_prevAngErr{0}, m_totalPosErr{0}, m_totalAngErr{0},
+  /*m_prevAngVelErr{0}, m_totalAngVelErr{0},*/ m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0} {}
 
 
 /**
@@ -230,6 +230,7 @@ void AutoDrive::Periodic() {
       m_curExpectedPos += ffVel * deltaT;
 
       vec::Vector2D correctionVel = GetPIDTrans(deltaT);
+      // vec::Vector2D correctionVel = GetPIDTransVel(deltaT, ffVel);
       vec::Vector2D totalVel = ffVel + correctionVel;
 
       // may need to change to checking setpoints
@@ -259,7 +260,7 @@ void AutoDrive::Periodic() {
       double angSpeed = GetSpeed(m_ffAng, m_angTimes);
       double ffAngVel = m_angVecDir * angSpeed;
 
-      m_curExpectedAng += ffAngVel * (curTime - m_prevTime);
+      m_curExpectedAng += ffAngVel * deltaT;
       m_curExpectedAng = Utils::NormalizeAng(m_curExpectedAng);
 
       double correctionVel = GetPIDAng(deltaT);
@@ -334,7 +335,7 @@ double AutoDrive::GetAngVel() const {
 }
 
 /**
- * Calculates PID for trnaslational motion
+ * Calculates position PID for trnaslational motion
  * 
  * @param deltaT time difference
  * 
@@ -354,7 +355,31 @@ vec::Vector2D AutoDrive::GetPIDTrans(double deltaT) {
 }
 
 /**
- * Calculates PID for angular motion
+ * Calculates velocity PID for translational motion
+ * 
+ * @param deltaT time difference
+ * @param expectedVel Expected velocity at this time
+ * 
+ * @returns Velocity correction from PID
+*/
+vec::Vector2D AutoDrive::GetPIDTransVel(double deltaT, vec::Vector2D expectedVel) {
+  vec::Vector2D curPos = m_odometry->GetPosition();
+  vec::Vector2D curVel = (curPos - m_prevPos) / deltaT;
+
+  vec::Vector2D err = expectedVel - curVel;
+
+  vec::Vector2D deltaErr = (err - m_prevVelErr) / deltaT;
+  m_totalVelErr += err * deltaT;
+  vec::Vector2D res = err * m_kPPos + m_totalVelErr * m_kIPos + deltaErr * m_kDPos;
+
+  m_prevPos = curPos;
+  m_prevVelErr = err;
+
+  return res;
+}
+
+/**
+ * Calculates positional PID for angular motion
  * 
  * @param deltaT time diffrence
  * 
@@ -365,7 +390,7 @@ double AutoDrive::GetPIDAng(double deltaT) {
 
   double err;
   double dir;
-  if (std::abs(m_curExpectedAng - curAng) < 180) {
+  if (std::abs(m_curExpectedAng - curAng) < M_PI) {
     if (curAng < m_curExpectedAng) {
       dir = 1;
     } else {
@@ -406,7 +431,7 @@ void AutoDrive::SetPosPID(double kP, double kI, double kD) {
 }
 
 /**
- * Sets angle correction PID
+ * Sets angular position correction PID
  * 
  * @param kP p
  * @param kI i

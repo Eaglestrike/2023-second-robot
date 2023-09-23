@@ -76,11 +76,20 @@ private:
   ExecuteState m_posState;
   ExecuteState m_angState;
 
+  vec::Vector2D m_prevPos;
+  double m_prevAng;
+
+  // for position PID
   vec::Vector2D m_prevPosErr;
   double m_prevAngErr;
-
   vec::Vector2D m_totalPosErr;
   double m_totalAngErr;
+
+  // for velocity PID
+  vec::Vector2D m_prevVelErr;
+  // double m_prevAngVelErr;
+  vec::Vector2D m_totalVelErr;
+  // double m_totalAngVelErr;
 
   double m_kPPos;
   double m_kIPos;
@@ -95,6 +104,9 @@ private:
 
   vec::Vector2D GetPIDTrans(double deltaT);
   double GetPIDAng(double deltaT);
+
+  vec::Vector2D GetPIDTransVel(double deltaT, vec::Vector2D expectedVel);
+  // double GetPIDAngVel(double deltaT, vec::Vector2D expectedAngVel);
 
   // TEMP
   // double m_dist;

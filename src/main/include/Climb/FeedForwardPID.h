@@ -63,6 +63,11 @@ class FeedForwardPID{
             frc::SmartDashboard::PutNumber("position err", posErr);
             frc::SmartDashboard::PutNumber("velocity err", velErr);
 
+            frc::SmartDashboard::PutNumber("g", m_g);
+            frc::SmartDashboard::PutNumber("s", m_s*m_targetPos);
+            frc::SmartDashboard::PutNumber("v", m_v*m_targetVel);
+            frc::SmartDashboard::PutNumber("a", m_a*m_targetAcc);
+
             frc::SmartDashboard::PutNumber("ff out", ff);
             auto pidOut =  posErr * m_kp + velErr* m_kd;
             frc::SmartDashboard::PutNumber("pd out", pidOut);
@@ -70,11 +75,11 @@ class FeedForwardPID{
             return ff +pidOut;
         }
 
-        void SetSetpoint(double setpt, double curPos){
+        void SetSetpoint(double curPos, double setpt){
             m_setPoint = setpt;
             m_targetPos = curPos;
             m_targetVel = 0.0;
-            CalcTurnPoint(curPos);
+            CalcTurnPoint(setpt, curPos);
         }
 
         bool AtSetPoint(double curPos){
@@ -83,11 +88,19 @@ class FeedForwardPID{
 
     private:
         // calculates what Pos should be when the velocity begins decreasing 
-        void CalcTurnPoint(double curPos){
-            if (curPos > m_targetPos)
-                m_velTurnPt = MAX_VEL*(MAX_VEL - 2.0)/(MAX_ACC*2) + m_setPoint;
+        void CalcTurnPoint(double setPt,double curPos){
+            if (abs(setPt - curPos) < MAX_VEL*MAX_VEL/MAX_ACC)
+                m_velTurnPt = (setPt  +curPos)/2;
+            else if (curPos < setPt)
+                m_velTurnPt = setPt - MAX_VEL*MAX_VEL/(2*MAX_ACC);
             else 
-                m_velTurnPt = -MAX_VEL*(MAX_VEL - 2.0)/(MAX_ACC*2) + m_setPoint;
+                m_velTurnPt = setPt + MAX_VEL*MAX_VEL/(2*MAX_ACC);
+            if (m_velTurnPt < 0)
+                if (m_g > 0) m_g *= -1;
+
+            frc::SmartDashboard::PutNumber("turn pos", m_velTurnPt);
+            frc::SmartDashboard::PutNumber("setpt", setPt);
+
         }
 
         double MAX_VEL, MAX_ACC; // volts

@@ -23,6 +23,8 @@ void Climb::RobotInit(){
 void Climb::UpdatePos(){
  double steps = m_motor.GetSelectedSensorPosition(); 
  m_currentPos = StepsToRad(steps);
+ if (m_currentPos > 0) m_currentPos = m_currentPos - 6.3*(std::floor(m_currentPos/6.3));
+ else m_currentPos = m_currentPos + 6.3*(std::floor(-m_currentPos/6.3));
  if (dbg){
   frc::SmartDashboard::PutNumber("cur pos", m_currentPos);
   }
@@ -103,7 +105,7 @@ void Climb::TeleopPeriodic() {
   if (dbg)
   frc::SmartDashboard::PutNumber("ctrlr out", controllerOut);
   volts = std::clamp(controllerOut, -maxVolts, maxVolts);
-  //m_motor.SetVoltage((units::volt_t)volts);
+  m_motor.SetVoltage((units::volt_t)volts);
 
 }
 

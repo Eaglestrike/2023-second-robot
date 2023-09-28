@@ -9,7 +9,7 @@
 namespace vec = svector;
 
 /**
- * Class for autonomous driving operations
+ * Class for autonomously going from one point to another using motion profiling
 */
 class AutoDrive {
 public:

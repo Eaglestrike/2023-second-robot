@@ -11,7 +11,7 @@ namespace vec = svector;
 /**
  * Class for autonomously going from one point to another using motion profiling
 */
-class AutoDrive {
+class AutoLineup {
 public:
   struct FFConfig {
     double maxSpeed;
@@ -30,7 +30,7 @@ public:
     EXECUTING_TARGET,
   };
 
-  AutoDrive(Odometry *m_odometry);
+  AutoLineup();
 
   void SetAbsTargetPose(vec::Vector2D target, double ang);
   void SetRelTargetPose(vec::Vector2D delta, double ang);
@@ -40,6 +40,7 @@ public:
   void StartAngMove();
   void StopPos();
   void StopAng();
+  void UpdateOdom(vec::Vector2D pos, double ang);
   void Periodic();
   void SetPosPID(double kP, double kI, double kD);
   void SetAngPID(double kP, double kI, double kD);
@@ -51,7 +52,8 @@ public:
   ExecuteState GetAngExecuteState() const;
 
 private:
-  Odometry *m_odometry;
+  vec::Vector2D m_curPos;
+  double m_curAng;
 
   double m_prevTime;
 

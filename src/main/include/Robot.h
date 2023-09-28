@@ -69,7 +69,7 @@ class Robot : public frc::TimedRobot {
   Controller m_controller;
 
   // auto
-  AutoDrive m_autoDrive;
+  AutoLineup m_autoLineup;
   // TEMP, for testing
   double m_curVolts;
   double m_prevTimeTest;

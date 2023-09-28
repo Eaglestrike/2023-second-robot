@@ -14,8 +14,8 @@
  * 
  * @param odometry Pointer to odometry object
 */
-AutoDrive::AutoDrive(Odometry *odometry)
-  : m_odometry{odometry}, m_prevTime{0}, m_curExpectedAng{0}, m_targetAng{0}, m_curAngVel{0}, m_posTimes{0, 0, 0, 0},
+AutoLineup::AutoLineup()
+  : m_curAng{0}, m_prevTime{0}, m_curExpectedAng{0}, m_targetAng{0}, m_curAngVel{0}, m_posTimes{0, 0, 0, 0},
   m_angTimes{0, 0, 0, 0}, m_angVecDir{0}, m_ffPos{0, 0}, m_ffAng{0, 0}, m_posState{NOT_EXECUTING},
   m_prevPos{0}, m_prevAng{0}, m_prevPosErr{0}, m_prevAngErr{0}, m_totalPosErr{0}, m_totalAngErr{0},
   /*m_prevAngVelErr{0}, m_totalAngVelErr{0},*/ m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0} {}
@@ -27,7 +27,7 @@ AutoDrive::AutoDrive(Odometry *odometry)
  * @param target Taraget position, in world coordinates
  * @param ang Target orientation, in radians
 */
-void AutoDrive::SetAbsTargetPose(vec::Vector2D target, double ang) {
+void AutoLineup::SetAbsTargetPose(vec::Vector2D target, double ang) {
   if (m_posState != NOT_EXECUTING) {
     return;
   }
@@ -42,18 +42,15 @@ void AutoDrive::SetAbsTargetPose(vec::Vector2D target, double ang) {
  * @param target Taraget position relative to current position
  * @param ang Target orientation relative to current oreintaion, in radians
 */
-void AutoDrive::SetRelTargetPose(vec::Vector2D delta, double ang) {
+void AutoLineup::SetRelTargetPose(vec::Vector2D delta, double ang) {
   if (m_posState != NOT_EXECUTING) {
     return;
   }
 
-  vec::Vector2D curPos = m_odometry->GetPosition();
-  double curAng = m_odometry->GetAng();
+  frc::SmartDashboard::PutString("Cur Pos", m_curPos.toString());
 
-  frc::SmartDashboard::PutString("Cur Pos", curPos.toString());
-
-  m_targetPos = curPos + delta;
-  m_targetAng = Utils::NormalizeAng(curAng + ang);
+  m_targetPos = m_curPos + delta;
+  m_targetAng = Utils::NormalizeAng(m_curAng + ang);
 }
 
 /**
@@ -63,7 +60,7 @@ void AutoDrive::SetRelTargetPose(vec::Vector2D delta, double ang) {
  * 
  * @param ffPos Feed forward parameters
 */
-void AutoDrive::SetFFPos(FFConfig ffPos) {
+void AutoLineup::SetFFPos(FFConfig ffPos) {
   if (m_posState == NOT_EXECUTING) {
     m_ffPos.maxAccel = ffPos.maxAccel;
     m_ffPos.maxSpeed = ffPos.maxSpeed;
@@ -77,7 +74,7 @@ void AutoDrive::SetFFPos(FFConfig ffPos) {
  * 
  * @param ffAng Feed fowrad parameters
 */
-void AutoDrive::SetFFAng(FFConfig ffAng) {
+void AutoLineup::SetFFAng(FFConfig ffAng) {
   if (m_angState == NOT_EXECUTING) {
     m_ffAng.maxAccel = ffAng.maxAccel;
     m_ffAng.maxSpeed = ffAng.maxSpeed;
@@ -87,13 +84,12 @@ void AutoDrive::SetFFAng(FFConfig ffAng) {
 /**
  * Starts executing the move both in translational motion
 */
-void AutoDrive::StartPosMove() {
+void AutoLineup::StartPosMove() {
   if (m_posState != NOT_EXECUTING) {
     return;
   }
 
-  vec::Vector2D curPos = m_odometry->GetPosition();
-  vec::Vector2D posDiff = m_targetPos - curPos;
+  vec::Vector2D posDiff = m_targetPos - m_curPos;
 
   CalcTimes(m_ffPos, magn(posDiff), m_posTimes);  
 
@@ -103,7 +99,7 @@ void AutoDrive::StartPosMove() {
     m_posVecDir = normalize(posDiff);
   }
 
-  m_curExpectedPos = curPos;
+  m_curExpectedPos = m_curPos;
   m_prevPosErr = {0, 0};
   m_totalPosErr = {0, 0};
   m_posState = EXECUTING_TARGET;
@@ -112,33 +108,31 @@ void AutoDrive::StartPosMove() {
 /**
  * Start execuitng move in angular motion
 */
-void AutoDrive::StartAngMove() {
+void AutoLineup::StartAngMove() {
   if (m_angState != NOT_EXECUTING) {
     return;
   }  
-  double curAng = m_odometry->GetAng();
-
   // calculates angular distance
   double dist;
-  if (std::abs(m_targetAng - curAng) < M_PI) {
-    if (curAng < m_targetAng) {
+  if (std::abs(m_targetAng - m_curAng) < M_PI) {
+    if (m_curAng < m_targetAng) {
       m_angVecDir = 1;
     } else {
       m_angVecDir = -1;
     }
-    dist = std::abs(m_targetAng - curAng);
+    dist = std::abs(m_targetAng - m_curAng);
   } else {
-    if (curAng < m_targetAng) {
+    if (m_curAng < m_targetAng) {
       m_angVecDir = -1;
     } else {
       m_angVecDir = 1;
     }
-    dist = 2 * M_PI - std::abs(m_targetAng - curAng);
+    dist = 2 * M_PI - std::abs(m_targetAng - m_curAng);
   }
 
   CalcTimes(m_ffAng, dist, m_angTimes);
   
-  m_curExpectedAng = curAng;
+  m_curExpectedAng = m_curAng;
   m_prevAngErr = 0;
   m_totalAngErr = 0;
   m_angState = EXECUTING_TARGET;
@@ -151,7 +145,7 @@ void AutoDrive::StartAngMove() {
  * @param dist The distance to move
  * @param times The tiemes parameters
 */
-void AutoDrive::CalcTimes(FFConfig &config, double dist, Times &times) {
+void AutoLineup::CalcTimes(FFConfig &config, double dist, Times &times) {
   double curT = Utils::GetCurTimeS();
 
   if (Utils::NearZero(config.maxAccel) || Utils::NearZero(config.maxSpeed)) {
@@ -179,14 +173,14 @@ void AutoDrive::CalcTimes(FFConfig &config, double dist, Times &times) {
 /**
  * Stops executing position command
 */
-void AutoDrive::StopPos() {
+void AutoLineup::StopPos() {
   m_posState = NOT_EXECUTING;
 }
 
 /**
  * Stops executing angle command
 */
-void AutoDrive::StopAng() {
+void AutoLineup::StopAng() {
   m_angState = NOT_EXECUTING;
 }
 
@@ -195,7 +189,7 @@ void AutoDrive::StopAng() {
  * 
  * @returns Current execute state
 */
-AutoDrive::ExecuteState AutoDrive::GetPosExecuteState() const {
+AutoLineup::ExecuteState AutoLineup::GetPosExecuteState() const {
   return m_posState;
 }
 
@@ -204,14 +198,14 @@ AutoDrive::ExecuteState AutoDrive::GetPosExecuteState() const {
  * 
  * @returns Current ang execute state
 */
-AutoDrive::ExecuteState AutoDrive::GetAngExecuteState() const {
+AutoLineup::ExecuteState AutoLineup::GetAngExecuteState() const {
   return m_angState;
 }
 
 /**
  * Periodic function
 */
-void AutoDrive::Periodic() { 
+void AutoLineup::Periodic() { 
   double curTime = Utils::GetCurTimeS();
   double deltaT = curTime - m_prevTime;
 
@@ -285,7 +279,7 @@ void AutoDrive::Periodic() {
  * 
  * @returns Speed
 */
-double AutoDrive::GetSpeed(FFConfig &config, Times &times) {
+double AutoLineup::GetSpeed(FFConfig &config, Times &times) {
   double curT = Utils::GetCurTimeS();
   if (curT < times.startT) {
     // shouldn't be here
@@ -313,7 +307,7 @@ double AutoDrive::GetSpeed(FFConfig &config, Times &times) {
  * 
  * @returns Translational velocity
 */
-vec::Vector2D AutoDrive::GetVel() const {
+vec::Vector2D AutoLineup::GetVel() const {
   return m_curVel;
 }
 
@@ -322,7 +316,7 @@ vec::Vector2D AutoDrive::GetVel() const {
  * 
  * @returns Rotational velocity
 */
-double AutoDrive::GetAngVel() const {
+double AutoLineup::GetAngVel() const {
   return m_curAngVel;
 }
 
@@ -333,9 +327,8 @@ double AutoDrive::GetAngVel() const {
  * 
  * @returns Velocity from PID
 */
-vec::Vector2D AutoDrive::GetPIDTrans(double deltaT) {
-  vec::Vector2D curPos = m_odometry->GetPosition();
-  vec::Vector2D err = m_curExpectedPos - curPos;  
+vec::Vector2D AutoLineup::GetPIDTrans(double deltaT) {
+  vec::Vector2D err = m_curExpectedPos - m_curPos;
 
   vec::Vector2D deltaErr = (err - m_prevPosErr) / deltaT;
   m_totalPosErr += err * deltaT;
@@ -356,9 +349,8 @@ vec::Vector2D AutoDrive::GetPIDTrans(double deltaT) {
  * 
  * @returns Velocity correction from PID
 */
-vec::Vector2D AutoDrive::GetPIDTransVel(double deltaT, vec::Vector2D expectedVel) {
-  vec::Vector2D curPos = m_odometry->GetPosition();
-  vec::Vector2D curVel = (curPos - m_prevPos) / deltaT;
+vec::Vector2D AutoLineup::GetPIDTransVel(double deltaT, vec::Vector2D expectedVel) {
+  vec::Vector2D curVel = (m_curPos - m_prevPos) / deltaT;
 
   vec::Vector2D err = expectedVel - curVel;
 
@@ -366,7 +358,7 @@ vec::Vector2D AutoDrive::GetPIDTransVel(double deltaT, vec::Vector2D expectedVel
   m_totalVelErr += err * deltaT;
   vec::Vector2D res = err * m_kPPos + m_totalVelErr * m_kIPos + deltaErr * m_kDPos;
 
-  m_prevPos = curPos;
+  m_prevPos = m_curPos;
   m_prevVelErr = err;
 
   return res;
@@ -379,25 +371,23 @@ vec::Vector2D AutoDrive::GetPIDTransVel(double deltaT, vec::Vector2D expectedVel
  * 
  * @returns Velcoity from PID
 */
-double AutoDrive::GetPIDAng(double deltaT) {
-  double curAng = m_odometry->GetAng();
-
+double AutoLineup::GetPIDAng(double deltaT) {
   double err;
   double dir;
-  if (std::abs(m_curExpectedAng - curAng) < M_PI) {
-    if (curAng < m_curExpectedAng) {
+  if (std::abs(m_curExpectedAng - m_curAng) < M_PI) {
+    if (m_curAng < m_curExpectedAng) {
       dir = 1;
     } else {
       dir = -1;
     }
-    err = std::abs(m_curExpectedAng - curAng);
+    err = std::abs(m_curExpectedAng - m_curAng);
   } else {
-    if (curAng < m_curExpectedAng) {
+    if (m_curAng < m_curExpectedAng) {
       dir = -1;
     } else {
       dir = 1;
     }
-    err = 2 * M_PI - std::abs(m_curExpectedAng - curAng);
+    err = 2 * M_PI - std::abs(m_curExpectedAng - m_curAng);
   }
 
   err = dir * err;
@@ -418,7 +408,7 @@ double AutoDrive::GetPIDAng(double deltaT) {
  * @param kI i
  * @param kD d
 */
-void AutoDrive::SetPosPID(double kP, double kI, double kD) {
+void AutoLineup::SetPosPID(double kP, double kI, double kD) {
   m_kPPos = kP;
   m_kIPos = kI;
   m_kDPos = kD;
@@ -431,8 +421,21 @@ void AutoDrive::SetPosPID(double kP, double kI, double kD) {
  * @param kI i
  * @param kD d
 */
-void AutoDrive::SetAngPID(double kP, double kI, double kD) {
+void AutoLineup::SetAngPID(double kP, double kI, double kD) {
   m_kPAng = kP;
   m_kIAng = kI;
   m_kDAng = kD;
+}
+
+/**
+ * Updates odometry
+ * 
+ * @note Make sure this is called every cycle
+ * 
+ * @param pos Current position
+ * @param ang Current angle
+*/
+void AutoLineup::UpdateOdom(vec::Vector2D pos, double ang) {
+  m_curPos = pos;
+  m_curAng = ang;
 }

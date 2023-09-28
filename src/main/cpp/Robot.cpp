@@ -37,7 +37,6 @@ Robot::Robot():
       m_startAng{0},
       m_joystickAng{0},
       m_odometry{&m_startPos, &m_startAng},
-      m_autoDrive{&m_odometry},
       m_prevTimeTest{0},
       m_client{"10.1.14.107", 5807, 500, 5000}
 {
@@ -168,7 +167,7 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
-  frc::SmartDashboard::PutBoolean("Ang Currently executing", m_autoDrive.GetAngExecuteState() != AutoDrive::NOT_EXECUTING);
+  frc::SmartDashboard::PutBoolean("Ang Currently executing", m_autoLineup.GetAngExecuteState() != AutoLineup::NOT_EXECUTING);
 
   if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
@@ -200,8 +199,8 @@ void Robot::RobotPeriodic()
     double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
     double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
     // double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
-    // m_autoDrive.SetRelTargetPose({0, 0}, deltaAng);
-    m_autoDrive.SetRelTargetPose({deltaX, deltaY}, 0);
+    // m_autoLineup.SetRelTargetPose({0, 0}, deltaAng);
+    m_autoLineup.SetRelTargetPose({deltaX, deltaY}, 0);
 
     // m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
   }
@@ -270,29 +269,31 @@ void Robot::TeleopPeriodic() {
 
   vec::Vector2D setVel = {-vy, -vx};
 
+  m_autoLineup.UpdateOdom(m_odometry.GetPosition(), curYaw);
+
   // cancel auto if joysticks move
   if (!Utils::NearZero(setVel)) {
-    m_autoDrive.StopPos();
+    m_autoLineup.StopPos();
   }
 
   if (m_controller.getPressed(START_AUTO)) {
-    if (m_autoDrive.GetPosExecuteState() == AutoDrive::NOT_EXECUTING) {
-      m_autoDrive.StartPosMove();
+    if (m_autoLineup.GetPosExecuteState() == AutoLineup::NOT_EXECUTING) {
+      m_autoLineup.StartPosMove();
     } else {
-      m_autoDrive.StopPos();
+      m_autoLineup.StopPos();
     }
   }
 
-  if (m_autoDrive.GetPosExecuteState() == AutoDrive::NOT_EXECUTING) {
+  if (m_autoLineup.GetPosExecuteState() == AutoLineup::NOT_EXECUTING) {
     m_swerveController->SetRobotVelocityAbs(setVel, w, curYaw, deltaT, m_joystickAng);
   } else {
-    vec::Vector2D driveVel = m_autoDrive.GetVel();
-    double angVel = m_autoDrive.GetAngVel();
+    vec::Vector2D driveVel = m_autoLineup.GetVel();
+    double angVel = m_autoLineup.GetAngVel();
 
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   }
 
-  m_autoDrive.Periodic();
+  m_autoLineup.Periodic();
   m_swerveController->Periodic();
 
   // frc::SmartDashboard::PutString("pos:", m_pos.toString());
@@ -344,23 +345,23 @@ void Robot::DisabledPeriodic() {
 
 void Robot::TestInit() {
   m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
-  m_autoDrive.SetFFPos({1, 1});
-  m_autoDrive.SetFFAng({5, 5});
+  m_autoLineup.SetFFPos({1, 1});
+  m_autoLineup.SetFFAng({5, 5});
 
   m_curVolts = 0;
 }
 
 void Robot::TestPeriodic() {
   // if (m_controller.getPressed(START_AUTO)) {
-  //   if (m_autoDrive.GetAngExecuteState() == AutoDrive::NOT_EXECUTING) {
-  //     m_autoDrive.StartAngMove();
+  //   if (m_autoLineup.GetAngExecuteState() == AutoLineup::NOT_EXECUTING) {
+  //     m_autoLineup.StartAngMove();
   //   } else {
-  //     m_autoDrive.StopAng();
+  //     m_autoLineup.StopAng();
   //   }
   // }
 
-  // vec::Vector2D vel = m_autoDrive.GetVel();
-  // double angVel = m_autoDrive.GetAngVel();
+  // vec::Vector2D vel = m_autoLineup.GetVel();
+  // double angVel = m_autoLineup.GetAngVel();
   double curYaw = m_odometry.GetAng();
 
   // frc::SmartDashboard::PutString("AutoVel", vel.toString());
@@ -378,7 +379,7 @@ void Robot::TestPeriodic() {
     m_curVolts += 0.1;
   }
 
-  // m_autoDrive.Periodic();
+  // m_autoLineup.Periodic();
   vec::Vector2D robotVel = m_swerveController->GetRobotVelocity(curYaw);
 
   auto curTime = frc::Timer::GetFPGATimestamp();

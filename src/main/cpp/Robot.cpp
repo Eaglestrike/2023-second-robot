@@ -38,6 +38,7 @@ Robot::Robot():
       m_joystickAng{0},
       m_odometry{&m_startPos, &m_startAng},
       m_autoDrive{&m_odometry},
+      m_prevTimeTest{0},
       m_client{"10.1.14.107", 5807, 500, 5000}
 {
   // swerve
@@ -372,8 +373,8 @@ void Robot::TestPeriodic() {
   m_swerveController->SetRobotVelocity({m_curVolts, 0}, 0, curYaw, 0.02);
 
   double curS = Utils::GetCurTimeS();
-  if (curS - m_prevTime > 0.2) {
-    m_prevTime = curS;
+  if (curS - m_prevTimeTest > 0.2) {
+    m_prevTimeTest = curS;
     m_curVolts += 0.1;
   }
 

@@ -16,7 +16,7 @@
 #include <wpi/DataLog.h>
 
 #include "Controller/Controller.h"
-#include "Drive/AutoDrive.h"
+#include "Drive/AutoLineup.h"
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
 #include "Drive/SwerveModule.h"
@@ -72,7 +72,7 @@ class Robot : public frc::TimedRobot {
   AutoDrive m_autoDrive;
   // TEMP, for testing
   double m_curVolts;
-  double m_prevTime;
+  double m_prevTimeTest;
   wpi::log::DoubleLogEntry m_speedLog;
   wpi::log::DoubleLogEntry m_voltsLog;
   // END TEMP

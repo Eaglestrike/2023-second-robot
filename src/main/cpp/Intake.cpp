@@ -9,7 +9,7 @@ Intake::Intake(){}
 
 //TODO:: Convert encoder steps to rads;
 void Intake::UpdatePose(){
-    m_curPos = m_wristEncoder.GetAbsolutePosition() * 2 * M_PI + IntakeConstants::WRIST_ABS_ENCODER_OFFSET; // might need to negate
+    m_curPos = m_wristEncoder.GetAbsolutePosition() * 2 * M_PI + IntakeConstants::WRIST_ABS_ENCODER_OFFSET; // might need to negate or do some wrap around calculations
     double stepsPerSec = m_wristMotor.GetSelectedSensorVelocity() * 10; // fn returns steps per 100 ms so multiply by 1/10 for per sec
                                                                         //x steps/100ms * 1000 ms/1sec = 10x steps /sec
     double newVel = StepsToRad(stepsPerSec);

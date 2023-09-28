@@ -357,6 +357,8 @@ vec::Vector2D AutoDrive::GetPIDTrans(double deltaT) {
 /**
  * Calculates velocity PID for translational motion
  * 
+ * This is currently unused
+ * 
  * @param deltaT time difference
  * @param expectedVel Expected velocity at this time
  * 

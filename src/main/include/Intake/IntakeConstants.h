@@ -3,6 +3,7 @@
 namespace IntakeConstants{
     const int WRIST_MOTOR_ID = 0;
     const int ROLLER_MOTOR_ID = 0;
+    const int WRIST_ENCODER_PIN = 0;
 
     //EXTEND DEPLOY FEEDFORWARD-PID
 
@@ -18,8 +19,11 @@ namespace IntakeConstants{
     const double EXTEND_DEPLOY_D = 0.0; // corrects velocity error
     
     //trapezoidal motion profiling
-    const double EXTEND_DEPLOY_MAX_VEL = 0.0; //rads per sec
-    const double EXTEND_DEPLOY_MAX_ACC = 0.0; //rads per sec^2
+    const double WRIST_MAX_VEL = 0.0; //rads per sec
+    const double WRIST_MAX_ACC = 0.0; //rads per sec^2
+
+    const double WRIST_POS_TOLERANCE = 0.0;
+    const double WRIST_ABS_ENCODER_OFFSET = 0.0;
 
     // wrist positions in radians
     // using motor's relative encoder so assume that 0.0 is stowed

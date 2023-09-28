@@ -15,19 +15,18 @@ class Intake{
             STOPPED
         };
 
-        enum IntakingState{
-            INTAKING,
-            OUTTAKING
-        };
+        // enum IntakingState{
+        //     INTAKING,
+        //     OUTTAKING
+        // };
 
         void TeleopPeriodic();    
         void Stow();
         void DeployIntake(); // would be called intake for readability but can't bc class is Intake
         void DeployOuttake();
-        // void 
+        void ChangeWristPos(double newPos); //pos should be in radians, w 0 as extended and parallel to ground
+        void ChangeRollerVoltage(double newVolotage, bool out); //pos should be in radians, w 0 as extended and parallel to ground
         void Kill();
-        void ResetPID();
-
         // send lidar data
     private:
         void UpdatePose();
@@ -40,7 +39,7 @@ class Intake{
         double StepsToRad(double steps);
 
         bool dbg =true;
-        IntakingState m_intakingState;
+        // IntakingState m_intakingState;
 
         WPI_TalonFX m_wristMotor{IntakeConstants::WRIST_MOTOR_ID};
         WPI_TalonFX m_rollerMotor{IntakeConstants::ROLLER_MOTOR_ID};
@@ -58,5 +57,6 @@ class Intake{
         double m_velTurnPos, // pos in motion profile where start decelerating
                m_totalErr = 0; // integral of position error for PID
 
+        double m_rollerVolts;
         //add caleb's lidar class when thats a thing
 };

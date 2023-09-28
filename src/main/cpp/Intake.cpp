@@ -36,9 +36,7 @@ void Intake::TeleopPeriodic(){
             break;
         case DEPLOYED:
             m_wristMotor.SetVoltage(units::volt_t(std::clamp(FFPIDCalculate(), -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
-            double rollerVolts = IntakeConstants::ROLLER_MAX_VOLTS;
-            if (m_intakingState == OUTTAKING) rollerVolts *= -1; // double check this idk which direction intake is
-            m_rollerMotor.SetVoltage(units::volt_t(rollerVolts));
+            m_rollerMotor.SetVoltage(units::volt_t(std::clamp(m_rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
             break;
     }
 }
@@ -63,20 +61,31 @@ double Intake::FFPIDCalculate(){
     return pid+ff;
 }
 
+void Intake::ChangeWristPos(double newPos){
+    SetSetpoint(newPos);
+    m_state = DEPLOYING;
+}
+
+void Intake::ChangeRollerVoltage(double newVoltage, bool outtake){
+    m_rollerVolts = abs(newVoltage);
+    if (outtake) m_rollerVolts *= -1;
+}
+
 void Intake::Stow(){
     SetSetpoint(IntakeConstants::STOWED_POS);
+    m_rollerVolts = 0;
     m_state = STOWING;
 }
 
 void Intake::DeployIntake(){
     SetSetpoint(IntakeConstants::DEPLOYED_POS);
-    m_intakingState = INTAKING;
+    m_rollerVolts = IntakeConstants::ROLLER_MAX_VOLTS;
     m_state = DEPLOYING;
 }
 
 void Intake::DeployOuttake(){
     SetSetpoint(IntakeConstants::DEPLOYED_POS);
-    m_intakingState = OUTTAKING;
+    m_rollerVolts = -IntakeConstants::ROLLER_MAX_VOLTS;
     m_state = DEPLOYING;
 }
 

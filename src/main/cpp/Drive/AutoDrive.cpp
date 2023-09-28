@@ -219,10 +219,6 @@ void AutoDrive::Periodic() {
     case NOT_EXECUTING:
       m_curVel = {0, 0};
       break;
-    case EXECUTING_PATH:
-      // TEMP
-      m_curVel = {0, 0};
-      break;
     case EXECUTING_TARGET:
     {
       double speed = GetSpeed(m_ffPos, m_posTimes);
@@ -250,10 +246,6 @@ void AutoDrive::Periodic() {
     case NOT_EXECUTING:
       m_curAngVel = 0;
       // m_dist = 0;
-      break;
-    case EXECUTING_PATH:
-      // TEMP
-      m_curAngVel = 0;
       break;
     case EXECUTING_TARGET:
     {

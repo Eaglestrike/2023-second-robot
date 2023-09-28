@@ -27,14 +27,11 @@ public:
 
   enum ExecuteState {
     NOT_EXECUTING,
-    EXECUTING_PATH,
     EXECUTING_TARGET,
   };
 
   AutoDrive(Odometry *m_odometry);
 
-  // void SetAutoPath();
-  // void StartPath();
   void SetAbsTargetPose(vec::Vector2D target, double ang);
   void SetRelTargetPose(vec::Vector2D delta, double ang);
   void SetFFPos(FFConfig ffPos);

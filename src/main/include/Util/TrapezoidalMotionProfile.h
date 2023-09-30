@@ -6,15 +6,21 @@ class TrapezoidalMotionProfile {
     TrapezoidalMotionProfile(double MAX_VEL, double MAX_ACC, double curPos, double setPt);
     TrapezoidalMotionProfile(double MAX_VEL, double MAX_ACC);
     void SetSetpoint(double curPos, double setPoint);
-    void Calculate();
+    void Periodic();
+    double GetVelocity();
+    double GetPosition();
+    double GetAcceleration();
     bool AtSetPoint();
     
     private:
-        void CalcTurnTime(double curPos, double setPt);
+        // void CalcTurnTime(double curPos, double setPt);
+        void CalcVelTurnPos(double curPos, double setPt);
         double m_targetPos, m_targetVel, m_targetAcc;
         double m_maxVel, m_maxAcc;
         double m_setPt;
-        double m_curTime,
-               m_turnTime, // the time the profile should start deaccelerating if pos, or accelerating if neg
-               m_endTime;
+        double m_velTurnPos;
+        double m_curTime = -1;
+        bool m_negProfile;
+        //        m_turnTime, // the time the profile should start deaccelerating if pos, or accelerating if neg
+        //        m_endTime;
 };

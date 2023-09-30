@@ -13,43 +13,38 @@ void TrapezoidalMotionProfile::SetSetpoint(double curPos, double setPt){
     m_targetPos = curPos;
     m_targetVel = 0.0;
     m_targetAcc = m_maxAcc;
-    if (setPt < curPos) m_targetAcc *= -1;
-    CalcTurnTime(curPos, setPt);
+    if (setPt < curPos)m_targetAcc *= -1;
+    CalcVelTurnPos(curPos, setPt);
 }
 
 bool TrapezoidalMotionProfile::AtSetPoint(){
-    if (Utils::GetCurTimeS() > m_endTime) return true;
+    if (m_targetVel == 0.0 && m_curTime != -1) return true;
     return false;
 }
 
-void TrapezoidalMotionProfile::CalcTurnTime(double curPos, double setPt){
-    m_curTime = Utils::GetCurTimeS();
+void TrapezoidalMotionProfile::CalcVelTurnPos(double curPos, double setPt){
     if(fabs(setPt - curPos) < m_maxVel*m_maxVel/m_maxAcc){ // for triangle motion profile
-        double halfTriangleBase = std::sqrt(fabs(setPt - curPos)/m_maxAcc);
-        m_turnTime = halfTriangleBase + m_curTime;
-        m_endTime = halfTriangleBase*2 + m_curTime;
-    } else {// for trapezoid
-        m_turnTime = fabs(m_setPt - curPos)/m_maxVel + m_curTime;
-        m_endTime = m_turnTime + m_maxVel/m_maxAcc;
-    }
+        m_velTurnPos = (m_setPt+curPos)/2;
+    } else if (m_setPt > curPos)
+        m_velTurnPos = m_setPt - m_maxVel*m_maxVel/(m_maxAcc*2);
+    else 
+        m_velTurnPos = m_setPt + m_maxVel*m_maxVel/(m_maxAcc*2);
 }
 
-void TrapezoidalMotionProfile::Calculate(){
+void TrapezoidalMotionProfile::Periodic(){
     double newP = m_targetPos, newV = m_targetVel, newA = m_targetAcc;
-
+    
     newP += m_targetVel;
+    double newTime = Utils::GetCurTimeS(), timePassed = newTime- m_curTime;
+    m_curTime = newTime;
 
-    double curTime = Utils::GetCurTimeS();
-    m_curTime = curTime;
-    double timePassed = curTime - m_curTime;
-
-    if (m_targetPos < m_setPt){ // if trapezoid is pos
-        if (curTime > m_turnTime) // if after turn time
+    if (m_velTurnPos < m_setPt){ // if trapezoid is pos
+        if (m_targetPos > m_velTurnPos) // if after turn pt
             newV = std::max(0.0, m_targetVel - m_maxAcc * timePassed);
         else 
             newV = std::min(m_maxVel, m_targetVel + m_maxAcc * timePassed);
     } else {
-        if (curTime < m_turnTime)  // if before the turn time
+        if (m_targetPos > m_velTurnPos) // if before the turn pt
             newV = std::max(-m_maxVel, m_targetVel - m_maxAcc * timePassed);
         else 
             newV = std::min(0.0, m_targetVel + m_maxAcc * timePassed);
@@ -62,4 +57,16 @@ void TrapezoidalMotionProfile::Calculate(){
     m_targetPos = newP;
     m_targetVel = newV;
     m_targetAcc = newA;
+}
+
+double TrapezoidalMotionProfile::GetPosition(){
+    return m_targetPos;
+}
+
+double TrapezoidalMotionProfile::GetVelocity(){
+    return m_targetVel;
+}
+
+double TrapezoidalMotionProfile::GetAcceleration(){
+    return m_targetAcc;
 }

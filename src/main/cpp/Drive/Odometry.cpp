@@ -1,232 +1,213 @@
 #include "Drive/Odometry.h"
 
-// #include <cmath>
-// #include <cstdlib>
+#include <frc/smartdashboard/SmartDashboard.h>
+#include <cmath>
+#include <iostream>
 
-// #include "Constants.h"
+#include "Drive/DriveConstants.h"
+#include "GeneralConstants.h"
+#include "Util/Mathutil.h"
+
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643383279502884197169399
+#endif
 
 /**
- * Constrcutor
+ * Constructor
  * 
- * @param E0 Initial error value
- * @param Q wheel odometry measurement noise
- * @param kAng angle constant of proportionality for logistic function calculating trust of camera's angle measurement
- * @param k constant of proportionality for linear function calculating noise of camera xy measurement
- * @param maxTime maximum time before discarding measurements, in s
+ * Initializes starting position and angle to 0, and this can be changed later with SetStart() 
+ * 
+ * @param posOffset pointer to position offset in robot cpp
+ * @param angOffset pointer to angle offset in robot cpp
+ */
+Odometry::Odometry(vec::Vector2D *posOffset, double *angOffset)
+  : m_posOffset{posOffset}, m_angOffset{angOffset}, 
+    // m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::CAM_TRUST_KPOSINT, OdometryConstants::MAX_TIME, posOffset, angOffset},
+    m_filter{OdometryConstants::ALPHA, OdometryConstants::MAX_TIME, m_posOffset},
+    m_ang{0},
+    m_prevId{-1} {}
+
+/**
+ * Sets Kalman filter terms
+ * 
+ * Use this for debugging
+ * 
+ * It is recommended to reset odometry after setting terms
+ * 
+ * All of these must be > 0 or things will break
+ * 
+ * @param E0 initial error covariance
+ * @param Q noise of wheels
+ * @param kAng angle constant in logistic function higher = lower trust in camera for higher velocities
+ * @param k constant of proportionality between speed and camera noise
+ * @param kPosInt constant of camera noise when robot not moving
+ * @param maxTime max time before ignore, in s
 */
-Odometry::Odometry(double E0, double Q, double kAng, double k, double maxTime)
-  : m_E0{E0}, m_Q{Q}, m_kAng{kAng}, m_k{k}, m_maxTime{maxTime}
+// void Odometry::SetKFTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime) {
+//   m_filter.SetTerms(E0, Q, kAng, k, kPosInt, maxTime);
+// }
+
+/**
+ * Applies corrections from camera data
+ * 
+ * @param camPos Position data from camera
+ * @param camAng Angle from camera (unused, may use later)
+ * @param tagID Apriltag ID
+ * @param age delay measurement from camera (combined delay from camera to jetson and from jetson to rio through network)
+ * @param uniqueId unique ID from camera
+ * 
+ * @returns Wheter data is valid (new uniqueID)
+*/
+bool Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId)
 {
-  m_states[0].E = E0;
-  m_states[0].ang = 0;
+  double angNavX = GetAng();
+  vec::Vector2D vecRot = rotate(camPos, angNavX - M_PI / 2);
+  vec::Vector2D tagPos;
+
+  // check that ID is actually unique
+  if (static_cast<long long>(uniqueId) == m_prevId) {
+    return false;
+  }
+  m_prevId = static_cast<long long>(uniqueId);
+
+  // I know I can use an array, i was just being an idiot when writing this
+  switch (tagID) {
+    case 1:
+      // std::cout << "tag1: ";
+      tagPos = FieldConstants::TAG1;
+      break;
+    case 2:
+      // std::cout << "tag2: ";
+      tagPos = FieldConstants::TAG2;
+      break;
+    case 3:
+      // std::cout << "tag3: ";
+      tagPos = FieldConstants::TAG3;
+      break;
+    case 4:
+      // std::cout << "tag4: ";
+      tagPos = FieldConstants::TAG4;
+      break;
+    case 5:
+      // std::cout << "tag5: ";
+      tagPos = FieldConstants::TAG5;
+      break;
+    case 6:
+      // std::cout << "tag6: ";
+      tagPos = FieldConstants::TAG6;
+      break;
+    case 7:
+      // std::cout << "tag7: ";
+      tagPos = FieldConstants::TAG7;
+      break;
+    case 8:
+      // std::cout << "tag8: ";
+      tagPos = FieldConstants::TAG8;
+      break;
+    default:
+      // std::cout << "bad detect" << std::endl;
+      return false; // unrecognized tag; don't process
+  }
+
+  vec::Vector2D robotPos = tagPos - vecRot;
+
+  // reject if april tag pos is too far away
+  vec::Vector2D odomPos = GetPosition();
+  if (vec::magn(odomPos - robotPos) > OdometryConstants::AT_REJECT) {
+    return false;
+  }
+
+  // reject if apriltag is not facing the robot (false dtection)
+  double angRobot = GetAng();
+  vec::Vector2D unitVec = Utils::GetUnitVecDir(angRobot);
+  vec::Vector2D vecToTag = tagPos - odomPos;
+
+  // check that robot is not behind tag
+  if (tagID != 4 && tagID != 5 && (odomPos.x() < FieldConstants::TAG8.x() || odomPos.x() > FieldConstants::TAG1.x())) {
+    // std::cout << "bad 1" << std::endl;
+    return false;
+  }
+  if ((tagID == 4 || tagID == 5) && (odomPos.x() < FieldConstants::TAG5.x() || odomPos.x() > FieldConstants::TAG4.x())) {
+    // std::cout << "bad 2" << std::endl;
+    return false;
+  }
+
+  double angToCam = Utils::GetAngBetweenVec(unitVec, vecToTag);
+  // frc::SmartDashboard::PutString("tag vec", tagPos.toString());
+  // frc::SmartDashboard::PutString("cam vec", vecToTag.toString());
+  // frc::SmartDashboard::PutNumber("Angle to Cam", angToCam);
+  // return false;
+  if (std::abs(angToCam) >= M_PI / 2) {
+    return false;
+  }
+
+  // not using camAng, because it relies on existing odometry measurements to get accurate and ideally it's its own, independent measurement
+  // @todo figure out if ^^^ is right
+  std::size_t curTimeMs = Utils::GetCurTimeMs();
+  //         substituting angnavX here vvvvvv becaues of waht's mentioned in comment above
+  // m_filter.UpdateFromCamera(robotPos, Utils::DegToRad(angNavX), age, curTimeMs);
+  m_filter.AddCamPos(robotPos, age, curTimeMs);
+
+  return true;
 }
 
 /**
- * Resets all odometry by clearing states map
+ * Resets current position and angle
  * 
- * @param curTime current robot time (from startup)
+ * Should do this while robot is facing AWAY
 */
-void Odometry::Reset(std::size_t curTime) {
-  m_states.clear();
-
-  m_states[curTime].E = m_E0;
-  m_states[curTime].ang = 0;
+void Odometry::Reset() {
+  std::size_t curTimeMs = Utils::GetCurTimeMs();
+  m_filter.Reset(curTimeMs);
 }
 
 /**
- * Predicts current position and angle given wheel velocities and navx
+ * Gets current position world frame
  * 
- * @param vAvgCur average velocity from wheels, rotated
- * @param navXAng current navX angle
- * @param curTime current robot time (from startup), in ms
+ * @returns current predicted position
 */
-void Odometry::PredictFromWheels(vec::Vector2D vAvgCur, double navXAng, std::size_t curTime)
-{
-  auto lastIt = m_states.rbegin();
-  std::size_t kPrev = lastIt->first;
-  auto posPrev = lastIt->second.pos;
-  auto vAvgPrev = lastIt->second.vAvg;
-  double ePrev = lastIt->second.E;
-  double angPrev = lastIt->second.ang;
-
-  double timeDiff = static_cast<double>(curTime - kPrev);
-
-  auto pos = posPrev + vAvgCur * timeDiff;
-  auto vAvg = vAvgCur;
-  double ang = navXAng;
-  double E = ePrev + m_Q;
-
-  m_states[curTime].pos = pos;
-  m_states[curTime].ang = ang;
-  m_states[curTime].vAvg = vAvgCur;
-  m_states[curTime].E = E;
+vec::Vector2D Odometry::GetPosition() const {
+  // return m_filter.GetEstimatedPos() + *m_posOffset;
+  return m_filter.GetPos();
 }
 
-// /**
-//  * Predicts current position and angle given wheel velocities
-//  * 
-//  * @param vAvg The wheel velocities, averaged
-//  * @param navXAng current navX angle
-//  * @param curTime current robot time (from start), in ms
-// */
-// void Odometry::PredictFromWheels(vec::Vector2D vAvg, double navXAng, std::size_t curTime)
-// {
-//   // clear matrix if >500ms ago
-//   while (m_states.size() > 0 && std::abs(static_cast<long long>(curTime - m_states.begin()->first)) > m_maxTime) {
-//     m_states.erase(m_states.begin());
-//   }
+/**
+ * Gets current estimated angle world frame
+ * 
+ * @returns estimated angle, in radians
+*/
+double Odometry::GetAng() const {
+  // const double ang = m_filter.GetEstimatedAng();
+  return Utils::NormalizeAng(m_ang + *m_angOffset);
+}
 
-//   // calculate change in time
-//   double deltaT;
-//   if (m_states.size() == 0) {
-//     deltaT = curTime;
-//   } else {
-//     double prevTime = m_states.rbegin()->first;
-//     deltaT = curTime - prevTime;
-//   }
+/**
+ * Sets alpha term, a term between 0 and 1 that de4termines weight given to wheels
+ * 
+ * @param alpha Alpha term
+*/
+void Odometry::SetAlpha(double alpha) {
+  m_filter.SetAlpha(alpha);
+}
 
-//   // update x, y, process covariance
-//   double prevX;
-//   double prevY;
-//   Eigen::Matrix<double, 2, 2> prevP;
-//   if (m_states.size() == 0) {
-//     prevX = 0;
-//     prevY = 0;
-//     prevP = Eigen::Matrix<double, 2, 2>::Identity() * m_pInitial;
-//   } else {
-//     prevX = m_states.rbegin()->second.state(0, 0); 
-//     prevY = m_states.rbegin()->second.state(1, 0);
-//     prevP = m_states.rbegin()->second.P;  
-//   }
+/**
+ * Sets maximum time
+ * 
+ * @param maxTime maximum time before discarding values
+*/
+void Odometry::SetMaxTime(double maxTime) {
+  m_filter.SetMaxTime(maxTime);
+}
 
-//   auto vAvgRotate = vAvg.rotate(navXAng);
-//   double curXPred = prevX + x(vAvgRotate) * deltaT;
-//   double curYPred = prevY + y(vAvgRotate) * deltaT;  
-
-//   Eigen::Matrix<double, 2, 2> Q = Eigen::Matrix<double, 2, 2>::Identity() * m_posStdDev;
-//   Eigen::Matrix<double, 2, 2> curP = prevP + Q;
-
-//   // update angle
-//   double curAng = navXAng;
-
-//   // create state
-//   KalmanState curState;
-//   curState.state << curXPred, curYPred;
-//   curState.angle = curAng;
-//   curState.vAvg = vAvg;
-//   curState.P = curP;
-
-//   std::size_t timeIndex = static_cast<std::size_t>(curTime);
-//   m_states[timeIndex] = curState;
-// }
-
-// /**
-//  * Updates from camera data
-//  * 
-//  * @param x Camera x data
-//  * @param y Camera y data 
-//  * @param angZ Camera angle
-//  * @param timeOffset Time offset from camera read
-//  * @param curTime Current time
-// */
-// void Odometry::UpdateFromCamera(double x, double y, double angZ, std::size_t timeOffset, std::size_t curTime)
-// {
-//   // don't update if camera data is greater than a certain amount of time
-//   if (timeOffset > m_maxTime) {
-//     return;
-//   }
-
-//   // gets state in the past
-//   auto it = m_states.lower_bound(curTime - timeOffset);
-
-//   if (it == m_states.end()) {
-//     return;
-//   }
-
-//   auto pastState = it->second;
-
-//   // calculates kalman gain
-//   auto R = Eigen::Matrix<double, 2, 2>::Identity() * m_measurementStdDev;
-//   auto gain = pastState.P * (pastState.P + R).inverse();
-
-//   // updates state and covariance
-//   Eigen::Matrix<double, 2, 1> measure;
-//   measure << x, y;
-//   auto newState = pastState.state + gain * (measure - pastState.state);
-//   auto newP = (Eigen::Matrix<double, 2, 2>::Identity() - gain) * pastState.P;
-
-//   // calculate trustworthiness of camera 
-//   double curVel = magn(pastState.vAvg);
-//   double alpha = 0.1 / (1 + std::exp(10 * (curVel - 0.2)));
-//   double newTheta = alpha * angZ + (1 - alpha) * pastState.angle;
-//   double addVal = newTheta - pastState.angle - m_angOffset;
-//   m_angOffset += addVal;
-
-//   // update values from this snapshot in time + 1 to present
-//   KalmanState curState;
-//   for (auto it2 = it; it2 != m_states.end(); it2++) {
-//     m_states[timeIndex] = curState;
-
-//     // update x, y, process covariance
-//     double prevX;
-//     double prevY;
-//     Eigen::Matrix<double, 2, 2> prevP;
-//     if (m_states.size() == 0) {
-//       prevX = 0;
-//       prevY = 0;
-//       prevP = Eigen::Matrix<double, 2, 2>::Identity() * m_pInitial;
-//     } else {
-//       prevX = it2->second.state(0, 0); 
-//       prevY = it2->second.state(1, 0);
-//       prevP = it2->second.P;  
-//     }
-
-//     auto vAvgRotate = vAvg.rotate(navXAng);
-//     double curXPred = prevX + x(vAvgRotate) * deltaT;
-//     double curYPred = prevY + y(vAvgRotate) * deltaT;  
-
-//     Eigen::Matrix<double, 2, 2> Q = Eigen::Matrix<double, 2, 2>::Identity() * m_posStdDev;
-//     Eigen::Matrix<double, 2, 2> curP = prevP + Q;
-
-//     // create state
-//     curState.state << curXPred, curYPred;
-//     curState.angle = curAng;
-//     curState.vAvg = vAvg;
-//     curState.P = curP;
-//   }
-
-//   it++;
-//   // delete values from begin() to current time
-//   if (m_states.size() > 0) {
-//     m_states.erase(m_states.begin(), it);
-//   }
-// }
-
-// /**
-//  * Resets odometry and past values
-// */
-// void Odometry::Reset()
-// {
-//   m_states.clear();
-//   m_angOffset = 0;
-// }
-
-// /**
-//  * Sets covariance error, recommended to reset after
-//  * 
-//  * @param posStdDev position standard deviation
-//  * @param measurementStdDev measurement standrad deviation
-//  * @param pInitial inital value of covariance matrix
-//  * @param maxTime Max time before ignore/discard vlaues
-// */
-// void Odometry::SetErrorTerms(double posStdDev, double measurementStdDev, double pInitial, double maxTime)
-// {
-//   m_posStdDev = posStdDev;
-//   m_measurementStdDev = measurementStdDev;
-//   m_pInitial = pInitial;
-//   m_maxTime = maxTime;
-// }
-
-// /**
-//  * 
-// */
+/**
+ * Periodic function
+ * 
+ * @param ang navX angle of robot, radians
+ * @param avgVelocity average velocity world frame
+*/
+void Odometry::Periodic(double ang, vec::Vector2D avgVelocity) {
+  std::size_t curTimeMs = Utils::GetCurTimeMs();
+  m_ang = ang;
+  // m_filter.PredictFromWheels(avgVelocity, ang + *m_angOffset, curTimeMs);
+  m_filter.AddWheelVel(avgVelocity, curTimeMs);
+}

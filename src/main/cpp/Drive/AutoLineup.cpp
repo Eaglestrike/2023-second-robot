@@ -224,7 +224,7 @@ void AutoLineup::Periodic() {
       vec::Vector2D totalVel = ffVel + correctionVel;
 
       // may need to change to checking setpoints
-      if (!Utils::NearZero(totalVel)) {
+      if (curTime >= m_posTimes.endT && !Utils::NearZero(totalVel)) {
         m_curVel = totalVel;
       } else {
         m_curVel = {0, 0};
@@ -258,7 +258,7 @@ void AutoLineup::Periodic() {
       // frc::SmartDashboard::PutNumber("cur dist", m_dist);
       // m_dist += angSpeed * 0.02;
 
-      if (!Utils::NearZero(totalVel)) {
+      if (curTime >= m_angTimes.endT && !Utils::NearZero(totalVel)) {
         m_curAngVel = totalVel;
       } else {
         m_curAngVel = 0;

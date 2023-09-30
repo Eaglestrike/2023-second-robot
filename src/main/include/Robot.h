@@ -14,6 +14,7 @@
 
 #include "Controller/Controller.h"
 #include "Drive/SwerveControl.h"
+#include "Intake/Intake.h"
 #include "Drive/SwerveModule.h"
 #include "Util/thirdparty/simplevectors.hpp"
 
@@ -48,6 +49,8 @@ class Robot : public frc::TimedRobot {
 
   //Controller
   Controller m_controller;
+
+  Intake m_intake;
 
   // temp odometry
   vec::Vector2D m_pos;

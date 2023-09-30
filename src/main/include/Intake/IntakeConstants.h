@@ -17,6 +17,11 @@ namespace IntakeConstants{
     const double EXTEND_DEPLOY_P = 0.0; // corrects position error
     const double EXTEND_DEPLOY_I = 0.0; // accounts for cumulative pos err
     const double EXTEND_DEPLOY_D = 0.0; // corrects velocity error
+
+    //pid correction to stay stowed
+    const double STOW_P = 0.0;
+    const double STOW_I = 0.0;
+    const double STOW_D = 0.0;
     
     //trapezoidal motion profiling
     const double WRIST_MAX_VEL = 0.0; //rads per sec

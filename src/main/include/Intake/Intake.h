@@ -2,6 +2,7 @@
 #include <ctre/Phoenix.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DutyCycleEncoder.h>
+#include <frc/controller/PIDController.h>
 
 class Intake{
     public:
@@ -58,5 +59,7 @@ class Intake{
                m_totalErr = 0; // integral of position error for PID
 
         double m_rollerVolts;
+
+        frc2::PIDController m_stowedPIDcontroller{IntakeConstants::STOW_P,IntakeConstants::STOW_I,IntakeConstants::STOW_D};
         //add caleb's lidar class when thats a thing
 };

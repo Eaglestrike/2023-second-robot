@@ -1,13 +1,7 @@
 #include "Intake/Intake.h"
 
-/*
-todo: make roller speed variable,
-make angle variable
-offset so that 0 is parallel w/ ground extended
-*/
 Intake::Intake(){}
 
-//TODO:: Convert encoder steps to rads;
 void Intake::UpdatePose(){
     m_curPos = m_wristEncoder.GetAbsolutePosition() * 2 * M_PI + IntakeConstants::WRIST_ABS_ENCODER_OFFSET; // might need to negate or do some wrap around calculations
     double stepsPerSec = m_wristMotor.GetSelectedSensorVelocity() * 10; // fn returns steps per 100 ms so multiply by 1/10 for per sec
@@ -21,8 +15,11 @@ void Intake::TeleopPeriodic(){
     UpdatePose();
     switch (m_state){
         case STOPPED:
-        case STOWED:
             m_wristMotor.SetVoltage(units::volt_t(0));
+            m_rollerMotor.SetVoltage(units::volt_t(0));
+            break;
+        case STOWED:
+            m_wristMotor.SetVoltage(units::volt_t(std::clamp(m_stowedPIDcontroller.Calculate(IntakeConstants::STOWED_POS - m_curPos), -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
             m_rollerMotor.SetVoltage(units::volt_t(0));
             break;
         case STOWING:
@@ -46,7 +43,7 @@ double Intake::FFPIDCalculate(){
     velErr = m_targetVel - m_curVel;
     m_totalErr += posErr;
     double pid = m_kp*posErr + m_kd*velErr + m_ki*m_totalErr;
-    double ff = m_g + m_s*m_targetPos + m_v*m_targetVel + m_a*m_targetAcc;
+    double ff = m_g*cos(m_targetPos) + m_s*((m_targetVel > 0) ? 1.0 : -1.0 ) + m_v*m_targetVel + m_a*m_targetAcc;
     if (dbg){
         frc::SmartDashboard::PutNumber("posErr", posErr); 
         frc::SmartDashboard::PutNumber("velErr", velErr); 
@@ -67,7 +64,7 @@ void Intake::ChangeWristPos(double newPos){
 }
 
 void Intake::ChangeRollerVoltage(double newVoltage, bool outtake){
-    m_rollerVolts = abs(newVoltage);
+    m_rollerVolts = fabs(newVoltage);
     if (outtake) m_rollerVolts *= -1;
 }
 
@@ -104,7 +101,7 @@ void Intake::SetSetpoint(double setpt){
 }
 
 bool Intake::AtSetpoint(){
-    if (abs(m_curPos - m_setPt) <= IntakeConstants::WRIST_POS_TOLERANCE)
+    if (fabs(m_curPos - m_setPt) <= IntakeConstants::WRIST_POS_TOLERANCE)
         return true;
     return false;
 }
@@ -120,7 +117,7 @@ void Intake::ResetPID(){
 
 void Intake::CalcVelTurnPos(){
     double MAX_VEL = IntakeConstants::WRIST_MAX_VEL, MAX_ACC = IntakeConstants::WRIST_MAX_ACC;
-    if(abs(m_setPt - m_curPos) < MAX_VEL*MAX_VEL/MAX_ACC){ // for triangle motion profile
+    if(fabs(m_setPt - m_curPos) < MAX_VEL*MAX_VEL/MAX_ACC){ // for triangle motion profile
         m_velTurnPos = (m_setPt+m_curPos)/2;
     } else if (m_setPt > m_curPos)
         m_velTurnPos = m_setPt - MAX_VEL*MAX_VEL/(MAX_ACC*2);

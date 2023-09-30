@@ -10,7 +10,7 @@
  *
  * @returns a or b, depending on which one has a lesser absolute value
  */
-double Mathutil::AbsMin(const double a, const double b)
+double Utils::AbsMin(const double a, const double b)
 {
   return std::abs(a) < std::abs(b) ? a : b;
 }
@@ -24,7 +24,7 @@ double Mathutil::AbsMin(const double a, const double b)
  *
  * @returns The averaged vector
  */
-vec::Vector2D Mathutil::GetVecAverage(const std::vector<vec::Vector2D> vectors)
+vec::Vector2D Utils::GetVecAverage(const std::vector<vec::Vector2D> vectors)
 {
   vec::Vector2D res;
   if (vectors.size() == 0)
@@ -48,7 +48,7 @@ vec::Vector2D Mathutil::GetVecAverage(const std::vector<vec::Vector2D> vectors)
  * @param num Number
  * @param tolerance Tolerance for being near zero
  */
-bool Mathutil::NearZero(const double num, const double tolerance)
+bool Utils::NearZero(const double num, const double tolerance)
 {
   return std::abs(num) <= tolerance;
 }
@@ -59,7 +59,7 @@ bool Mathutil::NearZero(const double num, const double tolerance)
  * @param vec Vector
  * @param tolerance Tolerance for being near zero
  */
-bool Mathutil::NearZero(const vec::Vector2D vec, const double tolerance)
+bool Utils::NearZero(const vec::Vector2D vec, const double tolerance)
 {
   for (auto component : vec)
   {

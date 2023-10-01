@@ -7,6 +7,7 @@
 #define M_PI 3.1415926535897932384626433
 #endif
 
+#include "Drive/DriveConstants.h"
 #include "Util/Mathutil.h"
 
 /**
@@ -28,7 +29,7 @@ AutoLineup::AutoLineup()
  * @param ang Target orientation, in radians
 */
 void AutoLineup::SetAbsTargetPose(vec::Vector2D target, double ang) {
-  if (m_posState != NOT_EXECUTING) {
+  if (m_posState == EXECUTING_TARGET) {
     return;
   }
 
@@ -43,7 +44,7 @@ void AutoLineup::SetAbsTargetPose(vec::Vector2D target, double ang) {
  * @param ang Target orientation relative to current oreintaion, in radians
 */
 void AutoLineup::SetRelTargetPose(vec::Vector2D delta, double ang) {
-  if (m_posState != NOT_EXECUTING) {
+  if (m_posState == EXECUTING_TARGET) {
     return;
   }
 
@@ -61,7 +62,7 @@ void AutoLineup::SetRelTargetPose(vec::Vector2D delta, double ang) {
  * @param ffPos Feed forward parameters
 */
 void AutoLineup::SetFFPos(FFConfig ffPos) {
-  if (m_posState == NOT_EXECUTING) {
+  if (m_posState != EXECUTING_TARGET) {
     m_ffPos.maxAccel = ffPos.maxAccel;
     m_ffPos.maxSpeed = ffPos.maxSpeed;
   }
@@ -75,7 +76,7 @@ void AutoLineup::SetFFPos(FFConfig ffPos) {
  * @param ffAng Feed fowrad parameters
 */
 void AutoLineup::SetFFAng(FFConfig ffAng) {
-  if (m_angState == NOT_EXECUTING) {
+  if (m_angState != EXECUTING_TARGET) {
     m_ffAng.maxAccel = ffAng.maxAccel;
     m_ffAng.maxSpeed = ffAng.maxSpeed;
   }
@@ -85,7 +86,7 @@ void AutoLineup::SetFFAng(FFConfig ffAng) {
  * Starts executing the move both in translational motion
 */
 void AutoLineup::StartPosMove() {
-  if (m_posState != NOT_EXECUTING) {
+  if (m_posState == EXECUTING_TARGET) {
     return;
   }
 
@@ -109,7 +110,7 @@ void AutoLineup::StartPosMove() {
  * Start execuitng move in angular motion
 */
 void AutoLineup::StartAngMove() {
-  if (m_angState != NOT_EXECUTING) {
+  if (m_angState == EXECUTING_TARGET) {
     return;
   }  
   // calculates angular distance
@@ -203,6 +204,52 @@ AutoLineup::ExecuteState AutoLineup::GetAngExecuteState() const {
 }
 
 /**
+ * Returns whether robot translational position is at the target
+ * 
+ * Assumes autoconstant error tolerance
+ * 
+ * @returns Wheter robot is where it is supposed to be positionally at the end of profile
+*/
+bool AutoLineup::AtPosTarget() const {
+  return AtPosTarget(AutoConstants::POS_ERR_TOLERANCE, AutoConstants::VEL_ERR_TOLERANCE);
+}
+
+/**
+ * Returns wheter robot translational position is at target
+ * 
+ * @param posErrTol position error tolerance
+ * @param velErrTol velocity error tolerance
+ * 
+ * @returns Whether robot is where it is supposed to be positionally at the end of profile
+*/
+bool AutoLineup::AtPosTarget(double posErrTol, double velErrTol) const {
+  return Utils::NearZero(m_targetPos - m_curPos, posErrTol) && Utils::NearZero(m_curVel, velErrTol);
+}
+
+/**
+ * Returns whether robot angular position is at the target
+ * 
+ * Assumes autoconstant error tolerance
+ * 
+ * @returns Whether robot is where it is supposed to be angularly at the end of profile
+*/
+bool AutoLineup::AtAngTarget() const {
+  return AtAngTarget(AutoConstants::POS_ERR_TOLERANCE, AutoConstants::VEL_ERR_TOLERANCE);
+}
+
+/**
+ * Returns wheter robot angular position is at target
+ * 
+ * @param posErrTol position error tolerance
+ * @param velErrTol velocity error tolerance
+ * 
+ * @returns Wheter robot is where it is supposed to be angularly at the end of profile
+*/
+bool AutoLineup::AtAngTarget(double posErrTol, double velErrTol) const {
+  return Utils::NearZero(m_targetAng - m_curAng, posErrTol) && Utils::NearZero(m_curAngVel, velErrTol);
+}
+
+/**
  * Periodic function
 */
 void AutoLineup::Periodic() { 
@@ -223,11 +270,17 @@ void AutoLineup::Periodic() {
       // vec::Vector2D correctionVel = GetPIDTransVel(deltaT, ffVel);
       vec::Vector2D totalVel = ffVel + correctionVel;
 
-      // may need to change to checking setpoints
-      if (curTime <= m_posTimes.endT || !Utils::NearZero(totalVel)) {
-        m_curVel = totalVel;
-      } else {
-        m_curVel = {0, 0};
+      m_curVel = totalVel;
+
+      if (AtPosTarget()) {
+        m_posState = AT_TARGET;
+      }
+
+      break;
+    }
+    case AT_TARGET:
+    {
+      if (!AtPosTarget()) {
         m_posState = NOT_EXECUTING;
       }
 
@@ -258,12 +311,19 @@ void AutoLineup::Periodic() {
       // frc::SmartDashboard::PutNumber("cur dist", m_dist);
       // m_dist += angSpeed * 0.02;
 
-      if (curTime <= m_angTimes.endT || !Utils::NearZero(totalVel)) {
-        m_curAngVel = totalVel;
-      } else {
-        m_curAngVel = 0;
+      m_curAngVel = totalVel;
+
+      if (AtAngTarget()) {
+        m_angState = AT_TARGET;
+      }
+      break;
+    }
+    case AT_TARGET:
+    {
+      if (!AtAngTarget()) {
         m_angState = NOT_EXECUTING;
       }
+
       break;
     }
   }

@@ -28,6 +28,7 @@ public:
   enum ExecuteState {
     NOT_EXECUTING,
     EXECUTING_TARGET,
+    AT_TARGET
   };
 
   AutoLineup();
@@ -47,7 +48,6 @@ public:
 
   vec::Vector2D GetVel() const;
   double GetAngVel() const;
-
   ExecuteState GetPosExecuteState() const;
   ExecuteState GetAngExecuteState() const;
 
@@ -106,6 +106,11 @@ private:
 
   vec::Vector2D GetPIDTransVel(double deltaT, vec::Vector2D expectedVel);
   // double GetPIDAngVel(double deltaT, vec::Vector2D expectedAngVel);
+
+  bool AtPosTarget() const;
+  bool AtAngTarget() const;
+  bool AtPosTarget(double posErrTol, double velErrTol) const;
+  bool AtAngTarget(double posErrTol, double velErrTol) const;
 
   // TEMP
   // double m_dist;

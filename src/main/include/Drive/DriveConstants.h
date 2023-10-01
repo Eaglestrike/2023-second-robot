@@ -102,3 +102,8 @@ namespace OdometryConstants {
   // for cam data greater than AT_REJECT meters, we reject
   const double AT_REJECT = 6;
 }
+
+namespace AutoConstants {
+  const double POS_ERR_TOLERANCE = 0.01;
+  const double VEL_ERR_TOLERANCE = 0.01;
+}

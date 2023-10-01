@@ -4,29 +4,51 @@
 
 #pragma once
 
-#include <frc/TimedRobot.h>
+#include <array>
+#include <memory>
+#include <string>
 
-#include "LidarReader.h"
+#include <AHRS.h>
+#include <frc/TimedRobot.h>
+#include <frc/smartdashboard/SendableChooser.h>
+
+#include "Controller/Controller.h"
+#include "Drive/SwerveControl.h"
+#include "Drive/SwerveModule.h"
+#include "Util/thirdparty/simplevectors.hpp"
+
+namespace vec = svector;
 
 class Robot : public frc::TimedRobot {
-  public:
-    void RobotInit() override;
-    void RobotPeriodic() override;
+ public:
+  Robot();
 
-    void AutonomousInit() override;
-    void AutonomousPeriodic() override;
+  void RobotInit() override;
+  void RobotPeriodic() override;
+  void AutonomousInit() override;
+  void AutonomousPeriodic() override;
+  void TeleopInit() override;
+  void TeleopPeriodic() override;
+  void DisabledInit() override;
+  void DisabledPeriodic() override;
+  void TestInit() override;
+  void TestPeriodic() override;
+  void SimulationInit() override;
+  void SimulationPeriodic() override;
 
-    void TeleopInit() override;
-    void TeleopPeriodic() override;
+ private:
+  // IMU acclerometer and gyroscope
+  // Gives information on orientation and acceleration
+  std::shared_ptr<AHRS> m_navx;
 
-    void DisabledInit() override;
-    void DisabledPeriodic() override;
+  // swerve
+  SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
+  vec::Vector2D m_rFr, m_rBr, m_rFl, m_rBl;
+  std::shared_ptr<SwerveControl> m_swerveController;
 
-    void TestInit() override;
-    void TestPeriodic() override;
+  //Controller
+  Controller m_controller;
 
-    void SimulationInit() override;
-    void SimulationPeriodic() override;
-  private:
-    LidarReader lidar_;
+  // temp odometry
+  vec::Vector2D m_pos;
 };

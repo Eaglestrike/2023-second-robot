@@ -304,6 +304,7 @@ void AutoLineup::Periodic() {
     }
     case AT_TARGET:
     {
+      m_curVel = {0, 0};
       if (!AtPosTarget()) {
         m_posState = NOT_EXECUTING;
       }
@@ -344,6 +345,7 @@ void AutoLineup::Periodic() {
     }
     case AT_TARGET:
     {
+      m_curAngVel = 0;
       if (!AtAngTarget()) {
         m_angState = NOT_EXECUTING;
       }

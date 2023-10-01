@@ -200,7 +200,8 @@ void Robot::RobotPeriodic()
     double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
     // double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
     // m_autoLineup.SetRelTargetPose({0, 0}, deltaAng);
-    m_autoLineup.SetRelTargetPose({deltaX, deltaY}, 0);
+    // m_autoLineup.SetRelTargetPose({deltaX, deltaY}, 0);
+    m_autoLineup.SetPosTarget({deltaX, deltaY}, true);
 
     // m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
   }

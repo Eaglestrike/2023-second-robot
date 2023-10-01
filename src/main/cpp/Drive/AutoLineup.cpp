@@ -23,35 +23,59 @@ AutoLineup::AutoLineup()
 
 
 /**
- * Sets absolute target pose for robot
+ * Sets translational position target for robot
  * 
- * @param target Taraget position, in world coordinates
- * @param ang Target orientation, in radians
+ * @param pos Absolute position, if rel is true, otherwise delta position
+ * @param rel Whether pos parameter should be interpreted as absolute on field or relative to current pos
 */
-void AutoLineup::SetAbsTargetPose(vec::Vector2D target, double ang) {
+void AutoLineup::SetPosTarget(vec::Vector2D pos, bool rel) {
   if (m_posState == EXECUTING_TARGET) {
     return;
   }
 
-  m_targetPos = target;
-  m_targetAng = Utils::NormalizeAng(ang);
+  if (rel) {
+    m_targetPos = m_curPos + pos;
+  } else {
+    m_targetPos = pos;
+  }
 }
 
 /**
- * Sets relative target pose for robot
+ * Sets angular position target for robot
  * 
- * @param target Taraget position relative to current position
- * @param ang Target orientation relative to current oreintaion, in radians
+ * @param ang Absolute angle, if rel is true, otherwise delta position
+ * @param rel Whether pos parameter should be interpreted as absolute on field or relative to current pos
+ * 
+ * @note ang parameter will be normalized to -180 to 180 if outside range
 */
-void AutoLineup::SetRelTargetPose(vec::Vector2D delta, double ang) {
+void AutoLineup::SetAngTarget(double ang, bool rel) {
   if (m_posState == EXECUTING_TARGET) {
     return;
   }
 
-  frc::SmartDashboard::PutString("Cur Pos", m_curPos.toString());
+  if (rel) {
+    m_targetAng = Utils::NormalizeAng(m_curAng + ang);
+  } else {
+    m_targetAng = Utils::NormalizeAng(ang);
+  }
+}
 
-  m_targetPos = m_curPos + delta;
-  m_targetAng = Utils::NormalizeAng(m_curAng + ang);
+/**
+ * Sets both position and angular position target for robot
+ * 
+ * @param pos Absolute position, if rel is true, otherwise delta position
+ * @param ang Absolute angle, if rel is true, otherwise delta position
+ * @param rel Whether pos parameter should be interpreted as absolute on field or relative to current pos
+ * 
+ * @note ang parameter will be normalized to -180 to 180 if outside range
+*/
+void AutoLineup::SetTarget(vec::Vector2D pos, double ang, bool rel) {
+  if (m_posState == EXECUTING_TARGET) {
+    return;
+  }
+
+  SetPosTarget(pos, rel);
+  SetAngTarget(ang, rel);
 }
 
 /**

@@ -31,6 +31,10 @@ void AutoPath::SetAngPID(double kP, double kI, double kD) {
   m_autoLineup.SetAngPID(kP, kI, kD);
 }
 
+void AutoPath::SetFFAng(AutoLineup::FFConfig ffAng) {
+  m_autoLineup.SetFFAng(ffAng);
+}
+
 void AutoPath::Stop() {
   m_curState = NOT_EXECUTING;
 }

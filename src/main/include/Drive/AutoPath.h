@@ -35,6 +35,7 @@ public:
   void ResetPath();
   void SetPosPID(double kP, double kI, double kD);
   void SetAngPID(double kP, double kI, double kD);
+  void SetFFAng(AutoLineup::FFConfig ffAng);
   void Stop();
   void StartMove();
   void UpdateOdom(vec::Vector2D curPos, double curAng);

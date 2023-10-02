@@ -61,6 +61,10 @@ void LidarReader::Periodic(bool autoRequest){
 
     frc::SmartDashboard::PutBoolean("Lidar Responding", data_.isValid);
 
+    readData();
+}
+
+void LidarReader::readData(){
     //Check buffer size
     int bufferSize = port_.GetBytesReceived();
     if(bufferSize == 0){

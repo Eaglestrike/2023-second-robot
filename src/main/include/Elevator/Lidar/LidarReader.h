@@ -43,6 +43,7 @@ class LidarReader{
         double getRecordedTime();
 
     private:
+        void readData();
         void storeData(const char data[4]);
         bool isValidData(const char data[4]);
         void findOffset();

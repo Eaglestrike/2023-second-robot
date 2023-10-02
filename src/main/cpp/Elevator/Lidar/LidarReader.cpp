@@ -8,16 +8,18 @@
 /// @brief Constructor
 LidarReader::LidarReader():
     port_(LidarReaderConstants::BAUD_RATE, LidarReaderConstants::LIDAR_PORT),
-    reqTime_(frc::Timer::GetFPGATimestamp().value()),
     isRequesting_(false)
 {
     frc::SmartDashboard::PutBoolean("Lidar Responding", true);
+    double time = frc::Timer::GetFPGATimestamp().value();
+    reqTime_ = time;
     data_ = LidarData{
             .conePos = LidarReaderConstants::DEFAULT_POSITION,
             .cubePos = LidarReaderConstants::DEFAULT_POSITION,
             .hasCone = false,
             .hasCube = false,
-            .isValid = false
+            .isValid = false,
+            .readTime = time
         };
 }
 
@@ -32,23 +34,31 @@ void LidarReader::RequestData(){
 }
 
 /// @brief Should be called in perioidic - reads port and stores data
-void LidarReader::Periodic(){
+/// @param autoRequest requests data if invalid data
+void LidarReader::Periodic(bool autoRequest){
+    double time = frc::Timer::GetFPGATimestamp().value();
+
+    if(autoRequest && !data_.isValid){
+        RequestData();
+    }
+
+    //Check how stale data is
+    if(time - data_.readTime > LidarReaderConstants::VALID_DATA_TIME){
+        data_.isValid = false;
+    }
+
     //If not requesting, do nothing
     if(!isRequesting_){
         return;
     }
 
     //Check if it is responding in time
-    if(frc::Timer::GetFPGATimestamp().value() - reqTime_ > LidarReaderConstants::RESPONSE_TIME){
-        data_.isValid = false;
+    if(time - reqTime_ > LidarReaderConstants::RESPONSE_TIME){
         isRequesting_ = false;
         port_.Reset();
-        RequestData();
         std::cout<<"Failed Requesting Lidar Data"<<std::endl;
     }
-    else{
-        data_.isValid = true;
-    }
+
     frc::SmartDashboard::PutBoolean("Lidar Responding", data_.isValid);
 
     //Check buffer size
@@ -94,6 +104,8 @@ void LidarReader::storeData(const char data[4]){
     data_.hasCube = readData_[2] == LidarReaderConstants::NO_READ;
     data_.hasCone = data_.hasCone? ((double)readData_[1]) : LidarReaderConstants::DEFAULT_POSITION;
     data_.hasCube = data_.hasCube? ((double)readData_[2]) : LidarReaderConstants::DEFAULT_POSITION;
+    data_.isValid = true;
+    data_.readTime = frc::Timer::GetFPGATimestamp().value();
 }
 
 /// @brief Checks if data is valid via the check sum and response key
@@ -159,4 +171,10 @@ bool LidarReader::hasCube(){
 /// @return if data is valid
 bool LidarReader::validData(){
     return data_.isValid;
+}
+
+/// @brief Returns when the data was recorded
+/// @return seconds
+double LidarReader::getRecordedTime(){
+    return data_.readTime;
 }

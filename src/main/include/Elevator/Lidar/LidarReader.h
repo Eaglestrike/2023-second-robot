@@ -12,6 +12,8 @@ namespace LidarReaderConstants{
 
     const double RESPONSE_TIME = 1.0; //Maximum time to respond for valid data
 
+    const double VALID_DATA_TIME = 3.0; //Time in which data is valid
+
     const char NO_READ = 255; //Value if lidar doesn't see anything
 
     const double DEFAULT_POSITION = 30.0; //cm
@@ -25,11 +27,12 @@ class LidarReader{
             bool hasCone;
             bool hasCube;
             bool isValid;
+            double readTime; //Time in which data was recorded
         };
 
         LidarReader();
         void RequestData();
-        void Periodic();
+        void Periodic(bool autoRequest = false);
 
         LidarData getData();
         double getConePos();
@@ -37,6 +40,7 @@ class LidarReader{
         bool hasCone();
         bool hasCube();
         bool validData();
+        double getRecordedTime();
 
     private:
         void storeData(const char data[4]);

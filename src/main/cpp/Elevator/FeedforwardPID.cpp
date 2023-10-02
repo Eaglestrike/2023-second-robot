@@ -146,6 +146,7 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     velocity_time = velocity_time < 0 ? 0.0 : velocity_time;
     frc::SmartDashboard::PutNumber("vel time: ", velocity_time);
 
+    // whether moving up or down
     double reversed_coefficient = reversed ? -1.0 : 1.0;
 
     frc::SmartDashboard::PutBoolean("phase 1", false);
@@ -157,8 +158,8 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     {
         frc::SmartDashboard::PutBoolean("phase 1", true);
         pose.acceleration = reversed_coefficient * max_acceleration;
-        pose.velocity = max_acceleration * time;
-        pose.position = 0.5 * pose.velocity * time;
+        pose.velocity = reversed_coefficient * max_acceleration * time;
+        pose.position = reversed_coefficient * 0.5 * pose.velocity * time;
     }
 
     // if in the velocity phase
@@ -168,7 +169,7 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
         pose.acceleration = 0.0;
         pose.velocity = reversed_coefficient * max_velocity;
         // adds phase 1 to however much of phase 2 has been gone through
-        pose.position = 0.5 * max_velocity * acceleration_time + max_velocity * (time - acceleration_time);
+        pose.position = reversed_coefficient * 0.5 * max_velocity * acceleration_time + max_velocity * reversed_coefficient * (time - acceleration_time);
     }
 
     // if in the deceleration phase
@@ -176,15 +177,15 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     {
         frc::SmartDashboard::PutBoolean("phase 3", true);
 
-        double first_phase_distance = 0.5 * max_velocity * acceleration_time;
-        double second_phase_distance = max_velocity * velocity_time;
+        double first_phase_distance = reversed_coefficient * 0.5 * max_velocity * acceleration_time;
+        double second_phase_distance = reversed_coefficient * max_velocity * velocity_time;
         double time_in_triangle = time - (acceleration_time + velocity_time);
 
         pose.acceleration = -1.0 * reversed_coefficient * max_acceleration;
         pose.velocity = reversed_coefficient * max_velocity - (reversed_coefficient * max_acceleration * (time_in_triangle));
 
         // trapezoidal area
-        double third_phase_distance = (max_velocity + pose.velocity) / 2.0 * time_in_triangle;
+        double third_phase_distance = reversed_coefficient * (max_velocity + pose.velocity) / 2.0 * time_in_triangle;
 
         pose.position = first_phase_distance + second_phase_distance + third_phase_distance;
     }

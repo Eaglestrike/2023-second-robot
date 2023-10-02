@@ -1,13 +1,39 @@
 #include "util/TrapezoidalMotionProfile.h"
 
+/**
+ * Constructor
+ * 
+ * @param MAX_VEL maximum velocity
+ * @param MAX_ACC max acceleration
+ * @param curPos current position
+ * @param setPt setpoint
+ * 
+ * @note If MAX_VEL or MAX_ACC is 0, then sets the value to 1 to avoid calculation errors,
+ * and if either is negative, uses absolute value
+*/
 TrapezoidalMotionProfile::TrapezoidalMotionProfile(double MAX_VEL, double MAX_ACC, double curPos, double setPt): 
-m_maxVel{fabs(MAX_VEL)}, m_maxAcc{fabs(MAX_ACC)}{
+m_maxVel{std::abs(MAX_VEL)}, m_maxAcc{std::abs(MAX_ACC)}{
         SetSetpoint(curPos, setPt);
 }
 
+/**
+ * Constructor
+ * 
+ * @param MAX_VEL maximum velocity
+ * @param MAX_ACC max acceleration
+ * 
+ * @note If MAX_VEL or MAX_ACC is 0, then sets the value to 1 to avoid calculation errors,
+ * and if either is negative, uses absolute value
+*/
 TrapezoidalMotionProfile::TrapezoidalMotionProfile(double MAX_VEL, double MAX_ACC): 
-m_maxVel{fabs(MAX_VEL)}, m_maxAcc{fabs(MAX_ACC)}{}
+m_maxVel{std::abs(MAX_VEL)}, m_maxAcc{std::abs(MAX_ACC)}{}
 
+/**
+ * Sets setpoint
+ * 
+ * @param curPos current position
+ * @param setPt setpoint
+*/
 void TrapezoidalMotionProfile::SetSetpoint(double curPos, double setPt){
     m_setPt = setPt;
     m_targetPos = curPos;
@@ -17,12 +43,27 @@ void TrapezoidalMotionProfile::SetSetpoint(double curPos, double setPt){
     CalcVelTurnPos(curPos, setPt);
 }
 
-bool TrapezoidalMotionProfile::AtSetPoint(){
+/**
+ * Determines whether profile is at setpoint
+ * 
+ * @returns Whether profile is at setpoint
+*/
+bool TrapezoidalMotionProfile::AtSetPoint() const {
     if (m_targetVel == 0.0 && m_curTime != -1) return true;
     return false;
 }
 
+/**
+ * Calculaates position where velocity should start deceleraating
+ * 
+ * @param curPos current position
+ * @param setPt setpoint
+*/
 void TrapezoidalMotionProfile::CalcVelTurnPos(double curPos, double setPt){
+    if (m_maxAcc <= 0 || m_maxVel <= 0) {
+        return;
+    }
+
     if(fabs(setPt - curPos) < m_maxVel*m_maxVel/m_maxAcc){ // for triangle motion profile
         m_velTurnPos = (m_setPt+curPos)/2;
     } else if (m_setPt > curPos)
@@ -31,7 +72,14 @@ void TrapezoidalMotionProfile::CalcVelTurnPos(double curPos, double setPt){
         m_velTurnPos = m_setPt + m_maxVel*m_maxVel/(m_maxAcc*2);
 }
 
+/**
+ * Periodic
+*/
 void TrapezoidalMotionProfile::Periodic(){
+    if (m_maxAcc <= 0 || m_maxVel <= 0) {
+        return;
+    }
+
     double newP = m_targetPos, newV = m_targetVel, newA = m_targetAcc;
     
     newP += m_targetVel;
@@ -59,14 +107,73 @@ void TrapezoidalMotionProfile::Periodic(){
     m_targetAcc = newA;
 }
 
-double TrapezoidalMotionProfile::GetPosition(){
+/**
+ * Gets position
+ * 
+ * @returns Position
+*/
+double TrapezoidalMotionProfile::GetPosition() const{
     return m_targetPos;
 }
 
-double TrapezoidalMotionProfile::GetVelocity(){
+/**
+ * Gets velocity
+ * 
+ * @returns velocity
+*/
+double TrapezoidalMotionProfile::GetVelocity() const{
     return m_targetVel;
 }
 
-double TrapezoidalMotionProfile::GetAcceleration(){
+/**
+ * Gets acceleraiton
+ * 
+ * @returns acel
+*/
+double TrapezoidalMotionProfile::GetAcceleration() const{
     return m_targetAcc;
+}
+
+/**
+ * Gets max acceleraiton
+ * 
+ * @returns maxaccel
+*/
+double TrapezoidalMotionProfile::GetMaxAcc() const {
+    return m_maxAcc;
+}
+
+/**
+ * Gets max velocity
+ * 
+ * @returns maxvel
+*/
+double TrapezoidalMotionProfile::GetMaxVel() const {
+    return m_maxVel;
+}
+
+/**
+ * Sets max velocity
+ * 
+ * @param maxVel max velocity
+*/
+void TrapezoidalMotionProfile::SetMaxVel(double maxVel) {
+    if (maxVel == 0) {
+        return;
+    }
+
+    m_maxVel = std::abs(maxVel);
+}
+
+/**
+ * Sets max accel
+ * 
+ * @param maxAcc max accel
+*/
+void TrapezoidalMotionProfile::SetMaxAcc(double maxAcc) {
+    if (maxAcc == 0) {
+        return;
+    }
+
+    m_maxAcc = std::abs(maxAcc);
 }

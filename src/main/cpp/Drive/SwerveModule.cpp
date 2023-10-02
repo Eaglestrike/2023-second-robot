@@ -87,7 +87,7 @@ void SwerveModule::SetVector(vec::Vector2D vec)
 {
   m_targetSpeed = vec::magn(vec);
 
-  if (!Mathutil::NearZero(vec))
+  if (!Utils::NearZero(vec))
   {
     m_targetAngle = vec::normalize(vec);
   }

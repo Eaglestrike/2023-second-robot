@@ -7,13 +7,12 @@ namespace LidarReaderConstants{
     const char REQ[] = {0x59}; //Request write char
     const char RES = 0x59; //Respond read char
 
-    const int BAUD_RATE = 115200;
+    const int BAUD_RATE = 115200; //Speed of communication
     const frc::SerialPort::Port LIDAR_PORT = frc::SerialPort::kMXP;
-    const double RESPONSE_TIME = 1.0;
+
+    const double RESPONSE_TIME = 1.0; //Maximum time to respond for valid data
 
     const char NO_READ = 255; //Value if lidar doesn't see anything
-
-    const int READ_BUFFER_SIZE = 8;
 
     const double DEFAULT_POSITION = 30.0; //cm
 };
@@ -21,8 +20,8 @@ namespace LidarReaderConstants{
 class LidarReader{
     public:
         struct LidarData{
-            double conePos;
-            double cubePos;
+            double conePos; //cm
+            double cubePos; //cm
             bool hasCone;
             bool hasCube;
             bool isValid;
@@ -32,12 +31,12 @@ class LidarReader{
         void RequestData();
         void Periodic();
 
-        LidarData getData(){return data_;}
-        double getConePos(){return data_.conePos;}
-        double getCubePos(){return data_.cubePos;}
-        bool hasCone(){return data_.hasCone;}
-        bool hasCube(){return data_.hasCube;}
-        bool validData(){return data_.isValid;}
+        LidarData getData();
+        double getConePos();
+        double getCubePos();
+        bool hasCone();
+        bool hasCube();
+        bool validData();
 
     private:
         bool checkValid(const char data[4]);
@@ -47,7 +46,7 @@ class LidarReader{
         double reqTime_; //Time since last request
         bool isRequesting_ = false; //If currently there is a call
 
-        char readBuffer_[12]; //Reads max 12 bytes
+        char readBuffer_[8]; //Reads to this char array
         char readData_[7]; //[3 old values (for checks/adjustments), RES, cone, cube, check]
         int readIndex_ = 0; //Number of bytes currently read
 

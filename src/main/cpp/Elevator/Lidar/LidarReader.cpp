@@ -5,6 +5,7 @@
 
 #include "frc/smartdashboard/SmartDashboard.h"
 
+/// @brief Constructor
 LidarReader::LidarReader():
     port_(LidarReaderConstants::BAUD_RATE, LidarReaderConstants::LIDAR_PORT)
 {
@@ -50,7 +51,7 @@ void LidarReader::Periodic(){
     //Read Data
     if(bufferSize > 8){
         std::cout<<"Big Lidar Buffer"<<std::endl;
-        for(int s = 0; s < bufferSize - 8; s += 4){ //Clear Buffer
+        for(int s = 0; s < bufferSize - 8; s += 4){ //Clear Buffer in intervals of 
             port_.Read(readBuffer_, 4);
         }
     }
@@ -62,7 +63,7 @@ void LidarReader::Periodic(){
         readIndex_++;
         //Has read 4 bytes
         if(readIndex_ == 4){
-            //Reset readData
+            //Reset reading to start of data
             readIndex_ = 0;
             isRequesting_ = false;
 
@@ -85,7 +86,7 @@ void LidarReader::Periodic(){
     }
 }
 
-/// @brief Checks if data is valid
+/// @brief Checks if data is valid via the check sum
 /// @param data 4 chars
 /// @return boolean
 bool LidarReader::checkValid(const char data[4]){
@@ -100,7 +101,7 @@ bool LidarReader::checkValid(const char data[4]){
     return true;
 }
 
-/// @brief finds the offset and stores it
+/// @brief finds the offset, then changes the readindex
 void LidarReader::findOffset(){
     for(int off = 0; off<3; off++){
         //Check offset
@@ -111,4 +112,40 @@ void LidarReader::findOffset(){
             return;
         }
     }
+}
+
+/// @brief Gets the current data
+/// @return LidarData struct with all info
+LidarReader::LidarData LidarReader::getData(){
+    return data_;
+}
+
+/// @brief Gets the cone position in cm
+/// @return cm
+double LidarReader::getConePos(){
+    return data_.conePos;
+}
+
+/// @brief Gets the cube position in cm
+/// @return cm
+double LidarReader::getCubePos(){
+    return data_.cubePos;
+}
+
+/// @brief returns if the lidar senses a cone
+/// @return if the lidar senses a cone
+bool LidarReader::hasCone(){
+    return data_.hasCone;
+}
+
+/// @brief returns if the lidar senses a cube
+/// @return if the lidar senses a cube
+bool LidarReader::hasCube(){
+    return data_.hasCube;
+}
+
+/// @brief returns if the data is valid (collected within some time)
+/// @return if data is valid
+bool LidarReader::validData(){
+    return data_.isValid;
 }

@@ -6,11 +6,23 @@
 #define M_PI 3.141592653589793238462643383279502884197169399
 #endif
 
+/**
+ * Constructor
+*/
 AutoPath::AutoPath() : 
   m_curAng{0}, m_multiplier{0}, m_curAngVel{0}, m_prevTime{0}, m_prevTimeOdom{0},
   m_calcTrans{100}, m_calcAng{100}, m_curState{NOT_EXECUTING},
   m_kPPos{0}, m_kIPos{0}, m_kDPos{0} {}
 
+/**
+ * Adds a singular pose
+ * 
+ * @param pose Pose to add, an AutoPath::SwervePose object (use initializer list)
+ * 
+ * @note Robot will not take shortest path between angles, to make it take the shortest path,
+ * add or subtract M_PI to angle
+ * @note Units are m, rad, and s
+*/
 void AutoPath::AddPose(SwervePose pose) {
   Pose2 poseTrans = {pose.time, {pose.x, pose.y}, {pose.vx, pose.vy}};
   Pose1 poseAng = {pose.time, {pose.ang}, {pose.angVel}};
@@ -19,39 +31,80 @@ void AutoPath::AddPose(SwervePose pose) {
   m_calcAng.insertOrReplace(poseAng);
 }
 
+/**
+ * Adds a list of poses
+ * 
+ * @param poses Poses to add, a vector of AutoPath::SwervePose objects (use initializer list)
+ * 
+ * @note Robot will not take shortest path between angles, to make it take the shortest path,
+ * add or subtract M_PI to angle
+ * @note Units are m, rad, and s
+*/
 void AutoPath::AddPoses(std::vector<SwervePose> poses) {
   for (auto pose : poses) {
     AddPose(pose);
   }
 }
 
+/**
+ * Clears auto paths
+*/
 void AutoPath::ResetPath() {
   m_calcTrans = Hermite2{100};
   m_calcAng = Hermite1{100};
 }
 
+
+/**
+ * Sets position correction PID
+ * 
+ * @param kP p
+ * @param kI i
+ * @param kD d
+*/
 void AutoPath::SetPosPID(double kP, double kI, double kD) {
   m_kPPos = kP;
   m_kIPos = kI;
   m_kDPos = kD;
 }
 
+/**
+ * Sets angular position correction PID
+ * 
+ * @param kP p
+ * @param kI i
+ * @param kD d
+*/
 void AutoPath::SetAngPID(double kP, double kI, double kD) {
   m_kPAng = kP;
   m_kIAng = kI;
   m_kDAng = kD;
 }
 
+/**
+ * Stops auto path
+*/
 void AutoPath::Stop() {
   m_curState = NOT_EXECUTING;
 }
 
+/**
+ * Starts auto path
+*/
 void AutoPath::StartMove() {
   m_curState = EXECUTING_PATH;
   m_startTime = Utils::GetCurTimeS();
   m_expectFinish = m_calcTrans.getHighestTime();
 }
 
+/**
+ * Updates odometry
+ * 
+ * @note Make sure this is called every cycle
+ * 
+ * @param pos Current position
+ * @param ang Current angle
+*/
 void AutoPath::UpdateOdom(vec::Vector2D curPos, double curAng) {
   m_curPos = curPos;
 
@@ -70,6 +123,9 @@ void AutoPath::UpdateOdom(vec::Vector2D curPos, double curAng) {
   m_curAng = curAng;
 }
 
+/**
+ * Periodic function
+*/
 void AutoPath::Periodic() {
   double curTime = Utils::GetCurTimeS();
   double deltaT = curTime - m_prevTime;
@@ -123,10 +179,25 @@ void AutoPath::Periodic() {
   m_prevTime = curTime;
 }
 
+/**
+ * Returns whether robot  is at the target
+ * 
+ * Assumes autoconstant error tolerance
+ * 
+ * @returns Wheter robot is where it is supposed to be 
+*/
 bool AutoPath::AtTarget() const {
   return AtTarget(AutoConstants::POS_ERR_TOLERANCE, AutoConstants::VEL_ERR_TOLERANCE);
 }
 
+/**
+ * Returns whether robot is at the target
+ * 
+ * @param posErrTol position error tolerance
+ * @param velErrTol velocity error tolerance
+ * 
+ * @returns Whether robot is where it is supposed to be 
+*/
 bool AutoPath::AtTarget(double posErrTol, double velErrTol) const {
   vec::Vector2D targetPos = m_calcTrans.getPos(m_calcTrans.getHighestTime());
   double targetAng = m_calcAng.getPos(m_calcAng.getHighestTime())[0];
@@ -135,10 +206,23 @@ bool AutoPath::AtTarget(double posErrTol, double velErrTol) const {
         && Utils::NearZero(targetAng - GetMultipliedAng(), posErrTol) && Utils::NearZero(m_curAngVel, velErrTol);
 }
 
+/**
+ * Gets angle with multiplier (angle represented as something greater than 180 or smaller than -180)
+ * 
+ * @returns Multiplied angle
+*/
 double AutoPath::GetMultipliedAng() const {
   return m_curAng + m_multiplier * M_PI * 2;
 }
 
+/**
+ * Calculates position PID for trnaslational motion
+ * 
+ * @param deltaT time difference
+ * @param curExpectedPos current expected translational motion
+ * 
+ * @returns Velocity from PID
+*/
 vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos) {
   vec::Vector2D err = curExpectedPos - m_curPos;
 
@@ -151,6 +235,14 @@ vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos)
   return res;
 }
 
+/**
+ * Calculates position PID for trnaslational motion
+ * 
+ * @param deltaT time difference
+ * @param curExpectedPos current expected translational motion
+ * 
+ * @returns Velocity from PID
+*/
 double AutoPath::GetPIDAng(double deltaT, double curExpectedAng) {
   double curAngAbs = m_curAng + m_multiplier * M_PI * 2;
   double err = curExpectedAng - curAngAbs;
@@ -164,15 +256,30 @@ double AutoPath::GetPIDAng(double deltaT, double curExpectedAng) {
   return res;
 }
 
+/**
+ * Gets current translational velocity
+ * 
+ * @returns Translational velocity
+*/
 vec::Vector2D AutoPath::GetVel() const {
   return m_curVel;
 }
 
+/**
+ * Gets current rotational velocity
+ * 
+ * @returns Rotational velocity
+*/
 double AutoPath::GetAngVel() const {
   // TODO add angle calculations
   return m_curAngVel;
 }
 
+/**
+ * Gets current execute state
+ * 
+ * @returns Current execute state
+*/
 AutoPath::ExecuteState AutoPath::GetExecuteState() const {
   return m_curState;
 }

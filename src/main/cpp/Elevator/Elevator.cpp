@@ -6,6 +6,7 @@
 #include "frc/controller/ElevatorFeedforward.h"
 #include <stdio.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <cmath>
 
 /**
  * @brief Construct a new Elevator:: Elevator object
@@ -70,7 +71,7 @@ void Elevator::periodic() {
 void Elevator::evaluateState() {
     double left_position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
 
-    if (ElevatorConstants::MAX_ELEVATOR_EXTENSION - left_position < ElevatorConstants::POSITION_ERROR_TOLERANCE) {
+    if (std::abs(ElevatorConstants::MAX_ELEVATOR_EXTENSION - left_position) < ElevatorConstants::POSITION_ERROR_TOLERANCE) {
         if (current_state == MOVING_TO_DOCKED) {
             current_state = DOCKED;
         }

@@ -39,15 +39,16 @@ class LidarReader{
         bool validData();
 
     private:
-        bool checkValid(const char data[4]);
+        void storeData(const char data[4]);
+        bool isValidData(const char data[4]);
         void findOffset();
 
         frc::SerialPort port_;
         double reqTime_; //Time since last request
-        bool isRequesting_ = false; //If currently there is a call
+        bool isRequesting_; //If currently there is a call
 
         char readBuffer_[8]; //Reads to this char array
-        char readData_[7]; //[3 old values (for checks/adjustments), RES, cone, cube, check]
+        char readData_[8]; //[4 old values (for checks/adjustments), RES, cone, cube, check]
         int readIndex_ = 0; //Number of bytes currently read
 
         LidarData data_;

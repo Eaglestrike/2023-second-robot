@@ -7,9 +7,18 @@
 
 /// @brief Constructor
 LidarReader::LidarReader():
-    port_(LidarReaderConstants::BAUD_RATE, LidarReaderConstants::LIDAR_PORT)
+    port_(LidarReaderConstants::BAUD_RATE, LidarReaderConstants::LIDAR_PORT),
+    reqTime_(frc::Timer::GetFPGATimestamp().value()),
+    isRequesting_(false)
 {
     frc::SmartDashboard::PutBoolean("Lidar Responding", true);
+    data_ = LidarData{
+            .conePos = LidarReaderConstants::DEFAULT_POSITION,
+            .cubePos = LidarReaderConstants::DEFAULT_POSITION,
+            .hasCone = false,
+            .hasCube = false,
+            .isValid = false
+        };
 }
 
 /// @brief Requests Lidar for data
@@ -28,7 +37,6 @@ void LidarReader::Periodic(){
     if(!isRequesting_){
         return;
     }
-    //Futher logic assumes a request is in place
 
     //Check if it is responding in time
     if(frc::Timer::GetFPGATimestamp().value() - reqTime_ > LidarReaderConstants::RESPONSE_TIME){
@@ -36,6 +44,7 @@ void LidarReader::Periodic(){
         isRequesting_ = false;
         port_.Reset();
         RequestData();
+        std::cout<<"Failed Requesting Lidar Data"<<std::endl;
     }
     else{
         data_.isValid = true;
@@ -59,37 +68,38 @@ void LidarReader::Periodic(){
 
     //Verify and store data
     for(int i = 0; i < count; i++){
-        readData_[readIndex_ + 2] = readBuffer_[i];
+        readData_[readIndex_ + 4] = readBuffer_[i]; //Stores in last 4 bytes of array
         readIndex_++;
-        //Has read 4 bytes
-        if(readIndex_ == 4){
-            //Reset reading to start of data
+        if(readIndex_ == 4){ //Has read 4 bytes
             readIndex_ = 0;
             isRequesting_ = false;
 
-            //Checks Validity of read data
-            if(checkValid(readData_)){
-                data_.hasCone = readData_[1] == LidarReaderConstants::NO_READ;
-                data_.hasCube = readData_[2] == LidarReaderConstants::NO_READ;
+            //Check recorded data is good
+            if(isValidData(readData_ + 4)){
+                storeData(readData_ + 4);
             }
             else{
-                data_.hasCone = false;
-                data_.hasCube = false;
                 findOffset();
             }
-            data_.hasCone = data_.hasCone? ((double)readData_[1]) : LidarReaderConstants::DEFAULT_POSITION;
-            data_.hasCube = data_.hasCube? ((double)readData_[2]) : LidarReaderConstants::DEFAULT_POSITION;
 
-            //Fills the last 3 bytes of lastData
-            std::copy(readData_ + 4, readData_ + 7, readData_);
+            //Shifts the array by 4 to left
+            std::copy(readData_+4, readData_+8, readData_);
         }
     }
 }
 
-/// @brief Checks if data is valid via the check sum
+/// @brief stores the data
+void LidarReader::storeData(const char data[4]){
+    data_.hasCone = readData_[1] == LidarReaderConstants::NO_READ;
+    data_.hasCube = readData_[2] == LidarReaderConstants::NO_READ;
+    data_.hasCone = data_.hasCone? ((double)readData_[1]) : LidarReaderConstants::DEFAULT_POSITION;
+    data_.hasCube = data_.hasCube? ((double)readData_[2]) : LidarReaderConstants::DEFAULT_POSITION;
+}
+
+/// @brief Checks if data is valid via the check sum and response key
 /// @param data 4 chars
 /// @return boolean
-bool LidarReader::checkValid(const char data[4]){
+bool LidarReader::isValidData(const char data[4]){
     //Respond invalid
     if(data[0] != LidarReaderConstants::RES){
         return false;
@@ -103,11 +113,12 @@ bool LidarReader::checkValid(const char data[4]){
 
 /// @brief finds the offset, then changes the readindex
 void LidarReader::findOffset(){
-    for(int off = 0; off<3; off++){
-        //Check offset
-        if(checkValid(readData_ + off)){
-            //Shift data
-            std::copy(readData_ + off + 1, readData_ + 7, readData_);
+    //Check all possible offsets
+    for(int off = 1; off < 4; off++){
+        if(isValidData(readData_ + off)){
+            storeData(readData_ + off);
+            //Shift data left
+            std::copy(readData_ + off, readData_ + 8, readData_);
             readIndex_ = off+1;
             return;
         }

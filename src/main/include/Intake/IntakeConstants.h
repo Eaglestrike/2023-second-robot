@@ -19,9 +19,9 @@ namespace IntakeConstants{
     const double EXTEND_DEPLOY_D = 0.0; // corrects velocity error
 
     //pid correction to stay stowed
-    const double STOW_P = 0.0;
-    const double STOW_I = 0.0;
-    const double STOW_D = 0.0;
+    const double STOW_P = EXTEND_DEPLOY_P;
+    const double STOW_I = EXTEND_DEPLOY_I;
+    const double STOW_D = EXTEND_DEPLOY_D;
     
     //trapezoidal motion profiling
     const double WRIST_MAX_VEL = 0.0; //rads per sec

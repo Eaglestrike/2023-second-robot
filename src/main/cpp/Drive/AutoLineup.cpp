@@ -210,7 +210,7 @@ void AutoLineup::StopAng() {
 }
 
 /**
- * Gets current position execute state
+ * Gets current translational execute state
  * 
  * @returns Current execute state
 */

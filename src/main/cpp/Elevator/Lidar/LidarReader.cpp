@@ -64,6 +64,7 @@ void LidarReader::Periodic(bool autoRequest){
     readData();
 }
 
+/// @brief Reads the data from the port
 void LidarReader::readData(){
     //Check buffer size
     int bufferSize = port_.GetBytesReceived();

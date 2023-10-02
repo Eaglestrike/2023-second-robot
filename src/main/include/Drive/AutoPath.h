@@ -4,14 +4,16 @@
 #include <map>
 #include <vector>
 
-#include "Drive/AutoLineup.h"
 #include "Util/Mathutil.h"
 #include "Util/thirdparty/hermite.hpp"
 #include "Util/thirdparty/simplevectors.hpp"
 
 namespace hm = hermite;
+namespace vec = svector;
 
 class AutoPath {
+  typedef hm::Hermite<1> Hermite1;
+  typedef hm::Pose<1> Pose1;
   typedef hm::Hermite<2> Hermite2;
   typedef hm::Pose<2> Pose2;
 
@@ -20,12 +22,13 @@ public:
     double time;
     double x, y;
     double vx, vy;
-    double ang;
+    double ang, angVel;
   };
 
   enum ExecuteState {
     NOT_EXECUTING,
-    EXECUTING_PATH
+    EXECUTING_PATH,
+    AT_TARGET
   };
 
   AutoPath();
@@ -35,7 +38,6 @@ public:
   void ResetPath();
   void SetPosPID(double kP, double kI, double kD);
   void SetAngPID(double kP, double kI, double kD);
-  void SetFFAng(AutoLineup::FFConfig ffAng);
   void Stop();
   void StartMove();
   void UpdateOdom(vec::Vector2D curPos, double curAng);
@@ -48,6 +50,7 @@ public:
 private:
   vec::Vector2D m_curPos;
   double m_curAng;
+  int m_multiplier; // markplier???
 
   vec::Vector2D m_curVel;
   double m_curAngVel;
@@ -55,10 +58,11 @@ private:
   double m_startTime;
   double m_expectFinish;
   double m_prevTime;
+  double m_prevTimeOdom;
 
-  Hermite2 m_calc;
-  std::map<std::size_t, double> m_angExecuteTimes;
-  AutoLineup m_autoLineup;
+  // Hermite3 m_calc;
+  Hermite2 m_calcTrans;
+  Hermite1 m_calcAng;
 
   ExecuteState m_curState;
 
@@ -66,10 +70,20 @@ private:
   vec::Vector2D m_prevPosErr;
   vec::Vector2D m_totalPosErr;
 
+  double m_prevAngErr;
+  double m_totalAngErr;
+
   double m_kPPos;
   double m_kIPos;
   double m_kDPos;
 
-  Pose2 ConvPose(SwervePose pose);
-  vec::Vector2D GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos);
+  double m_kPAng;
+  double m_kIAng;
+  double m_kDAng;
+
+  vec::Vector2D GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos); 
+  double GetPIDAng(double deltaT, double curExpectedAng);
+  bool AtTarget() const;
+  bool AtTarget(double posErrTol, double velErrTol) const;
+  double GetMultipliedAng() const;
 };

@@ -71,7 +71,7 @@ double FeedforwardPID::periodic(Poses::Pose1D current_values)
  */
 double FeedforwardPID::calculatePIDVoltage(Poses::Pose1D expected, Poses::Pose1D current)
 {
-    return kp * (expected.velocity - current.velocity) + kd * (expected.position - current.position);
+    return kp * (expected.position - current.position) + kd * (expected.velocity - current.velocity);
 }
 
 /**

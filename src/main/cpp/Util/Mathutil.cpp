@@ -85,8 +85,13 @@ bool Utils::NearZero(const vec::Vector2D vec, const double tolerance)
  * @returns normalized angle
 */
 double Utils::NormalizeAng(const double ang) {
-  const vec::Vector2D vec{std::cos(ang), std::sin(ang)};
-  return vec.angle();
+  double ang2 = std::fmod(ang, M_PI * 2);
+  ang2 = std::fmod(ang + M_PI * 2, M_PI * 2);
+  if (ang2 > M_PI) {
+    ang2 -= M_PI * 2;
+  }
+
+  return ang2;
 }
 
 /**

@@ -40,7 +40,9 @@ void CompFilter::AddWheelVel(vec::Vector2D worldVel, std::size_t curTime) {
 
   // delete map values > maxTime seconds ago, unless it's the last value in the map
   auto firstIt = m_states.lower_bound(curTime - static_cast<std::size_t>(m_maxTime * 1000.0)); // first iterator to include
-  m_states.erase(m_states.begin(), firstIt);
+  if (firstIt != m_states.end()) {
+    m_states.erase(m_states.begin(), firstIt);
+  }
 
   // if empty, insert zeroes
   // we want to make sure there is at least one value at all times
@@ -98,7 +100,9 @@ void CompFilter::AddCamPos(vec::Vector2D camPos, std::size_t timeOffset, std::si
 
   // delete map values > maxTime seconds ago, unless it's the last value in the map
   auto firstIt = m_states.lower_bound(curTime - static_cast<std::size_t>(m_maxTime * 1000.0)); // first iterator to include
-  m_states.erase(m_states.begin(), firstIt);
+  if (firstIt != m_states.end()) {
+    m_states.erase(m_states.begin(), firstIt);
+  }
 
   // if empty, insert zeroes
   // we want to make sure there is at least one value at all times

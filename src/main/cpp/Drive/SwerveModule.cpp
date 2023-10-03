@@ -49,7 +49,6 @@ SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, do
 vec::Vector2D SwerveModule::GetVelocity()
 {
   //                                   (x ticks / 1 100ms) * (10 100ms / 1 s) * (2π motor radians / TALON_FX_COUNTS_PER_REV ticks) * (1 wheel radian / WHEEL_GEAR_RATIO motor radians) * (WHEEL_RADIUS m / 1 wheel radian)
-  double wheelRad = frc::SmartDashboard::GetNumber("Wheel Radius", SwerveConstants::WHEEL_RADIUS);
   double curMotorSpeed = m_driveMotor.GetSelectedSensorVelocity() * 10.0 * (2.0 * M_PI / SwerveConstants::TALON_FX_COUNTS_PER_REV) * (1 / SwerveConstants::WHEEL_GEAR_RATIO) * wheelRad;
   double curAng = GetCorrectedEncoderReading() * (M_PI / 180);
 

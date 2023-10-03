@@ -162,7 +162,7 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
  * @param time Time between readings
  * @param angOfJoystick angle of joystick relative to field
  */
-void SwerveControl::SetRobotVelocityAbs(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick) {
+void SwerveControl::SetRobotVelocityTele(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick) {
   vec::Vector2D velAbs = vec::rotate(vel, angOfJoystick);
   SetRobotVelocity(velAbs, angVel, ang, time);
 }

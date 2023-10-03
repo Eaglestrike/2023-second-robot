@@ -26,7 +26,7 @@ public:
   void SetFeedForward(double kS, double kV, double kA);
   void SetAngleCorrectionPID(double kP, double kI, double kD);
   void SetRobotVelocity(vec::Vector2D vel, double angVel, double ang, double time);
-  void SetRobotVelocityAbs(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick);
+  void SetRobotVelocityTele(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick);
 
   void Periodic();
 

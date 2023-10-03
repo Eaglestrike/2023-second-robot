@@ -23,7 +23,7 @@ class TrapezoidalMotionProfile {
         double m_maxVel, m_maxAcc;
         double m_setPt;
         double m_velTurnPos;
-        double m_curTime = -1;
+        double m_curTime;
         bool m_negProfile;
         //        m_turnTime, // the time the profile should start deaccelerating if pos, or accelerating if neg
         //        m_endTime;

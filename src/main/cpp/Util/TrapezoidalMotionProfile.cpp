@@ -12,7 +12,7 @@
  * and if either is negative, uses absolute value
 */
 TrapezoidalMotionProfile::TrapezoidalMotionProfile(double MAX_VEL, double MAX_ACC, double curPos, double setPt): 
-m_maxVel{std::abs(MAX_VEL)}, m_maxAcc{std::abs(MAX_ACC)}{
+m_maxVel{std::abs(MAX_VEL)}, m_maxAcc{std::abs(MAX_ACC)}, m_curTime{-1}{
         SetSetpoint(curPos, setPt);
 }
 
@@ -26,10 +26,10 @@ m_maxVel{std::abs(MAX_VEL)}, m_maxAcc{std::abs(MAX_ACC)}{
  * and if either is negative, uses absolute value
 */
 TrapezoidalMotionProfile::TrapezoidalMotionProfile(double MAX_VEL, double MAX_ACC): 
-m_maxVel{std::abs(MAX_VEL)}, m_maxAcc{std::abs(MAX_ACC)}{}
+m_maxVel{std::abs(MAX_VEL)}, m_maxAcc{std::abs(MAX_ACC)}, m_curTime{-1}{}
 
 /**
- * Sets setpoint
+ * Sets setpoint and starts profile
  * 
  * @param curPos current position
  * @param setPt setpoint
@@ -39,6 +39,7 @@ void TrapezoidalMotionProfile::SetSetpoint(double curPos, double setPt){
     m_targetPos = curPos;
     m_targetVel = 0.0;
     m_targetAcc = m_maxAcc;
+    m_curTime = Utils::GetCurTimeS();
     if (setPt < curPos)m_targetAcc *= -1;
     CalcVelTurnPos(curPos, setPt);
 }

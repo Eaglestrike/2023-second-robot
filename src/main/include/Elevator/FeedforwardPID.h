@@ -60,12 +60,17 @@ private:
     double sign(double value);
     double calculateFeedforwardVoltage(double velocity, double acceleration);
     double calculatePIDVoltage(Poses::Pose1D expected, Poses::Pose1D current);
+    void recalculateTimes();
 
     // total distance needed to travel
     double max_distance_;
 
     // feedforward constants
     double ks, kv, ka, kg;
+
+    // calculated constants
+    double acceleration_time;
+    double velocity_time;
 
     // pid constants, initialized to 0 so their use is optional
     double kp = 0.0;

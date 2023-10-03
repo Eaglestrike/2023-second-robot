@@ -11,7 +11,9 @@
  * @param distance the total distance needed to travel by the system
  */
 FeedforwardPID::FeedforwardPID(double ks, double kv, double ka, double kg, double distance):
-    ks(ks), kv(kv), ka(ka), kg(kg), max_distance_(distance) {};
+    ks(ks), kv(kv), ka(ka), kg(kg), max_distance_(distance) {
+       recalculateTimes(); 
+    };
 
 /**
  * @brief Constructor meant for when you want to initialize PID constants.
@@ -27,6 +29,7 @@ FeedforwardPID::FeedforwardPID(double ks, double kv, double ka, double kg, doubl
 FeedforwardPID::FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double kd, double distance): 
     ks(ks), kv(kv), ka(ka), kg(kg), kp(kp), kd(kd), max_distance_(distance) {
         frc::SmartDashboard::PutNumber("position error", 0.0);
+        recalculateTimes();
     };
 
 /**
@@ -135,17 +138,6 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
 {
     Poses::Pose1D pose;
 
-    // the time spent accelerating (or decelerating)
-    double acceleration_time = max_velocity / max_acceleration;
-    frc::SmartDashboard::PutNumber("acc time: ", acceleration_time);
-
-    // the time spent maintaining a constant velocity
-    double velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
-
-    // velocity should never be negative
-    velocity_time = velocity_time < 0 ? 0.0 : velocity_time;
-    frc::SmartDashboard::PutNumber("vel time: ", velocity_time);
-
     // whether moving up or down
     double reversed_coefficient = reversed ? -1.0 : 1.0;
 
@@ -205,6 +197,19 @@ void FeedforwardPID::setPIDConstants(double kp, double kd)
     this->kd = kd;
 }
 
+/**
+ * @brief Calculates and stores the time spent in the different phases for the feedforward loop
+ * 
+ */
+void FeedforwardPID::recalculateTimes() {
+    // the time spent accelerating (or decelerating)
+    acceleration_time = max_velocity / max_acceleration;
+
+    // the time spent maintaining a constant velocity
+    velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
+    velocity_time = velocity_time < 0 ? 0.0 : velocity_time;
+}
+
 // getters and setters
 
 double FeedforwardPID::getKs() {
@@ -250,6 +255,7 @@ double FeedforwardPID::getMaxAcceleration() {
 
 void FeedforwardPID::setMaxAcceleration(double new_acc) {
     max_acceleration = new_acc;
+    recalculateTimes();
 }
 
 double FeedforwardPID::getMaxVelocity() {
@@ -258,10 +264,12 @@ double FeedforwardPID::getMaxVelocity() {
 
 void FeedforwardPID::setMaxVelocity(double new_vel) {
     max_velocity = new_vel;
+    recalculateTimes();
 }
 
 void FeedforwardPID::setMaxDistance(double distance) {
     max_distance_ = distance;
+    recalculateTimes();
 }
 
 bool FeedforwardPID::getReversed() {

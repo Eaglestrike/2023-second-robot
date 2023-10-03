@@ -25,9 +25,18 @@
  * @param angMotorInverted if positive angle motor voltage = clockwise when robot is upright
  * @param offset Offset, in DEGREES
  */
-SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, bool angMotorInverted, double offset)
-    : m_driveMotor{driveMotorId, "Drivebase"}, m_angleMotor{angleMotorId, "Drivebase"}, m_encoder{encoderId, "Drivebase"}, m_controller{kP, kI, kD},
-      m_flipped{false}, m_driveInverted{driveInverted}, m_encoderInverted{encoderInverted}, m_angMotorInverted{angMotorInverted}, m_targetSpeed{0}, m_offset{offset}
+SwerveModule::SwerveModule(SwerveConstants::SwerveConfig config):
+      m_driveMotor{config.driveMotorId, "Drivebase"},
+      m_angleMotor{config.angleMotorId, "Drivebase"},
+      m_encoder{config.encoderId, "Drivebase"},
+      m_controller{config.kP, config.kI, config.kD},
+      m_flipped{false},
+      m_driveInverted{config.driveInverted},
+      m_encoderInverted{config.encoderInverted},
+      m_angMotorInverted{config.angMotorInverted},
+      m_targetSpeed{0},
+      m_offset{config.offset},
+      m_position{config.position}
 {
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);
   // m_encoder.ConfigMagnetOffset(offset);
@@ -48,6 +57,15 @@ vec::Vector2D SwerveModule::GetVelocity()
   auto resVec = vec::Vector2D{std::cos(curAng), std::sin(curAng)} * curMotorSpeed;
 
   return m_driveInverted ? -resVec : resVec;
+}
+
+/**
+ * Gets position in m to center of robot
+ *
+ * @returns position in m
+ */
+vec::Vector2D SwerveModule::getPosition(){
+  return m_position;
 }
 
 /**
@@ -87,7 +105,7 @@ void SwerveModule::SetVector(vec::Vector2D vec)
 {
   m_targetSpeed = vec::magn(vec);
 
-  if (!Mathutil::NearZero(vec))
+  if (!Utils::NearZero(vec))
   {
     m_targetAngle = vec::normalize(vec);
   }

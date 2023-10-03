@@ -40,7 +40,7 @@ class Elevator {
 
     private:
         // member variables
-        ElevatorState current_state;
+        ElevatorState current_state_;
         FeedforwardPID feedforward_;
 
         // motors

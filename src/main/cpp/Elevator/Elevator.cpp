@@ -40,7 +40,7 @@ Elevator::Elevator():
  */
 void Elevator::periodic() {
     setMaxDistance(frc::SmartDashboard::GetNumber("max distance", ElevatorConstants::MAX_ELEVATOR_EXTENSION));
-    if (current_state == STOPPED) {
+    if (current_state_ == STOPPED) {
         return;
     }
 
@@ -72,12 +72,12 @@ void Elevator::evaluateState() {
     double left_position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
 
     if (std::abs(ElevatorConstants::MAX_ELEVATOR_EXTENSION - left_position) < ElevatorConstants::POSITION_ERROR_TOLERANCE) {
-        if (current_state == MOVING_TO_DOCKED) {
-            current_state = DOCKED;
+        if (current_state_ == MOVING_TO_DOCKED) {
+            current_state_ = DOCKED;
         }
 
-        if (current_state == MOVING_TO_RAISED) {
-            current_state = RAISED;
+        if (current_state_ == MOVING_TO_RAISED) {
+            current_state_ = RAISED;
         }
     }
 }
@@ -86,10 +86,10 @@ void Elevator::evaluateState() {
  * @brief Changes feedforward direction based on current state
  */
 void Elevator::evaluateDirection() {
-    if (current_state == DOCKED || current_state == MOVING_TO_RAISED) {
+    if (current_state_ == DOCKED || current_state_ == MOVING_TO_RAISED) {
         feedforward_.setReversed(false);
     }
-    else if (current_state == RAISED || current_state == MOVING_TO_DOCKED) {
+    else if (current_state_ == RAISED || current_state_ == MOVING_TO_DOCKED) {
         feedforward_.setReversed(true);
     }
 }
@@ -99,7 +99,7 @@ void Elevator::evaluateDirection() {
  * @param new_state the next state that the elevator should be in
  */
 void Elevator::setState(Elevator::ElevatorState new_state) {
-    current_state = new_state;
+    current_state_ = new_state;
 }
 
 // util methods
@@ -123,7 +123,7 @@ void Elevator::start() {
  * 
  */
 void Elevator::stop() {
-    current_state = ElevatorState::STOPPED;
+    current_state_ = ElevatorState::STOPPED;
     left_.SetVoltage(units::volt_t{0});
     right_.SetVoltage(units::volt_t{0});
     feedforward_.stop();
@@ -174,7 +174,7 @@ double Elevator::talonUnitsToAngle(double motor_units) {
 
 // debug getters
 Elevator::ElevatorState Elevator::getState() {
-    return current_state;
+    return current_state_;
 }
 
 double Elevator::getElevatorHeight() {

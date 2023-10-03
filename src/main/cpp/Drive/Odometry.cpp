@@ -71,44 +71,10 @@ bool Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
   m_prevId = static_cast<long long>(uniqueId);
 
   // I know I can use an array, i was just being an idiot when writing this
-  switch (tagID) {
-    case 1:
-      // std::cout << "tag1: ";
-      tagPos = FieldConstants::TAG1;
-      break;
-    case 2:
-      // std::cout << "tag2: ";
-      tagPos = FieldConstants::TAG2;
-      break;
-    case 3:
-      // std::cout << "tag3: ";
-      tagPos = FieldConstants::TAG3;
-      break;
-    case 4:
-      // std::cout << "tag4: ";
-      tagPos = FieldConstants::TAG4;
-      break;
-    case 5:
-      // std::cout << "tag5: ";
-      tagPos = FieldConstants::TAG5;
-      break;
-    case 6:
-      // std::cout << "tag6: ";
-      tagPos = FieldConstants::TAG6;
-      break;
-    case 7:
-      // std::cout << "tag7: ";
-      tagPos = FieldConstants::TAG7;
-      break;
-    case 8:
-      // std::cout << "tag8: ";
-      tagPos = FieldConstants::TAG8;
-      break;
-    default:
-      // std::cout << "bad detect" << std::endl;
-      return false; // unrecognized tag; don't process
+  if (tagID < 1 || tagID > 8) {
+    return false;
   }
-
+  tagPos = FieldConstants::TAGS[tagID - 1];
   vec::Vector2D robotPos = tagPos - vecRot;
 
   // reject if april tag pos is too far away

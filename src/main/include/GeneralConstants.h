@@ -24,6 +24,16 @@ namespace FieldConstants {
   const vec::Vector2D TAG6 = {1.02743, 4.424426};
   const vec::Vector2D TAG7 = {1.02743, 2.748026};
   const vec::Vector2D TAG8 = {1.02743, 1.071626};
+  const vec::Vector2D TAGS[8] = {
+    TAG1,
+    TAG2,
+    TAG3,
+    TAG4,
+    TAG5,
+    TAG6,
+    TAG7,
+    TAG8
+  };
 
   // different starting positions of robot
   // starting position, starting robot angle (world frame), starting joystick angle

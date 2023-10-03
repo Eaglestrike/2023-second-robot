@@ -1,9 +1,9 @@
 #pragma once 
 
 namespace IntakeConstants{
-    const int WRIST_MOTOR_ID = 0;
-    const int ROLLER_MOTOR_ID = 0;
-    const int WRIST_ENCODER_PIN = 0;
+    const int WRIST_MOTOR_ID = 2;
+    const int ROLLER_MOTOR_ID = 31;
+    const int WRIST_ENCODER_CAN_ID = 0;
 
     //EXTEND DEPLOY FEEDFORWARD-PID
 

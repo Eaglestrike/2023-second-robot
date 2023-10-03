@@ -42,7 +42,7 @@ class Intake{
 
         WPI_TalonFX m_wristMotor{IntakeConstants::WRIST_MOTOR_ID};
         WPI_TalonFX m_rollerMotor{IntakeConstants::ROLLER_MOTOR_ID};
-        frc::DutyCycleEncoder m_wristEncoder{IntakeConstants::WRIST_ENCODER_PIN};
+        frc::DutyCycleEncoder m_wristEncoder{IntakeConstants::WRIST_ENCODER_CAN_ID};
 
         WristState m_state = STOWED;
         double m_kp = IntakeConstants::EXTEND_DEPLOY_P, m_ki = IntakeConstants::EXTEND_DEPLOY_I, 

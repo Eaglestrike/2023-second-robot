@@ -21,9 +21,9 @@
  */
 SwerveModule::SwerveModule(SwerveConstants::SwerveConfig config, bool enabled, bool shuffleboard):
       Mechanism(config.name, enabled, shuffleboard),
-      m_driveMotor{config.driveMotorId, "Drivebase"},
-      m_angleMotor{config.angleMotorId, "Drivebase"},
-      m_encoder{config.encoderId, "Drivebase"},
+      m_driveMotor{(int)config.driveMotorId, "Drivebase"},
+      m_angleMotor{(int)config.angleMotorId, "Drivebase"},
+      m_encoder{(int)config.encoderId, "Drivebase"},
       m_controller{config.kP, config.kI, config.kD},
       m_flipped{false},
       m_driveInverted{config.driveInverted},

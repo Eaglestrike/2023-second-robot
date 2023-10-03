@@ -130,7 +130,7 @@ void Mechanism::DisableShuffleboard(){
  * 
 */
 void Mechanism::UpdateShuffleboard(){
-    if(isEnabled){
+    if(enabled_){
         CoreUpdateShuffleboard();
     }
 }

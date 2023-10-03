@@ -20,10 +20,10 @@
 using namespace Actions;
 
 Robot::Robot():
-      m_swerveFr{SwerveConstants::FR_CONFIG, true, true},
-      m_swerveBr{SwerveConstants::BR_CONFIG, true, true},
-      m_swerveFl{SwerveConstants::FL_CONFIG, true, true},
-      m_swerveBl{SwerveConstants::BL_CONFIG, true, true}
+      m_swerveFr(SwerveConstants::FR_CONFIG, true, true),
+      m_swerveBr(SwerveConstants::BR_CONFIG, true, true),
+      m_swerveFl(SwerveConstants::FL_CONFIG, true, true),
+      m_swerveBl(SwerveConstants::BL_CONFIG, true, true)
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};

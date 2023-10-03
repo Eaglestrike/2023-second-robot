@@ -7,6 +7,8 @@
 
 #include "Util/Mechanism.h"
 
+#include "DriveConstants.h"
+
 namespace vec = svector; //!< Alias to vector namespace
 
 /**
@@ -14,7 +16,7 @@ namespace vec = svector; //!< Alias to vector namespace
 */
 class SwerveModule : public Mechanism{
 public:
-  SwerveModule(SwerveConstants::SwerveConfig config,  bool enabled = true, bool shuffleboard = false);
+  SwerveModule(SwerveConstants::SwerveConfig config, bool enabled = true, bool shuffleboard = false);
 
   double GetCorrectedEncoderReading();
   double GetRawEncoderReading();

@@ -7,8 +7,11 @@
 #include <cstddef>
 #include <string>
 
-namespace SwerveConstants
-{
+#include "Util/thirdparty/simplevectors.hpp"
+
+namespace vec = svector;
+
+namespace SwerveConstants{
   const double MAG_ENCODER_COUNTS_PER_REV = 4096;
   const double TALON_FX_COUNTS_PER_REV = 2048;
   const double WHEEL_RADIUS = 0.0508; // in meters

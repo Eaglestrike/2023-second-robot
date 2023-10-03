@@ -27,6 +27,7 @@ class Mechanism{
 
         void EnableShuffleboard();
         void DisableShuffleboard();
+        void UpdateShuffleboard();
 
         void Disable();
         void Enable();
@@ -42,8 +43,9 @@ class Mechanism{
         virtual void CoreDisabledInit();
         virtual void CoreDisabledPeriodic();
 
-        virtual void ShuffleboardInit();
-        virtual void ShuffleboardPeriodic();
+        virtual void CoreShuffleboardInit();
+        virtual void CoreShuffleboardPeriodic();
+        virtual void CoreUpdateShuffleboard();
 
         std::string name_;
         bool enabled_;

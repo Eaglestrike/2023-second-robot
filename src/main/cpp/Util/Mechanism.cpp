@@ -38,7 +38,7 @@ void Mechanism::Init(){
         CoreInit();
     }
     if(shuffleboard_){
-        ShuffleboardInit();
+        CoreShuffleboardInit();
     }
 };
 
@@ -50,7 +50,7 @@ void Mechanism::Periodic(){
         CorePeriodic();
     }
     if(shuffleboard_){
-        ShuffleboardPeriodic();
+        CoreShuffleboardPeriodic();
     }
 }
 
@@ -115,7 +115,7 @@ void Mechanism::DisabledPeriodic(){
  * Calls ShuffleboardInit
 */
 void Mechanism::EnableShuffleboard(){
-    ShuffleboardInit();
+    CoreShuffleboardInit();
     shuffleboard_ = true;
 }
 
@@ -124,6 +124,15 @@ void Mechanism::EnableShuffleboard(){
 */
 void Mechanism::DisableShuffleboard(){
     shuffleboard_ = false;
+}
+
+/**
+ * 
+*/
+void Mechanism::UpdateShuffleboard(){
+    if(isEnabled){
+        CoreUpdateShuffleboard();
+    }
 }
 
 /**
@@ -212,14 +221,21 @@ void Mechanism::CoreDisabledPeriodic(){
 /**
  * Virtual function to implement
 */
-void Mechanism::ShuffleboardInit(){
+void Mechanism::CoreShuffleboardInit(){
     frc::SmartDashboard::PutBoolean(name_ + " enabled", enabled_);
 }
 
 /**
  * Virtual function to implement
 */
-void Mechanism::ShuffleboardPeriodic(){
+void Mechanism::CoreShuffleboardPeriodic(){
     //frc::SmartDashboard::PutBoolean(name_ + " enabled", enabled_);
+    enabled_ = frc::SmartDashboard::GetBoolean(name_ + " enabled", true);
+}
+
+/**
+ * Virtual function to implement
+*/
+void Mechanism::CoreUpdateShuffleboard(){
     enabled_ = frc::SmartDashboard::GetBoolean(name_ + " enabled", true);
 }

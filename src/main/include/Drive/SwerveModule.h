@@ -29,7 +29,7 @@ public:
 private:
   void CoreTeleopPeriodic() override;
 
-  void ShuffleboardPeriodic() override;
+  void CoreShuffleboardPeriodic() override;
 
   bool ShouldFlip(vec::Vector2D curAng, vec::Vector2D targetAng);
 

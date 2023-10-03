@@ -213,7 +213,7 @@ bool SwerveModule::ShouldFlip(vec::Vector2D curVec, vec::Vector2D targetVec)
   return angle2 < angle1;
 }
 
-void SwerveModule::ShuffleboardPeriodic(){
+void SwerveModule::CoreShuffleboardPeriodic(){
   frc::SmartDashboard::PutNumber(name_ + " encoder", GetRawEncoderReading());
 
   frc::SmartDashboard::PutString(name_ + " velocity", GetVelocity().toString());

@@ -10,22 +10,17 @@
 #include "Drive/DriveConstants.h"
 #include "Util/Mathutil.h"
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 /**
  * Constructor
  *
- * @param driveMotorId drive motor id
- * @param angleMotorId angle motor id
- * @param encoderId encoder id
- * @param kP p-value
- * @param kI i-value
- * @param kD d-value
- * @param maxVolts maximum volts
- * @param driveInverted if the drive motor is inverted (at angle = 0, positive votlage = negative movement)
- * @param encoderInverted if positive encoder values = clockwise when robot is upright
- * @param angMotorInverted if positive angle motor voltage = clockwise when robot is upright
- * @param offset Offset, in DEGREES
+ * @param config swerve config
+ * @param enabled enable mechanism
+ * @param shuffleboard enable shuffleboard prints
  */
-SwerveModule::SwerveModule(SwerveConstants::SwerveConfig config):
+SwerveModule::SwerveModule(SwerveConstants::SwerveConfig config, bool enabled, bool shuffleboard):
+      Mechanism(config.name, enabled, shuffleboard),
       m_driveMotor{config.driveMotorId, "Drivebase"},
       m_angleMotor{config.angleMotorId, "Drivebase"},
       m_encoder{config.encoderId, "Drivebase"},
@@ -148,7 +143,7 @@ void SwerveModule::SetPID(double kP, double kI, double kD)
   m_controller.SetPID(kP, kI, kD);
 }
 
-void SwerveModule::Periodic()
+void SwerveModule::CoreTeleopPeriodic()
 {
   // get current angle
   double correctedEncoderReading = GetCorrectedEncoderReading();
@@ -216,4 +211,10 @@ bool SwerveModule::ShouldFlip(vec::Vector2D curVec, vec::Vector2D targetVec)
       dot(curNeg, targetVec) / (magn(curNeg) * magn(targetVec)), -1.0, 1.0));
 
   return angle2 < angle1;
+}
+
+void SwerveModule::ShuffleboardPeriodic(){
+  frc::SmartDashboard::PutNumber(name_ + " encoder", GetRawEncoderReading());
+
+  frc::SmartDashboard::PutString(name_ + " velocity", GetVelocity().toString());
 }

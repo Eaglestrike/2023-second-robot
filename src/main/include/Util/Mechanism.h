@@ -32,7 +32,7 @@ class Mechanism{
         void Enable();
         bool isEnabled();
 
-    private:
+    protected:
         virtual void CoreInit();
         virtual void CorePeriodic();
         virtual void CoreAutonomousInit();

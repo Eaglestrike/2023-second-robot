@@ -5,14 +5,16 @@
 
 #include "Util/thirdparty/simplevectors.hpp"
 
+#include "Util/Mechanism.h"
+
 namespace vec = svector; //!< Alias to vector namespace
 
 /**
  * Interface with an individual swerve module
 */
-class SwerveModule {
+class SwerveModule : public Mechanism{
 public:
-  SwerveModule(SwerveConstants::SwerveConfig config);
+  SwerveModule(SwerveConstants::SwerveConfig config,  bool enabled = true, bool shuffleboard = false);
 
   double GetCorrectedEncoderReading();
   double GetRawEncoderReading();
@@ -24,9 +26,11 @@ public:
   void SetAngle(double angle);
   void SetPID(double kP, double kI, double kD);
 
-  void Periodic();
-
 private:
+  void CoreTeleopPeriodic() override;
+
+  void ShuffleboardPeriodic() override;
+
   bool ShouldFlip(vec::Vector2D curAng, vec::Vector2D targetAng);
 
   WPI_TalonFX m_driveMotor;

@@ -20,10 +20,10 @@
 using namespace Actions;
 
 Robot::Robot():
-      m_swerveFr{SwerveConstants::FR_CONFIG},
-      m_swerveBr{SwerveConstants::BR_CONFIG},
-      m_swerveFl{SwerveConstants::FL_CONFIG},
-      m_swerveBl{SwerveConstants::BL_CONFIG}
+      m_swerveFr{SwerveConstants::FR_CONFIG, true, true},
+      m_swerveBr{SwerveConstants::BR_CONFIG, true, true},
+      m_swerveFl{SwerveConstants::FL_CONFIG, true, true},
+      m_swerveBl{SwerveConstants::BL_CONFIG, true, true}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
@@ -40,15 +40,14 @@ Robot::Robot():
   }
 }
 
-void Robot::RobotInit()
-{
+void Robot::RobotInit(){
   frc::SmartDashboard::PutNumber("wheel kP", SwerveConstants::TURN_P);
   frc::SmartDashboard::PutNumber("wheel kI", SwerveConstants::TURN_I);
   frc::SmartDashboard::PutNumber("wheel kD", SwerveConstants::TURN_D);
   frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
   frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
   frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
-
+  
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
 }
@@ -86,16 +85,6 @@ void Robot::RobotPeriodic()
     m_swerveController->ResetAngleCorrection();
     m_pos = {0, 0};
   }
-
-  frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
-  frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
-  frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
-  frc::SmartDashboard::PutNumber("br raw encoder", m_swerveBr.GetRawEncoderReading());
-
-  frc::SmartDashboard::PutString("fl velocity", m_swerveFl.GetVelocity().toString());
-  frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
-  frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
-  frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
 }
 
 /**

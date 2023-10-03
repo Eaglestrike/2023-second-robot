@@ -26,6 +26,8 @@ SwerveControl::SwerveControl(RefArray<SwerveModule> modules, std::array<vec::Vec
 {
   m_angleCorrector.EnableContinuousInput(-M_PI, M_PI);
   ResetFeedForward();
+
+  SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
 }
 
 /**

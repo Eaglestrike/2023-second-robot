@@ -39,6 +39,8 @@ SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, do
 
   m_angleMotor.SetNeutralMode(NeutralMode::Brake);
   m_driveMotor.SetNeutralMode(NeutralMode::Brake);
+
+  SetPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
 }
 
 /**
@@ -49,7 +51,7 @@ SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, do
 vec::Vector2D SwerveModule::GetVelocity()
 {
   //                                   (x ticks / 1 100ms) * (10 100ms / 1 s) * (2π motor radians / TALON_FX_COUNTS_PER_REV ticks) * (1 wheel radian / WHEEL_GEAR_RATIO motor radians) * (WHEEL_RADIUS m / 1 wheel radian)
-  double curMotorSpeed = m_driveMotor.GetSelectedSensorVelocity() * 10.0 * (2.0 * M_PI / SwerveConstants::TALON_FX_COUNTS_PER_REV) * (1 / SwerveConstants::WHEEL_GEAR_RATIO) * wheelRad;
+  double curMotorSpeed = m_driveMotor.GetSelectedSensorVelocity() * 10.0 * (2.0 * M_PI / SwerveConstants::TALON_FX_COUNTS_PER_REV) * (1 / SwerveConstants::WHEEL_GEAR_RATIO) * SwerveConstants::WHEEL_RADIUS;
   double curAng = GetCorrectedEncoderReading() * (M_PI / 180);
 
   auto resVec = vec::Vector2D{std::cos(curAng), std::sin(curAng)} * curMotorSpeed;

@@ -41,13 +41,10 @@ Robot::Robot():
 }
 
 void Robot::RobotInit(){
-  frc::SmartDashboard::PutNumber("wheel kP", SwerveConstants::TURN_P);
-  frc::SmartDashboard::PutNumber("wheel kI", SwerveConstants::TURN_I);
-  frc::SmartDashboard::PutNumber("wheel kD", SwerveConstants::TURN_D);
   frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
   frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
   frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
-  
+
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
 }
@@ -64,17 +61,14 @@ void Robot::RobotPeriodic()
 {
   if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
-    double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
-    double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
-    double kD = frc::SmartDashboard::GetNumber("wheel kD", SwerveConstants::TURN_D);
     double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
     double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
     double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
-    m_swerveFl.SetPID(kP, kI, kD);
-    m_swerveFr.SetPID(kP, kI, kD);
-    m_swerveBl.SetPID(kP, kI, kD);
-    m_swerveBr.SetPID(kP, kI, kD);
+    m_swerveFl.UpdateShuffleboard();
+    m_swerveFr.UpdateShuffleboard();
+    m_swerveBl.UpdateShuffleboard();
+    m_swerveBr.UpdateShuffleboard();
 
     m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
   }

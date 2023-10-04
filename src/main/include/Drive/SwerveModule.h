@@ -5,27 +5,36 @@
 
 #include "Util/thirdparty/simplevectors.hpp"
 
+#include "Util/Mechanism.h"
+
+#include "DriveConstants.h"
+
 namespace vec = svector; //!< Alias to vector namespace
 
 /**
  * Interface with an individual swerve module
 */
-class SwerveModule {
+class SwerveModule : public Mechanism{
 public:
-  SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, bool angMotorInverted, double offset);
+  SwerveModule(SwerveConstants::SwerveConfig config, bool enabled = true, bool shuffleboard = false);
 
   double GetCorrectedEncoderReading();
   double GetRawEncoderReading();
   vec::Vector2D GetVelocity();
+  vec::Vector2D getPosition();
 
   void SetVector(vec::Vector2D vec);
   void SetSpeed(double speed);
   void SetAngle(double angle);
   void SetPID(double kP, double kI, double kD);
 
-  void Periodic();
-
 private:
+  void CoreTeleopPeriodic() override;
+
+  void CoreShuffleboardInit() override;
+  void CoreShuffleboardPeriodic() override;
+  void CoreUpdateShuffleboard() override;
+
   bool ShouldFlip(vec::Vector2D curAng, vec::Vector2D targetAng);
 
   WPI_TalonFX m_driveMotor;
@@ -40,4 +49,6 @@ private:
   vec::Vector2D m_targetAngle;
   double m_targetSpeed;
   double m_offset;
+
+  vec::Vector2D m_position;
 };

@@ -7,7 +7,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Drive/DriveConstants.h"
-#include "Util/Mathutil.h"
+#include "Util/MathUtil.h"
 
 /**
  * Constructor
@@ -21,8 +21,8 @@
  *
  * @note feedforward relates speed to voltage
  */
-SwerveControl::SwerveControl(RefArray<SwerveModule> modules, std::array<vec::Vector2D, 4> radii, double kS, double kV, double kA)
-    : m_modules{modules}, m_radii{radii}, m_kS{kS}, m_kV{kV}, m_kA{kA}, m_curAngle{0}, m_angleCorrector{SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D}
+SwerveControl::SwerveControl(RefArray<SwerveModule> modules, double kS, double kV, double kA)
+    : m_modules{modules}, m_kS{kS}, m_kV{kV}, m_kA{kA}, m_curAngle{0}, m_angleCorrector{0.1, 0, 0.01}
 {
   m_angleCorrector.EnableContinuousInput(-M_PI, M_PI);
   ResetFeedForward();
@@ -129,7 +129,8 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
     // computes vectors in 3D
     vec::Vector3D vel3D = {x(vel), y(vel), 0};
     vec::Vector3D angVel3D = {0, 0, angVel};
-    vec::Vector3D module3D = {x(m_radii[i]), y(m_radii[i]), 0};
+    vec::Vector2D radius = m_modules[i].get().getPosition();
+    vec::Vector3D module3D = {x(radius), y(radius), 0};
 
     // vector addition for velocity
     vec::Vector3D moduleWorld = rotateGamma(module3D, ang);        // rotates radius vector to world frame

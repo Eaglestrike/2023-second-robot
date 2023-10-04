@@ -25,14 +25,10 @@ using namespace Actions;
 
 Robot::Robot():
       m_prevTime{0},
-      m_swerveFr{SwerveConstants::FR_DRIVE_ID, SwerveConstants::FR_TURN_ID, SwerveConstants::FR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FR_DRIVE_INVERTED, SwerveConstants::FR_ENCODER_INVERTED, SwerveConstants::FR_ANG_INVERTED, SwerveConstants::FR_OFFSET},
-      m_swerveBr{SwerveConstants::BR_DRIVE_ID, SwerveConstants::BR_TURN_ID, SwerveConstants::BR_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BR_DRIVE_INVERTED, SwerveConstants::BR_ENCODER_INVERTED, SwerveConstants::BR_ANG_INVERTED, SwerveConstants::BR_OFFSET},
-      m_swerveFl{SwerveConstants::FL_DRIVE_ID, SwerveConstants::FL_TURN_ID, SwerveConstants::FL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::FL_DRIVE_INVERTED, SwerveConstants::FL_ENCODER_INVERTED, SwerveConstants::FL_ANG_INVERTED, SwerveConstants::FL_OFFSET},
-      m_swerveBl{SwerveConstants::BL_DRIVE_ID, SwerveConstants::BL_TURN_ID, SwerveConstants::BL_ENCODER_ID, SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D, SwerveConstants::BL_DRIVE_INVERTED, SwerveConstants::BL_ENCODER_INVERTED, SwerveConstants::BL_ANG_INVERTED, SwerveConstants::BL_OFFSET},
-      m_rFr{SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
-      m_rBr{-SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE},
-      m_rFl{SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE},
-      m_rBl{-SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE},
+      m_swerveFr{SwerveConstants::FR_CONFIG, true, true},
+      m_swerveBr{SwerveConstants::BR_CONFIG, true, true},
+      m_swerveFl{SwerveConstants::FL_CONFIG, true, true},
+      m_swerveBl{SwerveConstants::BL_CONFIG, true, true},
       m_startPos{400, 400},
       m_startAng{0},
       m_joystickAng{0},
@@ -42,8 +38,7 @@ Robot::Robot():
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
-  std::array<vec::Vector2D, 4> radiiArray{{m_rFr, m_rBr, m_rFl, m_rBl}};
-  m_swerveController = new SwerveControl(moduleArray, radiiArray, 0, 1, 0);
+  m_swerveController = new SwerveControl(moduleArray, 0, 1, 0);
 
   // navx
   try
@@ -104,20 +99,10 @@ Robot::Robot():
 
 void Robot::RobotInit()
 {
-  // frc::SmartDashboard::PutNumber("wheel kP", SwerveConstants::TURN_P);
-  // frc::SmartDashboard::PutNumber("wheel kI", SwerveConstants::TURN_I);
-  // frc::SmartDashboard::PutNumber("wheel kD", SwerveConstants::TURN_D);
-  // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  // frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
-
-
-  // set PID for wheels and angle correction
-  // m_swerveFl.SetPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
-  // m_swerveFr.SetPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
-  // m_swerveBl.SetPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
-  // m_swerveBr.SetPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
-  // m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
+  // initialization
+  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
   // kalman filter constants
   // frc::SmartDashboard::PutNumber("KF E0", OdometryConstants::E0);
@@ -142,7 +127,6 @@ void Robot::RobotInit()
   m_startPosChooser.AddOption("Red R", "Red R");
   frc::SmartDashboard::PutData("Starting pos", &m_startPosChooser);
 
-  // initialization
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
 
@@ -183,6 +167,10 @@ void Robot::RobotPeriodic()
     // double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
     // double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
     // double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+    // m_swerveFl.UpdateShuffleboard();
+    // m_swerveFr.UpdateShuffleboard();
+    // m_swerveBl.UpdateShuffleboard();
+    // m_swerveBr.UpdateShuffleboard();
     // m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
 
     // double E0 = frc::SmartDashboard::GetNumber("KF E0", OdometryConstants::E0);

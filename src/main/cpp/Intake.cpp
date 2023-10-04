@@ -6,6 +6,12 @@ Intake::Intake(){
     frc::SmartDashboard::PutBoolean("Deploy", false);
     frc::SmartDashboard::PutNumber("voltage", 0.0);
     m_wristMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    //m_wristMotor.SetInverted(true);
+    frc::SmartDashboard::PutNumber("g", m_g); 
+    frc::SmartDashboard::PutNumber("s", m_s); 
+    frc::SmartDashboard::PutNumber("v", m_v); 
+    frc::SmartDashboard::PutNumber("a", m_a); 
+
 }
 
 void Intake::debugTargPose(){
@@ -44,7 +50,7 @@ void Intake::debugPutVoltage(){
     std::cout << voltReq << std::endl ;
     std::cout << m_wristMotor.GetOutputCurrent() << std::endl;
    // m_rollerMotor.SetVoltage(units::volt_t(std::clamp(voltReq, -IntakeConstants::ROLLER_MAX_VOLTS, IntakeConstants::ROLLER_MAX_VOLTS)));
-    m_wristMotor.SetVoltage(units::volt_t(voltReq));
+    m_wristMotor.SetVoltage(units::volt_t(-voltReq));
 }
 
 void Intake::UpdatePose(){
@@ -58,7 +64,7 @@ void Intake::UpdatePose(){
 void Intake::TeleopPeriodic(){
     debugCurPose();
     debugTargPose();
-    debugPutVoltage();
+    //debugPutVoltage();
 
     UpdatePose();
     double wristVolts = 0, rollerVolts = 0;
@@ -74,6 +80,9 @@ void Intake::TeleopPeriodic(){
                 if (m_state == STOWING) m_state = STOWED;
                 if (m_state == DEPLOYING) m_state = DEPLOYED;
                 ResetPID();
+                m_targetPos = m_setPt;
+                m_targetVel = 0.0;
+                m_targetAcc = 0.0;
             } else if (m_state == DEPLOYING) 
                 rollerVolts = m_rollerVolts;
             break;
@@ -85,8 +94,8 @@ void Intake::TeleopPeriodic(){
 
     frc::SmartDashboard::PutNumber("wrist volts", wristVolts);
     frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
-    // m_wristMotor.SetVoltage(units::volt_t(std::clamp(wristVolts, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
-    // m_rollerMotor.SetVoltage(units::volt_t(std::clamp(rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
+    m_wristMotor.SetVoltage(units::volt_t(std::clamp(-wristVolts, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
+    // m_rollerMotor.SetVoltage(units::volt_t(std::clamp(-rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
 }
 
 double Intake::FFPIDCalculate(){
@@ -94,17 +103,20 @@ double Intake::FFPIDCalculate(){
     velErr = m_targetVel - m_curVel;
     m_totalErr += posErr * 0.02;
     double pid = m_kp*posErr + m_kd*velErr + m_ki*m_totalErr;
-    double ff = m_g* cos(m_targetPos) + m_s*((m_targetVel > 0) ? 1.0 : -1.0 ) + m_v*m_targetVel + m_a*m_targetAcc;
+    double s = m_s;
+    if (m_targetVel < 0) s = -m_s;
+    else if (m_targetVel == 0) s = 0;
+    double ff = m_g* cos(m_targetPos) + s + m_v*m_targetVel + m_a*m_targetAcc;
     if (dbg){
         frc::SmartDashboard::PutNumber("posErr", posErr); 
         frc::SmartDashboard::PutNumber("velErr", velErr); 
         frc::SmartDashboard::PutNumber("ff out", ff); 
         frc::SmartDashboard::PutNumber("pid out", pid); 
         //see how each term is contributing to ff
-        frc::SmartDashboard::PutNumber("g", m_g); 
-        frc::SmartDashboard::PutNumber("s", m_s * m_targetPos); 
-        frc::SmartDashboard::PutNumber("v", m_v * m_targetVel); 
-        frc::SmartDashboard::PutNumber("a", m_a * m_targetAcc); 
+        m_g = frc::SmartDashboard::GetNumber("g", m_g); 
+        m_s = frc::SmartDashboard::GetNumber("s", m_s); 
+        m_v = frc::SmartDashboard::GetNumber("v", m_v); 
+        m_a = frc::SmartDashboard::GetNumber("a", m_a); 
     }
     return pid+ff;
 }

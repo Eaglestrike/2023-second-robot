@@ -1,8 +1,11 @@
+#pragma once
+
 #include "IntakeConstants.h"
 #include <ctre/Phoenix.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DutyCycleEncoder.h>
 #include <frc/controller/PIDController.h>
+#include <rev/CANSparkMax.h>
 
 class Intake{
     public:
@@ -40,7 +43,7 @@ class Intake{
 
         bool dbg =true;
 
-        WPI_TalonFX m_wristMotor{IntakeConstants::WRIST_MOTOR_ID};
+        rev::CANSparkMax m_wristMotor{IntakeConstants::WRIST_MOTOR_ID, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
         WPI_TalonFX m_rollerMotor{IntakeConstants::ROLLER_MOTOR_ID};
         frc::DutyCycleEncoder m_wristEncoder{IntakeConstants::WRIST_ENCODER_CAN_ID};
 

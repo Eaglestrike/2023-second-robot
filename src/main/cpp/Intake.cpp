@@ -1,22 +1,27 @@
 #include "Intake/Intake.h"
+#include <iostream>
 
-Intake::Intake(){}
+Intake::Intake(){
+    frc::SmartDashboard::PutNumber("Setpoint", 0);
+    frc::SmartDashboard::PutBoolean("Deploy", false);
+    frc::SmartDashboard::PutNumber("voltage", 0.0);
+    m_wristMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+}
 
 void Intake::debugTargPose(){
+    
     m_setPt = frc::SmartDashboard::GetNumber("Setpoint", m_setPt);
     frc::SmartDashboard::PutNumber("targ vel", m_targetVel);
     frc::SmartDashboard::PutNumber("targ pos", m_targetPos);
     frc::SmartDashboard::PutNumber("targ acc", m_targetAcc);
-    std::string state;
-    state = frc::SmartDashboard::GetString("State", "K");
-    if (state == "DI")
-        DeployIntake();
-    else if (state == "DO") 
-        DeployOuttake(); 
-    else if (state == "S") 
-        Stow();
-    else if (state == "K") 
-        Kill();
+    bool deploy;
+    deploy = frc::SmartDashboard::GetBoolean("Deploy", false);
+    if (deploy){
+         DeployToCustomPos(m_setPt);
+         frc::SmartDashboard::PutBoolean("Deploy", false);
+    }
+       
+
     
 }
 
@@ -28,14 +33,18 @@ void Intake::debugCurPose(){
 
 void Intake::debugPutVoltage(){
     double voltReq;
-    double WRIST_MAX_POS = 0.0,  WRIST_MIN_POS = 0.0;
-    frc::SmartDashboard::GetNumber("voltage", voltReq);
+    double WRIST_MAX_POS = 1.92,  WRIST_MIN_POS = 0.0;
+    voltReq = frc::SmartDashboard::GetNumber("voltage", voltReq);
+    voltReq = std::clamp(voltReq, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS);
     if(m_curPos > WRIST_MAX_POS){
         voltReq = 0;
     } else if(m_curPos < WRIST_MIN_POS){
         voltReq = 0;
     }
-    m_wristMotor.SetVoltage(units::volt_t(std::clamp(voltReq, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
+    std::cout << voltReq << std::endl ;
+    std::cout << m_wristMotor.GetOutputCurrent() << std::endl;
+   // m_rollerMotor.SetVoltage(units::volt_t(std::clamp(voltReq, -IntakeConstants::ROLLER_MAX_VOLTS, IntakeConstants::ROLLER_MAX_VOLTS)));
+    m_wristMotor.SetVoltage(units::volt_t(voltReq));
 }
 
 void Intake::UpdatePose(){
@@ -48,8 +57,8 @@ void Intake::UpdatePose(){
 
 void Intake::TeleopPeriodic(){
     debugCurPose();
-    // debugTargPose();
-    // debugPutVoltage();
+    debugTargPose();
+    debugPutVoltage();
 
     UpdatePose();
     double wristVolts = 0, rollerVolts = 0;

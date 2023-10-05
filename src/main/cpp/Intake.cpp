@@ -35,6 +35,8 @@ void Intake::debugCurPose(){
     frc::SmartDashboard::PutNumber("cur vel", m_curVel);
     frc::SmartDashboard::PutNumber("cur pos", m_curPos);
     frc::SmartDashboard::PutNumber("cur acc", m_curAcc);
+    
+    frc::SmartDashboard::PutNumber("current", m_wristMotor.GetOutputCurrent());
 }
 
 void Intake::debugPutVoltage(){
@@ -88,6 +90,13 @@ void Intake::TeleopPeriodic(){
             break;
         case DEPLOYED:
             wristVolts = FFPIDCalculate();
+            if (m_wristMotor.GetOutputCurrent() > IntakeConstants::NORMAL_CURRENT){
+                if (m_rollerVolts > 0) { // cone???
+                    rollerVolts = IntakeConstants::KEEP_CONE_VOLTS;
+                } else { // cube??
+                    rollerVolts = IntakeConstants::KEEP_CUBE_VOLTS;
+                }
+            }
             rollerVolts = m_rollerVolts;
             break;
     }

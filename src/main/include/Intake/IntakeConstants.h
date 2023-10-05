@@ -33,8 +33,13 @@ namespace IntakeConstants{
     // wrist positions in radians
     // using motor's relative encoder so assume that 0.0 is stowed
     // because it should be zeroed at stowed anyway
-    const double STOWED_POS = 1.92;
+    const double STOWED_POS = 1.8;
     const double DEPLOYED_POS = 0.0;
+
+    //TODO:
+    const double NORMAL_CURRENT = 0.0;
+    const double KEEP_CONE_VOLTS = 0.0;
+    const double KEEP_CUBE_VOLTS = 0.0;
 
     const double ROLLER_MAX_VOLTS = 1.0;
     const double WRIST_MAX_VOLTS = 5.0;

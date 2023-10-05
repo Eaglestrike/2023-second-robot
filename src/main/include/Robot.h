@@ -14,7 +14,7 @@
 
 #include "Controller/Controller.h"
 #include "Drive/SwerveControl.h"
-#include "Intake/Intake.h"
+#include "ElevatorIntake/ElevatorIntake.h"
 #include "Drive/SwerveModule.h"
 #include "Util/thirdparty/simplevectors.hpp"
 

@@ -47,12 +47,8 @@ void Elevator::periodic() {
     Poses::Pose1D current_pose;
 
     // dividing by 10 to convert from 100 milliseconds to seconds.
-    // current_pose.velocity = talonUnitsToMeters(left_.GetSelectedSensorVelocity()) * 10.0;
-    // current_pose.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
-
-    // used to test elevator on arm rig
-    current_pose.velocity = talonUnitsToAngle(left_.GetSelectedSensorVelocity()) * 10.0;
-    current_pose.position = talonUnitsToAngle(left_.GetSelectedSensorPosition());
+    current_pose.velocity = talonUnitsToMeters(left_.GetSelectedSensorVelocity()) * 10.0;
+    current_pose.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
 
     evaluateState();
     evaluateDirection();

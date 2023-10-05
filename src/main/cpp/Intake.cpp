@@ -12,6 +12,14 @@ Intake::Intake(){
     frc::SmartDashboard::PutNumber("v", m_v); 
     frc::SmartDashboard::PutNumber("a", m_a); 
 
+    frc::SmartDashboard::PutNumber("p", m_stowedPIDcontroller.GetP()); 
+    frc::SmartDashboard::PutNumber("i", m_stowedPIDcontroller.GetI());    
+    frc::SmartDashboard::PutNumber("d", m_stowedPIDcontroller.GetD()); 
+
+    frc::SmartDashboard::PutNumber("max acc", m_maxAcc);
+    frc::SmartDashboard::PutNumber("max vel", m_maxVel);
+
+
 }
 
 void Intake::debugTargPose(){
@@ -35,6 +43,15 @@ void Intake::debugCurPose(){
     frc::SmartDashboard::PutNumber("cur vel", m_curVel);
     frc::SmartDashboard::PutNumber("cur pos", m_curPos);
     frc::SmartDashboard::PutNumber("cur acc", m_curAcc);
+
+     m_maxAcc = frc::SmartDashboard::GetNumber("max acc", m_maxAcc); 
+        m_maxVel = frc::SmartDashboard::GetNumber("max vel", m_maxVel); 
+        m_kp =frc::SmartDashboard::GetNumber("p", m_stowedPIDcontroller.GetP());
+        m_kd = frc::SmartDashboard::GetNumber("d", m_stowedPIDcontroller.GetD());
+        m_ki = frc::SmartDashboard::GetNumber("i", m_stowedPIDcontroller.GetI());
+        m_stowedPIDcontroller.SetP(m_kp); 
+        m_stowedPIDcontroller.SetI(m_ki); 
+        m_stowedPIDcontroller.SetD(m_kd); 
 }
 
 void Intake::debugPutVoltage(){
@@ -49,8 +66,8 @@ void Intake::debugPutVoltage(){
     }
     std::cout << voltReq << std::endl ;
     std::cout << m_wristMotor.GetOutputCurrent() << std::endl;
-   // m_rollerMotor.SetVoltage(units::volt_t(std::clamp(voltReq, -IntakeConstants::ROLLER_MAX_VOLTS, IntakeConstants::ROLLER_MAX_VOLTS)));
-    m_wristMotor.SetVoltage(units::volt_t(-voltReq));
+    m_rollerMotor.SetVoltage(units::volt_t(std::clamp(voltReq, -IntakeConstants::ROLLER_MAX_VOLTS, IntakeConstants::ROLLER_MAX_VOLTS)));
+    //m_wristMotor.SetVoltage(units::volt_t(-voltReq));
 }
 
 void Intake::UpdatePose(){
@@ -64,14 +81,14 @@ void Intake::UpdatePose(){
 void Intake::TeleopPeriodic(){
     debugCurPose();
     debugTargPose();
-    //debugPutVoltage();
+    debugPutVoltage();
 
     UpdatePose();
     double wristVolts = 0, rollerVolts = 0;
     switch (m_state){
-        case STOWED:
-            wristVolts = m_stowedPIDcontroller.Calculate(IntakeConstants::STOWED_POS - m_curPos);
-            break;
+        // case STOWED:
+            //wristVolts = m_stowedPIDcontroller.Calculate(m_setPt - m_curPos);
+            // break;
         case DEPLOYING:
         case STOWING:
             UpdateTargetPose(); // bc still using motion profile 
@@ -87,6 +104,7 @@ void Intake::TeleopPeriodic(){
                 rollerVolts = m_rollerVolts;
             break;
         case DEPLOYED:
+        case STOWED:
             wristVolts = FFPIDCalculate();
             rollerVolts = m_rollerVolts;
             break;
@@ -117,6 +135,7 @@ double Intake::FFPIDCalculate(){
         m_s = frc::SmartDashboard::GetNumber("s", m_s); 
         m_v = frc::SmartDashboard::GetNumber("v", m_v); 
         m_a = frc::SmartDashboard::GetNumber("a", m_a); 
+
     }
     return pid+ff;
 }
@@ -157,7 +176,7 @@ void Intake::SetSetpoint(double setpt){
       m_setPt = setpt;
       m_targetPos = m_curPos;
       m_targetVel = 0.0;
-      m_targetAcc = IntakeConstants::WRIST_MAX_ACC;
+      m_targetAcc = m_maxAcc;
       if (m_setPt < m_curPos) m_targetAcc *= -1;
       ResetPID();
       CalcSpeedDecreasePos();
@@ -179,7 +198,7 @@ void Intake::ResetPID(){
 }
 
 void Intake::CalcSpeedDecreasePos(){
-    double MAX_VEL = IntakeConstants::WRIST_MAX_VEL, MAX_ACC = IntakeConstants::WRIST_MAX_ACC;
+    double MAX_VEL = m_maxVel, MAX_ACC = m_maxAcc;
     if(fabs(m_setPt - m_curPos) < MAX_VEL*MAX_VEL/MAX_ACC){ // for triangle motion profile
         m_speedDecreasePos = (m_setPt+m_curPos)/2;
     } else if (m_setPt > m_curPos)
@@ -200,19 +219,19 @@ void Intake::UpdateTargetPose(){
 
     if (m_speedDecreasePos < m_setPt){ // if trapezoid is pos
         if (newP > m_speedDecreasePos) // if after turn pt
-            newV = std::max(0.0, m_targetVel - IntakeConstants::WRIST_MAX_ACC * 0.02);
+            newV = std::max(0.0, m_targetVel - m_maxAcc * 0.02);
         else 
-            newV = std::min(IntakeConstants::WRIST_MAX_VEL, m_targetVel + IntakeConstants::WRIST_MAX_ACC * 0.02);
+            newV = std::min(m_maxVel, m_targetVel + m_maxAcc * 0.02);
     } else {
         if (newP > m_speedDecreasePos) // if before the turn pt
-            newV = std::max(-IntakeConstants::WRIST_MAX_VEL, m_targetVel - IntakeConstants::WRIST_MAX_ACC * 0.02);
+            newV = std::max(-m_maxVel, m_targetVel - m_maxAcc * 0.02);
         else 
-            newV = std::min(0.0, m_targetVel + IntakeConstants::WRIST_MAX_ACC * 0.02);
+            newV = std::min(0.0, m_targetVel + m_maxAcc * 0.02);
     }
 
     if (newV-m_targetVel == 0) newA = 0;
-    else if (newV > m_targetVel) newA = IntakeConstants::WRIST_MAX_ACC;
-    else newA = -IntakeConstants::WRIST_MAX_ACC;
+    else if (newV > m_targetVel) newA = m_maxAcc;
+    else newA = -m_maxAcc;
 
     m_targetPos = newP;
     m_targetVel = newV;

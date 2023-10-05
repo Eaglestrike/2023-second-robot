@@ -38,8 +38,8 @@ namespace ElevatorConstants {
   const double KD = 0.0;
 
   // motor ids
-  const int LEFT_MOTOR_ID = 2;
-  const int RIGHT_MOTOR_ID = 0;
+  const int LEFT_MOTOR_ID = 22;
+  const int RIGHT_MOTOR_ID = 40;
 
   // m
   const double POSITION_ERROR_TOLERANCE = 0.1;

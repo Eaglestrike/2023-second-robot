@@ -199,5 +199,36 @@ namespace AutoPaths {
   const std::vector<SwervePose> BLUE_LINEUP_POS;
 
   // TODO fill values
-  // std::vector<SwervePose> BIG_BOY`
+  const std::vector<SwervePose> BIG_BOY{
+    {
+      .time = 0,
+      .x = 1.92, .y = 1.06,
+      .vx = 0, .vy = 0,
+      .ang = 0, .angVel = 0
+    },
+    {
+      .time = 1.5,
+      .x = 4.3, .y = 0.5,
+      .vx = 0.5, .vy = 0,
+      .ang = M_PI / 2, .angVel = 2,
+    },
+    {
+      .time = 3,
+      .x = 7.07, .y = 0.92,
+      .vx = 0, .vy = 0,
+      .ang = M_PI, .angVel = 0,
+    },
+    {
+      .time = 4.5,
+      .x = 4.296, .y = 1.06,
+      .vx = -1.5, .vy = 0,
+      .ang = 3 * M_PI / 2, .angVel = 2,
+    },
+    {
+      .time = 6,
+      .x = 1.92, .y = 0.5,
+      .vx = 0, .vy = 0,
+      .ang = M_PI * 2, .angVel = 0
+    }
+  };
 }

@@ -107,7 +107,7 @@ void Intake::TeleopPeriodic(){
         case DEPLOYED:
         case STOWED:
             wristVolts = FFPIDCalculate();
-            if (m_wristMotor.GetOutputCurrent() > IntakeConstants::NORMAL_CURRENT){
+            if (m_state == DEPLOYED && m_wristMotor.GetOutputCurrent() > IntakeConstants::NORMAL_CURRENT){
                 if (m_rollerVolts > 0) { // cone???
                     rollerVolts = IntakeConstants::KEEP_CONE_VOLTS;
                 } else { // cube??

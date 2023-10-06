@@ -40,7 +40,7 @@ class Robot : public frc::TimedRobot {
  private:
   // IMU acclerometer and gyroscope
   // Gives information on orientation and acceleration
-  // std::shared_ptr<AHRS> m_navx;
+  std::shared_ptr<AHRS> m_navx;
 
   // swerve
   SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;

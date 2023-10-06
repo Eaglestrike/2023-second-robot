@@ -59,6 +59,7 @@ class Intake{
         double m_speedDecreasePos, // pos in motion profile where start decelerating
                m_totalErr = 0; // integral of position error for PID
 
+        double m_maxAcc = IntakeConstants::WRIST_MAX_ACC, m_maxVel = IntakeConstants::WRIST_MAX_VEL;
         double m_rollerVolts;
 
         frc2::PIDController m_stowedPIDcontroller{IntakeConstants::STOW_P,IntakeConstants::STOW_I,IntakeConstants::STOW_D};

@@ -3,6 +3,8 @@
 #include <frc/SerialPort.h>
 #include <frc/Timer.h>
 
+#include "Util/Mechanism.h"
+
 namespace LidarReaderConstants{
     const char REQ[] = {0x59}; //Request write char
     const char RES = 0x59; //Respond read char
@@ -19,7 +21,7 @@ namespace LidarReaderConstants{
     const double DEFAULT_POSITION = 30.0; //cm
 };
 
-class LidarReader{
+class LidarReader : public Mechanism{
     public:
         struct LidarData{
             double conePos; //cm
@@ -32,7 +34,8 @@ class LidarReader{
 
         LidarReader();
         void RequestData();
-        void Periodic(bool autoRequest = false);
+
+        void setAutoRequest(bool autoRequest);
 
         LidarData getData();
         double getConePos();
@@ -43,10 +46,16 @@ class LidarReader{
         double getRecordedTime();
 
     private:
+        void CorePeriodic() override;
+        void CoreShuffleboardInit() override;
+        void CoreShuffleboardPeriodic() override;
+
         void readData();
         void storeData(const char data[4]);
         bool isValidData(const char data[4]);
         void findOffset();
+
+        bool autoRequest_;
 
         frc::SerialPort port_;
         double reqTime_; //Time since last request

@@ -34,13 +34,12 @@ void LidarReader::RequestData(){
 }
 
 /// @brief Should be called in perioidic - reads port and stores data
-/// @param autoRequest requests data if invalid data
-void LidarReader::Periodic(bool autoRequest){
+void LidarReader::CorePeriodic(){
     double time = frc::Timer::GetFPGATimestamp().value();
     
     frc::SmartDashboard::PutBoolean("Lidar Stale", data_.isValid);
-    
-    if(autoRequest){
+
+    if(autoRequest_){
         RequestData();
     }
 
@@ -62,6 +61,33 @@ void LidarReader::Periodic(bool autoRequest){
     }
 
     readData();
+}
+
+void LidarReader::CoreShuffleboardInit(){
+    frc::SmartDashboard::PutBoolean("Get Data", false);
+    frc::SmartDashboard::PutBoolean("Auto Request", false);
+    frc::SmartDashboard::PutNumber("Cone Pos", getConePos());
+    frc::SmartDashboard::PutNumber("Cube Pos", getCubePos());
+    frc::SmartDashboard::PutBoolean("Has Cube", hasCube());
+    frc::SmartDashboard::PutBoolean("Has Cone", hasCone());
+}
+
+void LidarReader::CoreShuffleboardPeriodic(){
+    setAutoRequest(frc::SmartDashboard::GetBoolean("Auto Request", false));
+    if(frc::SmartDashboard::GetBoolean("Get Data", false)){
+        RequestData();
+        frc::SmartDashboard::PutBoolean("Get Data", false);
+    }
+    frc::SmartDashboard::PutNumber("Cone Pos", getConePos());
+    frc::SmartDashboard::PutNumber("Cube Pos", getCubePos());
+    frc::SmartDashboard::PutBoolean("Has Cube", hasCube());
+    frc::SmartDashboard::PutBoolean("Has Cone", hasCone());
+}
+
+/// @brief Sets the autorequest config
+/// @param autoRequest requests data if invalid data
+void LidarReader::setAutoRequest(bool autoRequest){
+    autoRequest_ = autoRequest;
 }
 
 /// @brief Reads the data from the port

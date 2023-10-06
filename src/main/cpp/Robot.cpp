@@ -92,44 +92,16 @@ void Robot::RobotPeriodic()
  * if-else structure below with additional strings. If using the SendableChooser
  * make sure to add them to the chooser code above as well.
  */
-void Robot::AutonomousInit()
-{
+void Robot::AutonomousInit(){
 }
 
-void Robot::AutonomousPeriodic()
-{
+void Robot::AutonomousPeriodic(){
 }
 
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  double lx = m_controller.getWithDeadContinuous(SWERVE_STRAFEX, 0.1);
-  double ly = m_controller.getWithDeadContinuous(SWERVE_STRAFEY, 0.1);
-
-  double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION, 0.1);
-
-  double vx = std::clamp(lx, -1.0, 1.0) * 12.0;
-  double vy = std::clamp(ly, -1.0, 1.0) * 12.0;
-  double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
-
-  double curYaw = m_navx->GetYaw();
-  curYaw = curYaw * (M_PI / 180);
-
-  frc::SmartDashboard::PutNumber("curYaw", curYaw);
-
-  vec::Vector2D setVel = {-vy, -vx};
-  m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.02);
-
-  m_swerveController->Periodic();
-
-  // temporary
-  auto vel = m_swerveController->GetRobotVelocity(curYaw);
-  m_pos += vel * 0.02;
-
-  frc::SmartDashboard::PutString("pos:", m_pos.toString());
-  frc::SmartDashboard::PutString("vel:", vel.toString());
-  frc::SmartDashboard::PutString("setVel:", setVel.toString());
-  frc::SmartDashboard::PutNumber("setAngVel:", w);
+  m_intake.TeleopPeriodic();
 }
 
 void Robot::DisabledInit() {}

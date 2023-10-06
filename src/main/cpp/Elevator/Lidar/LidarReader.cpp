@@ -11,7 +11,7 @@ LidarReader::LidarReader(bool enabled, bool shuffleboard):
     port_(LidarReaderConstants::BAUD_RATE, LidarReaderConstants::LIDAR_PORT),
     isRequesting_(false)
 {
-    frc::SmartDashboard::PutBoolean("Lidar Responding", true);
+    frc::SmartDashboard::PutBoolean("Lidar Stale", true);
     double time = frc::Timer::GetFPGATimestamp().value();
     reqTime_ = time;
     data_ = LidarData{

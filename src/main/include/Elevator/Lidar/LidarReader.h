@@ -32,7 +32,7 @@ class LidarReader : public Mechanism{
             double readTime; //Time in which data was recorded
         };
 
-        LidarReader();
+        LidarReader(bool enable = true, bool shuffleboard = false);
         void RequestData();
 
         void setAutoRequest(bool autoRequest);

@@ -6,7 +6,8 @@
 #include "frc/smartdashboard/SmartDashboard.h"
 
 /// @brief Constructor
-LidarReader::LidarReader():
+LidarReader::LidarReader(bool enabled, bool shuffleboard):
+    Mechanism("Lidar", enabled, shuffleboard),
     port_(LidarReaderConstants::BAUD_RATE, LidarReaderConstants::LIDAR_PORT),
     isRequesting_(false)
 {

@@ -54,8 +54,10 @@ Robot::Robot():
     // ODOMETRY
     vec::Vector2D pos = m_odometry.GetPosition();
     double ang = m_odometry.GetAng();
-
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
+
+    m_autoLineup.UpdateOdom(pos, ang);
+    m_autoPath.UpdateOdom(pos, ang);
 
     // UNCOMMENT BELOW
     // frc::SmartDashboard::PutString("Filter pos", pos.toString());
@@ -113,8 +115,8 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
   frc::SmartDashboard::PutNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
-  // frc::SmartDashboard::PutNumber("Delta X", 0);
-  // frc::SmartDashboard::PutNumber("Delta Y", 0);
+  frc::SmartDashboard::PutNumber("Delta X", 0);
+  frc::SmartDashboard::PutNumber("Delta Y", 0);
   frc::SmartDashboard::PutNumber("Delta Ang", 0);
 
   // starting position
@@ -126,6 +128,20 @@ void Robot::RobotInit()
   m_startPosChooser.AddOption("Red M", "Red M");
   m_startPosChooser.AddOption("Red R", "Red R");
   frc::SmartDashboard::PutData("Starting pos", &m_startPosChooser);
+
+  frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
+  frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
+  frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KI);
+
+  frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
+  frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
+  frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KI);
+
+  frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
+  frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
+
+  frc::SmartDashboard::PutNumber("ang maxSp", AutoConstants::ANG_MAXSP);
+  frc::SmartDashboard::PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
 
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
@@ -164,14 +180,14 @@ void Robot::RobotPeriodic()
     // m_swerveBl.SetPID(kP, kI, kD);
     // m_swerveBr.SetPID(kP, kI, kD);
 
-    // double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-    // double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-    // double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+    double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+    double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+    double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
     // m_swerveFl.UpdateShuffleboard();
     // m_swerveFr.UpdateShuffleboard();
     // m_swerveBl.UpdateShuffleboard();
     // m_swerveBr.UpdateShuffleboard();
-    // m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
+    m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
 
     // double E0 = frc::SmartDashboard::GetNumber("KF E0", OdometryConstants::E0);
     // double Q = frc::SmartDashboard::GetNumber("KF Q", OdometryConstants::Q);
@@ -186,10 +202,29 @@ void Robot::RobotPeriodic()
 
     double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
     double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
-    // double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
-    // m_autoLineup.SetRelTargetPose({0, 0}, deltaAng);
-    // m_autoLineup.SetRelTargetPose({deltaX, deltaY}, 0);
+    double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
     m_autoLineup.SetPosTarget({deltaX, deltaY}, true);
+    m_autoLineup.SetAngTarget(deltaAng, true);
+
+    double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
+    double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
+    double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KI);
+
+    double akP = frc::SmartDashboard::GetNumber("ang kP", AutoConstants::ANG_KP);
+    double akI = frc::SmartDashboard::GetNumber("ang kI", AutoConstants::ANG_KI);
+    double akD = frc::SmartDashboard::GetNumber("ang kD", AutoConstants::ANG_KI);
+
+    m_autoLineup.SetPosPID(tkP, tkI, tkD);
+    m_autoLineup.SetAngPID(akP, akI, akD);
+
+    double tMaxSp = frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
+    double tMaxAcc = frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
+
+    double aMaxSp = frc::SmartDashboard::PutNumber("ang maxSp", AutoConstants::ANG_MAXSP);
+    double aMaxAcc = frc::SmartDashboard::PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
+
+    m_autoLineup.SetPosFF({tMaxSp, tMaxAcc});
+    m_autoLineup.SetAngFF({aMaxSp, aMaxAcc});
 
     // m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
   }
@@ -200,10 +235,6 @@ void Robot::RobotPeriodic()
     m_swerveController->ResetAngleCorrection(m_startAng);
     m_odometry.Reset();
   }
-
-  // delete later
-  // if (m_controller.getPressed(ZERO_AUTO)) {
-  // }
 
   // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
   // frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
@@ -229,10 +260,15 @@ void Robot::RobotPeriodic()
  */
 void Robot::AutonomousInit()
 {
+  m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
+
+  // TESTING CODE
+  // MAKE SURE BLUE RIGHT OR ELSE ROBOT WILL UNALIVE ITSELF
 }
 
 void Robot::AutonomousPeriodic()
 {
+    
 }
 
 void Robot::TeleopInit() {
@@ -258,28 +294,30 @@ void Robot::TeleopPeriodic() {
 
   vec::Vector2D setVel = {-vy, -vx};
 
-  m_autoLineup.UpdateOdom(m_odometry.GetPosition(), curYaw);
-
   // cancel auto if joysticks move
   if (!Utils::NearZero(setVel)) {
     m_autoLineup.StopPos();
   }
 
+  AutoLineup::ExecuteState curAutoState = m_autoLineup.GetPosExecuteState();
+
   if (m_controller.getPressed(START_AUTO)) {
-    if (m_autoLineup.GetPosExecuteState() == AutoLineup::NOT_EXECUTING) {
+    if (curAutoState != AutoLineup::EXECUTING_TARGET) {
       m_autoLineup.StartPosMove();
     } else {
       m_autoLineup.StopPos();
     }
   }
 
-  if (m_autoLineup.GetPosExecuteState() == AutoLineup::NOT_EXECUTING) {
-    m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
-  } else {
+  if (curAutoState == AutoLineup::EXECUTING_TARGET) {
     vec::Vector2D driveVel = m_autoLineup.GetVel();
     double angVel = m_autoLineup.GetAngVel();
 
+    m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  } else {
+    m_swerveController->SetFeedForward(0, 1, 0);
+    m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
   }
 
   m_autoLineup.Periodic();
@@ -334,8 +372,6 @@ void Robot::DisabledPeriodic() {
 
 void Robot::TestInit() {
   m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
-  m_autoLineup.SetFFPos({1, 1});
-  m_autoLineup.SetFFAng({5, 5});
 
   m_curVolts = 0;
 }

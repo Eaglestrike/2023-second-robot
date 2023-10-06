@@ -7,6 +7,7 @@
 #include "Util/Mathutil.h"
 #include "Util/thirdparty/hermite.hpp"
 #include "Util/thirdparty/simplevectors.hpp"
+#include "Drive/DriveConstants.h"
 
 namespace hm = hermite;
 namespace vec = svector;
@@ -18,13 +19,6 @@ class AutoPath {
   typedef hm::Pose<2> Pose2;
 
 public:
-  struct SwervePose {
-    double time;
-    double x, y;
-    double vx, vy;
-    double ang, angVel;
-  };
-
   enum ExecuteState {
     NOT_EXECUTING,
     EXECUTING_PATH,
@@ -33,8 +27,8 @@ public:
 
   AutoPath();
 
-  void AddPose(SwervePose pose);
-  void AddPoses(std::vector<SwervePose> poses);
+  void AddPose(AutoPaths::SwervePose pose);
+  void AddPoses(std::vector<AutoPaths::SwervePose> poses);
   void ResetPath();
   void SetPosPID(double kP, double kI, double kD);
   void SetAngPID(double kP, double kI, double kD);

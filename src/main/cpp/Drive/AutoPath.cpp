@@ -23,7 +23,7 @@ AutoPath::AutoPath() :
  * add or subtract M_PI to angle
  * @note Units are m, rad, and s
 */
-void AutoPath::AddPose(SwervePose pose) {
+void AutoPath::AddPose(AutoPaths::SwervePose pose) {
   Pose2 poseTrans = {pose.time, {pose.x, pose.y}, {pose.vx, pose.vy}};
   Pose1 poseAng = {pose.time, {pose.ang}, {pose.angVel}};
 
@@ -40,7 +40,7 @@ void AutoPath::AddPose(SwervePose pose) {
  * add or subtract M_PI to angle
  * @note Units are m, rad, and s
 */
-void AutoPath::AddPoses(std::vector<SwervePose> poses) {
+void AutoPath::AddPoses(std::vector<AutoPaths::SwervePose> poses) {
   for (auto pose : poses) {
     AddPose(pose);
   }

@@ -19,7 +19,13 @@ AutoLineup::AutoLineup()
   : m_curAng{0}, m_prevTime{0}, m_curExpectedAng{0}, m_targetAng{0}, m_curAngVel{0}, m_posTimes{0, 0, 0, 0},
   m_angTimes{0, 0, 0, 0}, m_angVecDir{0}, m_ffPos{0, 0}, m_ffAng{0, 0}, m_posState{NOT_EXECUTING},
   m_prevPos{0}, m_prevAng{0}, m_prevPosErr{0}, m_prevAngErr{0}, m_totalPosErr{0}, m_totalAngErr{0},
-  /*m_prevAngVelErr{0}, m_totalAngVelErr{0},*/ m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0} {}
+  /*m_prevAngVelErr{0}, m_totalAngVelErr{0},*/ m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0}
+{
+  SetPosPID(AutoConstants::TRANS_KP, AutoConstants::TRANS_KI, AutoConstants::TRANS_KD);
+  SetAngPID(AutoConstants::ANG_KP, AutoConstants::ANG_KI, AutoConstants::ANG_KD);
+  SetPosFF({AutoConstants::TRANS_MAXSP, AutoConstants::TRANS_MAXACC});
+  SetAngFF({AutoConstants::ANG_MAXSP, AutoConstants::ANG_MAXACC});
+}
 
 
 /**
@@ -85,7 +91,7 @@ void AutoLineup::SetTarget(vec::Vector2D pos, double ang, bool rel) {
  * 
  * @param ffPos Feed forward parameters
 */
-void AutoLineup::SetFFPos(FFConfig ffPos) {
+void AutoLineup::SetPosFF(FFConfig ffPos) {
   if (m_posState != EXECUTING_TARGET) {
     m_ffPos.maxAccel = ffPos.maxAccel;
     m_ffPos.maxSpeed = ffPos.maxSpeed;
@@ -99,7 +105,7 @@ void AutoLineup::SetFFPos(FFConfig ffPos) {
  * 
  * @param ffAng Feed fowrad parameters
 */
-void AutoLineup::SetFFAng(FFConfig ffAng) {
+void AutoLineup::SetAngFF(FFConfig ffAng) {
   if (m_angState != EXECUTING_TARGET) {
     m_ffAng.maxAccel = ffAng.maxAccel;
     m_ffAng.maxSpeed = ffAng.maxSpeed;

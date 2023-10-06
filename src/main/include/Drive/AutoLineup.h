@@ -38,8 +38,8 @@ public:
   void SetTarget(vec::Vector2D pos, double ang, bool rel);
   void SetAbsTargetPose(vec::Vector2D target, double ang);
   void SetRelTargetPose(vec::Vector2D delta, double ang);
-  void SetFFPos(FFConfig ffPos);
-  void SetFFAng(FFConfig ffAng);
+  void SetPosFF(FFConfig ffPos);
+  void SetAngFF(FFConfig ffAng);
   void StartPosMove();
   void StartAngMove();
   void StopPos();

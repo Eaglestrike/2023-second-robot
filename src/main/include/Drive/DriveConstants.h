@@ -6,6 +6,7 @@
 
 #include <cstddef>
 #include <string>
+#include <vector>
 
 #include "Util/thirdparty/simplevectors.hpp"
 namespace vec = svector;
@@ -171,4 +172,27 @@ namespace AutoConstants {
   const double VEL_ERR_TOLERANCE = 0.01;
 
   const double UNREASONABLE_ANG_SPEED = 62.4828; // rad/s
+
+  const double TRANS_KP = 0;
+  const double TRANS_KI = 0;
+  const double TRANS_KD = 0;
+  const double TRANS_MAXSP = 0;
+  const double TRANS_MAXACC = 0;
+
+  const double ANG_KP = 0;
+  const double ANG_KI = 0;
+  const double ANG_KD = 0;
+  const double ANG_MAXSP = 0;
+  const double ANG_MAXACC = 0;
+}
+
+namespace AutoPaths {
+  struct SwervePose {
+    double time;
+    double x, y;
+    double vx, vy;
+    double ang, angVel;
+  };
+
+  // std::vector<SwervePose> BIG_BOY`
 }

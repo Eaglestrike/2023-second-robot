@@ -38,7 +38,7 @@ Robot::Robot():
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
-  m_swerveController = new SwerveControl(moduleArray, 0, 1, 0);
+  m_swerveController = std::make_shared<SwerveControl>(moduleArray, true, false);
 
   // navx
   try

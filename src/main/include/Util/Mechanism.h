@@ -45,7 +45,7 @@ class Mechanism{
 
         virtual void CoreShuffleboardInit();
         virtual void CoreShuffleboardPeriodic();
-        virtual void CoreUpdateShuffleboard();
+        virtual void CoreShuffleboardUpdate();
 
         std::string name_;
         bool enabled_;

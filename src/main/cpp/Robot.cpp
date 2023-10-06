@@ -27,7 +27,7 @@ Robot::Robot():
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
-  m_swerveController = std::make_shared<SwerveControl>(moduleArray, 0, 1, 0);
+  m_swerveController = std::make_shared<SwerveControl>(moduleArray, true, false);
 
   // navx
   try
@@ -41,12 +41,10 @@ Robot::Robot():
 }
 
 void Robot::RobotInit(){
-  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
-
   m_navx->ZeroYaw();
-  m_swerveController->ResetAngleCorrection();
+
+  m_swerveController->Init();
+  m_swerveController->SetFeedForward(0.0 , 1.0, 0.0);
 }
 
 /**
@@ -61,16 +59,10 @@ void Robot::RobotPeriodic()
 {
   if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
-    double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-    double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-    double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
-
     m_swerveFl.UpdateShuffleboard();
     m_swerveFr.UpdateShuffleboard();
     m_swerveBl.UpdateShuffleboard();
     m_swerveBr.UpdateShuffleboard();
-
-    m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
   }
 
   if (m_controller.getPressed(ZERO_YAW))

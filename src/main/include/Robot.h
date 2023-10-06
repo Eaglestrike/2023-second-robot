@@ -45,7 +45,6 @@ class Robot : public frc::TimedRobot {
 
   // swerve
   SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
-  vec::Vector2D m_rFr, m_rBr, m_rFl, m_rBl;
   std::shared_ptr<SwerveControl> m_swerveController;
 
   //Controller

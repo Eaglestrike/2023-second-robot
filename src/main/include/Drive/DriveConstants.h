@@ -5,9 +5,13 @@
 #pragma once
 
 #include <cstddef>
+#include <string>
 
-namespace SwerveConstants
-{
+#include "Util/thirdparty/simplevectors.hpp"
+
+namespace vec = svector;
+
+namespace SwerveConstants{
   const double MAG_ENCODER_COUNTS_PER_REV = 4096;
   const double TALON_FX_COUNTS_PER_REV = 2048;
   const double WHEEL_RADIUS = 0.0508; // in meters
@@ -49,7 +53,7 @@ namespace SwerveConstants
   const bool FL_ANG_INVERTED = true;
   const bool BL_ANG_INVERTED = true;
 
-  // degrees, subtracted from reading
+  // encoder offset degrees, subtracted from reading
   const double FR_OFFSET = -161.28; //18.72
   const double BR_OFFSET = 6.50;
   const double FL_OFFSET = 104.4;
@@ -64,6 +68,69 @@ namespace SwerveConstants
   const double ANG_CORRECT_D = 0.1;
 
   const double MAX_VOLTS = 6.0; 
+
+  struct SwerveConfig{
+    std::string name;
+    std::size_t driveMotorId;
+    std::size_t angleMotorId;
+    std::size_t encoderId;
+    bool driveInverted;
+    bool encoderInverted;
+    bool angMotorInverted;
+    double offset;
+    vec::Vector2D position;
+    double kP = TURN_P;
+    double kI = TURN_I;
+    double kD = TURN_D;
+  };
+
+  const SwerveConfig FR_CONFIG{
+     .name = "Front Right",
+     .driveMotorId = FR_DRIVE_ID, 
+     .angleMotorId = FR_TURN_ID,
+     .encoderId = FR_ENCODER_ID,
+     .driveInverted = FR_DRIVE_INVERTED,
+     .encoderInverted = FR_ENCODER_INVERTED,
+     .angMotorInverted = FR_ANG_INVERTED,
+     .offset = FR_OFFSET,
+     .position = {SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE}
+  };
+
+  const SwerveConfig BR_CONFIG{
+     .name = "Back Right",
+     .driveMotorId = BR_DRIVE_ID, 
+     .angleMotorId = BR_TURN_ID,
+     .encoderId = BR_ENCODER_ID,
+     .driveInverted = BR_DRIVE_INVERTED,
+     .encoderInverted = BR_ENCODER_INVERTED,
+     .angMotorInverted = BR_ANG_INVERTED,
+     .offset = BR_OFFSET,
+     .position = {-SwerveConstants::CENTER_TO_EDGE, -SwerveConstants::CENTER_TO_EDGE}
+  };
+
+  const SwerveConfig FL_CONFIG{
+     .name = "Front Left",
+     .driveMotorId = FL_DRIVE_ID, 
+     .angleMotorId = FL_TURN_ID,
+     .encoderId = FL_ENCODER_ID,
+     .driveInverted = FL_DRIVE_INVERTED,
+     .encoderInverted = FL_ENCODER_INVERTED,
+     .angMotorInverted = FL_ANG_INVERTED,
+     .offset = FL_OFFSET,
+     .position = {SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE}
+  };
+
+  const SwerveConfig BL_CONFIG{
+     .name = "Back Left",
+     .driveMotorId = BL_DRIVE_ID, 
+     .angleMotorId = BL_TURN_ID,
+     .encoderId = BL_ENCODER_ID,
+     .driveInverted = BL_DRIVE_INVERTED,
+     .encoderInverted = BL_ENCODER_INVERTED,
+     .angMotorInverted = BL_ANG_INVERTED,
+     .offset = BL_OFFSET,
+     .position = {-SwerveConstants::CENTER_TO_EDGE, SwerveConstants::CENTER_TO_EDGE}
+  };
 }
 
 namespace OdometryConstants {

@@ -127,7 +127,7 @@ void Mechanism::DisableShuffleboard(){
 }
 
 /**
- * 
+ * Call to run any Shuffleboard functionality that needs to be executed once
 */
 void Mechanism::UpdateShuffleboard(){
     if(enabled_){

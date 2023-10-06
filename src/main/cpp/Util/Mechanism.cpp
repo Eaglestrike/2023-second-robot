@@ -236,6 +236,6 @@ void Mechanism::CoreShuffleboardPeriodic(){
 /**
  * Virtual function to implement
 */
-void Mechanism::CoreUpdateShuffleboard(){
+void Mechanism::CoreShuffleboardUpdate(){
     enabled_ = frc::SmartDashboard::GetBoolean(name_ + " enabled", true);
 }

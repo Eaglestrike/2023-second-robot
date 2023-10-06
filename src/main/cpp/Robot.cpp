@@ -328,6 +328,7 @@ void Robot::TeleopPeriodic() {
   // frc::SmartDashboard::PutString("setVel:", setVel.toString());
   // frc::SmartDashboard::PutNumber("setAngVel:", w);
   m_prevTime = curTime;
+  m_intake.TeleopPeriodic();
 }
 
 void Robot::DisabledInit() {}

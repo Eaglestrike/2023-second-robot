@@ -20,6 +20,7 @@
 #include "Drive/AutoPath.h"
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
+#include "Intake/Intake.h"
 #include "Drive/SwerveModule.h"
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"
@@ -80,4 +81,5 @@ class Robot : public frc::TimedRobot {
 
   // jetson
   SocketClient m_client;
+  Intake m_intake;
 };

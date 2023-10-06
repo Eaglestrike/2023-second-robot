@@ -17,6 +17,8 @@
 #include "Drive/SwerveModule.h"
 #include "Util/thirdparty/simplevectors.hpp"
 
+#include "Elevator/Lidar/LidarReader.h"
+
 namespace vec = svector;
 
 class Robot : public frc::TimedRobot {
@@ -48,6 +50,9 @@ class Robot : public frc::TimedRobot {
 
   //Controller
   Controller m_controller;
+
+  //Lidar TODO remove
+  LidarReader lidar_;
 
   // temp odometry
   vec::Vector2D m_pos;

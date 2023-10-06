@@ -37,8 +37,10 @@ void LidarReader::RequestData(){
 /// @param autoRequest requests data if invalid data
 void LidarReader::Periodic(bool autoRequest){
     double time = frc::Timer::GetFPGATimestamp().value();
-
-    if(autoRequest && !data_.isValid){
+    
+    frc::SmartDashboard::PutBoolean("Lidar Stale", data_.isValid);
+    
+    if(autoRequest){
         RequestData();
     }
 
@@ -58,8 +60,6 @@ void LidarReader::Periodic(bool autoRequest){
         port_.Reset();
         std::cout<<"Failed Requesting Lidar Data"<<std::endl;
     }
-
-    frc::SmartDashboard::PutBoolean("Lidar Responding", data_.isValid);
 
     readData();
 }

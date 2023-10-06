@@ -54,6 +54,8 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
   frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
+  frc::SmartDashboard::PutBoolean("Get Data", false);
+
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
 }
@@ -68,6 +70,16 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
+  lidar_.Periodic();
+  if(frc::SmartDashboard::GetBoolean("Get Data", false)){
+    lidar_.RequestData();
+    frc::SmartDashboard::PutBoolean("Get Data", false);
+  }
+  frc::SmartDashboard::PutNumber("Cone Pos", lidar_.getConePos());
+  frc::SmartDashboard::PutNumber("Cube Pos", lidar_.getCubePos());
+  frc::SmartDashboard::PutBoolean("Has Cube", lidar_.hasCube());
+  frc::SmartDashboard::PutBoolean("Has Cone", lidar_.hasCone());
+
   if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
     double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);

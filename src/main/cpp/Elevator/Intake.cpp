@@ -1,11 +1,11 @@
-#include "Intake/Intake.h"
+#include "Elevator/Intake.h"
 #include <iostream>
 
 Intake::Intake(){
+    m_wristMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     frc::SmartDashboard::PutNumber("Setpoint", 0);
     frc::SmartDashboard::PutBoolean("Deploy", false);
-    frc::SmartDashboard::PutNumber("voltage", 0.0);
-    m_wristMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    frc::SmartDashboard::PutNumber("voltage", 0.0); 
     //m_wristMotor.SetInverted(true);
     frc::SmartDashboard::PutNumber("g", m_g); 
     frc::SmartDashboard::PutNumber("s", m_s); 
@@ -26,9 +26,6 @@ void Intake::debugTargPose(){
          DeployToCustomPos(m_setPt);
          frc::SmartDashboard::PutBoolean("Deploy", false);
     }
-       
-
-    
 }
 
 void Intake::debugCurPose(){

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IntakeConstants.h"
+#include "Elevator/ElevatorIntakeConstants.h"
 #include <ctre/Phoenix.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DutyCycleEncoder.h>

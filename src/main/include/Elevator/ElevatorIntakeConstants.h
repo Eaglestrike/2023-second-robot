@@ -1,4 +1,7 @@
-#pragma once 
+namespace IntakeElevatorConstants{
+
+}
+
 
 namespace IntakeConstants{
     const int WRIST_MOTOR_ID = 4;

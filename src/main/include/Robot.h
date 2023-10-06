@@ -52,5 +52,5 @@ class Robot : public frc::TimedRobot {
   Intake m_intake;
 
   // temp odometry
-  // vec::Vector2D m_pos;
+  vec::Vector2D m_pos;
 };

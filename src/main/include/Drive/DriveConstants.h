@@ -194,5 +194,10 @@ namespace AutoPaths {
     double ang, angVel;
   };
 
+  // TODO fill values, index = position 1-9
+  // only x, y, ang will matter
+  const std::vector<SwervePose> BLUE_LINEUP_POS;
+
+  // TODO fill values
   // std::vector<SwervePose> BIG_BOY`
 }

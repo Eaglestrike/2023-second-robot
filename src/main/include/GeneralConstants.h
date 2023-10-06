@@ -65,5 +65,7 @@ namespace FieldConstants {
 
   const vec::Vector2D RR_POS = {14.5, 4.42};
   const double RR_ANG = 0;
-  const double RR_JANG = M_PI;
+  const double RR_JANG = M_PI;  
+
+  const double FIELD_WIDTH = 16.540988; // in metres
 }

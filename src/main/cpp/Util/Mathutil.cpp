@@ -9,6 +9,8 @@
 
 #include <frc/Timer.h>
 
+#include "GeneralConstants.h"
+
 /**
  * Gets the value with the minimum absolute value between two numbers
  *
@@ -172,4 +174,41 @@ vec::Vector2D Utils::GetProjection(const vec::Vector2D v, const vec::Vector2D w)
 double Utils::GetAngBetweenVec(const vec::Vector2D v1, const vec::Vector2D v2) {
  return std::acos(std::clamp(
       dot(v1, v2) / (magn(v1) * magn(v2)), -1.0, 1.0));
+}
+
+/**
+ * Gets red side equivalent of a blue pose
+ * 
+ * @param bluePose a blue pose
+ * 
+ * @returns Red equivalent of the blue pose
+*/
+AutoPaths::SwervePose Utils::GetRedPose(AutoPaths::SwervePose bluePose) {
+  AutoPaths::SwervePose redPose;
+
+  redPose.time = bluePose.time;
+  redPose.y = bluePose.y;
+  redPose.vy = bluePose.vy;
+  redPose.x = FieldConstants::FIELD_WIDTH - bluePose.x;
+  redPose.vx = -bluePose.vx;
+  redPose.ang = M_PI - bluePose.ang;
+  redPose.angVel = -bluePose.angVel;
+
+  return redPose;
+}
+
+/**
+ * Gets vector of red side equivalents of a blue pose
+ * 
+ * @param bluePoses an vector of blue poses
+ * 
+ * @returns Vector of red equivalents of the blue pose
+*/
+std::vector<AutoPaths::SwervePose> Utils::GetRedPoses(std::vector<AutoPaths::SwervePose> bluePoses) {
+  std::vector<AutoPaths::SwervePose> res;
+  for (auto bluePose : bluePoses) {
+    res.push_back(GetRedPose(bluePose));
+  }
+
+  return res;
 }

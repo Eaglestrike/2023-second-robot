@@ -3,8 +3,9 @@
 #include <cstddef>
 #include <vector>
 
-#include "UtilConstants.h"
+#include "Drive/DriveConstants.h"
 #include "thirdparty/simplevectors.hpp"
+#include "Util/UtilConstants.h"
 
 namespace vec = svector; //!< vector namespace alias
 
@@ -27,4 +28,6 @@ public:
   static vec::Vector2D GetUnitVecDir(const double ang);
   static vec::Vector2D GetProjection(const vec::Vector2D v, const vec::Vector2D w);
   static double GetAngBetweenVec(const vec::Vector2D v1, const vec::Vector2D v2);
+  static AutoPaths::SwervePose GetRedPose(AutoPaths::SwervePose bluePose);
+  static std::vector<AutoPaths::SwervePose> GetRedPoses(std::vector<AutoPaths::SwervePose> bluePoses);
 };

@@ -7,17 +7,19 @@
 #include "SwerveModule.h"
 #include "Util/thirdparty/simplevectors.hpp"
 
+#include "Util/Mechanism.h"
+
 namespace vec = svector; //!< Alias to vector namespace
 
 /**
  * Swerve controller for 4-wheel swerve
 */
-class SwerveControl {
+class SwerveControl{
 public:
   template <typename T>
   using RefArray = std::array<std::reference_wrapper<T>, 4>; //!< Alias to an array of references
 
-  SwerveControl(RefArray<SwerveModule> modules, std::array<vec::Vector2D, 4> radii, double kS, double kV, double kA);
+  SwerveControl(RefArray<SwerveModule> modules, double kS, double kV, double kA);
 
   vec::Vector2D GetRobotVelocity(double ang);
 
@@ -31,7 +33,6 @@ public:
 
 private:
   RefArray<SwerveModule> m_modules;
-  std::array<vec::Vector2D, 4> m_radii;
   std::array<double, 4> m_prevSpeeds;
 
   double m_kS;

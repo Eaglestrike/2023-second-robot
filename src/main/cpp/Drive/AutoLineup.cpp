@@ -249,7 +249,7 @@ AutoLineup::ExecuteState AutoLineup::GetAngExecuteState() const {
  * @returns Wheter robot is where it is supposed to be positionally at the end of profile
 */
 bool AutoLineup::AtPosTarget() const {
-  return AtPosTarget(AutoConstants::POS_ERR_TOLERANCE, AutoConstants::VEL_ERR_TOLERANCE);
+  return AtPosTarget(AutoConstants::TRANS_POS_ERR_TOLERANCE, AutoConstants::TRANS_VEL_ERR_TOLERANCE);
 }
 
 /**
@@ -272,7 +272,7 @@ bool AutoLineup::AtPosTarget(double posErrTol, double velErrTol) const {
  * @returns Whether robot is where it is supposed to be angularly at the end of profile
 */
 bool AutoLineup::AtAngTarget() const {
-  return AtAngTarget(AutoConstants::POS_ERR_TOLERANCE, AutoConstants::VEL_ERR_TOLERANCE);
+  return AtAngTarget(AutoConstants::ANG_POS_ERR_TOLERANCE, AutoConstants::ANG_VEL_ERR_TOLERANCE);
 }
 
 /**
@@ -383,11 +383,10 @@ double AutoLineup::GetSpeed(FFConfig &config, Times &times) {
   double curT = Utils::GetCurTimeS();
   if (curT < times.startT) {
     // shouldn't be here
-    return -1;
+    return 0;
   }
   if (curT > times.endT) {
-    StopPos();
-    return -1;
+    return 0;
   }
 
   double speed;

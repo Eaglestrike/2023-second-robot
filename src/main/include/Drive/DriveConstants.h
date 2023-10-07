@@ -64,14 +64,14 @@ namespace SwerveConstants
   const double TURN_I = 0;
   const double TURN_D = 0.0;
 
-  const double ANG_CORRECT_P = 2.75;
+  const double ANG_CORRECT_P = 5;
   const double ANG_CORRECT_I = 0;
-  const double ANG_CORRECT_D = 0.05;
+  const double ANG_CORRECT_D = 0.5;
 
   const double MAX_VOLTS = 10.0; 
-  const double kS = 0.8;
+  const double kS = 0.6;
   const double kV = 2.326;
-  const double kA = 0;
+  const double kA = 0; // DON't TOUCH THIS, KA REMAINS AT 0
 
   struct SwerveConfig{
     std::string name;
@@ -168,14 +168,17 @@ namespace OdometryConstants {
 }
 
 namespace AutoConstants {
-  const double POS_ERR_TOLERANCE = 0.01;
-  const double VEL_ERR_TOLERANCE = 0.01;
+  const double TRANS_POS_ERR_TOLERANCE = 0.03;
+  const double TRANS_VEL_ERR_TOLERANCE = 0.01;
+
+  const double ANG_POS_ERR_TOLERANCE = 0.03;
+  const double ANG_VEL_ERR_TOLERANCE = 0.01;
 
   const double UNREASONABLE_ANG_SPEED = 62.4828; // rad/s
 
-  const double TRANS_KP = 0;
+  const double TRANS_KP = 5.2;
   const double TRANS_KI = 0;
-  const double TRANS_KD = 0;
+  const double TRANS_KD = 1.8;
   const double TRANS_MAXSP = 3;
   const double TRANS_MAXACC = 1;
 

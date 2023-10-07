@@ -62,14 +62,15 @@ Robot::Robot():
     // UNCOMMENT BELOW
     frc::SmartDashboard::PutString("Robot pos", pos.toString());
     frc::SmartDashboard::PutNumber("Robot ang", ang);
-    // frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
-    // frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
+    frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
+    frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
     // frc::SmartDashboard::PutData("Field", &m_field);
     // END UNCOMMENT
 
     // process camera data
     std::vector<double> camData = m_client.GetData();
     if (m_client.HasConn() && !m_client.IsStale()) {
+      int camId = static_cast<int>(camData[0]);
       int tagId = static_cast<int>(camData[1]);
       double x = camData[2];
       double y = camData[3];
@@ -80,7 +81,7 @@ Robot::Robot():
       // frc::SmartDashboard::PutNumber("camX", x);
       // frc::SmartDashboard::PutNumber("camY", y);
 
-      bool res = m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
+      bool res = camId == 0 && m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
       // frc::SmartDashboard::PutBoolean("Good ID", res);
       if (!res) {
         tagId = 0;
@@ -169,6 +170,9 @@ void Robot::RobotPeriodic()
 {
   frc::SmartDashboard::PutBoolean("Pos Currently executing", m_autoLineup.GetPosExecuteState() == AutoLineup::EXECUTING_TARGET);
   frc::SmartDashboard::PutBoolean("Ang Currently executing", m_autoLineup.GetAngExecuteState() == AutoLineup::EXECUTING_TARGET);
+
+  frc::SmartDashboard::PutBoolean("Pos at target", m_autoLineup.GetPosExecuteState() == AutoLineup::AT_TARGET);
+  frc::SmartDashboard::PutBoolean("Ang at target", m_autoLineup.GetAngExecuteState() == AutoLineup::AT_TARGET);
 
   if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
@@ -303,23 +307,31 @@ void Robot::TeleopPeriodic() {
     m_autoLineup.StopPos();
   }
 
-  AutoLineup::ExecuteState curAutoState = m_autoLineup.GetPosExecuteState();
+  AutoLineup::ExecuteState curPosAutoState = m_autoLineup.GetPosExecuteState();
+  AutoLineup::ExecuteState curAngAutoState = m_autoLineup.GetAngExecuteState();
 
-  if (m_controller.getPressed(START_AUTO)) {
-    if (curAutoState != AutoLineup::EXECUTING_TARGET) {
-      std::cout << "pos move" << std::endl;
+  if (m_controller.getPressed(START_POS_AUTO)) {
+    if (curPosAutoState != AutoLineup::EXECUTING_TARGET) {
       m_autoLineup.StartPosMove();
     } else {
-      std::cout << "pos stop" << std::endl;
       m_autoLineup.StopPos();
     }
   }
 
-  if (curAutoState == AutoLineup::EXECUTING_TARGET) {
+  if (m_controller.getPressed(START_ANG_AUTO)) {
+    if (curAngAutoState != AutoLineup::EXECUTING_TARGET) {
+      m_autoLineup.StartAngMove();
+    } else {
+      m_autoLineup.StopAng();
+    }
+  }
+
+  if (curPosAutoState == AutoLineup::EXECUTING_TARGET || curAngAutoState == AutoLineup::EXECUTING_TARGET) {
     vec::Vector2D driveVel = m_autoLineup.GetVel();
     double angVel = m_autoLineup.GetAngVel();
 
     frc::SmartDashboard::PutString("Auto drive vel", driveVel.toString());
+    frc::SmartDashboard::PutNumber("Auto ang vel", angVel);
 
     m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
@@ -327,7 +339,7 @@ void Robot::TeleopPeriodic() {
     // std::cout << "set vel:  " << setVel.toString() << std::endl;
     // m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
     m_swerveController->SetFeedForward(0, 1, 0);
-    m_swerveController->SetRobotVelocityTele(setVel, w, 0, deltaT, m_joystickAng);
+    m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
   }
 
   m_autoLineup.Periodic();
@@ -344,6 +356,9 @@ void Robot::TeleopPeriodic() {
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {
+  m_autoLineup.StopPos();
+  m_autoLineup.StopAng();
+  
   // get position offsets (sorry for bad if statements)
   std::string m_selected = m_startPosChooser.GetSelected();
   if (m_selected == "Debug") {
@@ -388,7 +403,7 @@ void Robot::TestInit() {
 }
 
 void Robot::TestPeriodic() {
-  // if (m_controller.getPressed(START_AUTO)) {
+  // if (m_controller.getPressed(START_POS_AUTO)) {
   //   if (m_autoLineup.GetAngExecuteState() == AutoLineup::NOT_EXECUTING) {
   //     m_autoLineup.StartAngMove();
   //   } else {

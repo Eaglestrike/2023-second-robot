@@ -53,7 +53,7 @@ namespace ControllerMapData{
         {XBOX_RJOY_X,           NONE},
         {XBOX_RJOY_Y,           NONE},
         {XBOX_A_BUTTON ,        START_AUTO},
-        {XBOX_B_BUTTON ,        ZERO_AUTO},
+        {XBOX_B_BUTTON ,        NONE},
         {XBOX_X_BUTTON ,        NONE},
         {XBOX_Y_BUTTON ,        NONE},
         {XBOX_L_BUMPER ,        NONE},

@@ -199,12 +199,20 @@ void AutoLineup::CalcTimes(FFConfig &config, double dist, Times &times) {
   times.maxSpeedT = curT + increaseT;
   times.descentT = curT + increaseT + maintainT;
   times.endT = curT + increaseT * 2 + maintainT;
+
+  // std::cout << "max speed" << config.maxSpeed << std::endl;
+  // std::cout << "max ac" << config.maxSpeed << std::endl;
+  // std::cout << "startT: " << times.startT << std::endl;
+  // std::cout << "maxSpeedT: " << times.maxSpeedT << std::endl;
+  // std::cout << "descentT: " << times.descentT << std::endl;
+  // std::cout << "endT: " << times.endT << std::endl;
 }
 
 /**
  * Stops executing position command
 */
 void AutoLineup::StopPos() {
+  // std::cout << "stoppos" << std::endl;
   m_posState = NOT_EXECUTING;
 }
 

@@ -81,5 +81,5 @@ class Robot : public frc::TimedRobot {
 
   // jetson
   SocketClient m_client;
-  Intake m_intake;
+  // Intake m_intake;
 };

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 #include <vector>
 
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -146,6 +147,7 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 
     // speed from ff calculations, then resize velBody to match ff calculations
     double speed = m_kS + m_kV * magn(velBody) + m_kA * (magn(velBody) - m_prevSpeeds[i]) / time;
+    frc::SmartDashboard::PutNumber("katerm", (magn(velBody) - m_prevSpeeds[i]) / time);
     if (!Utils::NearZero(velBody) && !Utils::NearZero(speed))
     {
       velBody = normalize(velBody) * speed;
@@ -182,7 +184,7 @@ void SwerveControl::SetRobotVelocityTele(vec::Vector2D vel, double angVel, doubl
 void SwerveControl::CorePeriodic(){
   for (auto module : m_modules)
   {
-    module.get().Periodic();
+    module.get().TeleopPeriodic();
   }
 }
 

@@ -25,10 +25,10 @@ using namespace Actions;
 
 Robot::Robot():
       m_prevTime{0},
-      m_swerveFr{SwerveConstants::FR_CONFIG, true, true},
-      m_swerveBr{SwerveConstants::BR_CONFIG, true, true},
-      m_swerveFl{SwerveConstants::FL_CONFIG, true, true},
-      m_swerveBl{SwerveConstants::BL_CONFIG, true, true},
+      m_swerveFr{SwerveConstants::FR_CONFIG, true, false},
+      m_swerveBr{SwerveConstants::BR_CONFIG, true, false},
+      m_swerveFl{SwerveConstants::FL_CONFIG, true, false},
+      m_swerveBl{SwerveConstants::BL_CONFIG, true, false},
       m_startPos{400, 400},
       m_startAng{0},
       m_joystickAng{0},
@@ -60,8 +60,8 @@ Robot::Robot():
     m_autoPath.UpdateOdom(pos, ang);
 
     // UNCOMMENT BELOW
-    // frc::SmartDashboard::PutString("Filter pos", pos.toString());
-    // frc::SmartDashboard::PutNumber("Filter ang", ang);
+    frc::SmartDashboard::PutString("Robot pos", pos.toString());
+    frc::SmartDashboard::PutNumber("Robot ang", ang);
     // frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
     // frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
     // frc::SmartDashboard::PutData("Field", &m_field);
@@ -167,7 +167,8 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
-  frc::SmartDashboard::PutBoolean("Ang Currently executing", m_autoLineup.GetAngExecuteState() != AutoLineup::NOT_EXECUTING);
+  frc::SmartDashboard::PutBoolean("Pos Currently executing", m_autoLineup.GetPosExecuteState() == AutoLineup::EXECUTING_TARGET);
+  frc::SmartDashboard::PutBoolean("Ang Currently executing", m_autoLineup.GetAngExecuteState() == AutoLineup::EXECUTING_TARGET);
 
   if (m_controller.getPressed(ZERO_DRIVE_PID))
   {
@@ -217,11 +218,11 @@ void Robot::RobotPeriodic()
     m_autoLineup.SetPosPID(tkP, tkI, tkD);
     m_autoLineup.SetAngPID(akP, akI, akD);
 
-    double tMaxSp = frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
-    double tMaxAcc = frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
+    double tMaxSp = frc::SmartDashboard::GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
+    double tMaxAcc = frc::SmartDashboard::GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
 
-    double aMaxSp = frc::SmartDashboard::PutNumber("ang maxSp", AutoConstants::ANG_MAXSP);
-    double aMaxAcc = frc::SmartDashboard::PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
+    double aMaxSp = frc::SmartDashboard::GetNumber("ang maxSp", AutoConstants::ANG_MAXSP);
+    double aMaxAcc = frc::SmartDashboard::GetNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
 
     m_autoLineup.SetPosFF({tMaxSp, tMaxAcc});
     m_autoLineup.SetAngFF({aMaxSp, aMaxAcc});
@@ -273,6 +274,9 @@ void Robot::AutonomousPeriodic()
 
 void Robot::TeleopInit() {
   m_swerveController->SetFeedForward(0, 1, 0);
+  // m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
+  // m_autoLineup.SetPosFF({.maxSpeed = AutoConstants::TRANS_MAXSP, .maxAccel = AutoConstants::TRANS_MAXACC});
+  // m_autoLineup.SetAngFF({.maxSpeed = AutoConstants::ANG_MAXSP, .maxAccel = AutoConstants::ANG_MAXACC});
 }
 
 void Robot::TeleopPeriodic() {
@@ -303,8 +307,10 @@ void Robot::TeleopPeriodic() {
 
   if (m_controller.getPressed(START_AUTO)) {
     if (curAutoState != AutoLineup::EXECUTING_TARGET) {
+      std::cout << "pos move" << std::endl;
       m_autoLineup.StartPosMove();
     } else {
+      std::cout << "pos stop" << std::endl;
       m_autoLineup.StopPos();
     }
   }
@@ -313,11 +319,15 @@ void Robot::TeleopPeriodic() {
     vec::Vector2D driveVel = m_autoLineup.GetVel();
     double angVel = m_autoLineup.GetAngVel();
 
+    frc::SmartDashboard::PutString("Auto drive vel", driveVel.toString());
+
     m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   } else {
+    // std::cout << "set vel:  " << setVel.toString() << std::endl;
+    // m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
     m_swerveController->SetFeedForward(0, 1, 0);
-    m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
+    m_swerveController->SetRobotVelocityTele(setVel, w, 0, deltaT, m_joystickAng);
   }
 
   m_autoLineup.Periodic();
@@ -328,7 +338,7 @@ void Robot::TeleopPeriodic() {
   // frc::SmartDashboard::PutString("setVel:", setVel.toString());
   // frc::SmartDashboard::PutNumber("setAngVel:", w);
   m_prevTime = curTime;
-  m_intake.TeleopPeriodic();
+  // m_intake.TeleopPeriodic();
 }
 
 void Robot::DisabledInit() {}
@@ -402,7 +412,7 @@ void Robot::TestPeriodic() {
   double curS = Utils::GetCurTimeS();
   if (curS - m_prevTimeTest > 0.2) {
     m_prevTimeTest = curS;
-    m_curVolts += 0.1;
+    m_curVolts += 0.5;
   }
 
   // m_autoLineup.Periodic();

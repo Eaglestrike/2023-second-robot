@@ -64,14 +64,14 @@ namespace SwerveConstants
   const double TURN_I = 0;
   const double TURN_D = 0.0;
 
-  const double ANG_CORRECT_P = 15;
+  const double ANG_CORRECT_P = 2.75;
   const double ANG_CORRECT_I = 0;
-  const double ANG_CORRECT_D = 0.1;
+  const double ANG_CORRECT_D = 0.05;
 
-  const double MAX_VOLTS = 6.0; 
-  const double kS = 0.0;
-  const double kV = 1.0;
-  const double kA = 0.0;
+  const double MAX_VOLTS = 10.0; 
+  const double kS = 0.8;
+  const double kV = 2.326;
+  const double kA = 0; // -1/0.028
 
   struct SwerveConfig{
     std::string name;
@@ -176,8 +176,8 @@ namespace AutoConstants {
   const double TRANS_KP = 0;
   const double TRANS_KI = 0;
   const double TRANS_KD = 0;
-  const double TRANS_MAXSP = 0;
-  const double TRANS_MAXACC = 0;
+  const double TRANS_MAXSP = 3;
+  const double TRANS_MAXACC = 1;
 
   const double ANG_KP = 0;
   const double ANG_KI = 0;

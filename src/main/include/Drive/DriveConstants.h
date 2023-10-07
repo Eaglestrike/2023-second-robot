@@ -71,7 +71,7 @@ namespace SwerveConstants
   const double MAX_VOLTS = 10.0; 
   const double kS = 0.8;
   const double kV = 2.326;
-  const double kA = 0; // -1/0.028
+  const double kA = 0;
 
   struct SwerveConfig{
     std::string name;

@@ -78,6 +78,7 @@ private:
   vec::Vector2D GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos); 
   double GetPIDAng(double deltaT, double curExpectedAng);
   bool AtTarget() const;
-  bool AtTarget(double posErrTol, double velErrTol) const;
+  bool AtTransTarget(double posErrTol, double velErrTol) const;
+  bool AtRotTarget(double posErrTol, double velErrTol) const;
   double GetMultipliedAng() const;
 };

@@ -12,7 +12,12 @@
 AutoPath::AutoPath() : 
   m_curAng{0}, m_multiplier{0}, m_curAngVel{0}, m_prevTime{0}, m_prevTimeOdom{0},
   m_calcTrans{100}, m_calcAng{100}, m_curState{NOT_EXECUTING},
-  m_kPPos{0}, m_kIPos{0}, m_kDPos{0} {}
+  m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0}
+{
+  using namespace AutoConstants;
+  SetPosPID(TRANS_KP, TRANS_KI, TRANS_KD);
+  SetAngPID(ANG_KP, ANG_KI, ANG_KD);
+}
 
 /**
  * Adds a singular pose
@@ -187,23 +192,36 @@ void AutoPath::Periodic() {
  * @returns Wheter robot is where it is supposed to be 
 */
 bool AutoPath::AtTarget() const {
-  return AtTarget(AutoConstants::POS_ERR_TOLERANCE, AutoConstants::VEL_ERR_TOLERANCE);
+  using namespace AutoConstants;
+  return AtTransTarget(TRANS_POS_ERR_TOLERANCE, TRANS_VEL_ERR_TOLERANCE)
+    && AtRotTarget(ANG_POS_ERR_TOLERANCE, ANG_VEL_ERR_TOLERANCE);
 }
 
 /**
- * Returns whether robot is at the target
+ * Returns whether robot is at the target translationally
  * 
  * @param posErrTol position error tolerance
  * @param velErrTol velocity error tolerance
  * 
  * @returns Whether robot is where it is supposed to be 
 */
-bool AutoPath::AtTarget(double posErrTol, double velErrTol) const {
+bool AutoPath::AtTransTarget(double posErrTol, double velErrTol) const {
   vec::Vector2D targetPos = m_calcTrans.getPos(m_calcTrans.getHighestTime());
-  double targetAng = m_calcAng.getPos(m_calcAng.getHighestTime())[0];
 
-  return Utils::NearZero(targetPos - m_curPos, posErrTol) && Utils::NearZero(m_curVel, velErrTol)
-        && Utils::NearZero(targetAng - GetMultipliedAng(), posErrTol) && Utils::NearZero(m_curAngVel, velErrTol);
+  return Utils::NearZero(targetPos - m_curPos, posErrTol) && Utils::NearZero(m_curVel, velErrTol);
+}
+
+/**
+ * Returns whether robot is at the target rotationally
+ * 
+ * @param posErrTol position error tolerance
+ * @param velErrTol velocity error tolerance
+ * 
+ * @returns Whether robot is where it is supposed to be 
+*/
+bool AutoPath::AtRotTarget(double posErrTol, double velErrTol) const {
+  double targetAng = m_calcAng.getPos(m_calcAng.getHighestTime())[0];
+  return Utils::NearZero(targetAng - GetMultipliedAng(), posErrTol) && Utils::NearZero(m_curAngVel, velErrTol);
 }
 
 /**

@@ -221,6 +221,8 @@ void Robot::RobotPeriodic()
 
     m_autoLineup.SetPosPID(tkP, tkI, tkD);
     m_autoLineup.SetAngPID(akP, akI, akD);
+    m_autoPath.SetPosPID(tkP, tkI, tkD);
+    m_autoPath.SetAngPID(akP, akI, akD);
 
     double tMaxSp = frc::SmartDashboard::GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
     double tMaxAcc = frc::SmartDashboard::GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
@@ -269,11 +271,23 @@ void Robot::AutonomousInit()
 
   // TESTING CODE
   // MAKE SURE BLUE RIGHT OR ELSE ROBOT WILL UNALIVE ITSELF
+  m_autoPath.AddPoses(AutoPaths::BIG_BOY);
+  m_autoPath.StartMove();
 }
 
 void Robot::AutonomousPeriodic()
 {
-    
+  double curTime = Utils::GetCurTimeS();
+  double deltaT = curTime - m_prevTime;
+  vec::Vector2D driveVel = m_autoPath.GetVel();
+  double angVel = m_autoPath.GetAngVel();
+
+  double curYaw = m_odometry.GetAng();
+
+  m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+
+  m_autoPath.Periodic();
+  m_prevTime = curTime;
 }
 
 void Robot::TeleopInit() {

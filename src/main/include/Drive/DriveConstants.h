@@ -139,3 +139,14 @@ namespace OdometryConstants {
   const double MEASURE_STD_DEV = 0.1;
   const double CAMERA_TRUST_K = -10.0;
 }
+
+namespace AutoConstants {
+  const double PRE_DOCK_SPEED = 0;
+  const double MAX_DOCK_SPEED = 0;
+
+  const double PRE_DOCK_ANG = 5 * M_PI / 180;
+  const double DOCK_ANG = 12 * M_PI / 180;
+  const double DOCKED_TOL = 12 * M_PI / 180;
+
+  const double KTILT = 0;
+}

@@ -144,6 +144,7 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     frc::SmartDashboard::PutBoolean("phase 1", false);
     frc::SmartDashboard::PutBoolean("phase 2", false);
     frc::SmartDashboard::PutBoolean("phase 3", false);
+    frc::SmartDashboard::PutBoolean("Reversed?", reversed);
 
     // if in the acceleration phase
     if (0 < time && time < acceleration_time)
@@ -203,11 +204,18 @@ void FeedforwardPID::setPIDConstants(double kp, double kd)
  */
 void FeedforwardPID::recalculateTimes() {
     // the time spent accelerating (or decelerating)
-    acceleration_time = max_velocity / max_acceleration;
+    if (max_velocity == 0 || max_acceleration == 0) {
+        frc::SmartDashboard::PutString("ELEVATOR ERROR", "Either max velocity or max acceleration are 0. Defaulting to 10 for acceleration time and 10 for velocity time.");
+        acceleration_time = 10.0;
+        velocity_time = 10.0;
+    } else {
+        acceleration_time = max_velocity / max_acceleration;
 
-    // the time spent maintaining a constant velocity
-    velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
-    velocity_time = velocity_time < 0 ? 0.0 : velocity_time;
+        // the time spent maintaining a constant velocity
+        velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
+        velocity_time = velocity_time < 0 ? 0.0 : velocity_time;
+    }
+
 }
 
 // getters and setters

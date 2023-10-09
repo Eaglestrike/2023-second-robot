@@ -24,13 +24,15 @@ Elevator::Elevator():
         ElevatorConstants::MAX_ELEVATOR_EXTENSION
         ) 
 {
-    right_.SetInverted(true);
+    // right_.SetInverted(true);
+    left_.SetInverted(true);
     right_.Follow(left_, FollowerType::FollowerType_PercentOutput);
     feedforward_.setMaxVelocity(ElevatorConstants::MAX_ELEVATOR_VELOCITY);
     feedforward_.setMaxAcceleration(ElevatorConstants::MAX_ELEVATOR_ACCELERATION);
     feedforward_.setMaxDistance(ElevatorConstants::MAX_ELEVATOR_EXTENSION); // while testing
 
     frc::SmartDashboard::PutNumber("max distance", ElevatorConstants::MAX_ELEVATOR_EXTENSION);
+    frc::SmartDashboard::PutNumber("volts to use", 0.0);
     // feedforward_.setMaxDistance(ElevatorConstants::MAX_ELEVATOR_EXTENSION);
 };
 
@@ -58,7 +60,10 @@ void Elevator::periodic() {
     frc::SmartDashboard::PutNumber("current ev velocity", current_pose.velocity);
     frc::SmartDashboard::PutNumber("current ev position", current_pose.position);
 
-    left_.SetVoltage(units::volt_t{std::clamp(motor_output, -1.0, 1.0)});
+    double volts_to_use = frc::SmartDashboard::GetNumber("volts to use", 0.0);
+
+    left_.SetVoltage(units::volt_t{std::clamp(motor_output, -volts_to_use, volts_to_use)});
+    right_.SetVoltage(units::volt_t{std::clamp(motor_output, -volts_to_use, volts_to_use)});
 }
 
 /**
@@ -82,12 +87,12 @@ void Elevator::evaluateState() {
  * @brief Changes feedforward direction based on current state
  */
 void Elevator::evaluateDirection() {
-    if (current_state_ == DOCKED || current_state_ == MOVING_TO_RAISED) {
-        feedforward_.setReversed(false);
-    }
-    else if (current_state_ == RAISED || current_state_ == MOVING_TO_DOCKED) {
-        feedforward_.setReversed(true);
-    }
+    // if (current_state_ == DOCKED || current_state_ == MOVING_TO_RAISED) {
+    //     feedforward_.setReversed(false);
+    // }
+    // else if (current_state_ == RAISED || current_state_ == MOVING_TO_DOCKED) {
+    //     feedforward_.setReversed(true);
+    // }
 }
 
 /**

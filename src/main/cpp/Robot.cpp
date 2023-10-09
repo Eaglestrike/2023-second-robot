@@ -94,6 +94,7 @@ void Robot::RobotPeriodic()
   }
 
   if (m_controller.getPressed(ZERO_FEEDFORWARD)) {
+    frc::SmartDashboard::PutBoolean("zero feedforward being pressed", true);
     elevator_.zero_motors();
   }
 

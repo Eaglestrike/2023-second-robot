@@ -77,8 +77,8 @@ private:
     double kd = 0.0;
 
     // velocity, acceleration constants
-    double max_velocity;
-    double max_acceleration;
+    double max_velocity = ElevatorConstants::MAX_ELEVATOR_VELOCITY;
+    double max_acceleration = ElevatorConstants::MAX_ELEVATOR_ACCELERATION;
 
     // used to control the timer
     double isRunning = false;

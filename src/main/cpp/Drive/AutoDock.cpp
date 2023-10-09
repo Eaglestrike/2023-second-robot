@@ -11,7 +11,7 @@
  * @param isRed If robot is on red side
 */
 AutoDock::AutoDock(bool isRed)
-  : m_isRed{isRed}, m_curState{NOT_DOCKING}, m_kTilt{AutoConstants::KTILT}, m_preDockSpeed{AutoConstants::PRE_DOCK_SPEED},
+  : m_curState{NOT_DOCKING}, m_isRed{isRed}, m_kTilt{AutoConstants::KTILT}, m_preDockSpeed{AutoConstants::PRE_DOCK_SPEED},
   m_maxDockSpeed{AutoConstants::MAX_DOCK_SPEED}, m_preDockAng{AutoConstants::PRE_DOCK_ANG},
   m_dockAng{AutoConstants::DOCK_ANG}, m_dockedTol{AutoConstants::DOCKED_TOL}, m_roll{0}, m_pitch{0}, m_yaw{0} {}
 
@@ -20,7 +20,7 @@ AutoDock::AutoDock(bool isRed)
  * 
  * @returns current state
 */
-AutoDock::State AutoDock::GetState() {
+AutoDock::State AutoDock::GetState() const {
   return m_curState;
 }
 
@@ -29,7 +29,7 @@ AutoDock::State AutoDock::GetState() {
  * 
  * @returns wheel velocity
 */
-vec::Vector2D AutoDock::GetVel() {
+vec::Vector2D AutoDock::GetVel() const {
   if (m_curState == NOT_DOCKING || m_curState == DOCKED) {
     return {0, 0};
   }
@@ -198,7 +198,7 @@ void AutoDock::Periodic() {
  * 
  * @returns Tilt
 */
-double AutoDock::GetTilt() {
+double AutoDock::GetTilt() const {
   // double x = -std::sin(m_yaw) * std::cos(m_roll);
   // double y = std::cos(m_yaw) * std::cos(m_pitch) - std::sin(m_yaw) * std::sin(m_pitch) * std::sin(m_roll);
   double z = std::cos(m_yaw) * std::sin(m_pitch) + std::sin(m_yaw) * std::cos(m_pitch) * std::sin(m_roll);

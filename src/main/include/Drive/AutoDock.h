@@ -21,8 +21,8 @@ public:
 
   AutoDock(bool isRed = false);
 
-  State GetState();
-  vec::Vector2D GetVel();
+  State GetState() const;
+  vec::Vector2D GetVel() const;
 
   void UpdateOdom(double r, double p, double y);
   void SetkTilt(double kTilt);
@@ -52,5 +52,5 @@ private:
   double m_roll, m_pitch, m_yaw;
   vec::Vector2D m_outputVel;
 
-  double GetTilt();
+  double GetTilt() const;
 };

@@ -39,7 +39,7 @@ Elevator::Elevator():
  * Acts on the difference between current position and next position
  */
 void Elevator::periodic() {
-    setMaxDistance(frc::SmartDashboard::GetNumber("max distance", ElevatorConstants::MAX_ELEVATOR_EXTENSION));
+    setDistance(frc::SmartDashboard::GetNumber("max distance", ElevatorConstants::MAX_ELEVATOR_EXTENSION));
     if (current_state_ == STOPPED) {
         return;
     }
@@ -144,8 +144,10 @@ void Elevator::setPIDConstants(double kp, double kd) {
     feedforward_.setPIDConstants(kp, kd);
 }
 
-void Elevator::setMaxDistance(double distance) {
-    feedforward_.setMaxDistance(distance);
+void Elevator::setDistance(double distance) {
+    if (distance < ElevatorConstants::MAX_ELEVATOR_EXTENSION) {
+        feedforward_.setMaxDistance(distance);
+    }
 }
 
 /**

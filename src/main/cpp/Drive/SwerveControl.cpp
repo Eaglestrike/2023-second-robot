@@ -108,11 +108,6 @@ void SwerveControl::SetAngleCorrectionPID(double kP, double kI, double kD)
  */
 void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double ang, double time)
 {
-  std::vector<vec::Vector2D> vecPrints;
-  vecPrints.resize(4);
-
-  // frc::SmartDashboard::PutNumber("cjurrent angle", m_curAngle);
-
   if (!Utils::NearZero(angVel))
   {
     // if turning, track current angle
@@ -147,15 +142,13 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 
     // speed from ff calculations, then resize velBody to match ff calculations
     double speed = m_kS + m_kV * magn(velBody) + m_kA * (magn(velBody) - m_prevSpeeds[i]) / time;
-    frc::SmartDashboard::PutNumber("katerm", (magn(velBody) - m_prevSpeeds[i]) / time);
+    m_prevSpeeds[i] = magn(velBody);
     if (!Utils::NearZero(velBody) && !Utils::NearZero(speed))
     {
       velBody = normalize(velBody) * speed;
     }
-    m_prevSpeeds[i] = magn(velBody);
 
     // set vector
-    vecPrints[i] = velBody;
     m_modules[i].get().SetVector(velBody);
   }
 }

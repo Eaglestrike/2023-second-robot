@@ -182,9 +182,9 @@ namespace AutoConstants {
   const double TRANS_MAXSP = 3;
   const double TRANS_MAXACC = 1;
 
-  const double ANG_KP = 0;
+  const double ANG_KP = 5;
   const double ANG_KI = 0;
-  const double ANG_KD = 0;
+  const double ANG_KD = 0.5;
   const double ANG_MAXSP = 0;
   const double ANG_MAXACC = 0;
 }

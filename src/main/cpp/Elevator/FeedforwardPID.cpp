@@ -213,7 +213,11 @@ void FeedforwardPID::recalculateTimes() {
 
         // the time spent maintaining a constant velocity
         velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
-        velocity_time = velocity_time < 0 ? 0.0 : velocity_time;
+
+        if (velocity_time < 0) {
+            velocity_time = 0.0;
+            acceleration_time = std::sqrt(max_distance_ / max_acceleration);
+        }
     }
 
 }

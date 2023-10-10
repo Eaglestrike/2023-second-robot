@@ -52,6 +52,11 @@ void Elevator::periodic() {
     current_pose.velocity = talonUnitsToMeters(left_.GetSelectedSensorVelocity()) * 10.0;
     current_pose.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
 
+    // if (std::abs(ElevatorConstants::MAX_ELEVATOR_EXTENSION - current_pose.position) < 0.2) {
+    //     setState(ElevatorState::STOPPED);
+    //     return;
+    // }
+
     evaluateState();
     evaluateDirection();
 

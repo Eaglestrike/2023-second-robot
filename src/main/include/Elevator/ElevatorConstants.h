@@ -16,22 +16,23 @@ namespace ElevatorConstants {
   const double MOTOR_VOLTAGE = 1.0;
 
   // m/s
-  const double MAX_ELEVATOR_VELOCITY = 4.20116;
+  // const double MAX_ELEVATOR_VELOCITY = 4.20116;
+  const double MAX_ELEVATOR_VELOCITY = 0.34;
     // const double MAX_ELEVATOR_VELOCITY = 0.2;
 
-  const double MAX_ELEVATOR_ACCELERATION = 2.0;
+  const double MAX_ELEVATOR_ACCELERATION = 0.44;
 
   // m
-  // const double MAX_ELEVATOR_EXTENSION = 0.5588;
-  const double MAX_ELEVATOR_EXTENSION = 90;
+  const double MAX_ELEVATOR_EXTENSION = 0.5588;
+  // const double MAX_ELEVATOR_EXTENSION = 90;
 
   const double ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED = 0.0465582;
 
   // feedforward constants
-  const double KS = 0.62;
-  const double KV = 3.0917; // found through spreadsheet analysis
+  const double KS = 0.0;
+  const double KV = 0.0;; // found through spreadsheet analysis
   const double KA = 0.0;
-  const double KG = 0.0;
+  const double KG = 2.07;
 
   // pid constants
   const double KP = 0.0;

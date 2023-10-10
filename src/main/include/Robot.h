@@ -14,9 +14,11 @@
 
 #include "Controller/Controller.h"
 #include "Drive/SwerveControl.h"
-#include "ElevatorIntake/ElevatorIntake.h"
+#include "Elevator/ElevatorIntake.h"
 #include "Drive/SwerveModule.h"
 #include "Util/thirdparty/simplevectors.hpp"
+
+#include "Elevator/Lidar/LidarReader.h"
 
 namespace vec = svector;
 
@@ -50,7 +52,7 @@ class Robot : public frc::TimedRobot {
   //Controller
   Controller m_controller;
 
-  Intake m_intake;
+  ElevatorIntake m_elevatorIntake();
 
   // temp odometry
   // vec::Vector2D m_pos;

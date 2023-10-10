@@ -56,7 +56,6 @@ void Robot::AutonomousPeriodic(){
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  m_intake.TeleopPeriodic();
 }
 
 void Robot::DisabledInit() {}

@@ -1,17 +1,44 @@
 #pragma once
 #include "Intake.h"
 #include "BaseElevator.h"
+#include "Lidar/LidarReader.h"
 
 class ElevatorIntake{
     public:
+        enum MechanismState{
+            EXTENDING,
+            EXTENDED,
+            STOWING,
+            STOWED,
+            STOPPED
+        };
+
         ElevatorIntake();
-        void MoveToCustomPos(double xoff, double yoff, double zoff);
-        void ScoreHigh(double xoff, double yoff);
-        void ScoreMid(double xoff, double yoff);
-        void ScoreLow(double xoff, double yoff);
-        void IntakeFromHPStation();
-        void IntakeFromGround();
+        void TeleopPeriodic();
+        void Kill();
+        void DeployElevatorIntake(double elevatorLength, double intakeDeg);
+        void IntakeFromCustomPos(double yoff, double targHeight, bool cone);
+        void OuttakeToCustomPos(double yoff, double targHeight);
+        void Stow();
+
     private:
-        Intake m_intake();
-        BaseElevator m_elevator();
+        void dbg();
+        void CalcIntakeDeployPos();
+        void CalcToCustomPose(double yoff, double zoff, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
+        void CalcToCustomPose(double yoff, double scoringAngle, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
+        void CalcToCustomPose(double zoff, double scoringAngle, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
+        void CalcIntakeAngle();
+        
+        MechanismState m_state;
+        bool m_outtaking, m_cone;
+
+        //scoring stuff
+        double m_yoff, m_zoff, m_scorAngle;
+        
+        //stuff fed to children 
+        double m_targIntakeAng, m_targElevatorPos;
+
+        Intake m_intake;
+        LidarReader m_lidar;
+        BaseElevator m_elevator;
 };

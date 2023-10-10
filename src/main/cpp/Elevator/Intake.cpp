@@ -3,28 +3,37 @@
 
 Intake::Intake(){
     m_wristMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-    frc::SmartDashboard::PutNumber("Setpoint", 0);
-    frc::SmartDashboard::PutBoolean("Deploy", false);
-    frc::SmartDashboard::PutNumber("voltage", 0.0); 
-    //m_wristMotor.SetInverted(true);
-    frc::SmartDashboard::PutNumber("g", m_g); 
-    frc::SmartDashboard::PutNumber("s", m_s); 
-    frc::SmartDashboard::PutNumber("v", m_v); 
-    frc::SmartDashboard::PutNumber("a", m_a); 
-
+    if (dbg){
+        frc::SmartDashboard::PutNumber("Setpoint", 0);
+        frc::SmartDashboard::PutBoolean("Deploy", false);
+        frc::SmartDashboard::PutBoolean("Cone", false);
+        frc::SmartDashboard::PutBoolean("Outtake", false);
+        
+        frc::SmartDashboard::PutNumber("voltage", 0.0); 
+        //m_wristMotor.SetInverted(true);
+        frc::SmartDashboard::PutNumber("g", m_g); 
+        frc::SmartDashboard::PutNumber("s", m_s); 
+        frc::SmartDashboard::PutNumber("v", m_v); 
+        frc::SmartDashboard::PutNumber("a", m_a); 
+    }
 }
 
-void Intake::debugTargPose(){
-    
-    m_setPt = frc::SmartDashboard::GetNumber("Setpoint", m_setPt);
+void Intake::debugTargPose(){ 
+    ChangeDeployPos(frc::SmartDashboard::GetNumber("Setpoint", m_setPt));
     frc::SmartDashboard::PutNumber("targ vel", m_targetVel);
     frc::SmartDashboard::PutNumber("targ pos", m_targetPos);
     frc::SmartDashboard::PutNumber("targ acc", m_targetAcc);
-    bool deploy;
+    bool deploy, cone, outtake;
     deploy = frc::SmartDashboard::GetBoolean("Deploy", false);
+    cone = frc::SmartDashboard::GetBoolean("Cone", false);
+    outtake = frc::SmartDashboard::GetBoolean("Outtake", false);
     if (deploy){
-         DeployToCustomPos(m_setPt);
-         frc::SmartDashboard::PutBoolean("Deploy", false);
+        // ChangeDeployPos()
+        if (outtake)
+            DeployOuttake(cone);
+        else 
+            DeployIntake(cone);
+        frc::SmartDashboard::PutBoolean("Deploy", false);
     }
 }
 
@@ -59,9 +68,11 @@ void Intake::UpdatePose(){
 }
 
 void Intake::TeleopPeriodic(){
-    debugCurPose();
-    debugTargPose();
-    //debugPutVoltage();
+    if (dbg){
+        debugCurPose();
+        debugTargPose();
+        //debugPutVoltage();
+    }
 
     UpdatePose();
     double wristVolts = 0, rollerVolts = 0;
@@ -74,7 +85,7 @@ void Intake::TeleopPeriodic(){
             UpdateTargetPose(); // bc still using motion profile 
             wristVolts = FFPIDCalculate();
             if (AtSetpoint()){
-                if (m_state == STOWING) m_state = STOWED;
+                if (m_setPt == STOWING) m_state = STOWED;
                 if (m_state == DEPLOYING) m_state = DEPLOYED;
                 ResetPID();
                 m_targetPos = m_setPt;
@@ -88,11 +99,12 @@ void Intake::TeleopPeriodic(){
             rollerVolts = m_rollerVolts;
             break;
     }
-
-    frc::SmartDashboard::PutNumber("wrist volts", wristVolts);
-    frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
+    if (dbg){
+        frc::SmartDashboard::PutNumber("wrist volts", wristVolts);
+        frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
+    } 
     m_wristMotor.SetVoltage(units::volt_t(std::clamp(-wristVolts, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
-    // m_rollerMotor.SetVoltage(units::volt_t(std::clamp(-rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
+    m_rollerMotor.SetVoltage(units::volt_t(std::clamp(-rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
 }
 
 double Intake::FFPIDCalculate(){
@@ -118,14 +130,12 @@ double Intake::FFPIDCalculate(){
     return pid+ff;
 }
 
-void Intake::DeployToCustomPos(double newPos){
-    SetSetpoint(newPos);
-    m_state = DEPLOYING;
+void Intake::ChangeDeployPos(double newPos){
+    m_customDeployPos = std::clamp(newPos, IntakeConstants::MIN_POS, IntakeConstants::MAX_POS);
 }
 
-void Intake::ChangeRollerVoltage(double newVoltage, bool outtake){
-    m_rollerVolts = fabs(newVoltage);
-    if (outtake) m_rollerVolts *= -1;
+void Intake::ChangeRollerVoltage(double newVoltage){
+    m_customRollerVolts = fabs(newVoltage);
 }
 
 void Intake::Stow(){
@@ -134,16 +144,25 @@ void Intake::Stow(){
     m_state = STOWING;
 }
 
-void Intake::DeployIntake(){
-    SetSetpoint(IntakeConstants::DEPLOYED_POS);
-    m_rollerVolts = IntakeConstants::ROLLER_MAX_VOLTS;
+void Intake::DeployIntake(bool cone){
+    if (m_customDeployPos == -1)
+        m_setPt = IntakeConstants::DEPLOYED_POS;
+    else 
+        m_setPt = m_customDeployPos;
+
+    SetSetpoint(m_setPt);
+    if(m_customRollerVolts == -1)
+        m_rollerVolts = IntakeConstants::ROLLER_MAX_VOLTS;
+    else 
+        m_rollerVolts = m_customRollerVolts;
+
+    if (cone) // !cone??
+        m_rollerVolts *= -1;
     m_state = DEPLOYING;
 }
 
-void Intake::DeployOuttake(){
-    SetSetpoint(IntakeConstants::DEPLOYED_POS);
-    m_rollerVolts = -IntakeConstants::ROLLER_MAX_VOLTS;
-    m_state = DEPLOYING;
+void Intake::DeployOuttake(bool cone){
+    DeployIntake(!cone);
 }
 
 void Intake::Kill(){
@@ -189,8 +208,9 @@ void Intake::UpdateTargetPose(){
     if (dbg){
         frc::SmartDashboard::PutNumber("targ pos", m_targetPos);
         frc::SmartDashboard::PutNumber("targ vel", m_targetVel);
-        // frc::SmartDashboard::PutNumber("targ acc", m_targetAcc);
+        frc::SmartDashboard::PutNumber("targ acc", m_targetAcc);
     }
+
     double newP = m_targetPos, newV = m_targetVel, newA = m_targetAcc;
     
     newP += m_targetVel * 0.02;
@@ -216,3 +236,10 @@ void Intake::UpdateTargetPose(){
     m_targetAcc = newA;
 }
 
+Intake::WristState Intake::GetState(){
+    return m_state;
+}
+
+double Intake::GetPos(){
+    return m_curPos;
+}

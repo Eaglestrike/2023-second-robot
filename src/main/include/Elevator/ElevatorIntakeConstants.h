@@ -1,7 +1,37 @@
 namespace IntakeElevatorConstants{
+     //all angles in radians, all lengths in meters
 
+    const double INTAKE_UPRIGHT_ANGLE = 0.0;
+    // const double INTAKE_UPRIGHT_ANGLE = 0.0;
+
+    struct IdealScoreInfo{
+        double ANGLE_W_INTAKE;
+        double INTAKE_LEN; // how far out the point of contact between gamepiece and intake is from the intake's point of rotation
+    };
+
+    const IdealScoreInfo coneScore{0.0, // angle intaked cone makes w the intake, should be perpendicular to line rollers make
+                                   0.0}; 
+    
+    const IdealScoreInfo cubeScore{0.0,
+                                   0.0};
+    
+    const double INTAKE_BAR_LENGTH = 0.0;
+    const double ELEVATOR_ANGLE = 0.0; // the acute angle elevator makes w the drivetrain
+    
+    // const double CUBE_INTAKE_SCORE_ANGLE = 0.0;
+
+    //scoring heights in meters from ground
+    const double HIGH_CONE_HEIGHT = 0.0;
+    const double HIGH_CUBE_HEIGHT = 0.0;
+    const double MID_CONE_HEIGHT = 0.0;
+    const double MID_CUBE_HEIGHT = 0.0;
+    const double LOW_HEIGHT = 0.0;
 }
 
+namespace ElevatorConstants{
+    const double MAX_POS = 0.0;
+    const double MIN_POS = 0.0;
+}
 
 namespace IntakeConstants{
     const int WRIST_MOTOR_ID = 4;
@@ -31,13 +61,18 @@ namespace IntakeConstants{
     const double WRIST_MAX_ACC = 2.5; //rads per sec^2
 
     const double WRIST_POS_TOLERANCE = 0.1;
-    const double WRIST_ABS_ENCODER_OFFSET = -1.84;
+    const double WRIST_ABS_ENCODER_OFFSET = -1.84 -0.094; //cad says its 0.034 tho
 
     // wrist positions in radians
     // using motor's relative encoder so assume that 0.0 is stowed
     // because it should be zeroed at stowed anyway
     const double STOWED_POS = 1.92;
+    const double MAX_POS = 1.84;
     const double DEPLOYED_POS = 0.0;
+    //todo:
+    const double MIN_POS = 0.0;
+    
+
 
     const double ROLLER_MAX_VOLTS = 1.0;
     const double WRIST_MAX_VOLTS = 5.0;

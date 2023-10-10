@@ -29,8 +29,8 @@ namespace ElevatorConstants {
   const double ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED = 0.0465582;
 
   // feedforward constants
-  const double KS = 0.0;
-  const double KV = 0.0;; // found through spreadsheet analysis
+  const double KS = 0.5;
+  const double KV = 0.8;
   const double KA = 0.0;
   const double KG = 2.07;
 

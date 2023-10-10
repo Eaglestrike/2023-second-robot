@@ -21,8 +21,10 @@
  *
  * @note feedforward relates speed to voltage
  */
-SwerveControl::SwerveControl(RefArray<SwerveModule> modules, double kS, double kV, double kA)
-    : m_modules{modules}, m_kS{kS}, m_kV{kV}, m_kA{kA}, m_curAngle{0}, m_angleCorrector{0.1, 0, 0.01}
+SwerveControl::SwerveControl(RefArray<SwerveModule> modules, bool enabled, bool shuffleboard):
+    Mechanism("Swerve Control", enabled, shuffleboard),
+    m_modules{modules}, 
+    m_kS{0.0}, m_kV{0.0}, m_kA{0.0}, m_curAngle{0}, m_angleCorrector{0.1, 0, 0.01}
 {
   m_angleCorrector.EnableContinuousInput(-M_PI, M_PI);
   ResetFeedForward();
@@ -155,15 +157,32 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
   }
 }
 
+void SwerveControl::CoreInit(){
+  ResetAngleCorrection();
+}
+
 /**
  * Periodic function
  *
  * @note to self: CALL ME!!!! cALLL ME!!!!! you blITHERignnGG IDIOT!
  */
-void SwerveControl::Periodic()
-{
+void SwerveControl::CorePeriodic(){
   for (auto module : m_modules)
   {
     module.get().Periodic();
   }
+}
+
+void SwerveControl::CoreShuffleboardInit(){
+  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+}
+
+void SwerveControl::CoreShuffleboardUpdate(){
+  double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+  double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+  double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+
+  SetAngleCorrectionPID(kP2, kI2, kD2);
 }

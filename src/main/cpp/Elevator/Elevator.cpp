@@ -130,8 +130,8 @@ void Elevator::start() {
  */
 void Elevator::stop() {
     current_state_ = ElevatorState::STOPPED;
-    left_.SetVoltage(units::volt_t{0});
-    right_.SetVoltage(units::volt_t{0});
+    left_.SetNeutralMode(NeutralMode::Brake);
+    right_.SetNeutralMode(NeutralMode::Brake);
     feedforward_.stop();
 }
 

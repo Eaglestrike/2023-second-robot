@@ -224,7 +224,7 @@ void SwerveModule::CoreShuffleboardPeriodic(){
   frc::SmartDashboard::PutString(name_ + " velocity", GetVelocity().toString());
 }
 
-void SwerveModule::CoreUpdateShuffleboard(){
+void SwerveModule::CoreShuffleboardUpdate(){
   double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
   double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
   double kD = frc::SmartDashboard::GetNumber("wheel kD", SwerveConstants::TURN_D);

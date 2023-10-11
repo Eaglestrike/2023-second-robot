@@ -2,22 +2,22 @@
 #include <iostream>
 
 Intake::Intake(){
-    frc::SmartDashboard::PutNumber("Setpoint", 0);
-    frc::SmartDashboard::PutBoolean("Deploy", false);
-    frc::SmartDashboard::PutNumber("voltage", 0.0);
+    // frc::SmartDashboard::PutNumber("Setpoint", 0);
+    // frc::SmartDashboard::PutBoolean("Deploy", false);
+    // frc::SmartDashboard::PutNumber("voltage", 0.0);
     m_wristMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     //m_wristMotor.SetInverted(true);
-    frc::SmartDashboard::PutNumber("g", m_g); 
-    frc::SmartDashboard::PutNumber("s", m_s); 
-    frc::SmartDashboard::PutNumber("v", m_v); 
-    frc::SmartDashboard::PutNumber("a", m_a); 
+    // frc::SmartDashboard::PutNumber("g", m_g); 
+    // frc::SmartDashboard::PutNumber("s", m_s); 
+    // frc::SmartDashboard::PutNumber("v", m_v); 
+    // frc::SmartDashboard::PutNumber("a", m_a); 
 
-    frc::SmartDashboard::PutNumber("p", m_stowedPIDcontroller.GetP()); 
-    frc::SmartDashboard::PutNumber("i", m_stowedPIDcontroller.GetI());    
-    frc::SmartDashboard::PutNumber("d", m_stowedPIDcontroller.GetD()); 
+    // frc::SmartDashboard::PutNumber("p", m_stowedPIDcontroller.GetP()); 
+    // frc::SmartDashboard::PutNumber("i", m_stowedPIDcontroller.GetI());    
+    // frc::SmartDashboard::PutNumber("d", m_stowedPIDcontroller.GetD()); 
 
-    frc::SmartDashboard::PutNumber("max acc", m_maxAcc);
-    frc::SmartDashboard::PutNumber("max vel", m_maxVel);
+    // frc::SmartDashboard::PutNumber("max acc", m_maxAcc);
+    // frc::SmartDashboard::PutNumber("max vel", m_maxVel);
 
 
 }
@@ -80,9 +80,9 @@ void Intake::UpdatePose(){
 }
 
 void Intake::TeleopPeriodic(){
-    debugCurPose();
-    debugTargPose();
-    debugPutVoltage();
+    //debugCurPose();
+    //debugTargPose();
+    //debugPutVoltage();
 
     UpdatePose();
     double wristVolts = 0, rollerVolts = 0;
@@ -165,8 +165,11 @@ void Intake::Stow(){
 }
 
 void Intake::DeployIntake(){
-    SetSetpoint(IntakeConstants::DEPLOYED_POS);
     m_rollerVolts = IntakeConstants::ROLLER_MAX_VOLTS;
+    if(m_state == DEPLOYED){
+        return;
+    }
+    SetSetpoint(IntakeConstants::DEPLOYED_POS);
     m_state = DEPLOYING;
 }
 

@@ -1,31 +1,36 @@
 namespace IntakeElevatorConstants{
      //all angles in radians, all lengths in meters
 
-    const double INTAKE_UPRIGHT_ANGLE = 0.0;
-    // const double INTAKE_UPRIGHT_ANGLE = 0.0;
-
-    struct IdealScoreInfo{
-        double ANGLE_W_INTAKE;
-        double INTAKE_LEN; // how far out the point of contact between gamepiece and intake is from the intake's point of rotation
+    struct GamePieceInfo{
+        ScoreInfo LOW_INFO;
+        ScoreInfo MID_INFO;
+        ScoreInfo HIGH_INFO;
     };
 
-    const IdealScoreInfo coneScore{0.0, // angle intaked cone makes w the intake, should be perpendicular to line rollers make
-                                   0.0}; 
+    struct ScoreInfo{
+        double ELEVATOR_LENG;
+        double INTAKE_ANGLE; // how far out the point of contact between gamepiece and intake is from the intake's point of rotation
+    };
+
+    const GamePieceInfo coneScoreInfo{{0.0},
+                                      {0.0},
+                                      {0.0}}; 
+
+     const GamePieceInfo cubeScoreInfo{{0.0},
+                                      {0.0},
+                                      {0.0}}; 
     
-    const IdealScoreInfo cubeScore{0.0,
-                                   0.0};
-    
-    const double INTAKE_BAR_LENGTH = 0.0;
-    const double ELEVATOR_ANGLE = 0.0; // the acute angle elevator makes w the drivetrain
+    // const double INTAKE_BAR_LENGTH = 0.0;
+    // const double ELEVATOR_ANGLE = 0.0; // the acute angle elevator makes w the drivetrain
     
     // const double CUBE_INTAKE_SCORE_ANGLE = 0.0;
 
     //scoring heights in meters from ground
-    const double HIGH_CONE_HEIGHT = 0.0;
-    const double HIGH_CUBE_HEIGHT = 0.0;
-    const double MID_CONE_HEIGHT = 0.0;
-    const double MID_CUBE_HEIGHT = 0.0;
-    const double LOW_HEIGHT = 0.0;
+    // const double HIGH_CONE_HEIGHT = 0.0;
+    // const double HIGH_CUBE_HEIGHT = 0.0;
+    // const double MID_CONE_HEIGHT = 0.0;
+    // const double MID_CUBE_HEIGHT = 0.0;
+    // const double LOW_HEIGHT = 0.0;
 }
 
 namespace ElevatorConstants{
@@ -69,6 +74,7 @@ namespace IntakeConstants{
     const double STOWED_POS = 1.92;
     const double MAX_POS = 1.84;
     const double DEPLOYED_POS = 0.0;
+    const double INTAKE_UPRIGHT_ANGLE = 0.0;
     //todo:
     const double MIN_POS = 0.0;
     

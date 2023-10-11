@@ -16,13 +16,17 @@ class Intake{
             DEPLOYING,
             DEPLOYED,
             STOWED,
-            STOPPED
+            HALFSTOWING,
+            STOPPED,
+            HALFSTOWED,
         };
 
         void TeleopPeriodic();    
         void Stow();
+        void HalfStow();
         void DeployIntake(bool cone); 
         void DeployOuttake(bool cone);
+        void DeployNoRollers();
         void ChangeDeployPos(double newPos);
         void ChangeRollerVoltage(double newVolotage); //pos should be in radians, w 0 as extended and parallel to ground
         void Kill();

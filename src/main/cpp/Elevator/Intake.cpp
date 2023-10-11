@@ -43,6 +43,18 @@ void Intake::debugCurPose(){
     frc::SmartDashboard::PutNumber("cur acc", m_curAcc);
 }
 
+void Intake::DeployNoRollers(){
+    if (m_state == DEPLOYED || m_state == DEPLOYING) return;
+    if (m_customDeployPos == -1)
+        m_setPt = IntakeConstants::DEPLOYED_POS;
+    else 
+        m_setPt = m_customDeployPos;
+
+    SetSetpoint(m_setPt);
+    m_rollerVolts = 0;
+    m_state = DEPLOYING;
+}
+
 void Intake::debugPutVoltage(){
     double voltReq;
     double WRIST_MAX_POS = 1.92,  WRIST_MIN_POS = 0.0;
@@ -82,11 +94,13 @@ void Intake::TeleopPeriodic(){
             break;
         case DEPLOYING:
         case STOWING:
+        case HALFSTOWING:
             UpdateTargetPose(); // bc still using motion profile 
             wristVolts = FFPIDCalculate();
             if (AtSetpoint()){
                 if (m_setPt == STOWING) m_state = STOWED;
                 if (m_state == DEPLOYING) m_state = DEPLOYED;
+                if (m_state == HALFSTOWING) m_state = HALFSTOWED;
                 ResetPID();
                 m_targetPos = m_setPt;
                 m_targetVel = 0.0;
@@ -95,6 +109,7 @@ void Intake::TeleopPeriodic(){
                 rollerVolts = m_rollerVolts;
             break;
         case DEPLOYED:
+        case HALFSTOWED:
             wristVolts = FFPIDCalculate();
             rollerVolts = m_rollerVolts;
             break;
@@ -139,12 +154,21 @@ void Intake::ChangeRollerVoltage(double newVoltage){
 }
 
 void Intake::Stow(){
+    if (m_state == STOWED || m_state == STOWING) return;
     SetSetpoint(IntakeConstants::STOWED_POS);
     m_rollerVolts = 0;
     m_state = STOWING;
 }
 
+void Intake::HalfStow(){
+    if (m_state == HALFSTOWED || m_state == HALFSTOWING) return;
+    SetSetpoint(IntakeConstants::INTAKE_UPRIGHT_ANGLE);
+    m_rollerVolts = 0;
+    m_state = HALFSTOWING;
+}
+
 void Intake::DeployIntake(bool cone){
+    if (m_state == DEPLOYED || m_state == DEPLOYING) return;
     if (m_customDeployPos == -1)
         m_setPt = IntakeConstants::DEPLOYED_POS;
     else 

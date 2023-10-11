@@ -1,6 +1,6 @@
 #pragma once
 #include "Intake.h"
-#include "BaseElevator.h"
+#include "elevator/BaseElevator.h"
 #include "Lidar/LidarReader.h"
 
 class ElevatorIntake{
@@ -17,17 +17,17 @@ class ElevatorIntake{
         void TeleopPeriodic();
         void Kill();
         void DeployElevatorIntake(double elevatorLength, double intakeDeg);
-        void IntakeFromCustomPos(double yoff, double targHeight, bool cone);
-        void OuttakeToCustomPos(double yoff, double targHeight);
+        // void IntakeFromCustomPos(double yoff, double targHeight, bool cone);
+        // void OuttakeToCustomPos(double yoff, double targHeight);
         void Stow();
 
     private:
         void dbg();
         void CalcIntakeDeployPos();
-        void CalcToCustomPose(double yoff, double zoff, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
-        void CalcToCustomPose(double yoff, double scoringAngle, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
-        void CalcToCustomPose(double zoff, double scoringAngle, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
-        void CalcIntakeAngle();
+        // void CalcToCustomPose(double yoff, double zoff, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
+        // void CalcToCustomPose(double yoff, double scoringAngle, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
+        // void CalcToCustomPose(double zoff, double scoringAngle, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
+        // void CalcIntakeAngle();
         
         MechanismState m_state;
         bool m_outtaking, m_cone;

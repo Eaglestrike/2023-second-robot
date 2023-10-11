@@ -15,8 +15,8 @@ namespace IntakeConstants{
 
     //pid accounts for velocity and position error
     const double EXTEND_DEPLOY_P = 1.75; // corrects position error
-    const double EXTEND_DEPLOY_I = 0.1; // accounts for cumulative pos err
-    const double EXTEND_DEPLOY_D = 0.1; // corrects velocity error
+    const double EXTEND_DEPLOY_I = 0.1; // accounts for cumulative pos err was 0.1
+    const double EXTEND_DEPLOY_D = 0.1; // corrects velocity error was 0.1
 
     //pid correction to stay stowed
     const double STOW_P = EXTEND_DEPLOY_P;

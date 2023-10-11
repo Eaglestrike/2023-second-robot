@@ -19,9 +19,9 @@ namespace ControllerConstants{
     typedef std::pair<Joysticks, int> JoystickPortMap;
     /// maps the joysticks to their ports
     const std::vector<JoystickPortMap> JOYSTICK_PORTS = {
-        {LJOY, 0},
+        {LJOY, 4},
         {RJOY, 1},
-        {XBOX, 2},
+        {XBOX, 0},
         {BUTTONBOARD, 3}
     };
 

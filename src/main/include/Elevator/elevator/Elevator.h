@@ -8,8 +8,8 @@
 
 class Elevator {
     public:
-        // functions
-        Elevator(int leftID, int rightID);
+        // constructor
+        Elevator();
 
         // possible states that the elevator can be in
         enum ElevatorState {
@@ -24,22 +24,31 @@ class Elevator {
         double getElevatorHeight();
         double getLeftRotation();
         double getRightRotation();
+        ElevatorState getState();
 
         void setFeedforwardConstants(double ks, double kv, double kg, double ka);
         void setPIDConstants(double kp, double kd);
+        void setDistance(double distance);
+        void setState(ElevatorState new_state);
 
         // util methods
         void periodic();
-        void setState(ElevatorState new_pos);
 
         void zero_motors();
         void stop();
+        void start();
+
     private:
         // member variables
-        ElevatorState current_state;
+        ElevatorState current_state_;
         FeedforwardPID feedforward_;
 
         // motors
         WPI_TalonFX left_;
         WPI_TalonFX right_;
+
+        double talonUnitsToMeters(double motor_units);
+        double talonUnitsToAngle(double motor_units);
+        void evaluateState();
+        void evaluateDirection();
 };

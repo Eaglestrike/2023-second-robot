@@ -1,6 +1,7 @@
 //
 // Created by Vir Shah on 6/14/23.
 //
+#pragma once
 
 #include <ctre/Phoenix.h>
 #include "ElevatorConstants.h"
@@ -17,7 +18,15 @@ class Elevator : public Mechanism{
         enum ElevatorState {
             MANUAL,
             HOLDING_POSITION,
-            MOVING
+            MOVING,
+            STOPPED,
+        };
+
+        enum ElevatorTarget{
+            LOW,
+            MID,
+            HIGH,
+            STOWED
         };
 
         void ExtendMid();
@@ -37,20 +46,23 @@ class Elevator : public Mechanism{
         void zero_motors();
 
     private:
+        void CorePeriodic() override;
         void CoreTeleopPeriodic() override;
         void CoreShuffleboardInit() override;
         void CoreShuffleboardPeriodic() override;
         void CoreShuffleboardUpdate() override;
-        // member variables
-        ElevatorState current_state_;
-        FeedforwardPID feedforward_;
 
         // motors
         WPI_TalonFX left_;
         WPI_TalonFX right_;
 
+        // member variables
+        Poses::Pose1D current_pose_;
+        ElevatorState current_state_;
+        ElevatorTarget current_target_;
+        FeedforwardPID feedforward_;
+        double max_volts_;
+
         double talonUnitsToMeters(double motor_units);
         double talonUnitsToAngle(double motor_units);
-        void evaluateState();
-        void evaluateDirection();
 };

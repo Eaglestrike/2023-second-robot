@@ -76,7 +76,6 @@ void Robot::RobotPeriodic()
   if (m_controller.getPressed(ELEVATOR_UPDATE)) {
     elevator_.UpdateShuffleboard();
   }
-
   elevator_.Periodic();
 }
 

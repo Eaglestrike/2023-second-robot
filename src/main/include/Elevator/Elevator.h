@@ -22,8 +22,6 @@ class Elevator {
 
         // debug getters
         double getElevatorHeight();
-        double getLeftRotation();
-        double getRightRotation();
         ElevatorState getState();
 
         void setFeedforwardConstants(double ks, double kv, double kg, double ka);

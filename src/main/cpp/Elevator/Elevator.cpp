@@ -185,24 +185,11 @@ Elevator::ElevatorState Elevator::getState() {
     return current_state_;
 }
 
+/**
+ * @brief Returns the elevator height in meters, calculated per the left motor's position.
+ * 
+ * @return double height (in meters)
+ */
 double Elevator::getElevatorHeight() {
-    return (left_.GetSelectedSensorPosition() + right_.GetSelectedSensorPosition()) / 2.0;
-}
-
-/**
- * @brief Gets the position of the left motor
- * 
- * @return double the sensor position in raw sensor units
- */
-double Elevator::getLeftRotation() {
-    return left_.GetSelectedSensorPosition();
-}
-
-/**
- * @brief Gets the position of the right motor
- * 
- * @return double the sensor position in raw sensor units
- */
-double Elevator::getRightRotation() {
-    return right_.GetSelectedSensorPosition();
+    return talonUnitsToMeters(left_.GetSelectedSensorPosition());
 }

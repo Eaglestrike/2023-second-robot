@@ -141,7 +141,10 @@ void FeedforwardPID::reset() {
  */
 Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
 {
-    Poses::Pose1D pose;
+    Poses::Pose1D pose{0.0, 0.0, 0.0};
+    if (max_velocity == 0 || max_acceleration == 0) {
+        return pose;
+    } 
 
     // whether moving up or down
     double reversed_coefficient = reversed ? -1.0 : 1.0;
@@ -225,9 +228,7 @@ void FeedforwardPID::setPIDConstants(double kp, double kd)
 void FeedforwardPID::recalculateTimes() {
     // the time spent accelerating (or decelerating)
     if (max_velocity == 0 || max_acceleration == 0) {
-        frc::SmartDashboard::PutString("ELEVATOR ERROR", "Either max velocity or max acceleration are 0. Defaulting to 10 for acceleration time and 10 for velocity time.");
-        acceleration_time = 10.0;
-        velocity_time = 10.0;
+        return;
     } else {
         acceleration_time = max_velocity / max_acceleration;
 

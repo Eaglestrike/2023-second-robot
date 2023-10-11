@@ -3,15 +3,17 @@
 //
 
 #include "Elevator/Elevator.h"
-#include "frc/controller/ElevatorFeedforward.h"
+
 #include <stdio.h>
-#include <frc/smartdashboard/SmartDashboard.h>
+#include <iostream>
 #include <cmath>
 
+#include <frc/smartdashboard/SmartDashboard.h>
 /**
  * @brief Construct a new Elevator:: Elevator object
  */
-Elevator::Elevator():
+Elevator::Elevator(bool enabled, bool shuffleboard):
+    Mechanism("elevator", enabled, shuffleboard),
     left_(ElevatorConstants::LEFT_MOTOR_ID, "rio"),
     right_(ElevatorConstants::RIGHT_MOTOR_ID, "rio"),
     feedforward_(
@@ -22,7 +24,7 @@ Elevator::Elevator():
         ElevatorConstants::KP,
         ElevatorConstants::KD,
         ElevatorConstants::MAX_ELEVATOR_EXTENSION
-        ) 
+    ) 
 {
     // right_.SetInverted(true);
     left_.SetInverted(true);
@@ -30,35 +32,19 @@ Elevator::Elevator():
     feedforward_.setMaxVelocity(ElevatorConstants::MAX_ELEVATOR_VELOCITY);
     feedforward_.setMaxAcceleration(ElevatorConstants::MAX_ELEVATOR_ACCELERATION);
     feedforward_.setMaxDistance(ElevatorConstants::MAX_ELEVATOR_EXTENSION); // while testing
-
-    frc::SmartDashboard::PutNumber("max distance", ElevatorConstants::MAX_ELEVATOR_EXTENSION);
-    frc::SmartDashboard::PutNumber("volts to use", 0.0);
-    // feedforward_.setMaxDistance(ElevatorConstants::MAX_ELEVATOR_EXTENSION);
 };
 
 /**
  * Called every periodic cycle, handles all movement
  * Acts on the difference between current position and next position
  */
-void Elevator::periodic() {
-    //setDistance(frc::SmartDashboard::GetNumber("max distance", ElevatorConstants::MAX_ELEVATOR_EXTENSION));
-    if (current_state_ == STOPPED) {
-        return;
-    }
-
+void Elevator::CoreTeleopPeriodic() {
     Poses::Pose1D current_pose;
-
+    current_pose.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
     // dividing by 10 to convert from 100 milliseconds to seconds.
     current_pose.velocity = talonUnitsToMeters(left_.GetSelectedSensorVelocity()) * 10.0;
-    current_pose.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
-
-    // if (std::abs(ElevatorConstants::MAX_ELEVATOR_EXTENSION - current_pose.position) < 0.2) {
-    //     setState(ElevatorState::STOPPED);
-    //     return;
-    // }
 
     evaluateState();
-    evaluateDirection();
 
     double motor_output = feedforward_.periodic(current_pose);
 
@@ -88,26 +74,6 @@ void Elevator::evaluateState() {
     // }
 }
 
-/**
- * @brief Changes feedforward direction based on current state
- */
-void Elevator::evaluateDirection() {
-    // if (current_state_ == DOCKED || current_state_ == MOVING_TO_RAISED) {
-    //     feedforward_.setReversed(false);
-    // }
-    // else if (current_state_ == RAISED || current_state_ == MOVING_TO_DOCKED) {
-    //     feedforward_.setReversed(true);
-    // }
-}
-
-/**
- * This will be used to set the next position that the elevator should move to 
- * @param new_state the next state that the elevator should be in
- */
-void Elevator::setState(Elevator::ElevatorState new_state) {
-    current_state_ = new_state;
-}
-
 // util methods
 
 /**
@@ -120,50 +86,6 @@ void Elevator::zero_motors() {
     feedforward_.reset();
 }
 
-void Elevator::start() {
-    feedforward_.start();
-}
-
-/**
- * @brief Stops all motors, and pauses the feedforward calculations
- * 
- */
-void Elevator::stop() {
-    current_state_ = ElevatorState::STOPPED;
-    left_.SetNeutralMode(NeutralMode::Brake);
-    right_.SetNeutralMode(NeutralMode::Brake);
-    feedforward_.stop();
-}
-
-/**
- * @brief Method to allow updates to feedforward constants.
- * 
- * @param ks 
- * @param kv 
- * @param kd 
- * @param ka 
- */
-void Elevator::setFeedforwardConstants(double ks, double kv, double kg, double ka) {
-    feedforward_.setKs(ks);
-    feedforward_.setKv(kv);
-    feedforward_.setKg(kg);
-    feedforward_.setKa(ka);
-}
-
-void Elevator::setPIDConstants(double kp, double kd) {
-    feedforward_.setPIDConstants(kp, kd);
-}
-
-void Elevator::setMaxValues(double mv, double ma) {
-    feedforward_.setMaxVelocity(mv);
-    feedforward_.setMaxAcceleration(ma);
-}
-
-void Elevator::setDistance(double distance) {
-    if (distance < ElevatorConstants::MAX_ELEVATOR_EXTENSION) {
-        feedforward_.setMaxDistance(distance);
-    }
-}
 
 /**
  * @brief This function converts the motor units used by the talon to meters.
@@ -211,3 +133,43 @@ double Elevator::getLeftRotation() {
 double Elevator::getRightRotation() {
     return right_.GetSelectedSensorPosition();
 }
+
+void Elevator::CoreShuffleboardInit(){
+    frc::SmartDashboard::PutNumber(name_ + " ks", ElevatorConstants::KS);
+    frc::SmartDashboard::PutNumber(name_ + " kv", ElevatorConstants::KV);
+    frc::SmartDashboard::PutNumber(name_ + " ka", ElevatorConstants::KA);
+    frc::SmartDashboard::PutNumber(name_ + " kg", ElevatorConstants::KG);
+
+    frc::SmartDashboard::PutNumber(name_ + " kp", ElevatorConstants::KP);
+    frc::SmartDashboard::PutNumber(name_ + " kd", ElevatorConstants::KD);
+
+    frc::SmartDashboard::PutNumber(name_ + " mv", ElevatorConstants::MAX_ELEVATOR_VELOCITY);
+    frc::SmartDashboard::PutNumber(name_ + " ma", ElevatorConstants::MAX_ELEVATOR_ACCELERATION);
+
+    frc::SmartDashboard::PutNumber(name_ + " setPoint", ElevatorConstants::MAX_ELEVATOR_EXTENSION);
+
+    frc::SmartDashboard::PutNumber("volts to use", 0.0);
+};
+
+void Elevator::CoreShuffleboardPeriodic(){
+    // frc::SmartDashboard::PutNumber(name_ + " lm rotation", getLeftRotation());
+    // frc::SmartDashboard::PutNumber(name_ + " rm rotation", getRightRotation());
+};
+
+void Elevator::CoreShuffleboardUpdate(){
+    feedforward_.setKs(frc::SmartDashboard::GetNumber(name_ + " ks", ElevatorConstants::KS));
+    feedforward_.setKv(frc::SmartDashboard::GetNumber(name_ + " kv", ElevatorConstants::KV));
+    feedforward_.setKa(frc::SmartDashboard::GetNumber(name_ + " ka", ElevatorConstants::KA));
+    feedforward_.setKg(frc::SmartDashboard::GetNumber(name_ + " kg", ElevatorConstants::KG));
+
+    feedforward_.setPIDConstants(frc::SmartDashboard::GetNumber(name_ + " kp", ElevatorConstants::KP),
+                                 frc::SmartDashboard::GetNumber(name_ + " kd", ElevatorConstants::KD));
+
+    feedforward_.setMaxVelocity(frc::SmartDashboard::GetNumber(name_ + " mv", ElevatorConstants::MAX_ELEVATOR_VELOCITY));
+    feedforward_.setMaxAcceleration(frc::SmartDashboard::GetNumber(name_ + " ma", ElevatorConstants::MAX_ELEVATOR_ACCELERATION));
+
+    double setPoint = frc::SmartDashboard::GetNumber(name_ + " setPoint", ElevatorConstants::MAX_ELEVATOR_EXTENSION);
+    if (setPoint < ElevatorConstants::MAX_ELEVATOR_EXTENSION) {
+        feedforward_.setMaxDistance(setPoint);
+    }
+};

@@ -6,19 +6,27 @@
 #include "ElevatorConstants.h"
 #include "FeedforwardPID.h"
 
-class Elevator {
+#include "Util/Mechanism.h"
+
+class Elevator : public Mechanism{
     public:
         // constructor
-        Elevator();
+        Elevator(bool enabled, bool shuffleboard);
 
         // possible states that the elevator can be in
         enum ElevatorState {
-            MOVING_TO_DOCKED,
-            MOVING_TO_RAISED,
-            DOCKED,
-            RAISED,
-            STOPPED, // setState must be called to escape this state.
+            MANUAL,
+            HOLDING_POSITION,
+            MOVING
         };
+
+        void ExtendMid();
+        void ExtendLow();
+        void ExtendHigh();
+        //extended position in meters (how far the elevator has extended from the point where it )
+        void ExtendToCustomPos(double newPos);
+        double GetPos();
+        double GetVel();
 
         // debug getters
         double getElevatorHeight();
@@ -26,20 +34,13 @@ class Elevator {
         double getRightRotation();
         ElevatorState getState();
 
-        void setFeedforwardConstants(double ks, double kv, double kg, double ka);
-        void setPIDConstants(double kp, double kd);
-        void setDistance(double distance);
-        void setState(ElevatorState new_state);
-        void setMaxValues(double mv, double ma);
-
-        // util methods
-        void periodic();
-
         void zero_motors();
-        void stop();
-        void start();
 
     private:
+        void CoreTeleopPeriodic() override;
+        void CoreShuffleboardInit() override;
+        void CoreShuffleboardPeriodic() override;
+        void CoreShuffleboardUpdate() override;
         // member variables
         ElevatorState current_state_;
         FeedforwardPID feedforward_;

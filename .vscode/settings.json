@@ -2,6 +2,7 @@
     "files.associations": {
         "bit": "cpp",
         "bitset": "cpp",
-        "compare": "cpp"
+        "compare": "cpp",
+        "iterator": "cpp"
     }
 }

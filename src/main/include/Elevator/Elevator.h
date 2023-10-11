@@ -30,6 +30,7 @@ class Elevator {
         void setPIDConstants(double kp, double kd);
         void setDistance(double distance);
         void setState(ElevatorState new_state);
+        void setMaxValues(double mv, double ma);
 
         // util methods
         void periodic();

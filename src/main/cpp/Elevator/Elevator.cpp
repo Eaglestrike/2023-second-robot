@@ -41,7 +41,7 @@ Elevator::Elevator():
  * Acts on the difference between current position and next position
  */
 void Elevator::periodic() {
-    setDistance(frc::SmartDashboard::GetNumber("max distance", ElevatorConstants::MAX_ELEVATOR_EXTENSION));
+    //setDistance(frc::SmartDashboard::GetNumber("max distance", ElevatorConstants::MAX_ELEVATOR_EXTENSION));
     if (current_state_ == STOPPED) {
         return;
     }
@@ -75,17 +75,17 @@ void Elevator::periodic() {
  * @brief Takes in current values and decides whether to move from the "MOVING_TO" state to the location state.
  */
 void Elevator::evaluateState() {
-    double left_position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
+    //double left_position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
 
-    if (std::abs(ElevatorConstants::MAX_ELEVATOR_EXTENSION - left_position) < ElevatorConstants::POSITION_ERROR_TOLERANCE) {
-        if (current_state_ == MOVING_TO_DOCKED) {
-            current_state_ = DOCKED;
-        }
+    // if (std::abs(ElevatorConstants::MAX_ELEVATOR_EXTENSION - left_position) < ElevatorConstants::POSITION_ERROR_TOLERANCE) {
+    //     if (current_state_ == MOVING_TO_DOCKED) {
+    //         current_state_ = DOCKED;
+    //     }
 
-        if (current_state_ == MOVING_TO_RAISED) {
-            current_state_ = RAISED;
-        }
-    }
+    //     if (current_state_ == MOVING_TO_RAISED) {
+    //         current_state_ = RAISED;
+    //     }
+    // }
 }
 
 /**
@@ -152,6 +152,11 @@ void Elevator::setFeedforwardConstants(double ks, double kv, double kg, double k
 
 void Elevator::setPIDConstants(double kp, double kd) {
     feedforward_.setPIDConstants(kp, kd);
+}
+
+void Elevator::setMaxValues(double mv, double ma) {
+    feedforward_.setMaxVelocity(mv);
+    feedforward_.setMaxAcceleration(ma);
 }
 
 void Elevator::setDistance(double distance) {

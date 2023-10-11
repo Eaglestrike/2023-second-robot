@@ -54,9 +54,17 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutNumber("elevator kv", ElevatorConstants::KV);
   frc::SmartDashboard::PutNumber("elevator kg", ElevatorConstants::KG);
   
-  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+  // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+  // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+  // frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+
+  frc::SmartDashboard::PutNumber("elevator kd", ElevatorConstants::KD);
+  frc::SmartDashboard::PutNumber("elevator kp", ElevatorConstants::KP);
+
+  frc::SmartDashboard::PutNumber("elevator mv", ElevatorConstants::MAX_ELEVATOR_VELOCITY);
+  frc::SmartDashboard::PutNumber("elevator ma", ElevatorConstants::MAX_ELEVATOR_ACCELERATION);
+
+  frc::SmartDashboard::PutNumber("elevator dist", ElevatorConstants::MAX_ELEVATOR_EXTENSION);
 
   m_navx->ZeroYaw();
 
@@ -90,8 +98,24 @@ void Robot::RobotPeriodic()
   }
 
   if (m_controller.getPressed(ZERO_FEEDFORWARD)) {
+    double dash_ks = frc::SmartDashboard::GetNumber("elevator ks", ElevatorConstants::KS);
+    double dash_kv = frc::SmartDashboard::GetNumber("elevator kv", ElevatorConstants::KV);
+    double dash_kg = frc::SmartDashboard::GetNumber("elevator kg", ElevatorConstants::KG);
+    double dash_ka = frc::SmartDashboard::GetNumber("elevator ka", ElevatorConstants::KA);
+    elevator_.setFeedforwardConstants(dash_ks, dash_kv, dash_kg, dash_ka);
+    double dash_p = frc::SmartDashboard::GetNumber("elevator kd", ElevatorConstants::KD);
+    double dash_d = frc::SmartDashboard::GetNumber("elevator kp", ElevatorConstants::KP);
+    elevator_.setPIDConstants(dash_p, dash_d);
+    double dash_mv = frc::SmartDashboard::GetNumber("elevator mv", ElevatorConstants::MAX_ELEVATOR_VELOCITY);
+    double dash_ma = frc::SmartDashboard::GetNumber("elevator ma", ElevatorConstants::MAX_ELEVATOR_ACCELERATION);
+    elevator_.setMaxValues(dash_mv, dash_ma);
+    double dash_dist = frc::SmartDashboard::GetNumber("elevator dist", ElevatorConstants::MAX_ELEVATOR_EXTENSION);
+    elevator_.setDistance(dash_dist);
     frc::SmartDashboard::PutBoolean("zero feedforward being pressed", true);
     elevator_.zero_motors();
+  }
+  else{
+    frc::SmartDashboard::PutBoolean("zero feedforward being pressed", false);
   }
 
   // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
@@ -104,17 +128,9 @@ void Robot::RobotPeriodic()
   // frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
   // frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
 
-  frc::SmartDashboard::PutNumber("lm rotation", elevator_.getLeftRotation());
-  frc::SmartDashboard::PutNumber("rm rotation", elevator_.getRightRotation());
+  // frc::SmartDashboard::PutNumber("lm rotation", elevator_.getLeftRotation());
+  // frc::SmartDashboard::PutNumber("rm rotation", elevator_.getRightRotation());
 
-
-  double dash_ks = frc::SmartDashboard::GetNumber("elevator ks", ElevatorConstants::KS);
-  double dash_kv = frc::SmartDashboard::GetNumber("elevator kv", ElevatorConstants::KV);
-  double dash_kg = frc::SmartDashboard::GetNumber("elevator kg", ElevatorConstants::KG);
-  double dash_ka = frc::SmartDashboard::GetNumber("elevator ka", ElevatorConstants::KA);
-
-
-  elevator_.setFeedforwardConstants(dash_ks, dash_kv, dash_kg, dash_ka);
 }
 
 /**
@@ -145,6 +161,7 @@ void Robot::TeleopPeriodic() {
     elevator_.start();
     elevator_.setState(Elevator::ElevatorState::MOVING_TO_DOCKED);
   }
+
   double lx = m_controller.getWithDeadContinuous(SWERVE_STRAFEX, 0.1);
   double ly = m_controller.getWithDeadContinuous(SWERVE_STRAFEY, 0.1);
 

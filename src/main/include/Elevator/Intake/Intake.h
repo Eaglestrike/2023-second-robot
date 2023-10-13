@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IntakeConstants.h"
+#include "Elevator/ElevatorIntakeConstants.h"
 #include <ctre/Phoenix.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DutyCycleEncoder.h>
@@ -12,21 +12,27 @@ class Intake{
         Intake();
 
         enum WristState{
+            STOWING,
             DEPLOYING,
             DEPLOYED,
-            STOWING,
             STOWED,
-            STOPPED
+            HALFSTOWING,
+            STOPPED,
+            HALFSTOWED,
         };
 
+        void ManualPeriodic(double wristVolts, double rollerVolts);
         void TeleopPeriodic();    
         void Stow();
-        void DeployIntake(); // would be called intake for readability but can't bc class is Intake
-        void DeployOuttake();
-        void DeployToCustomPos(double newPos); //pos should be in radians, w 0 as extended and parallel to ground
-        void ChangeRollerVoltage(double newVolotage, bool out); //pos should be in radians, w 0 as extended and parallel to ground
+        void HalfStow();
+        void DeployIntake(bool cone); 
+        void DeployOuttake(bool cone);
+        void DeployNoRollers();
+        void ChangeDeployPos(double newPos);
+        void ChangeRollerVoltage(double newVolotage); //pos should be in radians, w 0 as extended and parallel to ground
         void Kill();
-        // send lidar data
+        WristState GetState();
+        double GetPos();
     private:
         void UpdatePose();
         void UpdateTargetPose();
@@ -59,8 +65,8 @@ class Intake{
         double m_speedDecreasePos, // pos in motion profile where start decelerating
                m_totalErr = 0; // integral of position error for PID
 
-        double m_maxAcc = IntakeConstants::WRIST_MAX_ACC, m_maxVel = IntakeConstants::WRIST_MAX_VEL;
         double m_rollerVolts;
+        double m_customDeployPos =-1, m_customRollerVolts = -1;
 
         frc2::PIDController m_stowedPIDcontroller{IntakeConstants::STOW_P,IntakeConstants::STOW_I,IntakeConstants::STOW_D};
         //add caleb's lidar class when thats a thing

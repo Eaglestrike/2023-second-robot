@@ -82,4 +82,7 @@ class Robot : public frc::TimedRobot {
   // jetson
   SocketClient m_client;
   // Intake m_intake;
+  bool m_red;
+  int m_posVal; // for auto lineup socring positions
+  int m_heightVal;
 };

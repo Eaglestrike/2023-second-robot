@@ -69,6 +69,34 @@ namespace ControllerMapData{
         T value;
     };
 
+     const std::vector<ValueMapElement<int>> SCORING_POS = {
+        {{BUTTONBOARD, B_1}, 1},
+        {{BUTTONBOARD, B_2}, 2},
+        {{BUTTONBOARD, B_3}, 3},
+        {{BUTTONBOARD, B_4}, 4},
+        {{BUTTONBOARD, B_5}, 5},
+        {{BUTTONBOARD, B_6}, 6},
+        {{BUTTONBOARD, B_7}, 7},
+        {{BUTTONBOARD, B_8}, 8},
+        {{BUTTONBOARD, B_9}, 9},
+    };
+
+     const std::vector<ValueMapElement<int>> GET_LEVEL = {
+        {BB_L1, 1},
+        {BB_L2, 2},
+        {BB_L3, 3}
+    };
+
+    const std::vector<ValueMapElement<double>> GET_TRIM_X = {
+        {BB_X_TRIM_UP, 1.0},
+        {BB_X_TRIM_DOWN, -1.0}
+    };
+
+    const std::vector<ValueMapElement<double>> GET_TRIM_Y = {
+        {BB_Y_TRIM_UP, 1.0},
+        {BB_Y_TRIM_DOWN, -1.0}
+    };
+
     //Takes the range from min to max
     //if range covers over 0, like from 350->10, the larger number comes first
     struct POVRange{

@@ -34,7 +34,10 @@ Robot::Robot():
       m_joystickAng{0},
       m_odometry{&m_startPos, &m_startAng},
       m_prevTimeTest{0},
-      m_client{"10.1.14.107", 5807, 500, 5000}
+      m_client{"10.1.14.107", 5807, 500, 5000},
+      m_red{false},
+      m_posVal{0},
+      m_heightVal{0}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
@@ -316,7 +319,28 @@ void Robot::TeleopPeriodic() {
 
   vec::Vector2D setVel = {-vy, -vx};
 
-  // cancel auto if joysticks move
+  // get auto lineup pos
+  int posVal = m_controller.getValue(ControllerMapData::SCORING_POS, 0);
+  if (posVal) {
+    m_posVal = posVal;
+  }
+  int heightVal = m_controller.getValue(ControllerMapData::GET_LEVEL, 0);
+  if (heightVal) {
+    m_heightVal = heightVal;
+  }
+
+  if (m_posVal && m_heightVal) {
+    vec::Vector2D scorePos = Utils::GetScoringPos(m_posVal, m_heightVal, m_red);
+    double ang = 0;
+    if (!m_red) {
+      ang = M_PI;
+    }
+    // commented out right now because untuned
+    // if this executed the robot will fly to (0, 0)
+    // m_autoLineup.SetAbsTargetPose(scorePos, ang);
+  }
+
+  // cancel auto lineup if joysticks move
   if (!Utils::NearZero(setVel)) {
     m_autoLineup.StopPos();
   }
@@ -379,30 +403,37 @@ void Robot::DisabledPeriodic() {
     m_startAng = FieldConstants::DEBUG_ANG;
     m_startPos = FieldConstants::DEBUG_POS;
     m_joystickAng = FieldConstants::DEBUG_JANG;
+    m_red = false;
   } else if (m_selected == "Blue L") {
     m_startAng = FieldConstants::BL_ANG;
     m_startPos = FieldConstants::BL_POS;
     m_joystickAng = FieldConstants::BL_JANG;
+    m_red = false;
   } else if (m_selected == "Blue M") {
     m_startAng = FieldConstants::BM_ANG;
     m_startPos = FieldConstants::BM_POS;
     m_joystickAng = FieldConstants::BM_JANG;
+    m_red = false;
   } else if (m_selected == "Blue R") {
     m_startAng = FieldConstants::BR_ANG;
     m_startPos = FieldConstants::BR_POS;
     m_joystickAng = FieldConstants::BR_JANG;
+    m_red = false;
   } else if (m_selected == "Red L") {
     m_startAng = FieldConstants::RL_ANG;
     m_startPos = FieldConstants::RL_POS;
     m_joystickAng = FieldConstants::RL_JANG;
+    m_red = true;
   } else if (m_selected == "Red M") {
     m_startAng = FieldConstants::RM_ANG;
     m_startPos = FieldConstants::RM_POS;
     m_joystickAng = FieldConstants::RM_JANG;
+    m_red = true;
   } else if (m_selected == "Red R") {
     m_startAng = FieldConstants::RR_ANG;
     m_startPos = FieldConstants::RR_POS;
     m_joystickAng = FieldConstants::RR_JANG;
+    m_red = true;
   } else {
     m_startAng = FieldConstants::DEBUG_ANG;
     m_startPos = FieldConstants::DEBUG_POS;

@@ -68,4 +68,53 @@ namespace FieldConstants {
   const double RR_JANG = M_PI;  
 
   const double FIELD_WIDTH = 16.540988; // in metres
+
+  // TODO TUNE
+  const std::vector<std::vector<vec::Vector2D>> BLUE_SCORING_POS {
+    { // scoring pos 1
+      {}, // L
+      {}, // M
+      {}, // H
+    },
+    { // scoring pos 2
+      {}, // L
+      {}, // M
+      {}, // H
+    },
+    { // scoring pos 3
+      {}, // L
+      {}, // M
+      {}, // H
+    },
+    { // scoring pos 4
+      {}, // L
+      {}, // M
+      {}, // H
+    },
+    { // scoring pos 5
+      {}, // L
+      {}, // M
+      {}, // H
+    },
+    { // scoring pos 6
+      {}, // L
+      {}, // M
+      {}, // H
+    },
+    { // scoring pos 7
+      {}, // L
+      {}, // M
+      {}, // H
+    },
+    { // scoring pos 8
+      {}, // L
+      {}, // M
+      {}, // H
+    },
+    { // scoring pos 9
+      {}, // L
+      {}, // M
+      {}, // H
+    },
+  };
 }

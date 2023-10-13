@@ -212,3 +212,36 @@ std::vector<AutoPaths::SwervePose> Utils::GetRedPoses(std::vector<AutoPaths::Swe
 
   return res;
 }
+
+/**
+ * Gets vector pos of scoring position
+ * 
+ * @param pos Scoring position, number from 1-9 not 0-8
+ * @param height Low mid high, number from 1-3 not 0-2
+ * @param red If on red side
+ * 
+ * @returns vector pos of scoring position
+*/
+vec::Vector2D Utils::GetScoringPos(int pos, int height, bool red) {
+  if (pos < 1 || pos > 9) {
+    return;
+  }
+
+  if (height < 1 || height > 3) {
+    return;
+  }
+
+  pos--;
+  height--;
+
+  vec::Vector2D vecPos;
+  if (red) {
+    vecPos = FieldConstants::BLUE_SCORING_POS[8 - pos][height];
+    double newX = FieldConstants::FIELD_WIDTH - x(vecPos);
+    x(vecPos, newX);
+  } else {
+    vecPos = FieldConstants::BLUE_SCORING_POS[pos][height];
+  }
+
+  return vecPos;
+}

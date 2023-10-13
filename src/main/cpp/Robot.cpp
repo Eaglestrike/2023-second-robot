@@ -331,14 +331,22 @@ void Robot::TeleopPeriodic() {
 
   if (m_posVal && m_heightVal) {
     vec::Vector2D scorePos = Utils::GetScoringPos(m_posVal, m_heightVal, m_red);
-    double ang = 0;
-    if (!m_red) {
-      ang = M_PI;
-    }
+    double ang = m_joystickAng;
     // commented out right now because untuned
     // if this executed the robot will fly to (0, 0)
     // m_autoLineup.SetAbsTargetPose(scorePos, ang);
   }
+
+  // trim, offset shold be opposite direction of offset so it moves correct direction
+  double trimX = -m_controller.getValue(ControllerMapData::GET_TRIM_X, 0.0);
+  double trimY = -m_controller.getValue(ControllerMapData::GET_TRIM_Y, 0.0);
+  vec::Vector2D offset = {trimX, trimY};
+  if (m_red) {
+    offset = rotate(offset, M_PI / 2);
+  } else {
+    offset = rotate(offset, -M_PI / 2);
+  }
+  m_startPos += offset;
 
   // cancel auto lineup if joysticks move
   if (!Utils::NearZero(setVel)) {

@@ -8,7 +8,6 @@
 
 #include <cstddef>
 #include <map>
-#include "Elevator.h"
 
 namespace Poses {
     struct Pose1D {
@@ -19,6 +18,14 @@ namespace Poses {
 };
 
 namespace ElevatorConstants {
+  enum ElevatorTarget{
+      CUSTOM,
+      LOW,
+      MID,
+      HIGH,
+      STOWED
+  };
+  
   const double TALON_FX_COUNTS_PER_REV = 2048;
   const double ONE_MOTOR_REVOLUTION_TO_DISTANCE_TRAVELLED = 0.0465582;
 
@@ -51,11 +58,12 @@ namespace ElevatorConstants {
   const double MID_HEIGHT = MAX_EXTENSION / 2.0;
   const double HIGH_HEIGHT = MAX_EXTENSION;
 
-  std::map<Elevator::ElevatorTarget, double> TARGET_TO_HEIGHT = {
+  const std::map<ElevatorTarget, double> TARGET_TO_HEIGHT = {
     {LOW, LOW_HEIGHT},
     {MID, MID_HEIGHT},
     {HIGH, HIGH_HEIGHT},
-    {STOWED, STOWED_HEIGHT}
+    {STOWED, STOWED_HEIGHT},
+    {CUSTOM, 0.0} //For safety reasons
   };
 
 

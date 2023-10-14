@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include <frc/smartdashboard/SmartDashboard.h>
+
 /**
  * @brief Construct a new Elevator:: Elevator object
  */
@@ -83,25 +84,25 @@ void Elevator::ExtendToCustomPos(double newPos) {
 void Elevator::Stow(){
     current_state_ = ElevatorState::MOVING;
     current_target_ = ElevatorTarget::STOWED;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT.at(current_target_), getElevatorHeight());
 }
 
 void Elevator::ExtendLow() {
     current_state_ = ElevatorState::MOVING;
     current_target_ = ElevatorTarget::LOW;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT.at(current_target_), getElevatorHeight());
 }
 
 void Elevator::ExtendMid() {
     current_state_ = ElevatorState::MOVING;
     current_target_ = ElevatorTarget::MID;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT.at(current_target_), getElevatorHeight());
 }
 
 void Elevator::ExtendHigh() {
     current_state_ = ElevatorState::MOVING;
     current_target_ = ElevatorTarget::HIGH;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT.at(current_target_), getElevatorHeight());
 }
 
 void Elevator::HoldPosition(){
@@ -179,6 +180,8 @@ std::string Elevator::getTargetString(){
             return "HIGH";
         case STOWED:
             return "STOWED";
+        default:
+            return "NONE";
     }
 }
 

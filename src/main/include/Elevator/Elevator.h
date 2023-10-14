@@ -12,6 +12,8 @@
 #include "frc/DigitalInput.h"
 
 class Elevator : public Mechanism{
+    using ElevatorTarget = ElevatorConstants::ElevatorTarget;
+    using enum ElevatorConstants::ElevatorTarget;
     public:
         // constructor
         Elevator(bool enabled, bool shuffleboard);
@@ -21,14 +23,6 @@ class Elevator : public Mechanism{
             MANUAL,
             MOVING,
             STOPPED,
-        };
-
-        enum ElevatorTarget{
-            CUSTOM,
-            LOW,
-            MID,
-            HIGH,
-            STOWED
         };
 
         void Stow();

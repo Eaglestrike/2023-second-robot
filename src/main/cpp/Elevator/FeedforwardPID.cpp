@@ -201,6 +201,8 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
         pose.acceleration = 0.0;
     }
 
+    pose.position += startpoint_;
+
     return pose;
 }
 

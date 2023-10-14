@@ -20,6 +20,9 @@ namespace Actions{
         ELEVATOR_RANGE,
         ELEVATOR_SET_MANUAL,
         ELEVATOR_SET_MOVING,
+        MOVE_INTAKE,
+        MANUAL1,
+        MANUAL2,
         ACTION_COUNT //Just the number of actions, as it is at the end of a enum
     };
 
@@ -54,9 +57,9 @@ namespace ControllerMapData{
         
         {XBOX_LJOY_X,           NONE},
         {XBOX_LJOY_Y,           NONE}, 
-        {XBOX_LTRIGGER,         ELEVATOR_SET_MANUAL},
-        {XBOX_RTRIGGER,         ELEVATOR_SET_MOVING},
-        {XBOX_RJOY_X,           ELEVATOR_RANGE},
+        {XBOX_LTRIGGER,         MANUAL1},
+        {XBOX_RTRIGGER,         MANUAL2},
+        {XBOX_RJOY_X,           MOVE_INTAKE},
         {XBOX_RJOY_Y,           NONE},
         {XBOX_A_BUTTON ,        ELEVATOR_UPDATE},
         {XBOX_B_BUTTON ,        ELEVATOR_EXTEND_STOWED},

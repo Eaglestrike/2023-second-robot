@@ -71,12 +71,12 @@ namespace IntakeConstants{
     // wrist positions in radians
     // using motor's relative encoder so assume that 0.0 is stowed
     // because it should be zeroed at stowed anyway
-    const double STOWED_POS = 1.92;
     const double MAX_POS = 1.84;
-    const double DEPLOYED_POS = 0.0;
-    const double INTAKE_UPRIGHT_ANGLE = 0.0;
     //todo:
     const double MIN_POS = 0.0;
+    const double STOWED_POS = 1.92;
+    const double DEPLOYED_POS = 0.0;
+    const double INTAKE_UPRIGHT_ANGLE = 0.0;
     
 
 

@@ -1,6 +1,7 @@
 #include "Elevator/Intake/Intake.h"
 #include <iostream>
 
+//constructor j sets motor to brake mode
 Intake::Intake(){
     m_wristMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     if (dbg){
@@ -18,6 +19,7 @@ Intake::Intake(){
     }
 }
 
+// to debug the trapezoidal motion profile
 void Intake::debugTargPose(){ 
     ChangeDeployPos(frc::SmartDashboard::GetNumber("Setpoint", m_setPt));
     frc::SmartDashboard::PutNumber("targ vel", m_targetVel);
@@ -37,6 +39,7 @@ void Intake::debugTargPose(){
     }
 }
 
+// to debug the current pose calculations
 void Intake::debugCurPose(){
     frc::SmartDashboard::PutNumber("cur vel", m_curVel);
     frc::SmartDashboard::PutNumber("cur pos", m_curPos);
@@ -55,14 +58,15 @@ void Intake::DeployNoRollers(){
     m_state = MOVING;
 }
 
+// for tuning, can test constant voltage on wrist or rollers 
+// but need to pick which wrist or rollers in the code, since it cant be changed from shuffleboard
 void Intake::debugPutVoltage(){
     double voltReq;
-    double WRIST_MAX_POS = 1.92,  WRIST_MIN_POS = 0.0;
     voltReq = frc::SmartDashboard::GetNumber("voltage", voltReq);
     voltReq = std::clamp(voltReq, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS);
-    if(m_curPos > WRIST_MAX_POS){
+    if(m_curPos > IntakeConstants::MAX_POS){
         voltReq = 0;
-    } else if(m_curPos < WRIST_MIN_POS){
+    } else if(m_curPos < IntakeConstants::MIN_POS){
         voltReq = 0;
     }
     std::cout << voltReq << std::endl ;
@@ -71,6 +75,7 @@ void Intake::debugPutVoltage(){
     m_wristMotor.SetVoltage(units::volt_t(-voltReq));
 }
 
+//Updates the current position, velocity, and acceleration of the wrist
 void Intake::UpdatePose(){
     double newPos = m_wristEncoder.GetAbsolutePosition() * 2 * M_PI + IntakeConstants::WRIST_ABS_ENCODER_OFFSET; // might need to negate or do some wrap around calculations
     double newVel = (newPos - m_curPos)/0.02;
@@ -79,6 +84,12 @@ void Intake::UpdatePose(){
     m_curPos = newPos;
 }
 
+// needs to be called INSTEAD of teleop periodic
+void Intake::ManualPeriodic(double wristVolts){
+    m_wristMotor.SetVoltage(units::volt_t(std::clamp(-wristVolts, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
+}
+
+// teleop periodic runs on state machine
 void Intake::TeleopPeriodic(){
     if (dbg){
         debugCurPose();

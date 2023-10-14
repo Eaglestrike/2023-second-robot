@@ -7,7 +7,6 @@ class ElevatorIntake{
     public:
         enum MechanismState{
             MOVING,
-            MANUAL,
             STOPPED
         };
 

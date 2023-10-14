@@ -25,6 +25,8 @@ class Intake{
             CUSTOM,
         };
 
+
+        void ManualPeriodic(double wristVolts);
         void TeleopPeriodic();    
         void Stow();
         void HalfStow();

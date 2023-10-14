@@ -70,6 +70,8 @@ void ElevatorIntake::TeleopPeriodic(){
                     if (m_intake.GetState() == Intake::AT_TARGET)
                         m_movingState = DONE;
                     break;
+                case DONE:
+                    break;
             }
             break;
     }

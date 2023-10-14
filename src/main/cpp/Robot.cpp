@@ -57,7 +57,14 @@ void Robot::TeleopInit() {
 }
 
 void Robot::TeleopPeriodic() {
-  m_elevatorIntake.TeleopPeriodic();
+  if (m_controller.getPressed(MANUAL1) && m_controller.getPressed(MANUAL2)) {
+    // double intakeX = m_controller.getWithDeadContinuous(MOVE_INTAKE, 0.1);
+    // intakeX = intakeX * IntakeConstants::WRIST_MAX_VOLTS;
+    // m_intake.ManualPeriodic(intakeX);
+  } else {
+    // m_intake.TeleopPeriodic();
+    m_elevatorIntake.TeleopPeriodic();
+  }
 }
 
 void Robot::DisabledInit() {}

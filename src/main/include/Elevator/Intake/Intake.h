@@ -11,14 +11,18 @@ class Intake{
     public:
         Intake();
 
-        enum WristState{
-            STOWING,
-            DEPLOYING,
-            DEPLOYED,
-            STOWED,
-            HALFSTOWING,
+        enum MechState{
+            MOVING,
+            AT_TARGET,
             STOPPED,
+            MANUAL
+        };
+
+        enum TargetState{
+            STOWED,
+            DEPLOYED,
             HALFSTOWED,
+            CUSTOM,
         };
 
         void TeleopPeriodic();    
@@ -30,8 +34,10 @@ class Intake{
         void ChangeDeployPos(double newPos);
         void ChangeRollerVoltage(double newVolotage); //pos should be in radians, w 0 as extended and parallel to ground
         void Kill();
-        WristState GetState();
+        MechState GetState();
+        TargetState GetTargetState();
         double GetPos();
+
     private:
         void UpdatePose();
         void UpdateTargetPose();
@@ -52,7 +58,10 @@ class Intake{
         WPI_TalonFX m_rollerMotor{IntakeConstants::ROLLER_MOTOR_ID};
         frc::DutyCycleEncoder m_wristEncoder{IntakeConstants::WRIST_ENCODER_CAN_ID};
 
-        WristState m_state = STOWED;
+        // WristState m_state = WristState::STOWED;
+        TargetState m_targState = TargetState::STOWED;
+        MechState m_state = MechState::AT_TARGET;
+
         double m_kp = IntakeConstants::EXTEND_DEPLOY_P, m_ki = IntakeConstants::EXTEND_DEPLOY_I, 
                m_kd = IntakeConstants::EXTEND_DEPLOY_D, m_s = IntakeConstants::EXTEND_DEPLOY_S,
                m_g = IntakeConstants::EXTEND_DEPLOY_G, m_v = IntakeConstants::EXTEND_DEPLOY_V,

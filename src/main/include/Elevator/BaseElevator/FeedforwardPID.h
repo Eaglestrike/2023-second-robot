@@ -29,6 +29,8 @@ public:
     void reset();
     void stop();
 
+    bool isFinished();
+
     // getters and setters
     double getKs();
     double getKv();
@@ -42,6 +44,7 @@ public:
     double getMaxAcceleration();
 
     bool getReversed();
+    double getSetpoint();
 
     void setKs(double ks);
     void setKv(double kv);
@@ -63,6 +66,8 @@ private:
     void recalculateTimes();
 
     // total distance needed to travel
+    double startpoint_;
+    double setpoint_;
     double total_distance_;
 
     // feedforward constants
@@ -72,9 +77,9 @@ private:
     double max_velocity;
     double max_acceleration;
 
-    // pid constants, initialized to 0 so their use is optional
-    double kp = 0.0;
-    double kd = 0.0;
+    // pid constants
+    double kp;
+    double kd;
 
     // calculated constants
     double acceleration_time;

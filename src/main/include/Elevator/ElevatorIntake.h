@@ -6,11 +6,16 @@
 class ElevatorIntake{
     public:
         enum MechanismState{
-            EXTENDING,
-            EXTENDED,
-            STOWING,
-            STOWED,
+            MOVING,
+            MANUAL,
             STOPPED
+        };
+
+        enum MovingState{
+            HALFSTOWING,
+            ELEVATOR,
+            INTAKE,
+            DONE
         };
 
         ElevatorIntake();
@@ -31,6 +36,8 @@ class ElevatorIntake{
         
         MechanismState m_state;
         bool m_outtaking, m_cone;
+
+        MovingState m_movingState;
 
         //scoring stuff
         // not used

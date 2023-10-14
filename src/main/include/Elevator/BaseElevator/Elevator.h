@@ -9,7 +9,11 @@
 
 #include "Util/Mechanism.h"
 
+#include "frc/DigitalInput.h"
+
 class Elevator : public Mechanism{
+    using ElevatorTarget = ElevatorConstants::ElevatorTarget;
+    using enum ElevatorConstants::ElevatorTarget;
     public:
         // constructor
         Elevator(bool enabled, bool shuffleboard);
@@ -17,36 +21,32 @@ class Elevator : public Mechanism{
         // possible states that the elevator can be in
         enum ElevatorState {
             MANUAL,
-            HOLDING_POSITION,
             MOVING,
             STOPPED,
         };
 
-        enum ElevatorTarget{
-            LOW,
-            MID,
-            HIGH,
-            STOWED
-        };
-
+        void Stow();
         void ExtendMid();
         void ExtendLow();
         void ExtendHigh();
         //extended position in meters (how far the elevator has extended from the point where it )
         void ExtendToCustomPos(double newPos);
+        void HoldPosition();
         double GetPos();
         double GetVel();
 
         // debug getters
         double getElevatorHeight();
         ElevatorState getState();
+        std::string getStateString();
+        std::string getTargetString();
+        ElevatorConstants::ElevatorTarget getTarget();
+        bool AtTarget();
+        void Stop();
+
+        void setManualVolts(double range);
 
         void zero_motors();
-
-        void setDebugManualVolts(double range);
-
-        void activateManualMode();
-        void activateMovingMode();
 
     private:
         void CorePeriodic() override;
@@ -58,6 +58,9 @@ class Elevator : public Mechanism{
         // motors
         WPI_TalonFX left_;
         WPI_TalonFX right_;
+
+        // limit switch
+        frc::DigitalInput limit_switch_;
 
         // member variables
         Poses::Pose1D current_pose_;

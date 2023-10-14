@@ -10,8 +10,18 @@ ElevatorIntake::ElevatorIntake(){
 
 // void ElevatorIntake::CalcIntakeAngle(){}
 
-void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeDeg){
-    m_state = EXTENDING;
+void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeAng){
+    m_state = MOVING;
+    m_movingState = HALFSTOWING;
+    m_targElevatorPos = elevatorLength;
+    m_targIntakeAng = intakeAng;
+}
+
+void ElevatorIntake::Stow(){
+    m_state = MOVING;
+    m_movingState = HALFSTOWING;
+    m_targElevatorPos = ElevatorConstants::STOWED_HEIGHT;
+    m_targIntakeAng =  IntakeConstants::STOWED_POS;
 }
 
 void ElevatorIntake::dbg(){
@@ -23,7 +33,8 @@ void ElevatorIntake::dbg(){
     }
     m_outtaking = frc::SmartDashboard::GetBoolean("outtake", false);
     m_cone = frc::SmartDashboard::GetBoolean("cone", false);
-    
+    frc::SmartDashboard::PutNumber("elevator acc pos", m_elevator.GetPos());
+    frc::SmartDashboard::PutNumber("intake acc angle", m_intake.GetPos());
 }
 
 void ElevatorIntake::CalcIntakeDeployPos(){}
@@ -33,39 +44,38 @@ void ElevatorIntake::TeleopPeriodic(){
     m_intake.TeleopPeriodic();
     m_elevator.TeleopPeriodic();
     switch(m_state){
-        case EXTENDING:
-            if (m_intake.GetState() == Intake::STOWED){
-                m_intake.HalfStow();
-            } else if (m_intake.GetState() == Intake::HALFSTOWED){
-                if (m_elevator.GetState() != BaseElevator::EXTENDING){
-                    m_elevator.ExtendToCustomPos(m_targElevatorPos);
-                } else if (m_elevator.GetState() == BaseElevator::EXTENDED){
-                    m_intake.ChangeDeployPos(m_targIntakeAng);
-                    if (!m_outtaking) m_intake.DeployIntake(m_cone);
-                    else m_intake.DeployOuttake(m_cone);
-                }
-            } else if (m_intake.GetState() == EXTENDED && m_elevator.GetState() == BaseElevator::EXTENDED)
-                m_state = EXTENDED;
+        case STOPPED:
+            m_elevator.Stop();
+            m_intake.Kill();
             break;
-        case STOWING:
-            if (m_intake.GetState() == EXTENDED){
-                m_intake.HalfStow();
-            } else if (m_intake.GetState() == Intake::HALFSTOWED){
-                m_elevator.Stow();
-                if(m_elevator.GetState() == STOWED)
-                    m_intake.Stow();
-            } else if (m_intake.GetState() == STOWED && m_elevator.GetState() == STOWED)
-                m_state = STOWED;
-            // if (m_elevator.GetState() == BaseElevator::STOWED
-            //     && m_intake.GetState() == Intake::STOWED)
-            //     m_state = STOWED;
+        case MOVING:
+            switch(m_movingState){
+                case HALFSTOWING:
+                    if (m_intake.GetTargetState() != Intake::HALFSTOWED)
+                        m_intake.HalfStow();
+                    else if (m_intake.GetState() == Intake::AT_TARGET){
+                        m_elevator.ExtendToCustomPos(m_targElevatorPos);
+                        m_movingState = ELEVATOR;
+                    }
+                    break;
+                case ELEVATOR:
+                    if (m_elevator.AtTarget()){
+                       m_intake.ChangeDeployPos(m_targIntakeAng);
+                        if (!m_outtaking) m_intake.DeployIntake(m_cone);
+                        else m_intake.DeployOuttake(m_cone);
+                        m_movingState = INTAKE;
+                    }
+                    break;
+                case INTAKE:
+                    if (m_intake.GetState() == Intake::AT_TARGET)
+                        m_movingState = DONE;
+                    break;
+            }
             break;
     }
 }
 
-void ElevatorIntake::Stow(){
-    m_state = STOWING;
-}
+
 
 void ElevatorIntake::Kill(){
     m_state = STOPPED;

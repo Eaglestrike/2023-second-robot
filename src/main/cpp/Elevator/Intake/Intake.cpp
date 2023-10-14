@@ -44,7 +44,7 @@ void Intake::debugCurPose(){
 }
 
 void Intake::DeployNoRollers(){
-    if (m_state == DEPLOYED || m_state == DEPLOYING) return;
+    if (m_targState == DEPLOYED) return;
     if (m_customDeployPos == -1)
         m_setPt = IntakeConstants::DEPLOYED_POS;
     else 
@@ -52,7 +52,7 @@ void Intake::DeployNoRollers(){
 
     SetSetpoint(m_setPt);
     m_rollerVolts = 0;
-    m_state = DEPLOYING;
+    m_state = MOVING;
 }
 
 void Intake::debugPutVoltage(){
@@ -89,29 +89,25 @@ void Intake::TeleopPeriodic(){
     UpdatePose();
     double wristVolts = 0, rollerVolts = 0;
     switch (m_state){
-        case STOWED:
-            wristVolts = m_stowedPIDcontroller.Calculate(IntakeConstants::STOWED_POS - m_curPos);
-            break;
-        case DEPLOYING:
-        case STOWING:
-        case HALFSTOWING:
+        case MOVING:
             UpdateTargetPose(); // bc still using motion profile 
             wristVolts = FFPIDCalculate();
             if (AtSetpoint()){
-                if (m_setPt == STOWING) m_state = STOWED;
-                if (m_state == DEPLOYING) m_state = DEPLOYED;
-                if (m_state == HALFSTOWING) m_state = HALFSTOWED;
+                m_state = AT_TARGET;
                 ResetPID();
                 m_targetPos = m_setPt;
                 m_targetVel = 0.0;
                 m_targetAcc = 0.0;
-            } else if (m_state == DEPLOYING) 
+            } else if (m_targState == DEPLOYED) 
                 rollerVolts = m_rollerVolts;
             break;
-        case DEPLOYED:
-        case HALFSTOWED:
-            wristVolts = FFPIDCalculate();
-            rollerVolts = m_rollerVolts;
+        case AT_TARGET:
+            if (m_targState == STOWED){
+                wristVolts = m_stowedPIDcontroller.Calculate(IntakeConstants::STOWED_POS - m_curPos);
+            } else {
+                wristVolts = FFPIDCalculate();
+                rollerVolts = m_rollerVolts;
+            }
             break;
     }
     if (dbg){
@@ -154,21 +150,21 @@ void Intake::ChangeRollerVoltage(double newVoltage){
 }
 
 void Intake::Stow(){
-    if (m_state == STOWED || m_state == STOWING) return;
+    if (m_targState == STOWED) return;
     SetSetpoint(IntakeConstants::STOWED_POS);
     m_rollerVolts = 0;
-    m_state = STOWING;
+    m_state = MOVING;
 }
 
 void Intake::HalfStow(){
-    if (m_state == HALFSTOWED || m_state == HALFSTOWING) return;
+    if (m_targState == HALFSTOWED) return;
     SetSetpoint(IntakeConstants::INTAKE_UPRIGHT_ANGLE);
     m_rollerVolts = 0;
-    m_state = HALFSTOWING;
+    m_state = MOVING;
 }
 
 void Intake::DeployIntake(bool cone){
-    if (m_state == DEPLOYED || m_state == DEPLOYING) return;
+    if (m_targState == DEPLOYED) return;
     if (m_customDeployPos == -1)
         m_setPt = IntakeConstants::DEPLOYED_POS;
     else 
@@ -182,7 +178,7 @@ void Intake::DeployIntake(bool cone){
 
     if (cone) // !cone??
         m_rollerVolts *= -1;
-    m_state = DEPLOYING;
+    m_state = MOVING;
 }
 
 void Intake::DeployOuttake(bool cone){
@@ -260,8 +256,12 @@ void Intake::UpdateTargetPose(){
     m_targetAcc = newA;
 }
 
-Intake::WristState Intake::GetState(){
+Intake::MechState Intake::GetState(){
     return m_state;
+}
+
+Intake::TargetState Intake::GetTargetState(){
+    return m_targState;
 }
 
 double Intake::GetPos(){

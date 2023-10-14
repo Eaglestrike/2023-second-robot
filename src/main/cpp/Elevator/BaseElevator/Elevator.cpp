@@ -8,12 +8,14 @@
 #include <cmath>
 
 #include <frc/smartdashboard/SmartDashboard.h>
+
 /**
  * @brief Construct a new Elevator:: Elevator object
  */
 Elevator::Elevator(bool enabled, bool shuffleboard):
     Mechanism("elevator", enabled, shuffleboard),
     left_(ElevatorConstants::LEFT_MOTOR_ID, "rio"), right_(ElevatorConstants::RIGHT_MOTOR_ID, "rio"),
+    limit_switch_(0),
     current_state_(STOPPED),
     current_target_(STOWED),
     feedforward_(ElevatorConstants::FEEDFORWARD_CONSTANTS, true),
@@ -42,16 +44,86 @@ void Elevator::CoreTeleopPeriodic() {
         case MANUAL:
             motor_output = debug_manual_volts_;
             break;
-        case HOLDING_POSITION: 
         case MOVING:
             motor_output = feedforward_.periodic(current_pose_);
             break;
+        case STOPPED:
         default:
             motor_output = 0.0;
     }
 
     left_.SetVoltage(units::volt_t{std::clamp(motor_output, -max_volts_, max_volts_)});
     right_.SetVoltage(units::volt_t{std::clamp(motor_output, -max_volts_, max_volts_)});
+}
+
+// debug getters
+Elevator::ElevatorState Elevator::getState() {
+    return current_state_;
+}
+
+/**
+ * @brief Returns the elevator height in meters, calculated per the left motor's position.
+ * 
+ * @return double height (in meters)
+ */
+double Elevator::getElevatorHeight() {
+    return talonUnitsToMeters(left_.GetSelectedSensorPosition());
+}
+
+/**
+ * @brief Given a position, the elevator will move to that position
+ * 
+ * @param newPos 
+ */
+void Elevator::ExtendToCustomPos(double newPos) {
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::CUSTOM;
+    feedforward_.setTotalDistance(newPos, getElevatorHeight());
+}
+
+ElevatorConstants::ElevatorTarget Elevator::getTarget(){
+    return current_target_;
+}
+
+void Elevator::Stow(){
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::STOWED;
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT.at(current_target_), getElevatorHeight());
+}
+
+void Elevator::ExtendLow() {
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::LOW;
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT.at(current_target_), getElevatorHeight());
+}
+
+void Elevator::ExtendMid() {
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::MID;
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT.at(current_target_), getElevatorHeight());
+}
+
+void Elevator::ExtendHigh() {
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::HIGH;
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT.at(current_target_), getElevatorHeight());
+}
+
+void Elevator::HoldPosition(){
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::CUSTOM;
+    feedforward_.setTotalDistance(getElevatorHeight(), getElevatorHeight());
+}
+
+/**
+ * @brief Runs a fraction of the max voltage to the elevator
+ * 
+ * @param range the range of the xbox joystick axis
+ * Note: it is assumed that the range will be from -1 to 1.
+ */
+void Elevator::setManualVolts(double range) {
+    current_state_ = ElevatorState::MANUAL;
+    debug_manual_volts_ = range * max_volts_;
 }
 
 // util methods
@@ -64,6 +136,10 @@ void Elevator::zero_motors() {
     left_.SetSelectedSensorPosition(0);
     right_.SetSelectedSensorPosition(0);
     feedforward_.reset();
+}
+
+void Elevator::Stop(){
+    current_state_ = STOPPED;
 }
 
 
@@ -84,21 +160,37 @@ double Elevator::talonUnitsToMeters(double motor_units) {
  * @return double the angle of the motor in degrees
  */
 double Elevator::talonUnitsToAngle(double motor_units) {
-    return int(motor_units * 360.0 / ElevatorConstants::TALON_FX_COUNTS_PER_REV) % 360;
+    return std::fmod(motor_units * 360.0 / ElevatorConstants::TALON_FX_COUNTS_PER_REV,  360.0);
 }
 
-// debug getters
-Elevator::ElevatorState Elevator::getState() {
-    return current_state_;
+std::string Elevator::getStateString(){
+    switch(current_state_){
+        case MANUAL:
+            return "MANUAL";
+        case MOVING:
+            return "MOVING";
+        case STOPPED:
+            return "STOPPED";
+        default:
+            return "NONE";
+    }
 }
 
-/**
- * @brief Returns the elevator height in meters, calculated per the left motor's position.
- * 
- * @return double height (in meters)
- */
-double Elevator::getElevatorHeight() {
-    return talonUnitsToMeters(left_.GetSelectedSensorPosition());
+std::string Elevator::getTargetString(){
+    switch(current_target_){
+        case CUSTOM:
+            return "CUSTOM";
+        case LOW:
+            return "LOW";
+        case MID:
+            return "MID";
+        case HIGH:
+            return "HIGH";
+        case STOWED:
+            return "STOWED";
+        default:
+            return "NONE";
+    }
 }
 
 void Elevator::CoreShuffleboardInit(){
@@ -113,9 +205,14 @@ void Elevator::CoreShuffleboardInit(){
     frc::SmartDashboard::PutNumber(name_ + " mv", ElevatorConstants::MAX_VELOCITY);
     frc::SmartDashboard::PutNumber(name_ + " ma", ElevatorConstants::MAX_ACCELERATION);
 
-    frc::SmartDashboard::PutNumber(name_ + " setPoint", ElevatorConstants::MAX_EXTENSION);
+    frc::SmartDashboard::PutNumber(name_ + " set setPoint", ElevatorConstants::MAX_EXTENSION);
 
     frc::SmartDashboard::PutNumber(name_ + "volts to use", 0.0);
+
+    frc::SmartDashboard::PutString(name_ + " state", getStateString());
+    frc::SmartDashboard::PutString(name_ + " target", getTargetString());
+
+    frc::SmartDashboard::PutNumber(name_ + " ff setPoint", feedforward_.getSetpoint());
 };
 
 void Elevator::CoreShuffleboardPeriodic(){
@@ -124,6 +221,11 @@ void Elevator::CoreShuffleboardPeriodic(){
 
     frc::SmartDashboard::PutNumber("current ev position", current_pose_.position);
     frc::SmartDashboard::PutNumber("current ev velocity", current_pose_.velocity);
+
+    frc::SmartDashboard::PutString(name_ + " state", getStateString());
+    frc::SmartDashboard::PutString(name_ + " target", getTargetString());
+
+    frc::SmartDashboard::PutNumber(name_ + " ff setPoint", feedforward_.getSetpoint());
 };
 
 void Elevator::CoreShuffleboardUpdate(){
@@ -145,46 +247,3 @@ void Elevator::CoreShuffleboardUpdate(){
 
     max_volts_ = frc::SmartDashboard::GetNumber("volts to use", 0.0);
 };
-
-/**
- * @brief Given a position, the elevator will move to that position
- * 
- * @param newPos 
- */
-void Elevator::ExtendToCustomPos(double newPos) {
-    current_state_ = ElevatorState::MANUAL;
-    feedforward_.setTotalDistance(newPos, getElevatorHeight());
-}
-
-void Elevator::ExtendLow() {
-    current_target_ = ElevatorTarget::LOW;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
-}
-
-void Elevator::ExtendMid() {
-    current_target_ = ElevatorTarget::MID;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
-}
-
-void Elevator::ExtendHigh() {
-    current_target_ = ElevatorTarget::HIGH;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
-}
-
-/**
- * @brief Runs a fraction of the max voltage to the elevator
- * 
- * @param range the range of the xbox joystick axis
- * Note: it is assumed that the range will be from -1 to 1.
- */
-void Elevator::setDebugManualVolts(double range) {
-    debug_manual_volts_ = range * max_volts_;
-}
-
-void Elevator::activateManualMode() {
-    current_state_ = ElevatorState::MANUAL;
-}
-
-void Elevator::activateMovingMode() {
-    current_state_ = ElevatorState::MOVING;
-}

@@ -17,7 +17,6 @@
 #include "Elevator/ElevatorIntake.h"
 #include "Drive/SwerveModule.h"
 #include "Util/thirdparty/simplevectors.hpp"
-#include "Elevator/Elevator.h"
 
 #include "Elevator/Lidar/LidarReader.h"
 
@@ -40,9 +39,6 @@ class Robot : public frc::TimedRobot {
   void SimulationInit() override;
   void SimulationPeriodic() override;
 
-
-  // elevator
-  Elevator elevator_;
  private:
   // IMU acclerometer and gyroscope
   // Gives information on orientation and acceleration

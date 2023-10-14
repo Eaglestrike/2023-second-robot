@@ -1,24 +1,24 @@
 namespace IntakeElevatorConstants{
      //all angles in radians, all lengths in meters
 
+    struct ScoreInfo{
+        double ELEVATOR_LENG;
+        double INTAKE_ANGLE; // how far out the point of contact between gamepiece and intake is from the intake's point of rotation
+    };
+
     struct GamePieceInfo{
         ScoreInfo LOW_INFO;
         ScoreInfo MID_INFO;
         ScoreInfo HIGH_INFO;
     };
 
-    struct ScoreInfo{
-        double ELEVATOR_LENG;
-        double INTAKE_ANGLE; // how far out the point of contact between gamepiece and intake is from the intake's point of rotation
-    };
+    const GamePieceInfo coneScoreInfo{{0.0, 0.0},
+                                      {0.0, 0.0},
+                                      {0.0, 0.0}}; 
 
-    const GamePieceInfo coneScoreInfo{{0.0},
-                                      {0.0},
-                                      {0.0}}; 
-
-     const GamePieceInfo cubeScoreInfo{{0.0},
-                                      {0.0},
-                                      {0.0}}; 
+     const GamePieceInfo cubeScoreInfo{{0.0, 0.0},
+                                      {0.0, 0.0},
+                                      {0.0, 0.0}}; 
     
     // const double INTAKE_BAR_LENGTH = 0.0;
     // const double ELEVATOR_ANGLE = 0.0; // the acute angle elevator makes w the drivetrain

@@ -230,6 +230,9 @@ void FeedforwardPID::recalculateTimes() {
             velocity_time = 0.0;
             acceleration_time = std::sqrt(max_distance_ / max_acceleration);
         }
+
+        // TODO: double check this following line
+        reset();
     }
 
 }

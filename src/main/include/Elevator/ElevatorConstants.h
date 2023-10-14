@@ -7,6 +7,8 @@
 #pragma once
 
 #include <cstddef>
+#include <map>
+#include "Elevator.h"
 
 namespace Poses {
     struct Pose1D {
@@ -40,6 +42,22 @@ namespace ElevatorConstants {
 
   const double KP = 3.5;
   const double KD = 0.5;
+
+  // elevator heights
+
+  const double STOWED_HEIGHT = 0.0;
+  // TODO: replace these numbers with the actual heights
+  const double LOW_HEIGHT = MAX_EXTENSION / 3.0;
+  const double MID_HEIGHT = MAX_EXTENSION / 2.0;
+  const double HIGH_HEIGHT = MAX_EXTENSION;
+
+  std::map<Elevator::ElevatorTarget, double> TARGET_TO_HEIGHT = {
+    {LOW, LOW_HEIGHT},
+    {MID, MID_HEIGHT},
+    {HIGH, HIGH_HEIGHT},
+    {STOWED, STOWED_HEIGHT}
+  };
+
 
   const struct FeedforwardConfig{
     double ks = KS;

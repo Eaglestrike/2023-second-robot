@@ -13,6 +13,10 @@ namespace Actions{
         ZERO_DRIVE_PID,
         ZERO_YAW,
         ELEVATOR_UPDATE,
+        ELEVATOR_EXTEND_LOW,
+        ELEVATOR_EXTEND_MID,
+        ELEVATOR_EXTEND_HIGH,
+        ELEVATOR_EXTEND_STOWED,
         ACTION_COUNT //Just the number of actions, as it is at the end of a enum
     };
 
@@ -52,10 +56,10 @@ namespace ControllerMapData{
         {XBOX_RJOY_X,           NONE},
         {XBOX_RJOY_Y,           NONE},
         {XBOX_A_BUTTON ,        ELEVATOR_UPDATE},
-        {XBOX_B_BUTTON ,        NONE},
-        {XBOX_X_BUTTON ,        NONE},
-        {XBOX_Y_BUTTON ,        NONE},
-        {XBOX_L_BUMPER ,        NONE},
+        {XBOX_B_BUTTON ,        ELEVATOR_EXTEND_STOWED},
+        {XBOX_X_BUTTON ,        ELEVATOR_EXTEND_LOW},
+        {XBOX_Y_BUTTON ,        ELEVATOR_EXTEND_MID},
+        {XBOX_L_BUMPER ,        ELEVATOR_EXTEND_HIGH},
         {XBOX_R_BUMPER ,        NONE}
     };
 

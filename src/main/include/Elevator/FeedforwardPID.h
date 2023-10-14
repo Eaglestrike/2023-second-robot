@@ -9,20 +9,21 @@
  *
  */
 
+#pragma once
+
 #include <frc/Timer.h>
-#include <units/velocity.h>
-#include <units/acceleration.h>
+
 #include "ElevatorConstants.h"
 
 class FeedforwardPID
 {
 public:
     // constructor
-    FeedforwardPID(double ks, double kv, double ka, double kg, double distance);
-    FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double ki, double kd, double distance);
+    FeedforwardPID(ElevatorConstants::FeedforwardConfig constants, bool shuffleboard = false);
 
     // main methods to use
-    double periodic(Poses::Pose1D current_values);
+    double periodic(Poses::Pose1D current_pose);
+    Poses::Pose1D getExpectedPose(double time);
 
     void start();
     void reset();
@@ -41,7 +42,6 @@ public:
     double getMaxAcceleration();
 
     bool getReversed();
-    Poses::Pose1D getExpectedPose(double time);
 
     void setKs(double ks);
     void setKv(double kv);
@@ -50,7 +50,7 @@ public:
     void setMaxDistance(double distance);
     void setReversed(bool reversed);
 
-    void setPIDConstants(double kp, double ki, double kd);
+    void setPIDConstants(double kp, double kd);
 
     void setMaxVelocity(double max_vel);
     void setMaxAcceleration(double max_acc);
@@ -68,25 +68,26 @@ private:
     // feedforward constants
     double ks, kv, ka, kg;
 
-    // calculated constants
-    double acceleration_time;
-    double velocity_time;
+    // velocity, acceleration constants
+    double max_velocity;
+    double max_acceleration;
 
     // pid constants, initialized to 0 so their use is optional
     double kp = 0.0;
     double kd = 0.0;
-    double ki = 0.0;
 
-    // velocity, acceleration constants
-    double max_velocity = ElevatorConstants::MAX_ELEVATOR_VELOCITY;
-    double max_acceleration = ElevatorConstants::MAX_ELEVATOR_ACCELERATION;
+    // calculated constants
+    double acceleration_time;
+    double velocity_time;
 
     // used to control the timer
-    double isRunning = false;
+    bool isRunning;
 
     // to control direction of feedforward path
-    bool reversed = false;
+    bool reversed;
 
     // timer
     frc::Timer timer{};
+
+    bool shuffleboard;
 };

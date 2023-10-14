@@ -43,6 +43,11 @@ class Elevator : public Mechanism{
 
         void zero_motors();
 
+        void setDebugManualVolts(double range);
+
+        void activateManualMode();
+        void activateMovingMode();
+
     private:
         void CorePeriodic() override;
         void CoreTeleopPeriodic() override;
@@ -60,6 +65,7 @@ class Elevator : public Mechanism{
         ElevatorTarget current_target_;
         FeedforwardPID feedforward_;
         double max_volts_;
+        double debug_manual_volts_;
 
         double talonUnitsToMeters(double motor_units);
         double talonUnitsToAngle(double motor_units);

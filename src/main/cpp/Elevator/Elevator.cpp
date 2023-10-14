@@ -40,7 +40,7 @@ void Elevator::CoreTeleopPeriodic() {
 
     switch(current_state_){
         case MANUAL:
-            motor_output = 0.0;
+            motor_output = debug_manual_volts_;
             break;
         case HOLDING_POSITION: 
         case MOVING:
@@ -169,4 +169,22 @@ void Elevator::ExtendMid() {
 void Elevator::ExtendHigh() {
     current_target_ = ElevatorTarget::HIGH;
     feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+}
+
+/**
+ * @brief Runs a fraction of the max voltage to the elevator
+ * 
+ * @param range the range of the xbox joystick axis
+ * Note: it is assumed that the range will be from -1 to 1.
+ */
+void Elevator::setDebugManualVolts(double range) {
+    debug_manual_volts_ = range * max_volts_;
+}
+
+void Elevator::activateManualMode() {
+    current_state_ = ElevatorState::MANUAL;
+}
+
+void Elevator::activateMovingMode() {
+    current_state_ = ElevatorState::MOVING;
 }

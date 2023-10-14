@@ -76,7 +76,32 @@ void Robot::RobotPeriodic()
   if (m_controller.getPressed(ELEVATOR_UPDATE)) {
     elevator_.UpdateShuffleboard();
   }
+
+  if (m_controller.getPressed(ELEVATOR_EXTEND_STOWED)) {
+    elevator_.ExtendToCustomPos(0);
+  }
+  else if (m_controller.getPressed(ELEVATOR_EXTEND_LOW)) {
+    elevator_.ExtendLow();
+  }
+  else if (m_controller.getPressed(ELEVATOR_EXTEND_MID)) {
+    elevator_.ExtendMid();
+  }
+  else if (m_controller.getPressed(ELEVATOR_EXTEND_HIGH)) {
+    elevator_.ExtendHigh();
+  }
+
+  if (m_controller.getPressed(ELEVATOR_SET_MANUAL)) {
+    elevator_.activateManualMode();
+  } else if (m_controller.getPressed(ELEVATOR_SET_MOVING)) {
+    elevator_.activateMovingMode();
+  }
+
   elevator_.Periodic();
+
+  // TODO: check this and the corresponding mapping in ControllerMap.h
+  elevator_.setDebugManualVolts(
+    m_controller.getRawAxis(ELEVATOR_RANGE)
+  );
 }
 
 /**

@@ -12,6 +12,9 @@ namespace Actions{
         SWERVE_ROTATION,
         ZERO_DRIVE_PID,
         ZERO_YAW,
+        MOVE_INTAKE,
+        MANUAL1,
+        MANUAL2,
         ACTION_COUNT //Just the number of actions, as it is at the end of a enum
     };
 
@@ -46,9 +49,9 @@ namespace ControllerMapData{
         
         {XBOX_LJOY_X,           NONE},
         {XBOX_LJOY_Y,           NONE}, 
-        {XBOX_LTRIGGER,         NONE},
-        {XBOX_RTRIGGER,         NONE},
-        {XBOX_RJOY_X,           NONE},
+        {XBOX_LTRIGGER,         MANUAL1},
+        {XBOX_RTRIGGER,         MANUAL2},
+        {XBOX_RJOY_X,           MOVE_INTAKE},
         {XBOX_RJOY_Y,           NONE},
         {XBOX_A_BUTTON ,        NONE},
         {XBOX_B_BUTTON ,        NONE},

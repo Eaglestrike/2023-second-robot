@@ -89,9 +89,8 @@ void Intake::UpdatePose(){
 }
 
 // needs to be called INSTEAD of teleop periodic
-void Intake::ManualPeriodic(double wristVolts, double rollerVolts){
+void Intake::ManualPeriodic(double wristVolts){
     m_wristMotor.SetVoltage(units::volt_t(std::clamp(-wristVolts, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
-    m_rollerMotor.SetVoltage(units::volt_t(std::clamp(-rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
 }
 
 // teleop periodic runs on state machine

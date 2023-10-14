@@ -21,7 +21,7 @@ class Intake{
             HALFSTOWED,
         };
 
-        void ManualPeriodic(double wristVolts, double rollerVolts);
+        void ManualPeriodic(double wristVolts);
         void TeleopPeriodic();    
         void Stow();
         void HalfStow();

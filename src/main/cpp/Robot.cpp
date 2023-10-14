@@ -57,7 +57,7 @@ void Robot::RobotInit(){
  */
 void Robot::RobotPeriodic()
 {
-  if (m_controller.getPressed(ZERO_DRIVE_PID))
+  if (m_controller.getPressedOnce(ZERO_DRIVE_PID))
   {
     m_swerveFl.UpdateShuffleboard();
     m_swerveFr.UpdateShuffleboard();
@@ -65,7 +65,7 @@ void Robot::RobotPeriodic()
     m_swerveBr.UpdateShuffleboard();
   }
 
-  if (m_controller.getPressed(ZERO_YAW))
+  if (m_controller.getPressedOnce(ZERO_YAW))
   {
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection();

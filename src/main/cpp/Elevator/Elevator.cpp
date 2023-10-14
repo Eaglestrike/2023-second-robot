@@ -7,6 +7,8 @@
 #include <iostream>
 #include <cmath>
 
+#include <Util/Mathutil.h>
+
 #include <frc/smartdashboard/SmartDashboard.h>
 
 /**
@@ -15,8 +17,8 @@
 Elevator::Elevator(bool enabled, bool shuffleboard):
     Mechanism("elevator", enabled, shuffleboard),
     left_(ElevatorConstants::LEFT_MOTOR_ID, "rio"), right_(ElevatorConstants::RIGHT_MOTOR_ID, "rio"),
-    limit_switch_(0),
-    current_state_(STOPPED),
+    limit_switch_(ElevatorConstants::LIMIT_SWITCH_ID),
+    current_state_(HOLDING_POS),
     current_target_(STOWED),
     feedforward_(ElevatorConstants::FEEDFORWARD_CONSTANTS, true),
     max_volts_(ElevatorConstants::MAX_VOLTS)
@@ -25,6 +27,11 @@ Elevator::Elevator(bool enabled, bool shuffleboard):
 
     left_.SetInverted(true);
     right_.Follow(left_, FollowerType::FollowerType_PercentOutput);
+
+    left_.SetNeutralMode(NeutralMode::Brake);
+    right_.SetNeutralMode(NeutralMode::Brake);
+
+    feedforward_.reset();
 };
 
 void Elevator::CorePeriodic(){
@@ -44,16 +51,34 @@ void Elevator::CoreTeleopPeriodic() {
         case MANUAL:
             motor_output = debug_manual_volts_;
             break;
+        case HOLDING_POS:
+            if (current_target_ == STOWED){
+                motor_output = 0.0;
+                break;
+            }
         case MOVING:
             motor_output = feedforward_.periodic(current_pose_);
+            if (feedforward_.isFinished()){
+                current_state_ = HOLDING_POS;
+            }
             break;
-        case STOPPED:
         default:
             motor_output = 0.0;
     }
 
+    if(!limit_switch_.Get()){
+        zero_motors();
+        if(motor_output < feedforward_.getKg() + 0.001){
+            motor_output = 0.0;
+        }
+    }
+    if(getElevatorHeight() > ElevatorConstants::MAX_EXTENSION - 0.001){
+        if(motor_output > feedforward_.getKg() + 0.001){
+            motor_output = feedforward_.getKg();
+        }
+    }
     left_.SetVoltage(units::volt_t{std::clamp(motor_output, -max_volts_, max_volts_)});
-    right_.SetVoltage(units::volt_t{std::clamp(motor_output, -max_volts_, max_volts_)});
+    //right_.SetVoltage(units::volt_t{std::clamp(motor_output, -max_volts_, max_volts_)});
 }
 
 // debug getters
@@ -106,9 +131,21 @@ void Elevator::ExtendHigh() {
 }
 
 void Elevator::HoldPosition(){
-    current_state_ = ElevatorState::MOVING;
-    current_target_ = ElevatorTarget::CUSTOM;
-    feedforward_.setTotalDistance(getElevatorHeight(), getElevatorHeight());
+    if(current_state_== Elevator::MOVING){
+        return;
+    }
+    if(current_state_== Elevator::HOLDING_POS){
+        return;
+    }
+    current_state_ = ElevatorState::HOLDING_POS;
+    double height = getElevatorHeight();
+    if(Utils::NearZero(height)){
+        current_target_ = ElevatorTarget::STOWED;
+    }
+    else{
+        current_target_ = ElevatorTarget::CUSTOM;
+    }
+    feedforward_.setTotalDistance(height, height);
 }
 
 /**
@@ -131,7 +168,6 @@ void Elevator::setManualVolts(double range) {
 void Elevator::zero_motors() {
     left_.SetSelectedSensorPosition(0);
     right_.SetSelectedSensorPosition(0);
-    feedforward_.reset();
 }
 
 
@@ -161,8 +197,8 @@ std::string Elevator::getStateString(){
             return "MANUAL";
         case MOVING:
             return "MOVING";
-        case STOPPED:
-            return "STOPPED";
+        case HOLDING_POS:
+            return "HOLDING POS";
         default:
             return "NONE";
     }
@@ -199,12 +235,18 @@ void Elevator::CoreShuffleboardInit(){
 
     frc::SmartDashboard::PutNumber(name_ + " set setPoint", ElevatorConstants::MAX_EXTENSION);
 
-    frc::SmartDashboard::PutNumber(name_ + "volts to use", 0.0);
+    frc::SmartDashboard::PutNumber(name_ + " volts to use", ElevatorConstants::MAX_VOLTS);
 
     frc::SmartDashboard::PutString(name_ + " state", getStateString());
     frc::SmartDashboard::PutString(name_ + " target", getTargetString());
 
     frc::SmartDashboard::PutNumber(name_ + " ff setPoint", feedforward_.getSetpoint());
+    frc::SmartDashboard::PutNumber(name_ + " ff startPoint", feedforward_.getStartpoint());
+
+    frc::SmartDashboard::PutNumber(name_ + " out current",  left_.GetOutputCurrent());
+    frc::SmartDashboard::PutNumber(name_ + " supply current",  left_.GetSupplyCurrent());
+    frc::SmartDashboard::PutNumber(name_ + " left temp", left_.GetTemperature());
+    frc::SmartDashboard::PutNumber(name_ + " right temp", right_.GetTemperature());
 };
 
 void Elevator::CoreShuffleboardPeriodic(){
@@ -218,6 +260,14 @@ void Elevator::CoreShuffleboardPeriodic(){
     frc::SmartDashboard::PutString(name_ + " target", getTargetString());
 
     frc::SmartDashboard::PutNumber(name_ + " ff setPoint", feedforward_.getSetpoint());
+    frc::SmartDashboard::PutNumber(name_ + " ff startPoint", feedforward_.getStartpoint());
+
+    frc::SmartDashboard::PutBoolean(name_ + " limit switch", !limit_switch_.Get());
+
+    frc::SmartDashboard::PutNumber(name_ + " out current",  left_.GetOutputCurrent());
+    frc::SmartDashboard::PutNumber(name_ + " supply current",  left_.GetSupplyCurrent());
+    frc::SmartDashboard::PutNumber(name_ + " left temp", left_.GetTemperature());
+    frc::SmartDashboard::PutNumber(name_ + " right temp", right_.GetTemperature());
 };
 
 void Elevator::CoreShuffleboardUpdate(){
@@ -232,10 +282,10 @@ void Elevator::CoreShuffleboardUpdate(){
     feedforward_.setMaxVelocity(frc::SmartDashboard::GetNumber(name_ + " mv", ElevatorConstants::MAX_VELOCITY));
     feedforward_.setMaxAcceleration(frc::SmartDashboard::GetNumber(name_ + " ma", ElevatorConstants::MAX_ACCELERATION));
 
-    double setPoint = frc::SmartDashboard::GetNumber(name_ + " setPoint", ElevatorConstants::MAX_EXTENSION);
-    if (setPoint < ElevatorConstants::MAX_EXTENSION) {
-        feedforward_.setTotalDistance(setPoint, getElevatorHeight());
-    }
+    // double setPoint = frc::SmartDashboard::GetNumber(name_ + " setPoint", ElevatorConstants::MAX_EXTENSION);
+    // if (setPoint < ElevatorConstants::MAX_EXTENSION) {
+    //     feedforward_.setTotalDistance(setPoint, getElevatorHeight());
+    // }
 
-    max_volts_ = frc::SmartDashboard::GetNumber("volts to use", 0.0);
+    max_volts_ = frc::SmartDashboard::GetNumber(name_ + " volts to use", 0.0);
 };

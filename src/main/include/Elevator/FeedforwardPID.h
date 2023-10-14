@@ -44,6 +44,7 @@ public:
     double getMaxAcceleration();
 
     bool getReversed();
+    double getStartpoint();
     double getSetpoint();
 
     void setKs(double ks);

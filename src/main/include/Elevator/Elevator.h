@@ -22,7 +22,7 @@ class Elevator : public Mechanism{
         enum ElevatorState {
             MANUAL,
             MOVING,
-            STOPPED,
+            HOLDING_POS
         };
 
         void Stow();

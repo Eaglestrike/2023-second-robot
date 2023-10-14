@@ -46,6 +46,8 @@ void Robot::RobotInit(){
 
   m_swerveController->Init();
   m_swerveController->SetFeedForward(0.0 , 1.0, 0.0);
+
+  elevator_.Init();
 }
 
 /**
@@ -93,7 +95,7 @@ void Robot::RobotPeriodic()
     elevator_.HoldPosition();
   }
 
-  if (m_controller.getPressed(ELEVATOR_SET_MANUAL)) {
+  if (m_controller.getRawAxis(ELEVATOR_SET_MANUAL) > 0.75) {
     elevator_.setManualVolts(m_controller.getRawAxis(ELEVATOR_RANGE));
   }
 

@@ -14,6 +14,7 @@
 Elevator::Elevator(bool enabled, bool shuffleboard):
     Mechanism("elevator", enabled, shuffleboard),
     left_(ElevatorConstants::LEFT_MOTOR_ID, "rio"), right_(ElevatorConstants::RIGHT_MOTOR_ID, "rio"),
+    limit_switch_(0),
     current_state_(STOPPED),
     current_target_(STOWED),
     feedforward_(ElevatorConstants::FEEDFORWARD_CONSTANTS, true),
@@ -42,10 +43,10 @@ void Elevator::CoreTeleopPeriodic() {
         case MANUAL:
             motor_output = debug_manual_volts_;
             break;
-        case HOLDING_POSITION: 
         case MOVING:
             motor_output = feedforward_.periodic(current_pose_);
             break;
+        case STOPPED:
         default:
             motor_output = 0.0;
     }
@@ -84,12 +85,40 @@ double Elevator::talonUnitsToMeters(double motor_units) {
  * @return double the angle of the motor in degrees
  */
 double Elevator::talonUnitsToAngle(double motor_units) {
-    return int(motor_units * 360.0 / ElevatorConstants::TALON_FX_COUNTS_PER_REV) % 360;
+    return std::fmod(motor_units * 360.0 / ElevatorConstants::TALON_FX_COUNTS_PER_REV,  360.0);
 }
 
 // debug getters
 Elevator::ElevatorState Elevator::getState() {
     return current_state_;
+}
+
+std::string Elevator::getStateString(){
+    switch(current_state_){
+        case MANUAL:
+            return "MANUAL";
+        case MOVING:
+            return "MOVING";
+        case STOPPED:
+            return "STOPPED";
+        default:
+            return "NONE";
+    }
+}
+
+std::string Elevator::getTargetString(){
+    switch(current_target_){
+        case CUSTOM:
+            return "CUSTOM: " + std::to_string(feedforward_.getSetpoint());
+        case LOW:
+            return "LOW";
+        case MID:
+            return "MID";
+        case HIGH:
+            return "HIGH";
+        case STOWED:
+            return "STOWED";
+    }
 }
 
 /**

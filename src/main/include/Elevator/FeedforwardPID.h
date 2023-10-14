@@ -29,6 +29,8 @@ public:
     void reset();
     void stop();
 
+    bool isFinished();
+
     // getters and setters
     double getKs();
     double getKv();
@@ -42,6 +44,7 @@ public:
     double getMaxAcceleration();
 
     bool getReversed();
+    double getSetpoint();
 
     void setKs(double ks);
     void setKv(double kv);
@@ -63,6 +66,8 @@ private:
     void recalculateTimes();
 
     // total distance needed to travel
+    double startpoint_;
+    double setpoint_;
     double total_distance_;
 
     // feedforward constants

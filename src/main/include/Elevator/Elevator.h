@@ -9,6 +9,8 @@
 
 #include "Util/Mechanism.h"
 
+#include "frc/DigitalInput.h"
+
 class Elevator : public Mechanism{
     public:
         // constructor
@@ -17,18 +19,19 @@ class Elevator : public Mechanism{
         // possible states that the elevator can be in
         enum ElevatorState {
             MANUAL,
-            HOLDING_POSITION,
             MOVING,
             STOPPED,
         };
 
         enum ElevatorTarget{
+            CUSTOM,
             LOW,
             MID,
             HIGH,
             STOWED
         };
 
+        void Stow();
         void ExtendMid();
         void ExtendLow();
         void ExtendHigh();
@@ -40,6 +43,8 @@ class Elevator : public Mechanism{
         // debug getters
         double getElevatorHeight();
         ElevatorState getState();
+        std::string getStateString();
+        std::string getTargetString();
 
         void zero_motors();
 
@@ -58,6 +63,9 @@ class Elevator : public Mechanism{
         // motors
         WPI_TalonFX left_;
         WPI_TalonFX right_;
+
+        // limit switch
+        frc::DigitalInput limit_switch_;
 
         // member variables
         Poses::Pose1D current_pose_;

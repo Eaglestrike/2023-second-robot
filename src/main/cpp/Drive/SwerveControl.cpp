@@ -7,7 +7,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Drive/DriveConstants.h"
-#include "Util/Mathutil.h"
+#include "Util/MathUtil.h"
 
 /**
  * Constructor
@@ -21,8 +21,10 @@
  *
  * @note feedforward relates speed to voltage
  */
-SwerveControl::SwerveControl(RefArray<SwerveModule> modules, std::array<vec::Vector2D, 4> radii, double kS, double kV, double kA)
-    : m_modules{modules}, m_radii{radii}, m_kS{kS}, m_kV{kV}, m_kA{kA}, m_curAngle{0}, m_angleCorrector{0.1, 0, 0.01}
+SwerveControl::SwerveControl(RefArray<SwerveModule> modules, bool enabled, bool shuffleboard):
+    Mechanism("Swerve Control", enabled, shuffleboard),
+    m_modules{modules}, 
+    m_kS{0.0}, m_kV{0.0}, m_kA{0.0}, m_curAngle{0}, m_angleCorrector{0.1, 0, 0.01}
 {
   m_angleCorrector.EnableContinuousInput(-M_PI, M_PI);
   ResetFeedForward();
@@ -45,7 +47,7 @@ vec::Vector2D SwerveControl::GetRobotVelocity(double ang)
     vectors.push_back(module.get().GetVelocity());
   }
 
-  auto avg = Mathutil::GetVecAverage(vectors);
+  auto avg = Utils::GetVecAverage(vectors);
   return vec::rotate(avg, ang); // rotate by navx ang
 }
 
@@ -108,13 +110,13 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 
   frc::SmartDashboard::PutNumber("cjurrent angle", m_curAngle);
 
-  if (!Mathutil::NearZero(angVel))
+  if (!Utils::NearZero(angVel))
   {
     // if turning, track current angle
     m_curAngle = ang;
   }
 
-  if (!Mathutil::NearZero(vel) && Mathutil::NearZero(angVel))
+  if (!Utils::NearZero(vel) && Utils::NearZero(angVel))
   {
     // if not turning, correct robot so that it doesnt turn
     angVel = m_angleCorrector.Calculate(ang, m_curAngle);
@@ -128,7 +130,8 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
     // computes vectors in 3D
     vec::Vector3D vel3D = {x(vel), y(vel), 0};
     vec::Vector3D angVel3D = {0, 0, angVel};
-    vec::Vector3D module3D = {x(m_radii[i]), y(m_radii[i]), 0};
+    vec::Vector2D radius = m_modules[i].get().getPosition();
+    vec::Vector3D module3D = {x(radius), y(radius), 0};
 
     // vector addition for velocity
     vec::Vector3D moduleWorld = rotateGamma(module3D, ang);        // rotates radius vector to world frame
@@ -142,7 +145,7 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 
     // speed from ff calculations, then resize velBody to match ff calculations
     double speed = m_kS + m_kV * magn(velBody) + m_kA * (magn(velBody) - m_prevSpeeds[i]) / time;
-    if (!Mathutil::NearZero(velBody) && !Mathutil::NearZero(speed))
+    if (!Utils::NearZero(velBody) && !Utils::NearZero(speed))
     {
       velBody = normalize(velBody) * speed;
     }
@@ -154,15 +157,32 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
   }
 }
 
+void SwerveControl::CoreInit(){
+  ResetAngleCorrection();
+}
+
 /**
  * Periodic function
  *
  * @note to self: CALL ME!!!! cALLL ME!!!!! you blITHERignnGG IDIOT!
  */
-void SwerveControl::Periodic()
-{
+void SwerveControl::CorePeriodic(){
   for (auto module : m_modules)
   {
     module.get().Periodic();
   }
+}
+
+void SwerveControl::CoreShuffleboardInit(){
+  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+}
+
+void SwerveControl::CoreShuffleboardUpdate(){
+  double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+  double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+  double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+
+  SetAngleCorrectionPID(kP2, kI2, kD2);
 }

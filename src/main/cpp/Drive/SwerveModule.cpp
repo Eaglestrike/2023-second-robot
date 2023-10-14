@@ -10,24 +10,28 @@
 #include "Drive/DriveConstants.h"
 #include "Util/Mathutil.h"
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 /**
  * Constructor
  *
- * @param driveMotorId drive motor id
- * @param angleMotorId angle motor id
- * @param encoderId encoder id
- * @param kP p-value
- * @param kI i-value
- * @param kD d-value
- * @param maxVolts maximum volts
- * @param driveInverted if the drive motor is inverted (at angle = 0, positive votlage = negative movement)
- * @param encoderInverted if positive encoder values = clockwise when robot is upright
- * @param angMotorInverted if positive angle motor voltage = clockwise when robot is upright
- * @param offset Offset, in DEGREES
+ * @param config swerve config
+ * @param enabled enable mechanism
+ * @param shuffleboard enable shuffleboard prints
  */
-SwerveModule::SwerveModule(int driveMotorId, int angleMotorId, int encoderId, double kP, double kI, double kD, bool driveInverted, bool encoderInverted, bool angMotorInverted, double offset)
-    : m_driveMotor{driveMotorId, "Drivebase"}, m_angleMotor{angleMotorId, "Drivebase"}, m_encoder{encoderId, "Drivebase"}, m_controller{kP, kI, kD},
-      m_flipped{false}, m_driveInverted{driveInverted}, m_encoderInverted{encoderInverted}, m_angMotorInverted{angMotorInverted}, m_targetSpeed{0}, m_offset{offset}
+SwerveModule::SwerveModule(SwerveConstants::SwerveConfig config, bool enabled, bool shuffleboard):
+      Mechanism(config.name, enabled, shuffleboard),
+      m_driveMotor{(int)config.driveMotorId, "Drivebase"},
+      m_angleMotor{(int)config.angleMotorId, "Drivebase"},
+      m_encoder{(int)config.encoderId, "Drivebase"},
+      m_controller{config.kP, config.kI, config.kD},
+      m_flipped{false},
+      m_driveInverted{config.driveInverted},
+      m_encoderInverted{config.encoderInverted},
+      m_angMotorInverted{config.angMotorInverted},
+      m_targetSpeed{0},
+      m_offset{config.offset},
+      m_position{config.position}
 {
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);
   // m_encoder.ConfigMagnetOffset(offset);
@@ -48,6 +52,15 @@ vec::Vector2D SwerveModule::GetVelocity()
   auto resVec = vec::Vector2D{std::cos(curAng), std::sin(curAng)} * curMotorSpeed;
 
   return m_driveInverted ? -resVec : resVec;
+}
+
+/**
+ * Gets position in m to center of robot
+ *
+ * @returns position in m
+ */
+vec::Vector2D SwerveModule::getPosition(){
+  return m_position;
 }
 
 /**
@@ -87,7 +100,7 @@ void SwerveModule::SetVector(vec::Vector2D vec)
 {
   m_targetSpeed = vec::magn(vec);
 
-  if (!Mathutil::NearZero(vec))
+  if (!Utils::NearZero(vec))
   {
     m_targetAngle = vec::normalize(vec);
   }
@@ -130,7 +143,7 @@ void SwerveModule::SetPID(double kP, double kI, double kD)
   m_controller.SetPID(kP, kI, kD);
 }
 
-void SwerveModule::Periodic()
+void SwerveModule::CoreTeleopPeriodic()
 {
   // get current angle
   double correctedEncoderReading = GetCorrectedEncoderReading();
@@ -198,4 +211,22 @@ bool SwerveModule::ShouldFlip(vec::Vector2D curVec, vec::Vector2D targetVec)
       dot(curNeg, targetVec) / (magn(curNeg) * magn(targetVec)), -1.0, 1.0));
 
   return angle2 < angle1;
+}
+
+void SwerveModule::CoreShuffleboardInit(){
+  frc::SmartDashboard::PutNumber("wheel kP", SwerveConstants::TURN_P);
+  frc::SmartDashboard::PutNumber("wheel kI", SwerveConstants::TURN_I);
+  frc::SmartDashboard::PutNumber("wheel kD", SwerveConstants::TURN_D);
+}
+
+void SwerveModule::CoreShuffleboardPeriodic(){
+  frc::SmartDashboard::PutNumber(name_ + " encoder", GetRawEncoderReading());
+  frc::SmartDashboard::PutString(name_ + " velocity", GetVelocity().toString());
+}
+
+void SwerveModule::CoreShuffleboardUpdate(){
+  double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
+  double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
+  double kD = frc::SmartDashboard::GetNumber("wheel kD", SwerveConstants::TURN_D);
+  SetPID(kP, kI, kD);
 }

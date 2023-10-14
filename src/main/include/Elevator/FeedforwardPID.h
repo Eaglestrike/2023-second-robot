@@ -47,7 +47,7 @@ public:
     void setKv(double kv);
     void setKa(double ka);
     void setKg(double kg);
-    void setMaxDistance(double distance);
+    void setTotalDistance(double new_position, double curr_pos);
     void setReversed(bool reversed);
 
     void setPIDConstants(double kp, double kd);
@@ -63,7 +63,7 @@ private:
     void recalculateTimes();
 
     // total distance needed to travel
-    double max_distance_;
+    double total_distance_;
 
     // feedforward constants
     double ks, kv, ka, kg;

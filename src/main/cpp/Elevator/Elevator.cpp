@@ -140,7 +140,7 @@ void Elevator::CoreShuffleboardUpdate(){
 
     double setPoint = frc::SmartDashboard::GetNumber(name_ + " setPoint", ElevatorConstants::MAX_EXTENSION);
     if (setPoint < ElevatorConstants::MAX_EXTENSION) {
-        feedforward_.setMaxDistance(setPoint);
+        feedforward_.setTotalDistance(setPoint, getElevatorHeight());
     }
 
     max_volts_ = frc::SmartDashboard::GetNumber("volts to use", 0.0);
@@ -153,20 +153,20 @@ void Elevator::CoreShuffleboardUpdate(){
  */
 void Elevator::ExtendToCustomPos(double newPos) {
     current_state_ = ElevatorState::MANUAL;
-    feedforward_.setMaxDistance(newPos);
+    feedforward_.setTotalDistance(newPos, getElevatorHeight());
 }
 
 void Elevator::ExtendLow() {
     current_target_ = ElevatorTarget::LOW;
-    feedforward_.setMaxDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_]);
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
 }
 
 void Elevator::ExtendMid() {
     current_target_ = ElevatorTarget::MID;
-    feedforward_.setMaxDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_]);
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
 }
 
 void Elevator::ExtendHigh() {
     current_target_ = ElevatorTarget::HIGH;
-    feedforward_.setMaxDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_]);
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
 }

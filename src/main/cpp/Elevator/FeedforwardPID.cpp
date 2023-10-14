@@ -136,7 +136,11 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     } 
 
     // whether moving up or down
-    double reversed_coefficient = reversed ? -1.0 : 1.0;
+
+    // TODO: review the use of the total_distance_ variable, which incorporates distance needed to move
+    // if it is positive, elevator needs to move up
+    // else it needs to move down
+    double reversed_coefficient = total_distance_ < 0 ? -1.0 : 1.0;
 
     if(shuffleboard){
         frc::SmartDashboard::PutBoolean("phase 1", false);
@@ -192,7 +196,7 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
     }
 
     else{
-        pose.position = reversed_coefficient * max_distance_;
+        pose.position = reversed_coefficient * total_distance_;
         pose.velocity = 0.0;
         pose.acceleration = 0.0;
     }
@@ -224,11 +228,11 @@ void FeedforwardPID::recalculateTimes() {
         acceleration_time = max_velocity / max_acceleration;
 
         // the time spent maintaining a constant velocity
-        velocity_time = (max_distance_ - max_velocity * acceleration_time) / max_velocity;
+        velocity_time = (total_distance_ - max_velocity * acceleration_time) / max_velocity;
 
         if (velocity_time < 0) {
             velocity_time = 0.0;
-            acceleration_time = std::sqrt(max_distance_ / max_acceleration);
+            acceleration_time = std::sqrt(total_distance_ / max_acceleration);
         }
 
         // TODO: double check this following line
@@ -294,8 +298,8 @@ void FeedforwardPID::setMaxVelocity(double new_vel) {
     recalculateTimes();
 }
 
-void FeedforwardPID::setMaxDistance(double distance) {
-    max_distance_ = distance;
+void FeedforwardPID::setTotalDistance(double new_position, double curr_pos) {
+    total_distance_ = new_position - curr_pos;
     recalculateTimes();
 }
 

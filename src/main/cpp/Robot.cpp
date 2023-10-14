@@ -177,7 +177,7 @@ void Robot::RobotPeriodic()
   frc::SmartDashboard::PutBoolean("Pos at target", m_autoLineup.GetPosExecuteState() == AutoLineup::AT_TARGET);
   frc::SmartDashboard::PutBoolean("Ang at target", m_autoLineup.GetAngExecuteState() == AutoLineup::AT_TARGET);
 
-  if (m_controller.getPressed(ZERO_DRIVE_PID))
+  if (m_controller.getPressedOnce(ZERO_DRIVE_PID))
   {
     // double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
     // double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
@@ -239,7 +239,7 @@ void Robot::RobotPeriodic()
     // m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
   }
 
-  if (m_controller.getPressed(ZERO_YAW))
+  if (m_controller.getPressedOnce(ZERO_YAW))
   {
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection(m_startAng);
@@ -356,7 +356,7 @@ void Robot::TeleopPeriodic() {
   AutoLineup::ExecuteState curPosAutoState = m_autoLineup.GetPosExecuteState();
   AutoLineup::ExecuteState curAngAutoState = m_autoLineup.GetAngExecuteState();
 
-  if (m_controller.getPressed(START_POS_AUTO)) {
+  if (m_controller.getPressedOnce(START_POS_AUTO)) {
     if (curPosAutoState != AutoLineup::EXECUTING_TARGET) {
       m_autoLineup.StartPosMove();
     } else {
@@ -364,7 +364,7 @@ void Robot::TeleopPeriodic() {
     }
   }
 
-  if (m_controller.getPressed(START_ANG_AUTO)) {
+  if (m_controller.getPressedOnce(START_ANG_AUTO)) {
     if (curAngAutoState != AutoLineup::EXECUTING_TARGET) {
       m_autoLineup.StartAngMove();
     } else {
@@ -456,7 +456,7 @@ void Robot::TestInit() {
 }
 
 void Robot::TestPeriodic() {
-  // if (m_controller.getPressed(START_POS_AUTO)) {
+  // if (m_controller.getPressedOnce(START_POS_AUTO)) {
   //   if (m_autoLineup.GetAngExecuteState() == AutoLineup::NOT_EXECUTING) {
   //     m_autoLineup.StartAngMove();
   //   } else {

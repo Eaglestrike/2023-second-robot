@@ -45,7 +45,7 @@ void ElevatorIntake::TeleopPeriodic(){
     m_elevator.TeleopPeriodic();
     switch(m_state){
         case STOPPED:
-            m_elevator.Stop();
+            m_elevator.Disable();
             m_intake.Kill();
             break;
         case MOVING:
@@ -59,7 +59,7 @@ void ElevatorIntake::TeleopPeriodic(){
                     }
                     break;
                 case ELEVATOR:
-                    if (m_elevator.AtTarget()){
+                    if (m_elevator.getState() == Elevator::HOLDING_POS){
                        m_intake.ChangeDeployPos(m_targIntakeAng);
                         if (!m_outtaking) m_intake.DeployIntake(m_cone);
                         else m_intake.DeployOuttake(m_cone);

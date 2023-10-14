@@ -152,6 +152,10 @@ void Elevator::HoldPosition(){
     feedforward_.setTotalDistance(height, height);
 }
 
+double Elevator::GetPos(){
+    return current_pose_.position;
+}
+
 /**
  * @brief Runs a fraction of the max voltage to the elevator
  * 

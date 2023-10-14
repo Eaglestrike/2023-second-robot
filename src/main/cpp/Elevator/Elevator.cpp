@@ -55,6 +55,72 @@ void Elevator::CoreTeleopPeriodic() {
     right_.SetVoltage(units::volt_t{std::clamp(motor_output, -max_volts_, max_volts_)});
 }
 
+// debug getters
+Elevator::ElevatorState Elevator::getState() {
+    return current_state_;
+}
+
+/**
+ * @brief Returns the elevator height in meters, calculated per the left motor's position.
+ * 
+ * @return double height (in meters)
+ */
+double Elevator::getElevatorHeight() {
+    return talonUnitsToMeters(left_.GetSelectedSensorPosition());
+}
+
+/**
+ * @brief Given a position, the elevator will move to that position
+ * 
+ * @param newPos 
+ */
+void Elevator::ExtendToCustomPos(double newPos) {
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::CUSTOM;
+    feedforward_.setTotalDistance(newPos, getElevatorHeight());
+}
+
+void Elevator::Stow(){
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::STOWED;
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+}
+
+void Elevator::ExtendLow() {
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::LOW;
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+}
+
+void Elevator::ExtendMid() {
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::MID;
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+}
+
+void Elevator::ExtendHigh() {
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::HIGH;
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+}
+
+void Elevator::HoldPosition(){
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::CUSTOM;
+    feedforward_.setTotalDistance(getElevatorHeight(), getElevatorHeight());
+}
+
+/**
+ * @brief Runs a fraction of the max voltage to the elevator
+ * 
+ * @param range the range of the xbox joystick axis
+ * Note: it is assumed that the range will be from -1 to 1.
+ */
+void Elevator::setManualVolts(double range) {
+    current_state_ = ElevatorState::MANUAL;
+    debug_manual_volts_ = range * max_volts_;
+}
+
 // util methods
 
 /**
@@ -88,11 +154,6 @@ double Elevator::talonUnitsToAngle(double motor_units) {
     return std::fmod(motor_units * 360.0 / ElevatorConstants::TALON_FX_COUNTS_PER_REV,  360.0);
 }
 
-// debug getters
-Elevator::ElevatorState Elevator::getState() {
-    return current_state_;
-}
-
 std::string Elevator::getStateString(){
     switch(current_state_){
         case MANUAL:
@@ -119,15 +180,6 @@ std::string Elevator::getTargetString(){
         case STOWED:
             return "STOWED";
     }
-}
-
-/**
- * @brief Returns the elevator height in meters, calculated per the left motor's position.
- * 
- * @return double height (in meters)
- */
-double Elevator::getElevatorHeight() {
-    return talonUnitsToMeters(left_.GetSelectedSensorPosition());
 }
 
 void Elevator::CoreShuffleboardInit(){
@@ -184,55 +236,3 @@ void Elevator::CoreShuffleboardUpdate(){
 
     max_volts_ = frc::SmartDashboard::GetNumber("volts to use", 0.0);
 };
-
-/**
- * @brief Given a position, the elevator will move to that position
- * 
- * @param newPos 
- */
-void Elevator::ExtendToCustomPos(double newPos) {
-    current_state_ = ElevatorState::MOVING;
-    current_target_ = ElevatorTarget::CUSTOM;
-    feedforward_.setTotalDistance(newPos, getElevatorHeight());
-}
-
-void Elevator::Stow(){
-    current_state_ = ElevatorState::MOVING;
-    current_target_ = ElevatorTarget::STOWED;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
-}
-
-void Elevator::ExtendLow() {
-    current_state_ = ElevatorState::MOVING;
-    current_target_ = ElevatorTarget::LOW;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
-}
-
-void Elevator::ExtendMid() {
-    current_state_ = ElevatorState::MOVING;
-    current_target_ = ElevatorTarget::MID;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
-}
-
-void Elevator::ExtendHigh() {
-    current_state_ = ElevatorState::MOVING;
-    current_target_ = ElevatorTarget::HIGH;
-    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
-}
-
-void Elevator::HoldPosition(){
-    current_state_ = ElevatorState::MOVING;
-    current_target_ = ElevatorTarget::CUSTOM;
-    feedforward_.setTotalDistance(getElevatorHeight(), getElevatorHeight());
-}
-
-/**
- * @brief Runs a fraction of the max voltage to the elevator
- * 
- * @param range the range of the xbox joystick axis
- * Note: it is assumed that the range will be from -1 to 1.
- */
-void Elevator::setManualVolts(double range) {
-    current_state_ = ElevatorState::MANUAL;
-    debug_manual_volts_ = range * max_volts_;
-}

@@ -78,7 +78,7 @@ void Robot::RobotPeriodic()
   }
 
   if (m_controller.getPressed(ELEVATOR_EXTEND_STOWED)) {
-    elevator_.ExtendToCustomPos(0);
+    elevator_.Stow();
   }
   else if (m_controller.getPressed(ELEVATOR_EXTEND_LOW)) {
     elevator_.ExtendLow();

@@ -109,7 +109,7 @@ std::string Elevator::getStateString(){
 std::string Elevator::getTargetString(){
     switch(current_target_){
         case CUSTOM:
-            return "CUSTOM: " + std::to_string(feedforward_.getSetpoint());
+            return "CUSTOM";
         case LOW:
             return "LOW";
         case MID:
@@ -142,9 +142,14 @@ void Elevator::CoreShuffleboardInit(){
     frc::SmartDashboard::PutNumber(name_ + " mv", ElevatorConstants::MAX_VELOCITY);
     frc::SmartDashboard::PutNumber(name_ + " ma", ElevatorConstants::MAX_ACCELERATION);
 
-    frc::SmartDashboard::PutNumber(name_ + " setPoint", ElevatorConstants::MAX_EXTENSION);
+    frc::SmartDashboard::PutNumber(name_ + " set setPoint", ElevatorConstants::MAX_EXTENSION);
 
     frc::SmartDashboard::PutNumber(name_ + "volts to use", 0.0);
+
+    frc::SmartDashboard::PutString(name_ + " state", getStateString());
+    frc::SmartDashboard::PutString(name_ + " target", getTargetString());
+
+    frc::SmartDashboard::PutNumber(name_ + " ff setPoint", feedforward_.getSetpoint());
 };
 
 void Elevator::CoreShuffleboardPeriodic(){
@@ -153,6 +158,11 @@ void Elevator::CoreShuffleboardPeriodic(){
 
     frc::SmartDashboard::PutNumber("current ev position", current_pose_.position);
     frc::SmartDashboard::PutNumber("current ev velocity", current_pose_.velocity);
+
+    frc::SmartDashboard::PutString(name_ + " state", getStateString());
+    frc::SmartDashboard::PutString(name_ + " target", getTargetString());
+
+    frc::SmartDashboard::PutNumber(name_ + " ff setPoint", feedforward_.getSetpoint());
 };
 
 void Elevator::CoreShuffleboardUpdate(){
@@ -181,23 +191,39 @@ void Elevator::CoreShuffleboardUpdate(){
  * @param newPos 
  */
 void Elevator::ExtendToCustomPos(double newPos) {
-    current_state_ = ElevatorState::MANUAL;
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::CUSTOM;
     feedforward_.setTotalDistance(newPos, getElevatorHeight());
 }
 
+void Elevator::Stow(){
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::STOWED;
+    feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+}
+
 void Elevator::ExtendLow() {
+    current_state_ = ElevatorState::MOVING;
     current_target_ = ElevatorTarget::LOW;
     feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
 }
 
 void Elevator::ExtendMid() {
+    current_state_ = ElevatorState::MOVING;
     current_target_ = ElevatorTarget::MID;
     feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
 }
 
 void Elevator::ExtendHigh() {
+    current_state_ = ElevatorState::MOVING;
     current_target_ = ElevatorTarget::HIGH;
     feedforward_.setTotalDistance(ElevatorConstants::TARGET_TO_HEIGHT[current_target_], getElevatorHeight());
+}
+
+void Elevator::HoldPosition(){
+    current_state_ = ElevatorState::MOVING;
+    current_target_ = ElevatorTarget::CUSTOM;
+    feedforward_.setTotalDistance(getElevatorHeight(), getElevatorHeight());
 }
 
 /**
@@ -206,14 +232,7 @@ void Elevator::ExtendHigh() {
  * @param range the range of the xbox joystick axis
  * Note: it is assumed that the range will be from -1 to 1.
  */
-void Elevator::setDebugManualVolts(double range) {
-    debug_manual_volts_ = range * max_volts_;
-}
-
-void Elevator::activateManualMode() {
+void Elevator::setManualVolts(double range) {
     current_state_ = ElevatorState::MANUAL;
-}
-
-void Elevator::activateMovingMode() {
-    current_state_ = ElevatorState::MOVING;
+    debug_manual_volts_ = range * max_volts_;
 }

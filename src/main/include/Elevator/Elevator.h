@@ -37,6 +37,7 @@ class Elevator : public Mechanism{
         void ExtendHigh();
         //extended position in meters (how far the elevator has extended from the point where it )
         void ExtendToCustomPos(double newPos);
+        void HoldPosition();
         double GetPos();
         double GetVel();
 
@@ -46,12 +47,9 @@ class Elevator : public Mechanism{
         std::string getStateString();
         std::string getTargetString();
 
+        void setManualVolts(double range);
+
         void zero_motors();
-
-        void setDebugManualVolts(double range);
-
-        void activateManualMode();
-        void activateMovingMode();
 
     private:
         void CorePeriodic() override;

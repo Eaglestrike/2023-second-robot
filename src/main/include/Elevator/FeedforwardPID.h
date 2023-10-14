@@ -77,9 +77,9 @@ private:
     double max_velocity;
     double max_acceleration;
 
-    // pid constants, initialized to 0 so their use is optional
-    double kp = 0.0;
-    double kd = 0.0;
+    // pid constants
+    double kp;
+    double kd;
 
     // calculated constants
     double acceleration_time;

@@ -89,19 +89,17 @@ void Robot::RobotPeriodic()
   else if (m_controller.getPressed(ELEVATOR_EXTEND_HIGH)) {
     elevator_.ExtendHigh();
   }
+  else{
+    elevator_.HoldPosition();
+  }
 
   if (m_controller.getPressed(ELEVATOR_SET_MANUAL)) {
-    elevator_.activateManualMode();
-  } else if (m_controller.getPressed(ELEVATOR_SET_MOVING)) {
-    elevator_.activateMovingMode();
+    elevator_.setManualVolts(m_controller.getRawAxis(ELEVATOR_RANGE));
   }
 
   elevator_.Periodic();
 
   // TODO: check this and the corresponding mapping in ControllerMap.h
-  elevator_.setDebugManualVolts(
-    m_controller.getRawAxis(ELEVATOR_RANGE)
-  );
 }
 
 /**

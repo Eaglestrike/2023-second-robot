@@ -224,7 +224,7 @@ void FeedforwardPID::recalculateTimes() {
     total_distance_ = setpoint_ - startpoint_;
     reversed = total_distance_ < 0;
     total_distance_ = std::abs(total_distance_);
-    
+
     // the time spent accelerating (or decelerating)
     if (max_velocity == 0 || max_acceleration == 0) {
         return;
@@ -299,6 +299,10 @@ double FeedforwardPID::getMaxVelocity() {
 void FeedforwardPID::setMaxVelocity(double new_vel) {
     max_velocity = new_vel;
     recalculateTimes();
+}
+
+double FeedforwardPID::getSetpoint() {
+    return setpoint_;
 }
 
 void FeedforwardPID::setTotalDistance(double new_position, double curr_pos) {

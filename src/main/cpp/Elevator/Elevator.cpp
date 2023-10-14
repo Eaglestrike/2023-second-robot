@@ -66,7 +66,7 @@ void Elevator::CoreTeleopPeriodic() {
             motor_output = 0.0;
     }
 
-    if(!limit_switch_.Get()){
+    if(!limit_switch_.Get() && current_state_ != MOVING){
         zero_motors();
         if(motor_output < feedforward_.getKg() + 0.001){
             motor_output = 0.0;

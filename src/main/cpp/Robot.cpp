@@ -33,7 +33,36 @@ void Robot::RobotInit(){
  * <p> This runs after the mode specific periodic functions, but before
  * LiveWindow and SmartDashboard integrated updating.
  */
-void Robot::RobotPeriodic(){
+void Robot::RobotPeriodic()
+{
+  if (m_controller.getPressed(ELEVATOR_UPDATE)) {
+    // elevator_.UpdateShuffleboard();
+  }
+
+  if (m_controller.getPressed(ELEVATOR_EXTEND_STOWED)) {
+    // elevator_.Stow();
+  }
+  else if (m_controller.getPressed(ELEVATOR_EXTEND_LOW)) {
+    // elevator_.ExtendLow();
+  }
+  else if (m_controller.getPressed(ELEVATOR_EXTEND_MID)) {
+    // elevator_.ExtendMid();
+  }
+  else if (m_controller.getPressed(ELEVATOR_EXTEND_HIGH)) {
+    // elevator_.ExtendHigh();
+  }
+  else{
+    // elevator_.HoldPosition();
+  }
+
+  if (m_controller.getRawAxis(ELEVATOR_SET_MANUAL) > 0.75) {
+    // elevator_.setManualVolts(m_controller.getRawAxis(ELEVATOR_RANGE));
+  }
+
+  // elevator_.Periodic();
+  m_elevatorIntake.TeleopPeriodic();
+
+  // TODO: check this and the corresponding mapping in ControllerMap.h
 }
 
 /**

@@ -22,7 +22,7 @@ class Elevator : public Mechanism{
         enum ElevatorState {
             MANUAL,
             MOVING,
-            STOPPED,
+            HOLDING_POS
         };
 
         void Stow();
@@ -41,8 +41,6 @@ class Elevator : public Mechanism{
         std::string getStateString();
         std::string getTargetString();
         ElevatorConstants::ElevatorTarget getTarget();
-        bool AtTarget();
-        void Stop();
 
         void setManualVolts(double range);
 

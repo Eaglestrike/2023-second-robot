@@ -137,17 +137,14 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
 
     // whether moving up or down
 
-    // TODO: review the use of the total_distance_ variable, which incorporates distance needed to move
-    // if it is positive, elevator needs to move up
-    // else it needs to move down
-    double reversed_coefficient = total_distance_ < 0 ? -1.0 : 1.0;
-
     if(shuffleboard){
         frc::SmartDashboard::PutBoolean("phase 1", false);
         frc::SmartDashboard::PutBoolean("phase 2", false);
         frc::SmartDashboard::PutBoolean("phase 3", false);
         frc::SmartDashboard::PutBoolean("Reversed?", reversed);
     }
+
+    double reversed_coefficient = reversed? -1.0:1.0;
 
     // if in the acceleration phase
     if (time < 0){
@@ -180,7 +177,7 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
         }
         double max_vel = max_velocity;
         if(velocity_time == 0){
-            max_vel = 0.5 * max_acceleration * acceleration_time * acceleration_time;
+            max_vel = max_acceleration * acceleration_time;
         }
         double first_phase_distance = reversed_coefficient * max_vel * acceleration_time;
         double second_phase_distance = reversed_coefficient * max_vel * velocity_time;
@@ -201,7 +198,13 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
         pose.acceleration = 0.0;
     }
 
+    pose.position += startpoint_;
+
     return pose;
+}
+
+bool FeedforwardPID::isFinished(){
+    return timer.Get().value() > velocity_time + acceleration_time*2;
 }
 
 /**
@@ -254,6 +257,10 @@ void FeedforwardPID::setKs(double ks) {
     this->ks = ks;
 }
 
+double FeedforwardPID::getKg() {
+    return kg;
+}
+
 void FeedforwardPID::setKg(double kg) {
     this->kg = kg;
 }
@@ -299,6 +306,10 @@ double FeedforwardPID::getMaxVelocity() {
 void FeedforwardPID::setMaxVelocity(double new_vel) {
     max_velocity = new_vel;
     recalculateTimes();
+}
+
+double FeedforwardPID::getStartpoint() {
+    return startpoint_;
 }
 
 double FeedforwardPID::getSetpoint() {

@@ -33,19 +33,22 @@ namespace ElevatorConstants {
   const int LEFT_MOTOR_ID = 22;
   const int RIGHT_MOTOR_ID = 40;
 
-  const double MAX_VOLTS = 1.0;
+  //Limit switch
+  const int LIMIT_SWITCH_ID = 1;
+
+  const double MAX_VOLTS = 6.0;
 
   // const double MAX_ELEVATOR_VELOCITY = 4.20116;
-  const double MAX_VELOCITY = 1.34; //m/s
-  const double MAX_ACCELERATION = 0.94; //m/s^2
+  const double MAX_VELOCITY = 2.34; //m/s
+  const double MAX_ACCELERATION = 1.44; //m/s^2
 
   const double MAX_EXTENSION = 0.5588; // m
 
   //Feedforward Constants
-  const double KS = 0.0;
-  const double KV = 0.89;
-  const double KA = 0.45;
-  const double KG = 2.17;
+  const double KS = 1.2;
+  const double KV = 1.3;
+  const double KA = 0.75;
+  const double KG = 1.1;
 
   const double KP = 3.5;
   const double KD = 0.5;

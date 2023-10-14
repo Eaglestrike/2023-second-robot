@@ -1,6 +1,6 @@
 #pragma once
 #include "Elevator/Intake/Intake.h"
-#include "elevator/BaseElevator.h"
+#include "BaseElevator/Elevator.h"
 #include "Lidar/LidarReader.h"
 
 class ElevatorIntake{
@@ -33,12 +33,15 @@ class ElevatorIntake{
         bool m_outtaking, m_cone;
 
         //scoring stuff
-        double m_yoff, m_zoff, m_scorAngle;
+        // not used
+        // double m_yoff, m_zoff, m_scorAngle;
         
         //stuff fed to children 
         double m_targIntakeAng, m_targElevatorPos;
 
         Intake m_intake;
-        LidarReader m_lidar;
-        BaseElevator m_elevator;
+        Elevator m_elevator{true, false};
+
+        // tbh might move lidar out of this 
+        // LidarReader m_lidar;
 };

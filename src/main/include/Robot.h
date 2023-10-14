@@ -40,19 +40,8 @@ class Robot : public frc::TimedRobot {
   void SimulationPeriodic() override;
 
  private:
-  // IMU acclerometer and gyroscope
-  // Gives information on orientation and acceleration
-  std::shared_ptr<AHRS> m_navx;
-
-  // swerve
-  SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
-  std::shared_ptr<SwerveControl> m_swerveController;
-
   //Controller
   Controller m_controller;
 
-  ElevatorIntake m_elevatorIntake();
-
-  // temp odometry
-  vec::Vector2D m_pos;
+  ElevatorIntake m_elevatorIntake;
 };

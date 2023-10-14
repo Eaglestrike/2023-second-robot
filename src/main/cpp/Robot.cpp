@@ -19,49 +19,10 @@
 
 using namespace Actions;
 
-Robot::Robot():
-      m_swerveFr(SwerveConstants::FR_CONFIG, false, true),
-      m_swerveBr(SwerveConstants::BR_CONFIG, false, true),
-      m_swerveFl(SwerveConstants::FL_CONFIG, false, true),
-      m_swerveBl(SwerveConstants::BL_CONFIG, false, true)
-{
-  // swerve
-  SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
-  m_swerveController = std::make_shared<SwerveControl>(moduleArray, false, false);
-
-  // navx
-  try
-  {
-    m_navx = std::make_shared<AHRS>(frc::SerialPort::kMXP);
-  }
-  catch (const std::exception &e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
+Robot::Robot(){
 }
 
-void Robot::RobotInit()
-{
-  // frc::SmartDashboard::PutNumber("wheel kP", SwerveConstants::TURN_P);
-  // frc::SmartDashboard::PutNumber("wheel kI", SwerveConstants::TURN_I);
-  // frc::SmartDashboard::PutNumber("wheel kD", SwerveConstants::TURN_D);
-  // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  // frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
-
-  frc::SmartDashboard::PutNumber("elevator ks", ElevatorConstants::KS);
-  frc::SmartDashboard::PutNumber("elevator ka", ElevatorConstants::KA);
-  frc::SmartDashboard::PutNumber("elevator kv", ElevatorConstants::KV);
-  frc::SmartDashboard::PutNumber("elevator kg", ElevatorConstants::KG);
-  
-  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
-
-  m_navx->ZeroYaw();
-
-  m_swerveController->Init();
-  m_swerveController->SetFeedForward(0.0 , 1.0, 0.0);
+void Robot::RobotInit(){
 }
 
 /**
@@ -72,49 +33,7 @@ void Robot::RobotInit()
  * <p> This runs after the mode specific periodic functions, but before
  * LiveWindow and SmartDashboard integrated updating.
  */
-void Robot::RobotPeriodic()
-{
-  if (m_controller.getPressed(ZERO_DRIVE_PID))
-  {
-    m_swerveFl.UpdateShuffleboard();
-    m_swerveFr.UpdateShuffleboard();
-    m_swerveBl.UpdateShuffleboard();
-    m_swerveBr.UpdateShuffleboard();
-  }
-
-  if (m_controller.getPressed(ZERO_YAW))
-  {
-    m_navx->ZeroYaw();
-    m_swerveController->ResetAngleCorrection();
-    m_pos = {0, 0};
-  }
-
-  if (m_controller.getPressed(ZERO_FEEDFORWARD)) {
-    frc::SmartDashboard::PutBoolean("zero feedforward being pressed", true);
-    elevator_.zero_motors();
-  }
-
-  // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
-  // frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
-  // frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
-  // frc::SmartDashboard::PutNumber("br raw encoder", m_swerveBr.GetRawEncoderReading());
-
-  // frc::SmartDashboard::PutString("fl velocity", m_swerveFl.GetVelocity().toString());
-  // frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
-  // frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
-  // frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
-
-  frc::SmartDashboard::PutNumber("lm rotation", elevator_.getLeftRotation());
-  frc::SmartDashboard::PutNumber("rm rotation", elevator_.getRightRotation());
-
-
-  double dash_ks = frc::SmartDashboard::GetNumber("elevator ks", ElevatorConstants::KS);
-  double dash_kv = frc::SmartDashboard::GetNumber("elevator kv", ElevatorConstants::KV);
-  double dash_kg = frc::SmartDashboard::GetNumber("elevator kg", ElevatorConstants::KG);
-  double dash_ka = frc::SmartDashboard::GetNumber("elevator ka", ElevatorConstants::KA);
-
-
-  elevator_.setFeedforwardConstants(dash_ks, dash_kv, dash_kg, dash_ka);
+void Robot::RobotPeriodic(){
 }
 
 /**
@@ -138,52 +57,12 @@ void Robot::TeleopInit() {
 }
 
 void Robot::TeleopPeriodic() {
-<<<<<<< HEAD
-=======
-  m_intake.DeployIntake();
-  m_intake.ChangeRollerVoltage(0, true);
-
-  if (elevator_.getState() == Elevator::STOPPED) {
-    elevator_.start();
-    elevator_.setState(Elevator::ElevatorState::MOVING_TO_DOCKED);
-  }
-  double lx = m_controller.getWithDeadContinuous(SWERVE_STRAFEX, 0.1);
-  double ly = m_controller.getWithDeadContinuous(SWERVE_STRAFEY, 0.1);
-
-  double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION, 0.1);
-
-  double vx = std::clamp(lx, -1.0, 1.0) * 12.0;
-  double vy = std::clamp(ly, -1.0, 1.0) * 12.0;
-  double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
-
-  double curYaw = m_navx->GetYaw();
-  curYaw = curYaw * (M_PI / 180);
-
-  // frc::SmartDashboard::PutNumber("curYaw", curYaw);
-
-  vec::Vector2D setVel = {-vy, -vx};
-  m_swerveController->SetRobotVelocity(setVel, w, curYaw, 0.02);
-
-  m_swerveController->Periodic();
-
-  // temporary
-  auto vel = m_swerveController->GetRobotVelocity(curYaw);
-  m_pos += vel * 0.02;
-
-  // frc::SmartDashboard::PutString("pos:", m_pos.toString());
-  // frc::SmartDashboard::PutString("vel:", vel.toString());
-  // frc::SmartDashboard::PutString("setVel:", setVel.toString());
-  // frc::SmartDashboard::PutNumber("setAngVel:", w);
-
-  elevator_.periodic();
-  m_intake.TeleopPeriodic();
->>>>>>> 65770f2e1b5d8ad9202b1e9c243e08c048297e47
+  m_elevatorIntake.TeleopPeriodic();
 }
 
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {
-  elevator_.stop();
 }
 
 void Robot::TestInit() {}

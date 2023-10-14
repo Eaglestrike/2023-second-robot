@@ -19,7 +19,7 @@ class FeedforwardPID
 public:
     // constructor
     FeedforwardPID(double ks, double kv, double ka, double kg, double distance);
-    FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double kd, double distance);
+    FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double ki, double kd, double distance);
 
     // main methods to use
     double periodic(Poses::Pose1D current_values);
@@ -50,7 +50,7 @@ public:
     void setMaxDistance(double distance);
     void setReversed(bool reversed);
 
-    void setPIDConstants(double kp, double kd);
+    void setPIDConstants(double kp, double ki, double kd);
 
     void setMaxVelocity(double max_vel);
     void setMaxAcceleration(double max_acc);
@@ -75,6 +75,7 @@ private:
     // pid constants, initialized to 0 so their use is optional
     double kp = 0.0;
     double kd = 0.0;
+    double ki = 0.0;
 
     // velocity, acceleration constants
     double max_velocity = ElevatorConstants::MAX_ELEVATOR_VELOCITY;

@@ -26,8 +26,8 @@ FeedforwardPID::FeedforwardPID(double ks, double kv, double ka, double kg, doubl
  * @param kp change in velocity to volts constant
  * @param kd change in position to volts constant
  */
-FeedforwardPID::FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double kd, double distance): 
-    ks(ks), kv(kv), ka(ka), kg(kg), kp(kp), kd(kd), max_distance_(distance) {
+FeedforwardPID::FeedforwardPID(double ks, double kv, double ka, double kg, double kp, double ki, double kd, double distance): 
+    ks(ks), kv(kv), ka(ka), kg(kg), kp(kp), ki(ki), kd(kd), max_distance_(distance) {
         frc::SmartDashboard::PutNumber("position error", 0.0);
         recalculateTimes();
     };
@@ -192,9 +192,10 @@ Poses::Pose1D FeedforwardPID::getExpectedPose(double time)
  * @param kp kp constant, converts change in velocity to voltage
  * @param kd kd constant, converts change in position to voltage
  */
-void FeedforwardPID::setPIDConstants(double kp, double kd)
+void FeedforwardPID::setPIDConstants(double kp, double ki, double kd)
 {
     this->kp = kp;
+    this->ki = ki;
     this->kd = kd;
 }
 

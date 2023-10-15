@@ -33,10 +33,11 @@ class ElevatorIntake{
         // void CalcToCustomPose(double zoff, double scoringAngle, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
         // void CalcIntakeAngle();
         
-        MechanismState m_state;
+        MechanismState m_state = MOVING;
         bool m_outtaking, m_cone;
+        bool m_stowing;
 
-        MovingState m_movingState;
+        MovingState m_movingState = DONE;
 
         //scoring stuff
         // not used

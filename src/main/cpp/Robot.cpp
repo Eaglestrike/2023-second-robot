@@ -60,7 +60,7 @@ void Robot::RobotPeriodic()
   }
 
   // elevator_.Periodic();
-  m_elevatorIntake.TeleopPeriodic();
+  //m_elevatorIntake.TeleopPeriodic();
 
   // TODO: check this and the corresponding mapping in ControllerMap.h
 }

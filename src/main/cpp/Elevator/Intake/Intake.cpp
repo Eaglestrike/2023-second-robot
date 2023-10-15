@@ -92,8 +92,8 @@ void Intake::ManualPeriodic(double wristVolts){
 // teleop periodic runs on state machine
 void Intake::TeleopPeriodic(){
     if (dbg){
-        debugCurPose();
-        debugTargPose();
+        //debugCurPose();
+        //debugTargPose();
         //debugPutVoltage();
     }
 
@@ -113,12 +113,9 @@ void Intake::TeleopPeriodic(){
                 rollerVolts = m_rollerVolts;
             break;
         case AT_TARGET:
-            if (m_targState == STOWED){
-                wristVolts = m_stowedPIDcontroller.Calculate(IntakeConstants::STOWED_POS - m_curPos);
-            } else {
-                wristVolts = FFPIDCalculate();
+            wristVolts = FFPIDCalculate();
+            if (m_targState != STOWED)
                 rollerVolts = m_rollerVolts;
-            }
             break;
     }
     if (dbg){
@@ -133,6 +130,7 @@ double Intake::FFPIDCalculate(){
     double posErr = m_targetPos - m_curPos, 
     velErr = m_targetVel - m_curVel;
     m_totalErr += posErr * 0.02;
+    if (fabs(posErr) <= IntakeConstants::WRIST_POS_TOLERANCE) posErr =0;
     double pid = m_kp*posErr + m_kd*velErr + m_ki*m_totalErr;
     double s = m_s;
     if (m_targetVel < 0) s = -m_s;
@@ -162,6 +160,7 @@ void Intake::ChangeRollerVoltage(double newVoltage){
 
 void Intake::Stow(){
     if (m_targState == STOWED) return;
+    m_targState = STOWED;
     SetSetpoint(IntakeConstants::STOWED_POS);
     m_rollerVolts = 0;
     m_state = MOVING;
@@ -169,6 +168,7 @@ void Intake::Stow(){
 
 void Intake::HalfStow(){
     if (m_targState == HALFSTOWED) return;
+    m_targState = HALFSTOWED;
     SetSetpoint(IntakeConstants::INTAKE_UPRIGHT_ANGLE);
     m_rollerVolts = 0;
     m_state = MOVING;
@@ -176,6 +176,7 @@ void Intake::HalfStow(){
 
 void Intake::DeployIntake(bool cone){
     if (m_targState == DEPLOYED) return;
+    m_targState = DEPLOYED;
     if (m_customDeployPos == -1)
         m_setPt = IntakeConstants::DEPLOYED_POS;
     else 
@@ -187,7 +188,7 @@ void Intake::DeployIntake(bool cone){
     else 
         m_rollerVolts = m_customRollerVolts;
 
-    if (cone) // !cone??
+    if (!cone) // !cone??
         m_rollerVolts *= -1;
     m_state = MOVING;
 }

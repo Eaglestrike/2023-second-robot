@@ -54,7 +54,7 @@ class Intake{
         void debugCurPose();
         void debugPutVoltage();
 
-        bool dbg =true;
+        bool dbg = false;
 
         rev::CANSparkMax m_wristMotor{IntakeConstants::WRIST_MOTOR_ID, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
         WPI_TalonFX m_rollerMotor{IntakeConstants::ROLLER_MOTOR_ID};
@@ -69,9 +69,9 @@ class Intake{
                m_g = IntakeConstants::EXTEND_DEPLOY_G, m_v = IntakeConstants::EXTEND_DEPLOY_V,
                m_a = IntakeConstants::EXTEND_DEPLOY_A;
         
-        double m_setPt; 
+        double m_setPt= IntakeConstants::STOWED_POS; 
         double m_curPos, m_curVel, m_curAcc; // cur pose
-        double m_targetPos, m_targetVel, m_targetAcc; // motion profile 
+        double m_targetPos = m_setPt, m_targetVel =0 , m_targetAcc = 0; // motion profile 
         double m_speedDecreasePos, // pos in motion profile where start decelerating
                m_totalErr = 0; // integral of position error for PID
 

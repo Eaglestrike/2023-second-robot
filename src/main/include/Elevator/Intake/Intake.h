@@ -78,6 +78,8 @@ class Intake{
         double m_rollerVolts;
         double m_customDeployPos =-1, m_customRollerVolts = -1;
 
+        bool m_cone;
+
         frc2::PIDController m_stowedPIDcontroller{IntakeConstants::STOW_P,IntakeConstants::STOW_I,IntakeConstants::STOW_D};
         //add caleb's lidar class when thats a thing
 };

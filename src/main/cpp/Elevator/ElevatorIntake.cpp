@@ -41,7 +41,7 @@ void ElevatorIntake::dbg(){
     }
     m_outtaking = frc::SmartDashboard::GetBoolean("outtake", false);
     m_cone = frc::SmartDashboard::GetBoolean("cone", false);
-    frc::SmartDashboard::PutNumber("elevator acc pos", m_elevator.GetPos());
+    frc::SmartDashboard::PutNumber("elevator acc pos", m_elevator.getElevatorHeight());
     frc::SmartDashboard::PutNumber("intake acc angle", m_intake.GetPos());
 
     frc::SmartDashboard::PutNumber("moving state", m_movingState);

@@ -33,10 +33,10 @@ namespace IntakeElevatorConstants{
     // const double LOW_HEIGHT = 0.0;
 }
 
-namespace ElevatorConstants{
-    const double MAX_POS = 0.0;
-    const double MIN_POS = 0.0;
-}
+// namespace ElevatorConstants{
+//     const double MAX_POS = 0.0;
+//     const double MIN_POS = 0.0;
+// }
 
 namespace IntakeConstants{
     const int WRIST_MOTOR_ID = 4;
@@ -71,14 +71,18 @@ namespace IntakeConstants{
     // wrist positions in radians
     // using motor's relative encoder so assume that 0.0 is stowed
     // because it should be zeroed at stowed anyway
-    const double MAX_POS = 1.84;
+    const double MAX_POS = 1.85;
+    const double STOWED_POS = 1.84;
+    const double INTAKE_UPRIGHT_ANGLE = 1.4;
+
+
     //todo:
     const double MIN_POS = 0.0;
-    const double STOWED_POS = 1.84;
     const double DEPLOYED_POS = 0.0;
-    const double INTAKE_UPRIGHT_ANGLE = 1.45;
-    
 
+    const double NORMAL_CURRENT = 15;
+    const double KEEP_CONE_VOLTS = -0.9;
+    const double KEEP_CUBE_VOLTS = 0.7;
 
     const double ROLLER_MAX_VOLTS = 3.0;
     const double WRIST_MAX_VOLTS = 5.0;

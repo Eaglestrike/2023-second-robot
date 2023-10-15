@@ -20,7 +20,7 @@ Elevator::Elevator(bool enabled, bool shuffleboard):
     limit_switch_(ElevatorConstants::LIMIT_SWITCH_ID),
     current_state_(HOLDING_POS),
     current_target_(STOWED),
-    feedforward_(ElevatorConstants::FEEDFORWARD_CONSTANTS, true),
+    feedforward_(ElevatorConstants::FEEDFORWARD_CONSTANTS, shuffleboard),
     max_volts_(ElevatorConstants::MAX_VOLTS)
 {
     current_pose_ = {0.0, 0.0, 0.0};

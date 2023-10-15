@@ -10,13 +10,14 @@ Intake::Intake(){
         frc::SmartDashboard::PutBoolean("Cone", false);
         frc::SmartDashboard::PutBoolean("Outtake", false);
         
-        frc::SmartDashboard::PutNumber("voltage", 0.0); 
+        
         //m_wristMotor.SetInverted(true);
         frc::SmartDashboard::PutNumber("g", m_g); 
         frc::SmartDashboard::PutNumber("s", m_s); 
         frc::SmartDashboard::PutNumber("v", m_v); 
         frc::SmartDashboard::PutNumber("a", m_a); 
     }
+    frc::SmartDashboard::PutNumber("voltage", 0.0); 
 }
 
 // to debug the trapezoidal motion profile
@@ -63,16 +64,18 @@ void Intake::DeployNoRollers(){
 void Intake::debugPutVoltage(){
     double voltReq;
     voltReq = frc::SmartDashboard::GetNumber("voltage", voltReq);
-    voltReq = std::clamp(voltReq, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS);
-    if(m_curPos > IntakeConstants::MAX_POS){
-        voltReq = 0;
-    } else if(m_curPos < IntakeConstants::MIN_POS){
-        voltReq = 0;
-    }
+    voltReq = std::clamp(voltReq, -IntakeConstants::ROLLER_MAX_VOLTS, IntakeConstants::ROLLER_MAX_VOLTS);
+    // if(m_curPos > IntakeConstants::MAX_POS){
+    //     voltReq = 0;
+    // } else if(m_curPos < IntakeConstants::MIN_POS){
+    //     voltReq = 0;
+    // }
     std::cout << voltReq << std::endl ;
-    std::cout << m_wristMotor.GetOutputCurrent() << std::endl;
-   // m_rollerMotor.SetVoltage(units::volt_t(std::clamp(voltReq, -IntakeConstants::ROLLER_MAX_VOLTS, IntakeConstants::ROLLER_MAX_VOLTS)));
-    m_wristMotor.SetVoltage(units::volt_t(-voltReq));
+
+    frc::SmartDashboard::PutNumber("roller current", m_rollerMotor.GetOutputCurrent());
+
+    m_rollerMotor.SetVoltage(units::volt_t(voltReq));
+    //m_wristMotor.SetVoltage(units::volt_t(-voltReq));
 }
 
 //Updates the current position, velocity, and acceleration of the wrist
@@ -93,9 +96,10 @@ void Intake::ManualPeriodic(double wristVolts){
 void Intake::TeleopPeriodic(){
     if (dbg){
         //debugCurPose();
-        //debugTargPose();
-        //debugPutVoltage();
+        //debugTargPose();    
     }
+
+    debugPutVoltage();
 
     UpdatePose();
     double wristVolts = 0, rollerVolts = 0;
@@ -114,8 +118,14 @@ void Intake::TeleopPeriodic(){
             break;
         case AT_TARGET:
             wristVolts = FFPIDCalculate();
-            if (m_targState != STOWED)
+            if (m_targState != STOWED){
                 rollerVolts = m_rollerVolts;
+                if(m_rollerMotor.GetOutputCurrent() > IntakeConstants::NORMAL_CURRENT)
+                    if (m_cone)
+                        rollerVolts = IntakeConstants::KEEP_CONE_VOLTS;
+                    else 
+                        rollerVolts = IntakeConstants::KEEP_CUBE_VOLTS;
+            }
             break;
     }
     if (dbg){
@@ -123,7 +133,7 @@ void Intake::TeleopPeriodic(){
         frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
     } 
     m_wristMotor.SetVoltage(units::volt_t(std::clamp(-wristVolts, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
-    m_rollerMotor.SetVoltage(units::volt_t(std::clamp(-rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
+    //m_rollerMotor.SetVoltage(units::volt_t(std::clamp(rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
 }
 
 double Intake::FFPIDCalculate(){
@@ -188,13 +198,16 @@ void Intake::DeployIntake(bool cone){
     else 
         m_rollerVolts = m_customRollerVolts;
 
-    if (!cone) // !cone??
+    if (cone)
         m_rollerVolts *= -1;
+    
+    m_cone = cone;
     m_state = MOVING;
 }
 
 void Intake::DeployOuttake(bool cone){
     DeployIntake(!cone);
+    m_cone = cone;
 }
 
 void Intake::Kill(){

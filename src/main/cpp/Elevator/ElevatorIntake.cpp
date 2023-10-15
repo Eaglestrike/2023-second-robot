@@ -1,6 +1,7 @@
 #include "Elevator/ElevatorIntake.h"
 
 ElevatorIntake::ElevatorIntake(){
+    m_elevator.Init();
     frc::SmartDashboard::PutNumber("elevator len", 0.0);
     frc::SmartDashboard::PutNumber("wrist angle", 0.0);
     frc::SmartDashboard::PutBoolean("deploy", false);
@@ -58,6 +59,7 @@ void ElevatorIntake::CalcIntakeDeployPos(){}
 void ElevatorIntake::TeleopPeriodic(){
     dbg();
     m_intake.TeleopPeriodic();
+    m_elevator.Periodic();
     m_elevator.TeleopPeriodic();
     switch(m_state){
         case STOPPED:

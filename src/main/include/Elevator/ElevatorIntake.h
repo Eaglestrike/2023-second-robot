@@ -47,7 +47,7 @@ class ElevatorIntake{
         double m_targIntakeAng, m_targElevatorPos;
 
         Intake m_intake;
-        Elevator m_elevator{true, false};
+        Elevator m_elevator{true, true};
 
         // tbh might move lidar out of this 
         // LidarReader m_lidar;

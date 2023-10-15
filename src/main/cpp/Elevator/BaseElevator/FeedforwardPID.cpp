@@ -1,6 +1,8 @@
 #include "Elevator/BaseElevator/FeedforwardPID.h"
 #include <frc/smartdashboard/SmartDashboard.h>
 
+#include <Util/Mathutil.h>
+
 /**
  * @brief Basic constructor meant for feedforward without PID use.
  *

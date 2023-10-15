@@ -12,8 +12,8 @@
 FeedforwardPID::FeedforwardPID(ElevatorConstants::FeedforwardConfig constants, bool shuffleboard):
     ks(constants.ks), kv(constants.kv), ka(constants.ka), kg(constants.kg),
     max_velocity(constants.maxVel), max_acceleration(constants.maxAccel),
-    kp(constants.kp), kd(constants.kd),
-    shuffleboard(shuffleboard)
+    kp(constants.kp), ki(constants.ki), kd(constants.kd), accum_(0),
+    shuffleboard(shuffleboard), prevTime_{0}
 {
     isRunning = 0.0;
     reversed = false;
@@ -27,13 +27,17 @@ FeedforwardPID::FeedforwardPID(ElevatorConstants::FeedforwardConfig constants, b
  */
 double FeedforwardPID::periodic(Poses::Pose1D current_pose)
 {
+    double curT = Utils::GetCurTimeS();
+    double dT = curT - prevTime_;
+    prevTime_ = curT;
+
     if (!isRunning) {
         start();
     }
 
     Poses::Pose1D expected_pose = getExpectedPose(timer.Get().value());
     double feedforward_voltage = calculateFeedforwardVoltage(expected_pose.velocity, expected_pose.acceleration);
-    double pid_voltage = calculatePIDVoltage(expected_pose, current_pose);
+    double pid_voltage = calculatePIDVoltage(expected_pose, current_pose, dT);
 
     // debug prints
     if(shuffleboard){
@@ -61,9 +65,10 @@ double FeedforwardPID::periodic(Poses::Pose1D current_pose)
  * @param current Pose containing information about where system actually is
  * @return double voltage to add to feedforward loop to compensate for inaccuracies in velocity/position.
  */
-double FeedforwardPID::calculatePIDVoltage(Poses::Pose1D expected, Poses::Pose1D current)
+double FeedforwardPID::calculatePIDVoltage(Poses::Pose1D expected, Poses::Pose1D current, double dt)
 {
-    return kp * (expected.position - current.position) + kd * (expected.velocity - current.velocity);
+    accum_ += dt * (expected.position - current.position);
+    return kp * (expected.position - current.position) + ki * accum_ + kd * (expected.velocity - current.velocity);
 }
 
 /**
@@ -103,6 +108,7 @@ void FeedforwardPID::start()
 {
     timer.Start();
     isRunning = true;
+    accum_ = 0;
 }
 
 /**
@@ -120,6 +126,7 @@ void FeedforwardPID::stop() {
 void FeedforwardPID::reset() {
     timer.Reset();
     start();
+    accum_ = 0;
 }
 
 /**
@@ -213,9 +220,10 @@ bool FeedforwardPID::isFinished(){
  * @param kp kp constant, converts change in velocity to voltage
  * @param kd kd constant, converts change in position to voltage
  */
-void FeedforwardPID::setPIDConstants(double kp, double kd)
+void FeedforwardPID::setPIDConstants(double kp, double ki, double kd)
 {
     this->kp = kp;
+    this->ki = ki;
     this->kd = kd;
 }
 

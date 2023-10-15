@@ -54,7 +54,7 @@ public:
     void setTotalDistance(double new_position, double curr_pos);
     void setReversed(bool reversed);
 
-    void setPIDConstants(double kp, double kd);
+    void setPIDConstants(double kp, double ki, double kd);
 
     void setMaxVelocity(double max_vel);
     void setMaxAcceleration(double max_acc);
@@ -63,7 +63,7 @@ private:
     // member functions
     double sign(double value);
     double calculateFeedforwardVoltage(double velocity, double acceleration);
-    double calculatePIDVoltage(Poses::Pose1D expected, Poses::Pose1D current);
+    double calculatePIDVoltage(Poses::Pose1D expected, Poses::Pose1D current, double dt);
     void recalculateTimes();
 
     // total distance needed to travel
@@ -80,7 +80,9 @@ private:
 
     // pid constants
     double kp;
+    double ki;
     double kd;
+    double accum_;
 
     // calculated constants
     double acceleration_time;
@@ -96,4 +98,6 @@ private:
     frc::Timer timer{};
 
     bool shuffleboard;
+
+    double prevTime_;
 };

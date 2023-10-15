@@ -33,7 +33,7 @@ private:
 
   void CoreShuffleboardInit() override;
   void CoreShuffleboardPeriodic() override;
-  void CoreUpdateShuffleboard() override;
+  void CoreShuffleboardUpdate() override;
 
   bool ShouldFlip(vec::Vector2D curAng, vec::Vector2D targetAng);
 

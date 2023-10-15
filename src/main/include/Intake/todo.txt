@@ -1,0 +1,23 @@
+MONDAY:
+0. Phoenix tuner: get ids for both motors and encoder
+1. Get cur pose correct w offset and everything
+2. Get target pose correct, test triangle, trapezoid w pos neg (so 4 diff cases) make math checks out
+Q. Figure out how to tune kv ka
+CONSTS BY END OF TODAY:
+- wrist & roller motor id
+- encoder pin
+- trapezoidal motion profile max velocity and max acc (ask cad?)
+- wrist tolerance
+- encoder offset so that 0 is parallel to the ground
+- stowed and deployed position
+- max volts (ask cad?)
+
+TUES:
+4. tune g, s
+5. Tune v and a
+basic feedforward works
+6 tune PID w the feedforward by pushing it around
+
+
+THURS
+7 tune PID for keeping stowed, finish 

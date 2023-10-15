@@ -229,12 +229,13 @@ void Elevator::CoreShuffleboardInit(){
     frc::SmartDashboard::PutNumber(name_ + " kg", ElevatorConstants::KG);
 
     frc::SmartDashboard::PutNumber(name_ + " kp", ElevatorConstants::KP);
+    frc::SmartDashboard::PutNumber(name_ + " ki", ElevatorConstants::KI);
     frc::SmartDashboard::PutNumber(name_ + " kd", ElevatorConstants::KD);
 
     frc::SmartDashboard::PutNumber(name_ + " mv", ElevatorConstants::MAX_VELOCITY);
     frc::SmartDashboard::PutNumber(name_ + " ma", ElevatorConstants::MAX_ACCELERATION);
 
-    frc::SmartDashboard::PutNumber(name_ + " set setPoint", ElevatorConstants::MAX_EXTENSION);
+    frc::SmartDashboard::PutNumber(name_ + " set setPoint", 0.0);
 
     frc::SmartDashboard::PutNumber(name_ + " volts to use", ElevatorConstants::MAX_VOLTS);
 
@@ -278,15 +279,16 @@ void Elevator::CoreShuffleboardUpdate(){
     feedforward_.setKg(frc::SmartDashboard::GetNumber(name_ + " kg", ElevatorConstants::KG));
 
     feedforward_.setPIDConstants(frc::SmartDashboard::GetNumber(name_ + " kp", ElevatorConstants::KP),
+                                 frc::SmartDashboard::GetNumber(name_ + " ki", ElevatorConstants::KI),
                                  frc::SmartDashboard::GetNumber(name_ + " kd", ElevatorConstants::KD));
 
     feedforward_.setMaxVelocity(frc::SmartDashboard::GetNumber(name_ + " mv", ElevatorConstants::MAX_VELOCITY));
     feedforward_.setMaxAcceleration(frc::SmartDashboard::GetNumber(name_ + " ma", ElevatorConstants::MAX_ACCELERATION));
 
-    // double setPoint = frc::SmartDashboard::GetNumber(name_ + " setPoint", ElevatorConstants::MAX_EXTENSION);
-    // if (setPoint < ElevatorConstants::MAX_EXTENSION) {
-    //     feedforward_.setTotalDistance(setPoint, getElevatorHeight());
-    // }
+    double setPoint = frc::SmartDashboard::GetNumber(name_ + " set setPoint", 0);
+    if (setPoint < ElevatorConstants::MAX_EXTENSION) {
+        ExtendToCustomPos(setPoint);
+    }
 
     max_volts_ = frc::SmartDashboard::GetNumber(name_ + " volts to use", 0.0);
 };

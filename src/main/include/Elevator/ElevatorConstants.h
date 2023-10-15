@@ -51,6 +51,7 @@ namespace ElevatorConstants {
   const double KG = 1.1;
 
   const double KP = 3.5;
+  const double KI = 0.0;
   const double KD = 0.5;
 
   // elevator heights
@@ -78,6 +79,7 @@ namespace ElevatorConstants {
     double maxVel = MAX_VELOCITY;
     double maxAccel = MAX_ACCELERATION;
     double kp = KP;
+    double ki = KI;
     double kd = KD;
   } FEEDFORWARD_CONSTANTS;
 

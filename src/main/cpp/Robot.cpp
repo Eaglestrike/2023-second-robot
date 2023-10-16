@@ -255,6 +255,30 @@ void Robot::RobotPeriodic()
   // frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
   // frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
   // frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
+  // if (m_controller.getPressed(ELEVATOR_UPDATE)) {
+  //   // elevator_.UpdateShuffleboard();
+  // }
+
+  // if (m_controller.getPressed(ELEVATOR_EXTEND_STOWED)) {
+  //   // elevator_.Stow();
+  // }
+  // else if (m_controller.getPressed(ELEVATOR_EXTEND_LOW)) {
+  //   // elevator_.ExtendLow();
+  // }
+  // else if (m_controller.getPressed(ELEVATOR_EXTEND_MID)) {
+  //   // elevator_.ExtendMid();
+  // }
+  // else if (m_controller.getPressed(ELEVATOR_EXTEND_HIGH)) {
+  //   // elevator_.ExtendHigh();
+  // }
+  // else{
+  //   // elevator_.HoldPosition();
+  // }
+
+  // if (m_controller.getRawAxis(ELEVATOR_SET_MANUAL) > 0.75) {
+  //   // elevator_.setManualVolts(m_controller.getRawAxis(ELEVATOR_RANGE));
+  // }
+  m_elevatorIntake.Periodic();
 }
 
 /**
@@ -405,6 +429,21 @@ void Robot::TeleopPeriodic() {
   // frc::SmartDashboard::PutNumber("setAngVel:", w);
   m_prevTime = curTime;
   // m_intake.TeleopPeriodic();
+
+  m_elevatorIntake.TeleopPeriodic();
+  bool cone = m_controller.getPressed(CONE);
+  if(m_controller.getPressed(SCORE_HIGH))
+    m_elevatorIntake.ScoreHigh(cone);
+  else if (m_controller.getPressed(SCORE_MID))
+    m_elevatorIntake.ScoreMid(cone);
+  else if (m_controller.getPressed(SCORE_LOW))
+    m_elevatorIntake.ScoreLow(cone);
+  else if (m_controller.getPressed(STOW))
+    m_elevatorIntake.Stow();
+  else if (m_controller.getPressed(HP_INTAKE))
+    m_elevatorIntake.IntakeFromHPS(cone);
+  else if (m_controller.getRawAxis(GROUND_INTAKE) > 0.75)
+    m_elevatorIntake.IntakeFromGround(cone);
 }
 
 void Robot::DisabledInit() {}

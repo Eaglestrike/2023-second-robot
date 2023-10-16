@@ -20,10 +20,12 @@
 #include "Drive/AutoPath.h"
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
-#include "Intake/Intake.h"
+#include "Elevator/ElevatorIntake.h"
 #include "Drive/SwerveModule.h"
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"
+
+#include "Elevator/Lidar/LidarReader.h"
 
 namespace vec = svector;
 
@@ -85,4 +87,6 @@ class Robot : public frc::TimedRobot {
   bool m_red;
   int m_posVal; // for auto lineup socring positions
   int m_heightVal;
+
+  ElevatorIntake m_elevatorIntake;
 };

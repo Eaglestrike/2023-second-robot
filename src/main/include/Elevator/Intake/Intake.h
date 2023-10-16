@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Elevator/ElevatorIntakeConstants.h"
+#include "Elevator/Lidar/LidarReader.h"
 #include <ctre/Phoenix.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DutyCycleEncoder.h>
@@ -9,7 +10,7 @@
 
 class Intake{
     public:
-        Intake();
+        Intake(LidarReader& lidar);
 
         enum MechState{
             MOVING,
@@ -22,20 +23,19 @@ class Intake{
             STOWED,
             DEPLOYED,
             HALFSTOWED,
-            CUSTOM,
         };
-
-
+        
         void ManualPeriodic(double wristVolts);
         void TeleopPeriodic();    
+        void Periodic();    
         void Stow();
         void HalfStow();
         void DeployIntake(bool cone); 
         void DeployOuttake(bool cone);
-        void DeployNoRollers();
-        void ChangeDeployPos(double newPos);
-        void ChangeRollerVoltage(double newVolotage); //pos should be in radians, w 0 as extended and parallel to ground
+        void ChangeDeployPos(double newPos); //pos should be in radians, w 0 as extended and parallel to ground
+        void ChangeRollerVoltage(double newVolotage); 
         void Kill();
+        // for debugging
         MechState GetState();
         TargetState GetTargetState();
         double GetPos();
@@ -48,19 +48,17 @@ class Intake{
         void SetSetpoint(double setpt);
         bool AtSetpoint();
         void ResetPID();
-        double StepsToRad(double steps);
 
         void debugTargPose();
         void debugCurPose();
         void debugPutVoltage();
 
-        bool dbg = false;
+        bool dbg = false, dbg2 = true;
 
         rev::CANSparkMax m_wristMotor{IntakeConstants::WRIST_MOTOR_ID, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
         WPI_TalonFX m_rollerMotor{IntakeConstants::ROLLER_MOTOR_ID};
         frc::DutyCycleEncoder m_wristEncoder{IntakeConstants::WRIST_ENCODER_CAN_ID};
 
-        // WristState m_state = WristState::STOWED;
         TargetState m_targState = TargetState::STOWED;
         MechState m_state = MechState::AT_TARGET;
 
@@ -78,8 +76,7 @@ class Intake{
         double m_rollerVolts;
         double m_customDeployPos =-1, m_customRollerVolts = -1;
 
-        bool m_cone;
-
-        frc2::PIDController m_stowedPIDcontroller{IntakeConstants::STOW_P,IntakeConstants::STOW_I,IntakeConstants::STOW_D};
-        //add caleb's lidar class when thats a thing
+        LidarReader& m_lidar;
+        bool m_outtaking, m_cone;
+        bool m_hasGamePiece = false;
 };

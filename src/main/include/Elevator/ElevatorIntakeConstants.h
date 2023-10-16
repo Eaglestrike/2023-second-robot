@@ -1,42 +1,29 @@
 namespace IntakeElevatorConstants{
-     //all angles in radians, all lengths in meters
-
-    struct ScoreInfo{
-        double ELEVATOR_LENG;
-        double INTAKE_ANGLE; // how far out the point of contact between gamepiece and intake is from the intake's point of rotation
+    struct ElevatorIntakePosInfo{
+        double ELEVATOR_LENG; //vir units
+        double INTAKE_ANGLE; //rads
     };
 
     struct GamePieceInfo{
-        ScoreInfo LOW_INFO;
-        ScoreInfo MID_INFO;
-        ScoreInfo HIGH_INFO;
+        ElevatorIntakePosInfo SCORE_LOW;
+        ElevatorIntakePosInfo SCORE_MID;
+        ElevatorIntakePosInfo SCORE_HIGH;
+        ElevatorIntakePosInfo GROUND_INTAKE;
+        ElevatorIntakePosInfo HP_INTAKE;
     };
 
-    const GamePieceInfo coneScoreInfo{{0.0, 0.0},
-                                      {0.0, 0.0},
-                                      {0.0, 0.0}}; 
+    const GamePieceInfo coneScoreInfo{{0.0, 0.58},
+                                      {0.316, 0.73},
+                                      {0.545, 0.3},
+                                      {0.0, 0.0}, // upright (TODO)
+                                      {0.547, 0.3}}; // (also TODO i think) might need to move down while intaking
 
-     const GamePieceInfo cubeScoreInfo{{0.0, 0.0},
-                                      {0.0, 0.0},
-                                      {0.0, 0.0}}; 
-    
-    // const double INTAKE_BAR_LENGTH = 0.0;
-    // const double ELEVATOR_ANGLE = 0.0; // the acute angle elevator makes w the drivetrain
-    
-    // const double CUBE_INTAKE_SCORE_ANGLE = 0.0;
-
-    //scoring heights in meters from ground
-    // const double HIGH_CONE_HEIGHT = 0.0;
-    // const double HIGH_CUBE_HEIGHT = 0.0;
-    // const double MID_CONE_HEIGHT = 0.0;
-    // const double MID_CUBE_HEIGHT = 0.0;
-    // const double LOW_HEIGHT = 0.0;
+    const GamePieceInfo cubeScoreInfo{{0.0, 1.66},
+                                      {0.291, 1.25},
+                                      {0.573, 0.8}, // elevator pos seems wayyy to high
+                                      {0.0, 0.13}, 
+                                      {0.0, 0.0}}; //TODO
 }
-
-// namespace ElevatorConstants{
-//     const double MAX_POS = 0.0;
-//     const double MIN_POS = 0.0;
-// }
 
 namespace IntakeConstants{
     const int WRIST_MOTOR_ID = 4;
@@ -55,22 +42,16 @@ namespace IntakeConstants{
     const double EXTEND_DEPLOY_P = 1.75; // corrects position error
     const double EXTEND_DEPLOY_I = 0.1; // accounts for cumulative pos err
     const double EXTEND_DEPLOY_D = 0.1; // corrects velocity error
-
-    //pid correction to stay stowed
-    const double STOW_P = EXTEND_DEPLOY_P;
-    const double STOW_I = EXTEND_DEPLOY_I;
-    const double STOW_D = EXTEND_DEPLOY_D;
     
     //trapezoidal motion profiling
     const double WRIST_MAX_VEL = 5; //rads per sec
     const double WRIST_MAX_ACC = 10; //rads per sec^2
 
+    // all in rads
     const double WRIST_POS_TOLERANCE = 0.05;
-    const double WRIST_ABS_ENCODER_OFFSET = -1.84 -0.094; //cad says its 0.034 tho
+    const double WRIST_ABS_ENCODER_OFFSET = - 1.84 - 0.094; //cad says 0.094 should b 0.034 but idk
 
-    // wrist positions in radians
-    // using motor's relative encoder so assume that 0.0 is stowed
-    // because it should be zeroed at stowed anyway
+    // wrist positions in radians, 0.0 is parallel to ground and flipping intake up is positive
     const double MAX_POS = 1.85;
     const double STOWED_POS = 1.84;
     const double INTAKE_UPRIGHT_ANGLE = 1.4;
@@ -80,7 +61,7 @@ namespace IntakeConstants{
     const double MIN_POS = 0.0;
     const double DEPLOYED_POS = 0.0;
 
-    const double NORMAL_CURRENT = 15;
+    const double NORMAL_CURRENT = 15; //acc idk
     const double KEEP_CONE_VOLTS = -0.9;
     const double KEEP_CUBE_VOLTS = 0.7;
 

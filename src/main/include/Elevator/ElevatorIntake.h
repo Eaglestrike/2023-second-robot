@@ -18,37 +18,34 @@ class ElevatorIntake{
         };
 
         ElevatorIntake();
+        void Periodic();
         void TeleopPeriodic();
         void Kill();
         void DeployElevatorIntake(double elevatorLength, double intakeDeg);
-        // void IntakeFromCustomPos(double yoff, double targHeight, bool cone);
-        // void OuttakeToCustomPos(double yoff, double targHeight);
         void Stow();
-
+        void ScoreHigh(bool cone);
+        void ScoreMid(bool cone);
+        void ScoreLow(bool cone);
+        void IntakeFromGround(bool cone);
+        void IntakeFromHPS(bool cone);
     private:
-        void dbg();
+        void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo, bool cone, bool outtaking);
+        IntakeElevatorConstants::GamePieceInfo GetGPI(bool cone);
+        void Debug();
+        void DebugScoring();
         void CalcIntakeDeployPos();
-        // void CalcToCustomPose(double yoff, double zoff, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
-        // void CalcToCustomPose(double yoff, double scoringAngle, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
-        // void CalcToCustomPose(double zoff, double scoringAngle, IntakeElevatorConstants::IdealScoreInfo scoreInfo);
-        // void CalcIntakeAngle();
+
+        bool dbg = false;
         
         MechanismState m_state = MOVING;
-        bool m_outtaking, m_cone;
-        bool m_stowing;
-
         MovingState m_movingState = DONE;
+        bool m_outtaking, m_cone;
 
-        //scoring stuff
-        // not used
-        // double m_yoff, m_zoff, m_scorAngle;
-        
-        //stuff fed to children 
+        bool m_stowing;
         double m_targIntakeAng, m_targElevatorPos;
 
-        Intake m_intake;
-        Elevator m_elevator{true, true};
-
+        Elevator m_elevator{true, false};
         // tbh might move lidar out of this 
-        // LidarReader m_lidar;
+        LidarReader m_lidar{true, false};
+        Intake m_intake{m_lidar};
 };

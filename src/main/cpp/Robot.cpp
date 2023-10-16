@@ -330,10 +330,18 @@ void Robot::TeleopPeriodic() {
   }
 
   if (m_posVal && m_heightVal) {
-    vec::Vector2D scorePos = Utils::GetScoringPos(m_posVal, m_heightVal, m_red);
+    FieldConstants::ScorePair scorePair = Utils::GetScoringPos(m_posVal, m_heightVal, m_red);
     double ang = m_joystickAng;
-    // commented out right now because untuned
-    // if this executed the robot will fly to (0, 0)
+
+    vec::Vector2D scorePos = scorePair.first;
+    double lidarOffset = scorePair.second;
+    
+    // if hascone
+    //    scorePos -= {0, blue ? lidarReading - lidarOffset : lidarOffset - lidarReading}
+    // else if hascube
+    //    scorePos += {0, blue ? lidarReading - lidarOffset : lidarOffset - lidarReading}
+
+    // commented out right now because untuned, if this executed the robot will fly to (0, 0)
     // m_autoLineup.SetAbsTargetPose(scorePos, ang);
   }
 

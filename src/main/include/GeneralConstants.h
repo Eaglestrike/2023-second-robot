@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstddef>
+#include <utility>
 
 #include "Util/thirdparty/simplevectors.hpp"
 
@@ -70,51 +71,24 @@ namespace FieldConstants {
   const double FIELD_WIDTH = 16.540988; // in metres
 
   // TODO TUNE
-  const std::vector<std::vector<vec::Vector2D>> BLUE_SCORING_POS {
+  // tuned on blue side, tag id 6
+  using ScorePair = std::pair<vec::Vector2D, double>;
+  const std::vector<std::vector<ScorePair>> BLUE_SCORING_POS {
     { // scoring pos 1
-      {}, // L
-      {}, // M
-      {}, // H
+      {{}, 0}, // L
+      {{}, 0}, // M
+      {{}, 0}, // H
     },
     { // scoring pos 2
-      {}, // L
-      {}, // M
-      {}, // H
+      {{}, 0}, // L
+      {{}, 0}, // M
+      {{}, 0}, // H
     },
     { // scoring pos 3
-      {}, // L
-      {}, // M
-      {}, // H
-    },
-    { // scoring pos 4
-      {}, // L
-      {}, // M
-      {}, // H
-    },
-    { // scoring pos 5
-      {}, // L
-      {}, // M
-      {}, // H
-    },
-    { // scoring pos 6
-      {}, // L
-      {}, // M
-      {}, // H
-    },
-    { // scoring pos 7
-      {}, // L
-      {}, // M
-      {}, // H
-    },
-    { // scoring pos 8
-      {}, // L
-      {}, // M
-      {}, // H
-    },
-    { // scoring pos 9
-      {}, // L
-      {}, // M
-      {}, // H
+      {{}, 0}, // L
+      {{}, 0}, // M
+      {{}, 0}, // H
     },
   };
+  const double DIST_BETWEEN_TAGS = 1.6764;
 }

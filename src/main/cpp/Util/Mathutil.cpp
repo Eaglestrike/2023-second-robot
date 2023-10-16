@@ -222,7 +222,7 @@ std::vector<AutoPaths::SwervePose> Utils::GetRedPoses(std::vector<AutoPaths::Swe
  * 
  * @returns vector pos of scoring position
 */
-vec::Vector2D Utils::GetScoringPos(int pos, int height, bool red) {
+FieldConstants::ScorePair Utils::GetScoringPos(int pos, int height, bool red) {
   if (pos < 1 || pos > 9) {
     return;
   }
@@ -234,14 +234,15 @@ vec::Vector2D Utils::GetScoringPos(int pos, int height, bool red) {
   pos--;
   height--;
 
-  vec::Vector2D vecPos;
-  if (red) {
-    vecPos = FieldConstants::BLUE_SCORING_POS[8 - pos][height];
-    double newX = FieldConstants::FIELD_WIDTH - x(vecPos);
-    x(vecPos, newX);
-  } else {
-    vecPos = FieldConstants::BLUE_SCORING_POS[pos][height];
-  }
+  int idx = red ? 8 - pos : pos;
+  idx = idx % 3;
+  int mult = idx / 3;
 
-  return vecPos;
+  FieldConstants::ScorePair scoreP = FieldConstants::BLUE_SCORING_POS[idx][height];
+  double newX = red ? FieldConstants::FIELD_WIDTH - x(scoreP.first) : x(scoreP.first);
+  double newY = y(scoreP.first) - mult * FieldConstants::DIST_BETWEEN_TAGS;
+  scoreP.first = {newX, newY};
+  // scoreP.second = red ? LIDAR_MAX_DIST - scoreP.second : scoreP.second;
+
+  return scoreP;
 }

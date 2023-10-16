@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Drive/DriveConstants.h"
+#include "GeneralConstants.h"
 #include "thirdparty/simplevectors.hpp"
 #include "Util/UtilConstants.h"
 
@@ -30,5 +31,5 @@ public:
   static double GetAngBetweenVec(const vec::Vector2D v1, const vec::Vector2D v2);
   static AutoPaths::SwervePose GetRedPose(AutoPaths::SwervePose bluePose);
   static std::vector<AutoPaths::SwervePose> GetRedPoses(std::vector<AutoPaths::SwervePose> bluePoses);
-  static vec::Vector2D GetScoringPos(int pos, int height, bool red);
+  static FieldConstants::ScorePair GetScoringPos(int pos, int height, bool red);
 };

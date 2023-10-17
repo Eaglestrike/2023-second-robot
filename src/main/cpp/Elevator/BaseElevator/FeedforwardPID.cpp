@@ -216,6 +216,11 @@ bool FeedforwardPID::isFinished(){
     return timer.Get().value() > velocity_time + acceleration_time*2;
 }
 
+bool FeedforwardPID::atSetpoint(Poses::Pose1D current_pose, double xTol, double vTol){
+    double xError = current_pose.position - setpoint_;
+    double vError = current_pose.velocity;
+    return Utils::NearZero(xError, xTol) && Utils::NearZero(vError, vTol);
+}
 /**
  * @brief Optional method that must be called if PID calculations are wanted.
  *

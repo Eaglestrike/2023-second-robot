@@ -17,6 +17,7 @@
 #include "Elevator/ElevatorIntake.h"
 #include "Drive/SwerveModule.h"
 #include "Util/thirdparty/simplevectors.hpp"
+#include "Util/Mathutil.h"
 
 #include "Elevator/Lidar/LidarReader.h"
 
@@ -44,4 +45,13 @@ class Robot : public frc::TimedRobot {
   Controller m_controller;
 
   ElevatorIntake m_elevatorIntake;
+
+  // IMU acclerometer and gyroscope
+  // Gives information on orientation and acceleration
+  std::shared_ptr<AHRS> m_navx;
+
+  // swerve
+  double m_prevTime;
+  SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
+  SwerveControl *m_swerveController;
 };

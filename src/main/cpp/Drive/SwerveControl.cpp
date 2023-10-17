@@ -24,7 +24,8 @@
 SwerveControl::SwerveControl(RefArray<SwerveModule> modules, bool enabled, bool shuffleboard):
     Mechanism("Swerve Control", enabled, shuffleboard),
     m_modules{modules}, 
-    m_kS{0.0}, m_kV{0.0}, m_kA{0.0}, m_curAngle{0}, m_angleCorrector{0.1, 0, 0.01}
+    m_kS{0.0}, m_kV{0.0}, m_kA{0.0}, m_curAngle{0},
+    m_angleCorrector{SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D}
 {
   m_angleCorrector.EnableContinuousInput(-M_PI, M_PI);
   ResetFeedForward();
@@ -169,7 +170,7 @@ void SwerveControl::CoreInit(){
 void SwerveControl::CorePeriodic(){
   for (auto module : m_modules)
   {
-    module.get().Periodic();
+    module.get().TeleopPeriodic();
   }
 }
 

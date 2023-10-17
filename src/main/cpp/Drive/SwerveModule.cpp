@@ -7,6 +7,8 @@
 #define M_PI 3.141592653589793238462643383279502884197169399
 #endif
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 #include "Drive/DriveConstants.h"
 #include "Util/Mathutil.h"
 
@@ -36,6 +38,13 @@ SwerveModule::SwerveModule(SwerveConstants::SwerveConfig config, bool enabled, b
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);
   // m_encoder.ConfigMagnetOffset(offset);
   m_controller.EnableContinuousInput(-M_PI, M_PI);
+
+  // frc::SmartDashboard::PutNumber("Wheel Radius", SwerveConstants::WHEEL_RADIUS);
+
+  m_angleMotor.SetNeutralMode(NeutralMode::Brake);
+  m_driveMotor.SetNeutralMode(NeutralMode::Brake);
+
+  SetPID(SwerveConstants::TURN_P, SwerveConstants::TURN_I, SwerveConstants::TURN_D);
 }
 
 /**
@@ -187,11 +196,19 @@ void SwerveModule::CoreTeleopPeriodic()
 
   // set voltages to motor
   m_driveMotor.SetVoltage(units::volt_t{speed});
+
+  // don't set angle motor voltage if speed = 0
+  if (Utils::NearZero(speed)) {
+    m_angleMotor.SetVoltage(units::volt_t{0});
+    return;
+  }
+
   m_angleMotor.SetVoltage(units::volt_t{angleOutput});
 }
 
 /**
- * Given current angle and target angle, determines
+ * Given current angle and target angle, determines whether current angle vector should be
+ * flipped so that it minimizes angular distance to target angle.
  *
  * @param curVec current angle, vector form
  * @param targetVec target angle, vector form
@@ -203,12 +220,10 @@ bool SwerveModule::ShouldFlip(vec::Vector2D curVec, vec::Vector2D targetVec)
   vec::Vector2D curNeg = -curVec;
 
   // positive angle
-  double angle1 = std::acos(std::clamp(
-      dot(curVec, targetVec) / (magn(curVec) * magn(targetVec)), -1.0, 1.0));
+  double angle1 = Utils::GetAngBetweenVec(curVec, targetVec);
 
   // negative angle
-  double angle2 = std::acos(std::clamp(
-      dot(curNeg, targetVec) / (magn(curNeg) * magn(targetVec)), -1.0, 1.0));
+  double angle2 = Utils::GetAngBetweenVec(curNeg, targetVec);
 
   return angle2 < angle1;
 }

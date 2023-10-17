@@ -19,7 +19,26 @@
 
 using namespace Actions;
 
-Robot::Robot(){
+Robot::Robot() : 
+  m_prevTime{0},
+  m_swerveFr{SwerveConstants::FR_CONFIG, true, false},
+  m_swerveBr{SwerveConstants::BR_CONFIG, true, false},
+  m_swerveFl{SwerveConstants::FL_CONFIG, true, false},
+  m_swerveBl{SwerveConstants::BL_CONFIG, true, false}
+{
+  // swerve
+  SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
+  m_swerveController = new SwerveControl(moduleArray, true, false);
+
+  // navx
+  try
+  {
+    m_navx = std::make_shared<AHRS>(frc::SerialPort::kMXP);
+  }
+  catch (const std::exception &e)
+  {
+    std::cerr << e.what() << std::endl;
+  }
 }
 
 void Robot::RobotInit(){
@@ -58,6 +77,13 @@ void Robot::RobotPeriodic()
   // if (m_controller.getRawAxis(ELEVATOR_SET_MANUAL) > 0.75) {
   //   // elevator_.setManualVolts(m_controller.getRawAxis(ELEVATOR_RANGE));
   // }
+
+  if (m_controller.getPressedOnce(ZERO_YAW))
+  {
+    m_navx->ZeroYaw();
+    m_swerveController->ResetAngleCorrection();
+  }
+
   m_elevatorIntake.Periodic();
 }
 
@@ -95,10 +121,14 @@ void Robot::TeleopPeriodic() {
   double vy = std::clamp(ly, -1.0, 1.0) * 12.0;
   double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
 
-  double curYaw = m_odometry.GetAng();
+  double curYaw = Utils::DegToRad(m_navx->GetYaw());
+
+  vec::Vector2D setVel = {-vy, -vx};
 
   m_swerveController->SetFeedForward(0, 1, 0);
-  m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
+  m_swerveController->SetRobotVelocity(setVel, w, curYaw, deltaT);
+
+  m_swerveController->Periodic();
 
   m_elevatorIntake.TeleopPeriodic();
   bool cone = m_controller.getPressed(CONE);

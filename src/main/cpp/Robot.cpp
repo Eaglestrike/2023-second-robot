@@ -132,21 +132,22 @@ void Robot::TeleopPeriodic() {
 
   m_elevatorIntake.TeleopPeriodic();
   bool cone = m_controller.getPressed(CONE);
+  m_elevatorIntake.SetCone(cone);
   if(m_controller.getPressed(SCORE_HIGH))
-    m_elevatorIntake.ScoreHigh(cone);
+    m_elevatorIntake.ScoreHigh();
   else if (m_controller.getPressed(SCORE_MID))
-    m_elevatorIntake.ScoreMid(cone);
+    m_elevatorIntake.ScoreMid();
   else if (m_controller.getPressed(SCORE_LOW))
-    m_elevatorIntake.ScoreLow(cone);
+    m_elevatorIntake.ScoreLow();
   else if (m_controller.getPressed(STOW))
     m_elevatorIntake.Stow();
   else if (m_controller.getPressed(HP))
-    m_elevatorIntake.IntakeFromHPS(cone);
+    m_elevatorIntake.IntakeFromHPS();
   else if (m_controller.getRawAxis(GROUND) > 0.75)
-    m_elevatorIntake.IntakeFromGround(cone);
-  else if (m_controller.getPressed(INTAKE))
+    m_elevatorIntake.IntakeFromGround();
+  else if (m_controller.getPressedOnce(INTAKE))
     m_elevatorIntake.ToggleRoller(false);
-  else if (m_controller.getPressed(OUTTAKE))
+  else if (m_controller.getPressedOnce(OUTTAKE))
     m_elevatorIntake.ToggleRoller(true);
 }
 

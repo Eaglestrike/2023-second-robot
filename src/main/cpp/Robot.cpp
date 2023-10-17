@@ -97,9 +97,9 @@ void Robot::TeleopPeriodic() {
   else if (m_controller.getRawAxis(GROUND) > 0.75)
     m_elevatorIntake.IntakeFromGround(cone);
   else if (m_controller.getPressed(INTAKE))
-    m_elevatorIntake.ToggleRoller(false);
+    m_elevatorIntake.ToggleRoller(false, cone);
   else if (m_controller.getPressed(OUTTAKE))
-    m_elevatorIntake.ToggleRoller(true);
+    m_elevatorIntake.ToggleRoller(true, cone);
 }
 
 void Robot::DisabledInit() {}

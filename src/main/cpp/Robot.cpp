@@ -92,10 +92,12 @@ void Robot::TeleopPeriodic() {
     m_elevatorIntake.ScoreLow(cone);
   else if (m_controller.getPressed(STOW))
     m_elevatorIntake.Stow();
-  else if (m_controller.getPressed(HP_INTAKE))
+  else if (m_controller.getPressed(HP))
     m_elevatorIntake.IntakeFromHPS(cone);
-  else if (m_controller.getRawAxis(GROUND_INTAKE) > 0.75)
+  else if (m_controller.getRawAxis(GROUND) > 0.75)
     m_elevatorIntake.IntakeFromGround(cone);
+  else if (m_controller.getPressed(INTAKE))
+    m_elevatorIntake.
 }
 
 void Robot::DisabledInit() {}

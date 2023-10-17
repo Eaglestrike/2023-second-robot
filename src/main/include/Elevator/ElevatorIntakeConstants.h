@@ -62,6 +62,8 @@ namespace IntakeConstants{
     const double DEPLOYED_POS = 0.0;
 
     const double NORMAL_CURRENT = 15; //acc idk
+    const double KEEP_CONE_CURRENT = 5.0;
+    const double KEEP_CUBE_CURRENT = 10.0; 
     const double KEEP_CONE_VOLTS = -0.9;
     const double KEEP_CUBE_VOLTS = 0.7;
 

@@ -18,9 +18,11 @@ class ElevatorIntake{
         };
 
         ElevatorIntake();
+        void Init();
         void Periodic();
         void TeleopPeriodic();
         void Kill();
+        void EnableRollers();
         void DeployElevatorIntake(double elevatorLength, double intakeDeg);
         void Stow();
         void ScoreHigh(bool cone);
@@ -42,10 +44,11 @@ class ElevatorIntake{
         bool m_outtaking, m_cone;
 
         bool m_stowing;
+        bool m_rollers = false;
         double m_targIntakeAng, m_targElevatorPos;
 
         Elevator m_elevator{true, false};
         // tbh might move lidar out of this 
-        LidarReader m_lidar{true, false};
-        Intake m_intake{m_lidar};
+        // LidarReader m_lidar{true, false};
+        Intake m_intake;
 };

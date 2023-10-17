@@ -2,7 +2,7 @@
 #include <iostream>
 
 //constructor j sets motor to brake mode
-Intake::Intake(LidarReader& lidar): m_lidar{lidar}{
+Intake::Intake() {
     m_wristMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     if (dbg){
         frc::SmartDashboard::PutNumber("Setpoint", 0);
@@ -61,7 +61,7 @@ void Intake::TeleopPeriodic(){
                 if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > IntakeConstants::NORMAL_CURRENT) //&& (m_lidar.hasCone() || m_lidar.hasCube()))
                     m_hasGamePiece = true;
                 // else if (!(m_lidar.hasCone() || m_lidar.hasCube()))
-                else if (m_outtaking) // for now..
+                else if (m_outtaking || (m_hasGamePiece && m_rollerMotor.GetOutputCurrent() < (m_cone)? IntakeConstants::KEEP_CONE_CURRENT : IntakeConstants::KEEP_CUBE_CURRENT)) // for now..
                     m_hasGamePiece = false;
             }
             if (m_hasGamePiece)
@@ -120,6 +120,26 @@ void Intake::DeployIntake(bool cone){
     m_cone = cone;
     m_outtaking = false;
     m_state = MOVING;
+}
+
+// deploys the intake to intake a cone or cube
+void Intake::DeployNoRollers(){
+    if (m_targState == DEPLOYED) return;
+    m_targState = DEPLOYED;
+
+    if (m_customDeployPos == -1)
+        m_setPt = IntakeConstants::DEPLOYED_POS;
+    else 
+        m_setPt = m_customDeployPos;
+
+    SetSetpoint(m_setPt);
+    m_rollerVolts = 0;
+    m_state = MOVING;
+}
+
+void Intake::StartRollers(bool outtaking, bool cone){
+    m_cone = cone;
+    m_outtaking = outtaking;
 }
 
 // deploys the intake to outtake a cone or cube

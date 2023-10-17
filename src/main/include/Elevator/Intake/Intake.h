@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Elevator/ElevatorIntakeConstants.h"
-#include "Elevator/Lidar/LidarReader.h"
 #include <ctre/Phoenix.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DutyCycleEncoder.h>
@@ -10,7 +9,7 @@
 
 class Intake{
     public:
-        Intake(LidarReader& lidar);
+        Intake();
 
         enum MechState{
             MOVING,
@@ -30,6 +29,8 @@ class Intake{
         void Periodic();    
         void Stow();
         void HalfStow();
+        void DeployNoRollers();
+        void StartRollers(bool outtaking, bool cone);
         void DeployIntake(bool cone); 
         void DeployOuttake(bool cone);
         void ChangeDeployPos(double newPos); //pos should be in radians, w 0 as extended and parallel to ground
@@ -76,7 +77,6 @@ class Intake{
         double m_rollerVolts;
         double m_customDeployPos =-1, m_customRollerVolts = -1;
 
-        LidarReader& m_lidar;
         bool m_outtaking, m_cone;
         bool m_hasGamePiece = false;
 };

@@ -1,7 +1,6 @@
 #include "Elevator/ElevatorIntake.h"
 
 ElevatorIntake::ElevatorIntake(){
-    m_elevator.Init();
     // m_intake = Intake{m_lidar};
     if (dbg){
         frc::SmartDashboard::PutNumber("elevator len", 0.0);
@@ -11,6 +10,10 @@ ElevatorIntake::ElevatorIntake(){
         frc::SmartDashboard::PutBoolean("outtake", false);
         frc::SmartDashboard::PutBoolean("cone", false);
     }
+}
+
+void ElevatorIntake::Init() {
+    m_elevator.Init();
 }
 
 void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeAng){
@@ -69,6 +72,16 @@ void ElevatorIntake::Periodic(){
     m_elevator.Periodic();
 }
 
+void ElevatorIntake::ToggleRoller(bool outtaking){
+    if (m_rollers){
+        m_intake.StopRollers();
+        m_rollers = false;
+    } else {
+        m_intake.StartRollers(outtaking, m_cone); 
+        m_rollers = true;
+    }
+}
+
 void ElevatorIntake::TeleopPeriodic(){
    if (dbg) Debug();
    DebugScoring();
@@ -99,8 +112,7 @@ void ElevatorIntake::TeleopPeriodic(){
                             m_intake.Stow();
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
-                            if (!m_outtaking) m_intake.DeployIntake(m_cone);
-                            else m_intake.DeployOuttake(m_cone);
+                            m_intake.DeployNoRollers();
                         }
                         m_movingState = INTAKE;
                     }

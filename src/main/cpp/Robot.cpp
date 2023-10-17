@@ -82,6 +82,24 @@ void Robot::TeleopInit() {
 }
 
 void Robot::TeleopPeriodic() {
+  double curTime = Utils::GetCurTimeS();
+  double deltaT = curTime - m_prevTime;
+  m_prevTime = curTime;
+
+  double lx = m_controller.getWithDeadContinuous(SWERVE_STRAFEX, 0.1);
+  double ly = m_controller.getWithDeadContinuous(SWERVE_STRAFEY, 0.1);
+
+  double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION, 0.1);
+
+  double vx = std::clamp(lx, -1.0, 1.0) * 12.0;
+  double vy = std::clamp(ly, -1.0, 1.0) * 12.0;
+  double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
+
+  double curYaw = m_odometry.GetAng();
+
+  m_swerveController->SetFeedForward(0, 1, 0);
+  m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
+
   m_elevatorIntake.TeleopPeriodic();
   bool cone = m_controller.getPressed(CONE);
   if(m_controller.getPressed(SCORE_HIGH))

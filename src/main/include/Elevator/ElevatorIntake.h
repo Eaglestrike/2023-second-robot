@@ -22,7 +22,7 @@ class ElevatorIntake{
         void Periodic();
         void TeleopPeriodic();
         void Kill();
-        void EnableRollers();
+        void ToggleRoller(bool outtaking);
         void DeployElevatorIntake(double elevatorLength, double intakeDeg);
         void Stow();
         void ScoreHigh(bool cone);

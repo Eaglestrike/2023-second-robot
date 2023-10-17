@@ -99,32 +99,13 @@ void Intake::HalfStow(){
 
 // deploys the intake to intake a cone or cube
 void Intake::DeployIntake(bool cone){
-    if (m_targState == DEPLOYED) return;
-    m_targState = DEPLOYED;
-
-    if (m_customDeployPos == -1)
-        m_setPt = IntakeConstants::DEPLOYED_POS;
-    else 
-        m_setPt = m_customDeployPos;
-
-    SetSetpoint(m_setPt);
-
-    if(m_customRollerVolts == -1)
-        m_rollerVolts = IntakeConstants::ROLLER_MAX_VOLTS;
-    else 
-        m_rollerVolts = m_customRollerVolts;
-
-    if (cone)
-        m_rollerVolts *= -1;
-    
-    m_cone = cone;
-    m_outtaking = false;
-    m_state = MOVING;
+    DeployNoRollers();
+    StartRollers(false, cone);
 }
 
 // deploys the intake to intake a cone or cube
 void Intake::DeployNoRollers(){
-    if (m_targState == DEPLOYED) return;
+     if (m_targState == DEPLOYED) return;
     m_targState = DEPLOYED;
 
     if (m_customDeployPos == -1)
@@ -140,13 +121,24 @@ void Intake::DeployNoRollers(){
 void Intake::StartRollers(bool outtaking, bool cone){
     m_cone = cone;
     m_outtaking = outtaking;
+
+    if(m_customRollerVolts == -1)
+        m_rollerVolts = IntakeConstants::ROLLER_MAX_VOLTS;
+    else 
+        m_rollerVolts = m_customRollerVolts;
+
+    if (cone)
+        m_rollerVolts *= -1;
+}
+
+void Intake::StopRollers(){
+    m_rollerVolts = 0;
 }
 
 // deploys the intake to outtake a cone or cube
 void Intake::DeployOuttake(bool cone){
-    DeployIntake(!cone);
-    m_cone = cone;
-    m_outtaking = true;
+    DeployNoRollers();
+    StartRollers(true, cone);
 }
 
 //changes the position the intake will deploy to when a deploy method iscalled

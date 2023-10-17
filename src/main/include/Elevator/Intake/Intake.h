@@ -30,6 +30,7 @@ class Intake{
         void Stow();
         void HalfStow();
         void DeployNoRollers();
+        void StopRollers();
         void StartRollers(bool outtaking, bool cone);
         void DeployIntake(bool cone); 
         void DeployOuttake(bool cone);

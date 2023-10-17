@@ -75,6 +75,11 @@ void Intake::TeleopPeriodic(){
         frc::SmartDashboard::PutNumber("wrist volts", wristVolts);
         frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
     } 
+    frc::SmartDashboard::PutBoolean("cone", m_cone);
+    frc::SmartDashboard::PutBoolean("outtaking", m_outtaking);
+    frc::SmartDashboard::PutBoolean("has gp", m_hasGamePiece);
+    frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
+    frc::SmartDashboard::PutNumber("roller current", m_wristMotor.GetOutputCurrent());
     m_wristMotor.SetVoltage(units::volt_t(std::clamp(-wristVolts, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
     m_rollerMotor.SetVoltage(units::volt_t(std::clamp(rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
 }

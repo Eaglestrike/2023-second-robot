@@ -22,14 +22,15 @@ class ElevatorIntake{
         void Periodic();
         void TeleopPeriodic();
         void Kill();
-        void ToggleRoller(bool outtaking, bool cone);
+        void ToggleRoller(bool outtaking);
         void DeployElevatorIntake(double elevatorLength, double intakeDeg);
         void Stow();
-        void ScoreHigh(bool cone);
-        void ScoreMid(bool cone);
-        void ScoreLow(bool cone);
-        void IntakeFromGround(bool cone);
-        void IntakeFromHPS(bool cone);
+        void SetCone(bool cone);
+        void ScoreHigh();
+        void ScoreMid();
+        void ScoreLow();
+        void IntakeFromGround();
+        void IntakeFromHPS();
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);
         IntakeElevatorConstants::GamePieceInfo GetGPI(bool cone);
@@ -42,6 +43,7 @@ class ElevatorIntake{
         MechanismState m_state = MOVING;
         MovingState m_movingState = DONE;
         // bool m_outtaking, m_cone;
+        bool m_cone;
 
         bool m_stowing;
         bool m_rollers = false;

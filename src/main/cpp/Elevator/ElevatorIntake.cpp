@@ -75,6 +75,7 @@ void ElevatorIntake::DebugScoring(){
     frc::SmartDashboard::PutNumber("intake acc angle", m_intake.GetPos());
     frc::SmartDashboard::PutNumber("elevator targ pos", m_targElevatorPos);
     frc::SmartDashboard::PutNumber("intake targ angle", m_targIntakeAng);
+    frc::SmartDashboard::PutBoolean("rollers", m_rollers);
 
     curGPInfo = {{frc::SmartDashboard::GetNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG), 
     frc::SmartDashboard::GetNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE)},{
@@ -93,12 +94,12 @@ void ElevatorIntake::Periodic(){
     m_elevator.Periodic();
 }
 
-void ElevatorIntake::ToggleRoller(bool outtaking, bool cone ){
+void ElevatorIntake::ToggleRoller(bool outtaking){
     if (m_rollers){
         m_intake.StopRollers();
         m_rollers = false;
     } else {
-        m_intake.StartRollers(outtaking, cone); 
+        m_intake.StartRollers(outtaking, m_cone); 
         m_rollers = true;
     }
     // m_cone = cone;
@@ -156,23 +157,27 @@ void ElevatorIntake::Kill(){
     m_state = STOPPED;
 }
 
-void ElevatorIntake::ScoreHigh(bool cone){
-    DeployElevatorIntake(GetGPI(cone).SCORE_HIGH);
+void ElevatorIntake::SetCone(bool cone){
+    m_cone = cone;
 }
 
-void ElevatorIntake::ScoreMid(bool cone){
-    DeployElevatorIntake(GetGPI(cone).SCORE_MID);
-}
-void ElevatorIntake::ScoreLow(bool cone){
-   DeployElevatorIntake(GetGPI(cone).SCORE_LOW);
+void ElevatorIntake::ScoreHigh(){
+    DeployElevatorIntake(GetGPI(m_cone).SCORE_HIGH);
 }
 
-void ElevatorIntake::IntakeFromGround(bool cone){
-   DeployElevatorIntake(GetGPI(cone).GROUND_INTAKE);
+void ElevatorIntake::ScoreMid(){
+    DeployElevatorIntake(GetGPI(m_cone).SCORE_MID);
+}
+void ElevatorIntake::ScoreLow(){
+   DeployElevatorIntake(GetGPI(m_cone).SCORE_LOW);
 }
 
-void ElevatorIntake::IntakeFromHPS(bool cone){
-   DeployElevatorIntake(GetGPI(cone).HP_INTAKE);
+void ElevatorIntake::IntakeFromGround(){
+   DeployElevatorIntake(GetGPI(m_cone).GROUND_INTAKE);
+}
+
+void ElevatorIntake::IntakeFromHPS(){
+   DeployElevatorIntake(GetGPI(m_cone).HP_INTAKE);
 }
 
 IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){

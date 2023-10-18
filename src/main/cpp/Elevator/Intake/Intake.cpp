@@ -58,10 +58,10 @@ void Intake::TeleopPeriodic(){
             wristVolts = FFPIDCalculate();
             if (m_targState == DEPLOYED){
                 rollerVolts = m_rollerVolts;
-                if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > IntakeConstants::NORMAL_CURRENT) //&& (m_lidar.hasCone() || m_lidar.hasCube()))
+                if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > IntakeConstants::NORMAL_CURRENT && Utils::GetCurTimeS() > m_rollerStartTime + 0.5) //&& (m_lidar.hasCone() || m_lidar.hasCube()))
                     m_hasGamePiece = true;
                 // else if (!(m_lidar.hasCone() || m_lidar.hasCube()))
-                else if (m_outtaking || (m_hasGamePiece && m_rollerMotor.GetOutputCurrent() < (m_cone)? IntakeConstants::KEEP_CONE_CURRENT : IntakeConstants::KEEP_CUBE_CURRENT)) // for now..
+                else if (m_outtaking) // || (m_hasGamePiece && m_rollerMotor.GetOutputCurrent() < (m_cone)? IntakeConstants::KEEP_CONE_CURRENT : IntakeConstants::KEEP_CUBE_CURRENT)) // for now..
                     m_hasGamePiece = false;
             }
             if (m_hasGamePiece)
@@ -134,6 +134,8 @@ void Intake::StartRollers(bool outtaking, bool cone){
 
     if (cone)
         m_rollerVolts *= -1;
+
+    m_rollerStartTime = Utils::GetCurTimeS();
 }
 
 void Intake::StopRollers(){

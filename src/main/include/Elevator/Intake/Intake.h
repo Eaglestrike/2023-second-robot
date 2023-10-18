@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Elevator/ElevatorIntakeConstants.h"
+#include "Util/Mathutil.h"
 #include <ctre/Phoenix.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DutyCycleEncoder.h>
@@ -74,6 +75,8 @@ class Intake{
         double m_targetPos = m_setPt, m_targetVel =0 , m_targetAcc = 0; // motion profile 
         double m_speedDecreasePos, // pos in motion profile where start decelerating
                m_totalErr = 0; // integral of position error for PID
+
+        double m_rollerStartTime;
 
         double m_rollerVolts;
         double m_customDeployPos =-1, m_customRollerVolts = -1;

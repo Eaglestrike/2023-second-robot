@@ -42,6 +42,7 @@ Robot::Robot() :
 }
 
 void Robot::RobotInit(){
+  m_elevatorIntake.Init();
 }
 
 /**
@@ -77,6 +78,10 @@ void Robot::RobotPeriodic()
   // if (m_controller.getRawAxis(ELEVATOR_SET_MANUAL) > 0.75) {
   //   // elevator_.setManualVolts(m_controller.getRawAxis(ELEVATOR_RANGE));
   // }
+
+  if (m_controller.getPressedOnce(ZERO_DRIVE_PID)) {
+    m_elevatorIntake.UpdateShuffleboard();
+  }
 
   if (m_controller.getPressedOnce(ZERO_YAW))
   {

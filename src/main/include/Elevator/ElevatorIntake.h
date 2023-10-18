@@ -31,6 +31,7 @@ class ElevatorIntake{
         void ScoreLow();
         void IntakeFromGround();
         void IntakeFromHPS();
+        void UpdateShuffleboard();
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);
         IntakeElevatorConstants::GamePieceInfo GetGPI(bool cone);

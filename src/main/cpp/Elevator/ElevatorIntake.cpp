@@ -26,6 +26,10 @@ void ElevatorIntake::Init() {
     m_elevator.Init();
 }
 
+void ElevatorIntake::UpdateShuffleboard() {
+    m_elevator.UpdateShuffleboard();
+}
+
 void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeAng){
     m_state = MOVING;
     m_movingState = HALFSTOWING;

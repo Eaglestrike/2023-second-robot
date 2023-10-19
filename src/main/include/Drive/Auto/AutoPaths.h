@@ -9,9 +9,9 @@ class AutoPaths {
 
         AutoPaths(double next_start);
 
-        void periodic();
+        virtual void periodic() = 0;
         ExecuteState getCurrentState();
-        double getCompletionPercentage();
+        virtual double getCompletionPercentage() = 0;
 
     protected:
         ExecuteState current_state_ = NOT_EXECUTING;

@@ -7,5 +7,6 @@ class AutoStage {
         void periodic();
 
     private:
-        std::vector<AutoPaths> paths;
+        std::vector<AutoPaths> all_paths;
+        std::vector<AutoPaths> paths_being_executed;
 };

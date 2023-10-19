@@ -9,4 +9,8 @@ class AutoStage {
     private:
         std::vector<AutoPaths> all_paths;
         std::vector<AutoPaths> paths_being_executed;
+
+        const double COMPLETION_TOLERANCE = 0.1;
+
+        void transferIntoCurrentExecutionVector();
 };

@@ -42,20 +42,20 @@ class Robot : public frc::TimedRobot {
  private:
   // IMU acclerometer and gyroscope
   // Gives information on orientation and acceleration
-  std::shared_ptr<AHRS> m_navx;
+  //std::shared_ptr<AHRS> m_navx;
 
   // swerve
-  SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
-  std::shared_ptr<SwerveControl> m_swerveController;
+  // SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
+  // std::shared_ptr<SwerveControl> m_swerveController;
 
   //Controller
-  Controller m_controller;
+  //Controller m_controller;
 
   //Lidar TODO remove
   LidarReader lidar_;
 
-  Intake m_intake;
+  //Intake m_intake;
 
   // temp odometry
-  vec::Vector2D m_pos;
+  // vec::Vector2D m_pos;
 };

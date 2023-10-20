@@ -1,5 +1,10 @@
 #pragma once
 
+#include <atomic>
+#include <string>
+#include <thread>
+#include <vector>
+
 #include <frc/SerialPort.h>
 #include <frc/Timer.h>
 
@@ -55,12 +60,15 @@ class LidarReader : public Mechanism{
         bool isValidData(const char data[4]);
         void findOffset();
 
+        std::thread thread_;
+
         bool autoRequest_;
 
         frc::SerialPort port_;
         double reqTime_; //Time since last request
         bool isRequesting_; //If currently there is a call
 
+        char clearBuffer_[1024];
         char readBuffer_[8]; //Reads to this char array
         char readData_[8]; //[4 old values (for checks/adjustments), RES, cone, cube, check]
         int readIndex_ = 0; //Number of bytes currently read

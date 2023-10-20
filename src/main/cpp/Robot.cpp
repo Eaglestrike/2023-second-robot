@@ -20,32 +20,35 @@
 using namespace Actions;
 
 Robot::Robot():
-      m_swerveFr(SwerveConstants::FR_CONFIG, true, true),
-      m_swerveBr(SwerveConstants::BR_CONFIG, true, true),
-      m_swerveFl(SwerveConstants::FL_CONFIG, true, true),
-      m_swerveBl(SwerveConstants::BL_CONFIG, true, true),
+      // m_swerveFr(SwerveConstants::FR_CONFIG, true, true),
+      // m_swerveBr(SwerveConstants::BR_CONFIG, true, true),
+      // m_swerveFl(SwerveConstants::FL_CONFIG, true, true),
+      // m_swerveBl(SwerveConstants::BL_CONFIG, true, true),
       lidar_(true, true)
 {
   // swerve
-  SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
-  m_swerveController = std::make_shared<SwerveControl>(moduleArray, false, false);
+  // SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
+  // m_swerveController = std::make_shared<SwerveControl>(moduleArray, false, false);
 
-  // navx
-  try
-  {
-    m_navx = std::make_shared<AHRS>(frc::SerialPort::kMXP);
-  }
-  catch (const std::exception &e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
+  // // navx
+  // try
+  // {
+  //   m_navx = std::make_shared<AHRS>(frc::SerialPort::kMXP);
+  // }
+  // catch (const std::exception &e)
+  // {
+  //   std::cerr << e.what() << std::endl;
+  // }
+  AddPeriodic([&]{
+    lidar_.Periodic();
+  }, 1_ms, 2_ms);
 }
 
 void Robot::RobotInit(){
-  m_navx->ZeroYaw();
+  // m_navx->ZeroYaw();
 
-  m_swerveController->Init();
-  m_swerveController->SetFeedForward(0.0 , 1.0, 0.0);
+  // m_swerveController->Init();
+  // m_swerveController->SetFeedForward(0.0 , 1.0, 0.0);
 
   lidar_.Init();
 }
@@ -60,22 +63,22 @@ void Robot::RobotInit(){
  */
 void Robot::RobotPeriodic()
 {
-  lidar_.Periodic();
+  //lidar_.Periodic();
 
-  if (m_controller.getPressed(ZERO_DRIVE_PID))
-  {
-    m_swerveFl.UpdateShuffleboard();
-    m_swerveFr.UpdateShuffleboard();
-    m_swerveBl.UpdateShuffleboard();
-    m_swerveBr.UpdateShuffleboard();
-  }
+  // if (m_controller.getPressed(ZERO_DRIVE_PID))
+  // {
+  //   m_swerveFl.UpdateShuffleboard();
+  //   m_swerveFr.UpdateShuffleboard();
+  //   m_swerveBl.UpdateShuffleboard();
+  //   m_swerveBr.UpdateShuffleboard();
+  // }
 
-  if (m_controller.getPressed(ZERO_YAW))
-  {
-    m_navx->ZeroYaw();
-    m_swerveController->ResetAngleCorrection();
-    m_pos = {0, 0};
-  }
+  // if (m_controller.getPressed(ZERO_YAW))
+  // {
+  //   m_navx->ZeroYaw();
+  //   m_swerveController->ResetAngleCorrection();
+  //   m_pos = {0, 0};
+  // }
 }
 
 /**
@@ -98,7 +101,7 @@ void Robot::AutonomousPeriodic(){
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  m_intake.TeleopPeriodic();
+  //m_intake.TeleopPeriodic();
 }
 
 void Robot::DisabledInit() {}

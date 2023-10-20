@@ -22,6 +22,8 @@ LidarReader::LidarReader(bool enabled, bool shuffleboard):
             .isValid = false,
             .readTime = time
         };
+    port_.SetTimeout(1_s);
+    port_.EnableTermination('\n');
 }
 
 /// @brief Requests Lidar for data
@@ -32,6 +34,7 @@ void LidarReader::RequestData(){
     port_.Write(LidarReaderConstants::REQ, 1);
     reqTime_ = frc::Timer::GetFPGATimestamp().value();
     isRequesting_ = true;
+    std::cout<<"Requesting"<<std::endl;
 }
 
 /// @brief Should be called in perioidic - reads port and stores data
@@ -39,6 +42,7 @@ void LidarReader::CorePeriodic(){
     double time = frc::Timer::GetFPGATimestamp().value();
     
     frc::SmartDashboard::PutBoolean("Lidar Stale", data_.isValid);
+    frc::SmartDashboard::PutNumber("Port read size", port_.GetBytesReceived());
 
     if(autoRequest_){
         RequestData();
@@ -64,27 +68,6 @@ void LidarReader::CorePeriodic(){
     readData();
 }
 
-void LidarReader::CoreShuffleboardInit(){
-    frc::SmartDashboard::PutBoolean("Get Data", false);
-    frc::SmartDashboard::PutBoolean("Auto Request", false);
-    frc::SmartDashboard::PutNumber("Cone Pos", getConePos());
-    frc::SmartDashboard::PutNumber("Cube Pos", getCubePos());
-    frc::SmartDashboard::PutBoolean("Has Cube", hasCube());
-    frc::SmartDashboard::PutBoolean("Has Cone", hasCone());
-}
-
-void LidarReader::CoreShuffleboardPeriodic(){
-    setAutoRequest(frc::SmartDashboard::GetBoolean("Auto Request", false));
-    if(frc::SmartDashboard::GetBoolean("Get Data", false)){
-        RequestData();
-        frc::SmartDashboard::PutBoolean("Get Data", false);
-    }
-    frc::SmartDashboard::PutNumber("Cone Pos", getConePos());
-    frc::SmartDashboard::PutNumber("Cube Pos", getCubePos());
-    frc::SmartDashboard::PutBoolean("Has Cube", hasCube());
-    frc::SmartDashboard::PutBoolean("Has Cone", hasCone());
-}
-
 /// @brief Sets the autorequest config
 /// @param autoRequest requests data if invalid data
 void LidarReader::setAutoRequest(bool autoRequest){
@@ -100,13 +83,25 @@ void LidarReader::readData(){
     }
     
     //Read Data
-    if(bufferSize > 8){
-        std::cout<<"Big Lidar Buffer"<<std::endl;
-        for(int s = 0; s < bufferSize - 8; s += 4){ //Clear Buffer in intervals of 
-            port_.Read(readBuffer_, 4);
-        }
+    if(bufferSize > 1000){ //If disconnected, port gets filled
+        port_.Reset();
+        return;
     }
+
+    while (bufferSize > 8){
+        std::cout<<"Big Lidar Buffer"<<std::endl;
+        std::cout<<"Buffer size " << bufferSize << " " << port_.GetBytesReceived() <<std::endl;
+        int cleared = port_.Read(clearBuffer_, std::min(1024, bufferSize - 8));
+        bufferSize -= cleared;
+    }
+
+    std::cout<<"buffer size "<<port_.GetBytesReceived()<<std::endl;
     int count = port_.Read(readBuffer_, 8);
+    std::cout<<"count "<<count<<std::endl;
+    for(int i = 0; i < 8; i++){
+        std::cout<<int(readBuffer_[i])<<" ";
+    }
+    std::cout<<std::endl;
 
     //Verify and store data
     for(int i = 0; i < count; i++){
@@ -209,4 +204,27 @@ bool LidarReader::validData(){
 /// @return seconds
 double LidarReader::getRecordedTime(){
     return data_.readTime;
+}
+
+void LidarReader::CoreShuffleboardInit(){
+    frc::SmartDashboard::PutBoolean("Get Data", false);
+    frc::SmartDashboard::PutBoolean("Auto Request", false);
+    frc::SmartDashboard::PutNumber("Cone Pos", getConePos());
+    frc::SmartDashboard::PutNumber("Cube Pos", getCubePos());
+    frc::SmartDashboard::PutBoolean("Has Cube", hasCube());
+    frc::SmartDashboard::PutBoolean("Has Cone", hasCone());
+    frc::SmartDashboard::PutBoolean("Is Requesting", isRequesting_);
+}
+
+void LidarReader::CoreShuffleboardPeriodic(){
+    setAutoRequest(frc::SmartDashboard::GetBoolean("Auto Request", false));
+    if(frc::SmartDashboard::GetBoolean("Get Data", false)){
+        RequestData();
+        frc::SmartDashboard::PutBoolean("Get Data", false);
+    }
+    frc::SmartDashboard::PutNumber("Cone Pos", getConePos());
+    frc::SmartDashboard::PutNumber("Cube Pos", getCubePos());
+    frc::SmartDashboard::PutBoolean("Has Cube", hasCube());
+    frc::SmartDashboard::PutBoolean("Has Cone", hasCone());
+    frc::SmartDashboard::PutBoolean("Is Requesting", isRequesting_);
 }

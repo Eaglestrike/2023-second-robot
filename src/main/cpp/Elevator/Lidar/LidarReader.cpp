@@ -34,14 +34,13 @@ void LidarReader::RequestData(){
     port_.Write(LidarReaderConstants::REQ, 1);
     reqTime_ = frc::Timer::GetFPGATimestamp().value();
     isRequesting_ = true;
-    std::cout<<"Requesting"<<std::endl;
 }
 
 /// @brief Should be called in perioidic - reads port and stores data
 void LidarReader::CorePeriodic(){
     double time = frc::Timer::GetFPGATimestamp().value();
     
-    frc::SmartDashboard::PutBoolean("Lidar Stale", data_.isValid);
+    frc::SmartDashboard::PutBoolean("Lidar Stale", !data_.isValid);
     frc::SmartDashboard::PutNumber("Port read size", port_.GetBytesReceived());
 
     if(autoRequest_){
@@ -84,24 +83,17 @@ void LidarReader::readData(){
     
     //Read Data
     if(bufferSize > 1000){ //If disconnected, port gets filled
+        std::cout<<"Reset Port"<<std::endl;
         port_.Reset();
         return;
     }
 
-    while (bufferSize > 8){
-        std::cout<<"Big Lidar Buffer"<<std::endl;
-        std::cout<<"Buffer size " << bufferSize << " " << port_.GetBytesReceived() <<std::endl;
+    while (bufferSize > 8){ //Clear port
         int cleared = port_.Read(clearBuffer_, std::min(1024, bufferSize - 8));
         bufferSize -= cleared;
     }
 
-    std::cout<<"buffer size "<<port_.GetBytesReceived()<<std::endl;
     int count = port_.Read(readBuffer_, 8);
-    std::cout<<"count "<<count<<std::endl;
-    for(int i = 0; i < 8; i++){
-        std::cout<<int(readBuffer_[i])<<" ";
-    }
-    std::cout<<std::endl;
 
     //Verify and store data
     for(int i = 0; i < count; i++){
@@ -126,11 +118,11 @@ void LidarReader::readData(){
 }
 
 /// @brief stores the data
-void LidarReader::storeData(const char data[4]){
-    data_.hasCone = readData_[1] == LidarReaderConstants::NO_READ;
-    data_.hasCube = readData_[2] == LidarReaderConstants::NO_READ;
-    data_.hasCone = data_.hasCone? ((double)readData_[1]) : LidarReaderConstants::DEFAULT_POSITION;
-    data_.hasCube = data_.hasCube? ((double)readData_[2]) : LidarReaderConstants::DEFAULT_POSITION;
+void LidarReader::storeData(const unsigned char data[4]){
+    data_.hasCone = (readData_[1] != LidarReaderConstants::NO_READ);
+    data_.hasCube = (readData_[2] != LidarReaderConstants::NO_READ);
+    data_.conePos = data_.hasCone? ((double)readData_[1]) : LidarReaderConstants::DEFAULT_POSITION;
+    data_.cubePos = data_.hasCube? ((double)readData_[2]) : LidarReaderConstants::DEFAULT_POSITION;
     data_.isValid = true;
     data_.readTime = frc::Timer::GetFPGATimestamp().value();
 }
@@ -138,13 +130,13 @@ void LidarReader::storeData(const char data[4]){
 /// @brief Checks if data is valid via the check sum and response key
 /// @param data 4 chars
 /// @return boolean
-bool LidarReader::isValidData(const char data[4]){
+bool LidarReader::isValidData(const unsigned char data[4]){
     //Respond invalid
     if(data[0] != LidarReaderConstants::RES){
         return false;
     }
     //Check sum
-    if((data[0] + data[1] + data[2]) % 256 != data[4]){
+    if(((data[0] + data[1] + data[2]) % 256) != data[3]){
         return false;
     }
     return true;
@@ -214,6 +206,7 @@ void LidarReader::CoreShuffleboardInit(){
     frc::SmartDashboard::PutBoolean("Has Cube", hasCube());
     frc::SmartDashboard::PutBoolean("Has Cone", hasCone());
     frc::SmartDashboard::PutBoolean("Is Requesting", isRequesting_);
+    frc::SmartDashboard::PutNumber("Read Time", data_.readTime);
 }
 
 void LidarReader::CoreShuffleboardPeriodic(){
@@ -227,4 +220,5 @@ void LidarReader::CoreShuffleboardPeriodic(){
     frc::SmartDashboard::PutBoolean("Has Cube", hasCube());
     frc::SmartDashboard::PutBoolean("Has Cone", hasCone());
     frc::SmartDashboard::PutBoolean("Is Requesting", isRequesting_);
+    frc::SmartDashboard::PutNumber("Read Time", data_.readTime);
 }

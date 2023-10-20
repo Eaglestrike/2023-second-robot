@@ -21,7 +21,7 @@ namespace LidarReaderConstants{
 
     const double VALID_DATA_TIME = 3.0; //Time in which data is valid
 
-    const char NO_READ = 255; //Value if lidar doesn't see anything
+    const unsigned char NO_READ = 255; //Value if lidar doesn't see anything
 
     const double DEFAULT_POSITION = 30.0; //cm
 };
@@ -56,8 +56,8 @@ class LidarReader : public Mechanism{
         void CoreShuffleboardPeriodic() override;
 
         void readData();
-        void storeData(const char data[4]);
-        bool isValidData(const char data[4]);
+        void storeData(const unsigned char data[4]);
+        bool isValidData(const unsigned char data[4]);
         void findOffset();
 
         std::thread thread_;
@@ -70,7 +70,7 @@ class LidarReader : public Mechanism{
 
         char clearBuffer_[1024];
         char readBuffer_[8]; //Reads to this char array
-        char readData_[8]; //[4 old values (for checks/adjustments), RES, cone, cube, check]
+        unsigned char readData_[8]; //[4 old values (for checks/adjustments), RES, cone, cube, check]
         int readIndex_ = 0; //Number of bytes currently read
 
         LidarData data_;

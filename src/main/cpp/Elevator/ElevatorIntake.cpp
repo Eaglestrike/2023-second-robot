@@ -35,7 +35,7 @@ void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeAn
     m_movingState = HALFSTOWING;
     m_targElevatorPos = elevatorLength;
     m_targIntakeAng = intakeAng;
-    m_stowing = false;
+    m_intake.SetHPIntake(false);
 }
 
 void ElevatorIntake::Stow(){
@@ -43,7 +43,7 @@ void ElevatorIntake::Stow(){
     m_movingState = HALFSTOWING;
     m_targElevatorPos = ElevatorConstants::STOWED_HEIGHT;
     m_targIntakeAng =  IntakeConstants::STOWED_POS;
-    m_stowing = true;
+    m_targState = STOWED;
 }
 
 void ElevatorIntake::Debug(){
@@ -127,7 +127,7 @@ void ElevatorIntake::TeleopPeriodic(){
                     if (m_intake.GetTargetState() != Intake::HALFSTOWED)
                         m_intake.HalfStow();
                     else if (m_intake.GetState() == Intake::AT_TARGET){
-                        if(m_stowing)
+                        if(m_targElevatorPos == STOWED)
                             m_elevator.Stow();
                         else
                             m_elevator.ExtendToCustomPos(m_targElevatorPos);
@@ -136,7 +136,7 @@ void ElevatorIntake::TeleopPeriodic(){
                     break;
                 case ELEVATOR:
                     if (m_elevator.getState() == Elevator::HOLDING_POS){    
-                        if (m_stowing){
+                        if (m_targState == STOWED){
                             m_intake.Stow();
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
@@ -167,22 +167,28 @@ void ElevatorIntake::SetCone(bool cone){
 }
 
 void ElevatorIntake::ScoreHigh(){
+    m_targState = HIGH;
     DeployElevatorIntake(GetGPI(m_cone).SCORE_HIGH);
 }
 
 void ElevatorIntake::ScoreMid(){
+    m_targState = MID;
     DeployElevatorIntake(GetGPI(m_cone).SCORE_MID);
 }
 void ElevatorIntake::ScoreLow(){
+    m_targState = LOW;
    DeployElevatorIntake(GetGPI(m_cone).SCORE_LOW);
 }
 
 void ElevatorIntake::IntakeFromGround(){
+    m_targState = GROUND;
    DeployElevatorIntake(GetGPI(m_cone).GROUND_INTAKE);
 }
 
 void ElevatorIntake::IntakeFromHPS(){
+    m_targState = HP;
    DeployElevatorIntake(GetGPI(m_cone).HP_INTAKE);
+   m_intake.SetHPIntake(true);
 }
 
 IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){

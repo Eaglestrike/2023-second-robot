@@ -32,7 +32,8 @@ class Intake{
         void HalfStow();
         void DeployNoRollers();
         void StopRollers();
-        void StartRollers(bool outtaking, bool cone, bool intakeHP = false);
+        void StartRollers(bool outtaking, bool cone);
+        void SetHPIntake(bool hp);
         void DeployIntake(bool cone); 
         void DeployOuttake(bool cone);
         void ChangeDeployPos(double newPos); //pos should be in radians, w 0 as extended and parallel to ground

@@ -17,6 +17,15 @@ class ElevatorIntake{
             DONE
         };
 
+        enum TargetState{
+            STOWED,
+            LOW,
+            MID,
+            HIGH,
+            HP,
+            GROUND
+        };
+
         ElevatorIntake();
         void Init();
         void Periodic();
@@ -47,9 +56,9 @@ class ElevatorIntake{
         
         MechanismState m_state = MOVING;
         MovingState m_movingState = DONE;
+        TargetState m_targState;
         bool m_cone;
 
-        bool m_stowing;
         bool m_rollers = false;
         double m_targIntakeAng, m_targElevatorPos;
 

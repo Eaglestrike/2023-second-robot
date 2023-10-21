@@ -27,6 +27,7 @@ namespace Actions{
         MANUAL2,
         ELEVATOR_H,
         INTAKE_ANG,
+        AUTO_LINEUP,
         ACTION_COUNT //Just the number of actions, as it is at the end of a enum
     };
 
@@ -56,11 +57,11 @@ namespace ControllerMapData{
         {{LJOY, TRIGGER},       ZERO_DRIVE_PID},
         {{LJOY, B_4},           INTAKE},
         {{RJOY, B_3},           OUTTAKE},
-
+        {{LJOY, B_2},           AUTO_LINEUP}, 
         {{RJOY, X_AXIS},        SWERVE_ROTATION},
         {{RJOY, Y_AXIS},        NONE},
         {{RJOY, TRIGGER},       ZERO_YAW},
-        
+
         {XBOX_LJOY_X,           NONE},
         {XBOX_LJOY_Y,           ELEVATOR_H}, 
         {XBOX_RJOY_X,           INTAKE_ANG},

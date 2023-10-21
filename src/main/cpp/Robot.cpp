@@ -367,6 +367,9 @@ void Robot::TeleopPeriodic() {
   frc::SmartDashboard::PutNumber("score pos val", posVal);
   frc::SmartDashboard::PutNumber("Height val", heightVal);
 
+  frc::SmartDashboard::PutString("cur tgt pos", m_autoLineup.GetTargetPos().toString());
+  frc::SmartDashboard::PutNumber("cur tgt Ang", m_autoLineup.GetTargetAng());
+
   if (m_posVal && m_heightVal) {
     FieldConstants::ScorePair scorePair = Utils::GetScoringPos(m_posVal, m_heightVal, m_red);
     double ang = m_joystickAng;
@@ -380,7 +383,7 @@ void Robot::TeleopPeriodic() {
     //    scorePos += {0, blue ? lidarReading - lidarOffset : lidarOffset - lidarReading}
 
     // commented out right now because untuned, if this executed the robot will fly to (0, 0)
-    // m_autoLineup.SetAbsTargetPose(scorePos, ang);
+    m_autoLineup.SetAbsTargetPose(scorePos, ang);
   }
 
   // trim, offset shold be opposite direction of offset so it moves correct direction
@@ -402,23 +405,14 @@ void Robot::TeleopPeriodic() {
   AutoLineup::ExecuteState curPosAutoState = m_autoLineup.GetPosExecuteState();
   AutoLineup::ExecuteState curAngAutoState = m_autoLineup.GetAngExecuteState();
 
-  // if (m_controller.getPressedOnce(START_POS_AUTO)) {
-  //   if (curPosAutoState != AutoLineup::EXECUTING_TARGET) {
-  //     m_autoLineup.StartPosMove();
-  //   } else {
-  //     m_autoLineup.StopPos();
-  //   }
-  // }
+  if (m_controller.getPressed(AUTO_LINEUP)) {
+    if (curPosAutoState != AutoLineup::EXECUTING_TARGET) {
+      m_autoLineup.StartPosMove();
+    }
+    if (curAngAutoState != AutoLineup::EXECUTING_TARGET) {
+      m_autoLineup.StartAngMove();
+    }
 
-  // if (m_controller.getPressedOnce(START_ANG_AUTO)) {
-  //   if (curAngAutoState != AutoLineup::EXECUTING_TARGET) {
-  //     m_autoLineup.StartAngMove();
-  //   } else {
-  //     m_autoLineup.StopAng();
-  //   }
-  // }
-
-  if (curPosAutoState == AutoLineup::EXECUTING_TARGET || curAngAutoState == AutoLineup::EXECUTING_TARGET) {
     vec::Vector2D driveVel = m_autoLineup.GetVel();
     double angVel = m_autoLineup.GetAngVel();
 
@@ -428,8 +422,9 @@ void Robot::TeleopPeriodic() {
     m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   } else {
-    // std::cout << "set vel:  " << setVel.toString() << std::endl;
-    // m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
+    m_autoLineup.StopPos();
+    m_autoLineup.StopAng();
+
     m_swerveController->SetFeedForward(0, 1, 0);
     m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
   }

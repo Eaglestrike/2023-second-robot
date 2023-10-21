@@ -538,3 +538,21 @@ void AutoLineup::UpdateOdom(vec::Vector2D pos, double ang) {
   m_curPos = pos;
   m_curAng = ang;
 }
+
+/**
+ * Gets target position
+ * 
+ * @returns target position
+*/
+vec::Vector2D AutoLineup::GetTargetPos() const {
+  return m_targetPos;
+}
+
+/**
+ * Gets target angle
+ * 
+ * @returns Target angle
+*/
+double AutoLineup::GetTargetAng() const {
+  return m_targetAng;
+}

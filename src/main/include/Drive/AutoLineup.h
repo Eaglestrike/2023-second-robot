@@ -51,6 +51,8 @@ public:
 
   vec::Vector2D GetVel() const;
   double GetAngVel() const;
+  vec::Vector2D GetTargetPos() const;
+  double GetTargetAng() const;
   ExecuteState GetPosExecuteState() const;
   ExecuteState GetAngExecuteState() const;
 

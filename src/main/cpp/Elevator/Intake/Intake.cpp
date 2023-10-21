@@ -48,6 +48,9 @@ void Intake::TeleopPeriodic(){
                 m_targetAcc = 0.0;
             } else if (m_hasGamePiece){
                 if (m_cone)
+                    if(m_intakeHP)
+                    rollerVolts = 
+                    else 
                     rollerVolts = IntakeConstants::CONE_INFO.KEEP_VOLTS;
                 else
                     rollerVolts = IntakeConstants::CUBE_INFO.KEEP_VOLTS;
@@ -62,8 +65,9 @@ void Intake::TeleopPeriodic(){
             if (m_targState == DEPLOYED){
                 rollerVolts = m_rollerVolts;
                 if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > curInfo.SPIKE_CURRENT
-                 && Utils::GetCurTimeS() > m_rollerStartTime + 0.5) 
+                 && Utils::GetCurTimeS() > m_rollerStartTime + 0.5) {
                     m_hasGamePiece = true;
+                 }
                 // else if (!(m_lidar.hasCone() || m_lidar.hasCube()))
                 else if (m_outtaking) 
                     m_hasGamePiece = false;
@@ -128,9 +132,10 @@ void Intake::DeployNoRollers(){
     m_state = MOVING;
 }
 
-void Intake::StartRollers(bool outtaking, bool cone){
+void Intake::StartRollers(bool outtaking, bool cone, bool intakeHP = false){
     m_cone = cone;
     m_outtaking = outtaking;
+    m_hpSt = intakeHP;
 
     if(m_customRollerVolts == -1)
         m_rollerVolts = IntakeConstants::ROLLER_MAX_VOLTS;

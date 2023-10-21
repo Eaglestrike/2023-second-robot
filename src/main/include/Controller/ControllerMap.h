@@ -25,6 +25,8 @@ namespace Actions{
         OUTTAKE,
         MANUAL1,
         MANUAL2,
+        ELEVATOR_H,
+        INTAKE_ANG,
         ACTION_COUNT //Just the number of actions, as it is at the end of a enum
     };
 
@@ -60,17 +62,18 @@ namespace ControllerMapData{
         {{RJOY, TRIGGER},       ZERO_YAW},
         
         {XBOX_LJOY_X,           NONE},
-        {XBOX_LJOY_Y,           NONE}, 
-        {XBOX_RJOY_X,           NONE},
+        {XBOX_LJOY_Y,           ELEVATOR_H}, 
+        {XBOX_RJOY_X,           INTAKE_ANG},
         {XBOX_RJOY_Y,           NONE},
         {XBOX_A_BUTTON ,        STOW},
         {XBOX_B_BUTTON ,        SCORE_MID},
         {XBOX_X_BUTTON ,        SCORE_LOW},
         {XBOX_Y_BUTTON ,        SCORE_HIGH},
         {XBOX_L_BUMPER ,        CONE},
-        {XBOX_LTRIGGER ,        NONE},
+        {XBOX_LTRIGGER ,        MANUAL1},
         {XBOX_R_BUMPER ,        HP},
-        {XBOX_RTRIGGER ,        GROUND}
+        {{XBOX, B_7} ,        GROUND},
+        {XBOX_RTRIGGER ,        MANUAL2}
     };
 
     //Allows for maps of buttons to values, such as the index of the buttonboard

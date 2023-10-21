@@ -34,6 +34,8 @@ class ElevatorIntake{
         void ConeCubeManual();
         void ConeCubeLidar();
         void UpdateShuffleboard();
+        void ManualPeriodic(double elevator, double intake);
+
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);
         IntakeElevatorConstants::GamePieceInfo GetGPI(bool cone);

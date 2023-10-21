@@ -112,7 +112,7 @@ void ElevatorIntake::ToggleRoller(bool outtaking){
 
 void ElevatorIntake::TeleopPeriodic(){
    if (dbg) Debug();
-   //DebugScoring();
+   DebugScoring();
 
     m_intake.TeleopPeriodic();
     m_elevator.TeleopPeriodic();
@@ -186,12 +186,26 @@ void ElevatorIntake::IntakeFromHPS(){
 }
 
 IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
-   if (cone) return IntakeElevatorConstants::coneScoreInfo;
-   return IntakeElevatorConstants::cubeScoreInfo;
-    // if (cone) return coneinfo;
-    // return cubeinfo;
+//    if (cone) return IntakeElevatorConstants::coneScoreInfo;
+//    return IntakeElevatorConstants::cubeScoreInfo;
+    if (cone) return coneinfo;
+    return cubeinfo;
 }
 
 void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo){
     DeployElevatorIntake(scoreInfo.ELEVATOR_LENG, scoreInfo.INTAKE_ANGLE);
+}
+
+/**
+ * Manual periodic
+ * 
+ * @note call this instead of teleop periodic
+ * 
+ * @param elevator -1 to 1, percent of elevator max volts
+ * @param intake -1 to 1, percent of intake max volts
+*/
+void ElevatorIntake::ManualPeriodic(double elevator, double intake) {
+    m_elevator.setManualVolts(elevator);
+    m_intake.ManualPeriodic(intake * IntakeConstants::WRIST_MAX_VOLTS);
+    m_elevator.TeleopPeriodic();
 }

@@ -33,6 +33,7 @@ class ElevatorIntake{
         void IntakeFromHPS();
         void ConeCubeManual();
         void ConeCubeLidar();
+        void UpdateShuffleboard();
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);
         IntakeElevatorConstants::GamePieceInfo GetGPI(bool cone);

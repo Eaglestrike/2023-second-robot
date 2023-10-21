@@ -1,7 +1,6 @@
 #include "Elevator/ElevatorIntake.h"
 
 ElevatorIntake::ElevatorIntake(){
-    m_elevator.Init();
     // m_intake = Intake{m_lidar};
     if (dbg){
         frc::SmartDashboard::PutNumber("elevator len", 0.0);
@@ -11,6 +10,24 @@ ElevatorIntake::ElevatorIntake(){
         frc::SmartDashboard::PutBoolean("outtake", false);
         frc::SmartDashboard::PutBoolean("cone", false);
     }
+    frc::SmartDashboard::PutNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG);
+    frc::SmartDashboard::PutNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE);
+    frc::SmartDashboard::PutNumber("mid e", curGPInfo.SCORE_MID.ELEVATOR_LENG);
+    frc::SmartDashboard::PutNumber("mid w", curGPInfo.SCORE_MID.INTAKE_ANGLE);
+    frc::SmartDashboard::PutNumber("high e", curGPInfo.SCORE_HIGH.ELEVATOR_LENG);
+    frc::SmartDashboard::PutNumber("high w", curGPInfo.SCORE_HIGH.INTAKE_ANGLE);
+    frc::SmartDashboard::PutNumber("hp e", curGPInfo.HP_INTAKE.ELEVATOR_LENG);
+    frc::SmartDashboard::PutNumber("hp w", curGPInfo.HP_INTAKE.INTAKE_ANGLE);
+    frc::SmartDashboard::PutNumber("grnd e", curGPInfo.GROUND_INTAKE.ELEVATOR_LENG);
+    frc::SmartDashboard::PutNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE);
+}
+
+void ElevatorIntake::Init() {
+    m_elevator.Init();
+}
+
+void ElevatorIntake::UpdateShuffleboard() {
+    m_elevator.UpdateShuffleboard();
 }
 
 void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeAng){
@@ -41,13 +58,15 @@ void ElevatorIntake::Debug(){
         Stow();
         frc::SmartDashboard::PutBoolean("stow", false);
     }
-    m_outtaking = frc::SmartDashboard::GetBoolean("outtake", false);
-    m_cone = frc::SmartDashboard::GetBoolean("cone", false);
+    // m_outtaking = frc::SmartDashboard::GetBoolean("outtake", false);
+    // m_cone = frc::SmartDashboard::GetBoolean("cone", false);
     frc::SmartDashboard::PutNumber("elevator acc pos", m_elevator.getElevatorHeight());
     frc::SmartDashboard::PutNumber("intake acc angle", m_intake.GetPos());
 
     frc::SmartDashboard::PutNumber("moving state", m_movingState);
     frc::SmartDashboard::PutNumber("mechanism state", m_state);
+
+    frc::SmartDashboard::PutString("el state", m_elevator.getStateString());
 
     frc::SmartDashboard::PutNumber("intake targ state", m_intake.GetTargetState());
     frc::SmartDashboard::PutNumber("intake state", m_intake.GetState());
@@ -56,17 +75,41 @@ void ElevatorIntake::Debug(){
 }
 
 void ElevatorIntake::DebugScoring(){
-    frc::SmartDashboard::PutBoolean("outtake", m_outtaking);
-    frc::SmartDashboard::PutBoolean("cone", m_cone);
+    // frc::SmartDashboard::PutBoolean("outtake", m_outtaking);
+    // frc::SmartDashboard::PutBoolean("cone", m_cone);
     frc::SmartDashboard::PutNumber("elevator acc pos", m_elevator.getElevatorHeight());
     frc::SmartDashboard::PutNumber("intake acc angle", m_intake.GetPos());
     frc::SmartDashboard::PutNumber("elevator targ pos", m_targElevatorPos);
     frc::SmartDashboard::PutNumber("intake targ angle", m_targIntakeAng);
+    frc::SmartDashboard::PutBoolean("rollers", m_rollers);
+
+    curGPInfo = {{frc::SmartDashboard::GetNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG), 
+    frc::SmartDashboard::GetNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE)},{
+    frc::SmartDashboard::GetNumber("mid e", curGPInfo.SCORE_MID.ELEVATOR_LENG),
+    frc::SmartDashboard::GetNumber("mid w", curGPInfo.SCORE_MID.INTAKE_ANGLE)},{
+    frc::SmartDashboard::GetNumber("high e", curGPInfo.SCORE_HIGH.ELEVATOR_LENG),
+    frc::SmartDashboard::GetNumber("high w", curGPInfo.SCORE_HIGH.INTAKE_ANGLE)},{
+    frc::SmartDashboard::GetNumber("grnd e", curGPInfo.GROUND_INTAKE.ELEVATOR_LENG),
+    frc::SmartDashboard::GetNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE)},{
+    frc::SmartDashboard::GetNumber("hp e", curGPInfo.HP_INTAKE.ELEVATOR_LENG),
+    frc::SmartDashboard::GetNumber("hp w", curGPInfo.HP_INTAKE.INTAKE_ANGLE)}};
 }
 
 void ElevatorIntake::Periodic(){
     m_intake.Periodic();
     m_elevator.Periodic();
+}
+
+void ElevatorIntake::ToggleRoller(bool outtaking){
+    if (m_rollers){
+        m_intake.StopRollers();
+        m_rollers = false;
+    } else {
+        m_intake.StartRollers(outtaking, m_cone); 
+        m_rollers = true;
+    }
+    // m_cone = cone;
+    // m_outtaking = outtaking;
 }
 
 void ElevatorIntake::TeleopPeriodic(){
@@ -99,8 +142,7 @@ void ElevatorIntake::TeleopPeriodic(){
                             m_intake.Stow();
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
-                            if (!m_outtaking) m_intake.DeployIntake(m_cone);
-                            else m_intake.DeployOuttake(m_cone);
+                            m_intake.DeployNoRollers();
                         }
                         m_movingState = INTAKE;
                     }
@@ -121,32 +163,53 @@ void ElevatorIntake::Kill(){
     m_state = STOPPED;
 }
 
-void ElevatorIntake::ScoreHigh(bool cone){
-    DeployElevatorIntake(GetGPI(cone).SCORE_HIGH, cone, true);
+void ElevatorIntake::SetCone(bool cone){
+    m_cone = cone;
+    frc::SmartDashboard::PutBoolean("cone", m_cone);
 }
 
-void ElevatorIntake::ScoreMid(bool cone){
-    DeployElevatorIntake(GetGPI(cone).SCORE_MID, cone, true);
-}
-void ElevatorIntake::ScoreLow(bool cone){
-   DeployElevatorIntake(GetGPI(cone).SCORE_LOW, cone, true);
+void ElevatorIntake::ScoreHigh(){
+    DeployElevatorIntake(GetGPI(m_cone).SCORE_HIGH);
 }
 
-void ElevatorIntake::IntakeFromGround(bool cone){
-   DeployElevatorIntake(GetGPI(cone).GROUND_INTAKE, cone, false);
+void ElevatorIntake::ScoreMid(){
+    DeployElevatorIntake(GetGPI(m_cone).SCORE_MID);
+}
+void ElevatorIntake::ScoreLow(){
+   DeployElevatorIntake(GetGPI(m_cone).SCORE_LOW);
 }
 
-void ElevatorIntake::IntakeFromHPS(bool cone){
-   DeployElevatorIntake(GetGPI(cone).HP_INTAKE, cone, false);
+void ElevatorIntake::IntakeFromGround(){
+   DeployElevatorIntake(GetGPI(m_cone).GROUND_INTAKE);
+}
+
+void ElevatorIntake::IntakeFromHPS(){
+   DeployElevatorIntake(GetGPI(m_cone).HP_INTAKE);
 }
 
 IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
-   if (cone) return IntakeElevatorConstants::coneScoreInfo;
-   return IntakeElevatorConstants::cubeScoreInfo;
+//    if (cone) return IntakeElevatorConstants::coneScoreInfo;
+//    return IntakeElevatorConstants::cubeScoreInfo;
+    if (cone) return coneinfo;
+    return cubeinfo;
 }
 
-void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo, bool cone, bool outtaking){
-    m_cone = cone;
-    m_outtaking = outtaking;
+void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo){
     DeployElevatorIntake(scoreInfo.ELEVATOR_LENG, scoreInfo.INTAKE_ANGLE);
+}
+
+/**
+ * Manual periodic
+ * 
+ * @note call this instead of teleop periodic
+ * 
+ * @param elevator -1 to 1, percent of elevator max volts
+ * @param intake -1 to 1, percent of intake max volts
+*/
+void ElevatorIntake::ManualPeriodic(double elevator, double intake) {
+   if (dbg) Debug();
+   DebugScoring();
+    m_elevator.setManualVolts(elevator);
+    m_intake.ManualPeriodic(intake * IntakeConstants::WRIST_MAX_VOLTS);
+    m_elevator.TeleopPeriodic();
 }

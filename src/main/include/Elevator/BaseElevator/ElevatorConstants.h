@@ -45,14 +45,14 @@ namespace ElevatorConstants {
   const double MAX_EXTENSION = 0.5588; // m
 
   //Feedforward Constants
-  const double KS = 1.2;
-  const double KV = 1.3;
-  const double KA = 0.75;
+  const double KS = 0;
+  const double KV = 0;
+  const double KA = 0.45;
   const double KG = 1.1;
 
-  const double KP = 3.5;
+  const double KP = 8.5;
   const double KI = 0.0;
-  const double KD = 0.5;
+  const double KD = 3.5;
 
   // elevator heights
 
@@ -83,5 +83,5 @@ namespace ElevatorConstants {
     double kd = KD;
   } FEEDFORWARD_CONSTANTS;
 
-  const double POSITION_ERROR_TOLERANCE = 0.1; //m
+  const double POSITION_ERROR_TOLERANCE = 0.05; //m
 };

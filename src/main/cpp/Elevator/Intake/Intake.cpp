@@ -2,7 +2,7 @@
 #include <iostream>
 
 //constructor j sets motor to brake mode
-Intake::Intake(LidarReader& lidar): m_lidar{lidar}{
+Intake::Intake() {
     m_wristMotor.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     if (dbg){
         frc::SmartDashboard::PutNumber("Setpoint", 0);
@@ -16,6 +16,8 @@ Intake::Intake(LidarReader& lidar): m_lidar{lidar}{
         frc::SmartDashboard::PutNumber("v", m_v); 
         frc::SmartDashboard::PutNumber("a", m_a); 
     }
+    frc::SmartDashboard::PutNumber("cone spike current", IntakeConstants::CONE_INFO.SPIKE_CURRENT);
+
 }
 
 // needs to be called INSTEAD of teleop periodic
@@ -36,6 +38,7 @@ void Intake::TeleopPeriodic(){
     }
 
     double wristVolts = 0, rollerVolts = 0;
+    double spikeCur;
     switch (m_state){
         case MOVING:
             UpdateTargetPose(); // bc still using motion profile 
@@ -48,33 +51,45 @@ void Intake::TeleopPeriodic(){
                 m_targetAcc = 0.0;
             } else if (m_hasGamePiece){
                 if (m_cone)
-                    rollerVolts = IntakeConstants::KEEP_CONE_VOLTS;
+                    rollerVolts = IntakeConstants::CONE_INFO.KEEP_VOLTS;
                 else
-                    rollerVolts = IntakeConstants::KEEP_CUBE_VOLTS;
+                    rollerVolts = IntakeConstants::CUBE_INFO.KEEP_VOLTS;
             }else if (m_targState == DEPLOYED) 
                 rollerVolts = m_rollerVolts;
             break;
         case AT_TARGET:
             wristVolts = FFPIDCalculate();
+            IntakeConstants::GamePieceInfo curInfo = IntakeConstants::CUBE_INFO;
+            if (m_cone) curInfo = IntakeConstants::CONE_INFO;
+            if(m_cone)
+                spikeCur = frc::SmartDashboard::GetNumber("cone spike current", curInfo.SPIKE_CURRENT);
+            else spikeCur =curInfo.SPIKE_CURRENT; 
             if (m_targState == DEPLOYED){
                 rollerVolts = m_rollerVolts;
-                if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > IntakeConstants::NORMAL_CURRENT) //&& (m_lidar.hasCone() || m_lidar.hasCube()))
+                if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > spikeCur
+                 && Utils::GetCurTimeS() > m_rollerStartTime + 0.5) 
                     m_hasGamePiece = true;
                 // else if (!(m_lidar.hasCone() || m_lidar.hasCube()))
-                else if (m_outtaking) // for now..
+                else if (m_outtaking) 
                     m_hasGamePiece = false;
             }
             if (m_hasGamePiece)
                 if (m_cone)
-                    rollerVolts = IntakeConstants::KEEP_CONE_VOLTS;
+                    rollerVolts = IntakeConstants::CONE_INFO.KEEP_VOLTS;
                 else
-                    rollerVolts = IntakeConstants::KEEP_CUBE_VOLTS;
+                    rollerVolts = IntakeConstants::CUBE_INFO.KEEP_VOLTS;
             break;
     }
     if (dbg){
         frc::SmartDashboard::PutNumber("wrist volts", wristVolts);
         frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
-    } 
+    }
+    if (dbg2){
+        frc::SmartDashboard::PutBoolean("outtaking", m_outtaking);
+        frc::SmartDashboard::PutBoolean("has gp", m_hasGamePiece);
+        frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
+        frc::SmartDashboard::PutNumber("roller current", m_rollerMotor.GetOutputCurrent());
+    }
     m_wristMotor.SetVoltage(units::volt_t(std::clamp(-wristVolts, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
     m_rollerMotor.SetVoltage(units::volt_t(std::clamp(rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
 }
@@ -99,7 +114,13 @@ void Intake::HalfStow(){
 
 // deploys the intake to intake a cone or cube
 void Intake::DeployIntake(bool cone){
-    if (m_targState == DEPLOYED) return;
+    DeployNoRollers();
+    StartRollers(false, cone);
+}
+
+// deploys the intake to intake a cone or cube
+void Intake::DeployNoRollers(){
+     if (m_targState == DEPLOYED) return;
     m_targState = DEPLOYED;
 
     if (m_customDeployPos == -1)
@@ -108,25 +129,38 @@ void Intake::DeployIntake(bool cone){
         m_setPt = m_customDeployPos;
 
     SetSetpoint(m_setPt);
+    m_rollerVolts = 0;
+    m_state = MOVING;
+}
+
+void Intake::StartRollers(bool outtaking, bool cone){
+    m_cone = cone;
+    m_outtaking = outtaking;
 
     if(m_customRollerVolts == -1)
         m_rollerVolts = IntakeConstants::ROLLER_MAX_VOLTS;
     else 
         m_rollerVolts = m_customRollerVolts;
 
+    if (outtaking) {
+        if(cone) m_rollerVolts = IntakeConstants::CONE_INFO.OUT_VOLTS;
+        else m_rollerVolts = IntakeConstants::CUBE_INFO.OUT_VOLTS;
+        m_rollerVolts *= -1;
+    }
     if (cone)
         m_rollerVolts *= -1;
-    
-    m_cone = cone;
-    m_outtaking = false;
-    m_state = MOVING;
+
+    m_rollerStartTime = Utils::GetCurTimeS();
+}
+
+void Intake::StopRollers(){
+    m_rollerVolts = 0;
 }
 
 // deploys the intake to outtake a cone or cube
 void Intake::DeployOuttake(bool cone){
-    DeployIntake(!cone);
-    m_cone = cone;
-    m_outtaking = true;
+    DeployNoRollers();
+    StartRollers(true, cone);
 }
 
 //changes the position the intake will deploy to when a deploy method iscalled
@@ -171,12 +205,6 @@ void Intake::UpdatePose(){
 
 //updates the trapezoidal motion profile
 void Intake::UpdateTargetPose(){
-    if (dbg){
-        frc::SmartDashboard::PutNumber("targ pos", m_targetPos);
-        frc::SmartDashboard::PutNumber("targ vel", m_targetVel);
-        frc::SmartDashboard::PutNumber("targ acc", m_targetAcc);
-    }
-
     double newP = m_targetPos, newV = m_targetVel, newA = m_targetAcc;
     
     newP += m_targetVel * 0.02;
@@ -289,7 +317,7 @@ void Intake::debugCurPose(){
 // for tuning, can test constant voltage on wrist or rollers 
 // but need to pick which wrist or rollers in the code, since it cant be changed from shuffleboard
 void Intake::debugPutVoltage(){
-    double voltReq;
+    double voltReq = 0;
     voltReq = frc::SmartDashboard::GetNumber("voltage", voltReq);
     voltReq = std::clamp(voltReq, -IntakeConstants::ROLLER_MAX_VOLTS, IntakeConstants::ROLLER_MAX_VOLTS);
     // if(m_curPos > IntakeConstants::MAX_POS){

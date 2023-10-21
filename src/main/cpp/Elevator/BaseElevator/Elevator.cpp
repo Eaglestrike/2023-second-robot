@@ -59,7 +59,7 @@ void Elevator::CoreTeleopPeriodic() {
             [[fallthrough]];
         case MOVING:
             motor_output = feedforward_.periodic(current_pose_);
-            if (feedforward_.isFinished()){
+            if (feedforward_.atSetpoint(current_pose_, 0.04, 0.05)){
                 current_state_ = HOLDING_POS;
             }
             break;

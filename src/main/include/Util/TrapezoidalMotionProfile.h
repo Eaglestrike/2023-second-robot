@@ -18,13 +18,10 @@ class TrapezoidalMotionProfile {
     void Periodic();
     private:
         // void CalcTurnTime(double curPos, double setPt);
-        void CalcVelTurnPos(double curPos, double setPt);
+        void CalcSpeedDecreasePos(double curPos, double setPt);
         double m_targetPos, m_targetVel, m_targetAcc;
         double m_maxVel, m_maxAcc;
         double m_setPt;
-        double m_velTurnPos;
+        double m_speedDecreasePos;
         double m_curTime;
-        bool m_negProfile;
-        //        m_turnTime, // the time the profile should start deaccelerating if pos, or accelerating if neg
-        //        m_endTime;
 };

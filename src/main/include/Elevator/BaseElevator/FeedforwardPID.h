@@ -30,6 +30,7 @@ public:
     void stop();
 
     bool isFinished();
+    bool atSetpoint(Poses::Pose1D current_pose, double xTol, double vTol);
 
     // getters and setters
     double getKs();

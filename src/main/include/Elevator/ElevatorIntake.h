@@ -18,18 +18,26 @@ class ElevatorIntake{
         };
 
         ElevatorIntake();
+        void Init();
         void Periodic();
         void TeleopPeriodic();
         void Kill();
+        void ToggleRoller(bool outtaking);
         void DeployElevatorIntake(double elevatorLength, double intakeDeg);
         void Stow();
-        void ScoreHigh(bool cone);
-        void ScoreMid(bool cone);
-        void ScoreLow(bool cone);
-        void IntakeFromGround(bool cone);
-        void IntakeFromHPS(bool cone);
+        void SetCone(bool cone);
+        void ScoreHigh();
+        void ScoreMid();
+        void ScoreLow();
+        void IntakeFromGround();
+        void IntakeFromHPS();
+        void ConeCubeManual();
+        void ConeCubeLidar();
+        void UpdateShuffleboard();
+        void ManualPeriodic(double elevator, double intake);
+
     private:
-        void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo, bool cone, bool outtaking);
+        void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);
         IntakeElevatorConstants::GamePieceInfo GetGPI(bool cone);
         void Debug();
         void DebugScoring();
@@ -39,13 +47,20 @@ class ElevatorIntake{
         
         MechanismState m_state = MOVING;
         MovingState m_movingState = DONE;
-        bool m_outtaking, m_cone;
+        bool m_cone;
 
         bool m_stowing;
+        bool m_rollers = false;
         double m_targIntakeAng, m_targElevatorPos;
 
+        bool m_useLidar = true;
+
         Elevator m_elevator{true, false};
-        // tbh might move lidar out of this 
-        LidarReader m_lidar{true, false};
-        Intake m_intake{m_lidar};
+        Intake m_intake;
+
+        IntakeElevatorConstants::GamePieceInfo coneinfo = IntakeElevatorConstants::coneScoreInfo;
+        IntakeElevatorConstants::GamePieceInfo cubeinfo = IntakeElevatorConstants::cubeScoreInfo;
+
+        // for debug
+        IntakeElevatorConstants::GamePieceInfo& curGPInfo = coneinfo;
 };

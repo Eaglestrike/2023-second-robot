@@ -14,15 +14,15 @@ namespace IntakeElevatorConstants{
 
     const GamePieceInfo coneScoreInfo{{0.0, 0.58},
                                       {0.316, 0.73},
-                                      {0.545, 0.3},
-                                      {0.0, 0.0}, // upright (TODO)
-                                      {0.547, 0.3}}; // (also TODO i think) might need to move down while intaking
+                                      {0.545, 0.8},
+                                      {0.0, 0.0}, // ground intake
+                                      {0.0, 1.5}}; // intake from drop station
 
-    const GamePieceInfo cubeScoreInfo{{0.0, 1.66},
+    const GamePieceInfo cubeScoreInfo{{0.0, 0.58},
                                       {0.291, 1.25},
                                       {0.573, 0.8}, // elevator pos seems wayyy to high
-                                      {0.0, 0.13}, 
-                                      {0.0, 0.0}}; //TODO
+                                      {0.0, 0.13}, // intake from ground
+                                      {0.0, 0.0}}; 
 }
 
 namespace IntakeConstants{
@@ -61,10 +61,23 @@ namespace IntakeConstants{
     const double MIN_POS = 0.0;
     const double DEPLOYED_POS = 0.0;
 
-    const double NORMAL_CURRENT = 15; //acc idk
-    const double KEEP_CONE_VOLTS = -0.9;
-    const double KEEP_CUBE_VOLTS = 0.7;
+    // const double NORMAL_CURRENT = 15; //acc idk
+     struct GamePieceInfo {
+        double SPIKE_CURRENT;
+        double KEEP_VOLTS;
+        double OUT_VOLTS;
+    };
 
-    const double ROLLER_MAX_VOLTS = 3.0;
+    const GamePieceInfo CONE_INFO = {100.0,
+                                     -0.9,
+                                     2.0};
+    const GamePieceInfo CUBE_INFO = {15.0,
+                                     0.7,
+                                     2.0}; // MAYBE LESS
+    
+    // const double KEEP_CONE_CURRENT = 5.0;
+    // const double KEEP_CUBE_CURRENT = 10.0;
+
+    const double ROLLER_MAX_VOLTS = 4.0;
     const double WRIST_MAX_VOLTS = 5.0;
 }

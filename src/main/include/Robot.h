@@ -24,7 +24,7 @@
 #include "Drive/SwerveModule.h"
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"
-
+#include "Util/Mathutil.h"
 #include "Elevator/Lidar/LidarReader.h"
 
 namespace vec = svector;
@@ -75,10 +75,10 @@ class Robot : public frc::TimedRobot {
   AutoLineup m_autoLineup;
   AutoPath m_autoPath;
   // TEMP, for testing
-  double m_curVolts;
-  double m_prevTimeTest;
-  wpi::log::DoubleLogEntry m_speedLog;
-  wpi::log::DoubleLogEntry m_voltsLog;
+  // double m_curVolts;
+  // double m_prevTimeTest;
+  // wpi::log::DoubleLogEntry m_speedLog;
+  // wpi::log::DoubleLogEntry m_voltsLog;
   // END TEMP
 
   // jetson
@@ -89,4 +89,5 @@ class Robot : public frc::TimedRobot {
   int m_heightVal;
 
   ElevatorIntake m_elevatorIntake;
+  LidarReader m_lidarReader;
 };

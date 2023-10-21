@@ -33,11 +33,11 @@ Robot::Robot():
       m_startAng{0},
       m_joystickAng{0},
       m_odometry{&m_startPos, &m_startAng},
-      m_prevTimeTest{0},
       m_client{"10.1.14.107", 5807, 500, 5000},
       m_red{false},
       m_posVal{0},
-      m_heightVal{0}
+      m_heightVal{0},
+      m_lidarReader{true, false}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
@@ -46,7 +46,7 @@ Robot::Robot():
   // navx
   try
   {
-    m_navx = std::make_shared<AHRS>(frc::SerialPort::kMXP);
+    m_navx = std::make_shared<AHRS>(frc::SerialPort::kUSB2);
   }
   catch (const std::exception &e)
   {
@@ -91,7 +91,7 @@ Robot::Robot():
       } else {
         // std::cout << "good " << tagId << " " << Utils::GetCurTimeMs() << std::endl;
       }
-      frc::SmartDashboard::PutNumber("tag Id", tagId);
+      // frc::SmartDashboard::PutNumber("tag Id", tagId);
     }
 
     // other odometry
@@ -106,9 +106,9 @@ Robot::Robot():
 void Robot::RobotInit()
 {
   // initialization
-  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+  // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+  // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+  // frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
   // kalman filter constants
   // frc::SmartDashboard::PutNumber("KF E0", OdometryConstants::E0);
@@ -119,9 +119,9 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
   frc::SmartDashboard::PutNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
-  frc::SmartDashboard::PutNumber("Delta X", 0);
-  frc::SmartDashboard::PutNumber("Delta Y", 0);
-  frc::SmartDashboard::PutNumber("Delta Ang", 0);
+  // frc::SmartDashboard::PutNumber("Delta X", 0);
+  // frc::SmartDashboard::PutNumber("Delta Y", 0);
+  // frc::SmartDashboard::PutNumber("Delta Ang", 0);
 
   // starting position
   m_startPosChooser.SetDefaultOption("Debug", "Debug");
@@ -154,9 +154,9 @@ void Robot::RobotInit()
   frc::DataLogManager::Start();
 
   // Set up custom log entries
-  wpi::log::DataLog& log = frc::DataLogManager::GetLog();
-  m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
-  m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
+  // wpi::log::DataLog& log = frc::DataLogManager::GetLog();
+  // m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
+  // m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
 
   m_client.Init();
 }
@@ -188,14 +188,14 @@ void Robot::RobotPeriodic()
     // m_swerveBl.SetPID(kP, kI, kD);
     // m_swerveBr.SetPID(kP, kI, kD);
 
-    double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-    double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-    double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+    // double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+    // double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+    // double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
     // m_swerveFl.UpdateShuffleboard();
     // m_swerveFr.UpdateShuffleboard();
     // m_swerveBl.UpdateShuffleboard();
     // m_swerveBr.UpdateShuffleboard();
-    m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
+    // m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
 
     // double E0 = frc::SmartDashboard::GetNumber("KF E0", OdometryConstants::E0);
     // double Q = frc::SmartDashboard::GetNumber("KF Q", OdometryConstants::Q);
@@ -208,11 +208,11 @@ void Robot::RobotPeriodic()
     m_odometry.SetAlpha(alpha); 
     m_odometry.SetMaxTime(maxTime);
 
-    double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
-    double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
-    double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
-    m_autoLineup.SetPosTarget({deltaX, deltaY}, true);
-    m_autoLineup.SetAngTarget(deltaAng, true);
+    // double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
+    // double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
+    // double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
+    // m_autoLineup.SetPosTarget({deltaX, deltaY}, true);
+    // m_autoLineup.SetAngTarget(deltaAng, true);
 
     double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
     double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
@@ -278,6 +278,17 @@ void Robot::RobotPeriodic()
   // if (m_controller.getRawAxis(ELEVATOR_SET_MANUAL) > 0.75) {
   //   // elevator_.setManualVolts(m_controller.getRawAxis(ELEVATOR_RANGE));
   // }
+
+  if (m_controller.getPressedOnce(ZERO_DRIVE_PID)) {
+    m_elevatorIntake.UpdateShuffleboard();
+  }
+
+  if (m_controller.getPressedOnce(ZERO_YAW))
+  {
+    m_navx->ZeroYaw();
+    m_swerveController->ResetAngleCorrection();
+  }
+
   m_elevatorIntake.Periodic();
 }
 
@@ -353,6 +364,9 @@ void Robot::TeleopPeriodic() {
     m_heightVal = heightVal;
   }
 
+  frc::SmartDashboard::PutNumber("score pos val", posVal);
+  frc::SmartDashboard::PutNumber("Height val", heightVal);
+
   if (m_posVal && m_heightVal) {
     FieldConstants::ScorePair scorePair = Utils::GetScoringPos(m_posVal, m_heightVal, m_red);
     double ang = m_joystickAng;
@@ -388,28 +402,28 @@ void Robot::TeleopPeriodic() {
   AutoLineup::ExecuteState curPosAutoState = m_autoLineup.GetPosExecuteState();
   AutoLineup::ExecuteState curAngAutoState = m_autoLineup.GetAngExecuteState();
 
-  if (m_controller.getPressedOnce(START_POS_AUTO)) {
-    if (curPosAutoState != AutoLineup::EXECUTING_TARGET) {
-      m_autoLineup.StartPosMove();
-    } else {
-      m_autoLineup.StopPos();
-    }
-  }
+  // if (m_controller.getPressedOnce(START_POS_AUTO)) {
+  //   if (curPosAutoState != AutoLineup::EXECUTING_TARGET) {
+  //     m_autoLineup.StartPosMove();
+  //   } else {
+  //     m_autoLineup.StopPos();
+  //   }
+  // }
 
-  if (m_controller.getPressedOnce(START_ANG_AUTO)) {
-    if (curAngAutoState != AutoLineup::EXECUTING_TARGET) {
-      m_autoLineup.StartAngMove();
-    } else {
-      m_autoLineup.StopAng();
-    }
-  }
+  // if (m_controller.getPressedOnce(START_ANG_AUTO)) {
+  //   if (curAngAutoState != AutoLineup::EXECUTING_TARGET) {
+  //     m_autoLineup.StartAngMove();
+  //   } else {
+  //     m_autoLineup.StopAng();
+  //   }
+  // }
 
   if (curPosAutoState == AutoLineup::EXECUTING_TARGET || curAngAutoState == AutoLineup::EXECUTING_TARGET) {
     vec::Vector2D driveVel = m_autoLineup.GetVel();
     double angVel = m_autoLineup.GetAngVel();
 
-    frc::SmartDashboard::PutString("Auto drive vel", driveVel.toString());
-    frc::SmartDashboard::PutNumber("Auto ang vel", angVel);
+    // frc::SmartDashboard::PutString("Auto drive vel", driveVel.toString());
+    // frc::SmartDashboard::PutNumber("Auto ang vel", angVel);
 
     m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
@@ -430,20 +444,33 @@ void Robot::TeleopPeriodic() {
   m_prevTime = curTime;
   // m_intake.TeleopPeriodic();
 
-  m_elevatorIntake.TeleopPeriodic();
-  bool cone = m_controller.getPressed(CONE);
-  if(m_controller.getPressed(SCORE_HIGH))
-    m_elevatorIntake.ScoreHigh(cone);
-  else if (m_controller.getPressed(SCORE_MID))
-    m_elevatorIntake.ScoreMid(cone);
-  else if (m_controller.getPressed(SCORE_LOW))
-    m_elevatorIntake.ScoreLow(cone);
-  else if (m_controller.getPressed(STOW))
-    m_elevatorIntake.Stow();
-  else if (m_controller.getPressed(HP_INTAKE))
-    m_elevatorIntake.IntakeFromHPS(cone);
-  else if (m_controller.getRawAxis(GROUND_INTAKE) > 0.75)
-    m_elevatorIntake.IntakeFromGround(cone);
+  if (m_controller.getTriggerDown(MANUAL1) && m_controller.getTriggerDown(MANUAL2)) {
+    double elH = m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
+    double intakeAng = m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
+    m_elevatorIntake.ManualPeriodic(elH, intakeAng);
+    // frc::SmartDashboard::PutBoolean("Manual", true);
+  } else {
+    // frc::SmartDashboard::PutBoolean("Manual", false);
+    m_elevatorIntake.TeleopPeriodic();
+    bool cone = m_controller.getPressed(CONE);
+    m_elevatorIntake.SetCone(cone);
+    if(m_controller.getPressed(SCORE_HIGH))
+      m_elevatorIntake.ScoreHigh();
+    else if (m_controller.getPressed(SCORE_MID))
+      m_elevatorIntake.ScoreMid();
+    else if (m_controller.getPressed(SCORE_LOW))
+      m_elevatorIntake.ScoreLow();
+    else if (m_controller.getPressed(STOW))
+      m_elevatorIntake.Stow();
+    else if (m_controller.getPressed(HP))
+      m_elevatorIntake.IntakeFromHPS();
+    else if (m_controller.getPressed(GROUND))
+      m_elevatorIntake.IntakeFromGround();
+    else if (m_controller.getPressedOnce(INTAKE))
+      m_elevatorIntake.ToggleRoller(false);
+    else if (m_controller.getPressedOnce(OUTTAKE))
+      m_elevatorIntake.ToggleRoller(true);
+  }
 }
 
 void Robot::DisabledInit() {}
@@ -497,48 +524,48 @@ void Robot::DisabledPeriodic() {
 }
 
 void Robot::TestInit() {
-  m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
+  // m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
 
-  m_curVolts = 0;
+  // m_curVolts = 0;
 }
 
 void Robot::TestPeriodic() {
-  // if (m_controller.getPressedOnce(START_POS_AUTO)) {
-  //   if (m_autoLineup.GetAngExecuteState() == AutoLineup::NOT_EXECUTING) {
-  //     m_autoLineup.StartAngMove();
-  //   } else {
-  //     m_autoLineup.StopAng();
-  //   }
+  // // if (m_controller.getPressedOnce(START_POS_AUTO)) {
+  // //   if (m_autoLineup.GetAngExecuteState() == AutoLineup::NOT_EXECUTING) {
+  // //     m_autoLineup.StartAngMove();
+  // //   } else {
+  // //     m_autoLineup.StopAng();
+  // //   }
+  // // }
+
+  // // vec::Vector2D vel = m_autoLineup.GetVel();
+  // // double angVel = m_autoLineup.GetAngVel();
+  // double curYaw = m_odometry.GetAng();
+
+  // // frc::SmartDashboard::PutString("AutoVel", vel.toString());
+  // // frc::SmartDashboard::PutNumber("angVel", angVel);
+
+  // if (m_curVolts >= 5) {
+  //   m_curVolts = 5;
   // }
 
-  // vec::Vector2D vel = m_autoLineup.GetVel();
-  // double angVel = m_autoLineup.GetAngVel();
-  double curYaw = m_odometry.GetAng();
+  // m_swerveController->SetRobotVelocity({m_curVolts, 0}, 0, curYaw, 0.02);
 
-  // frc::SmartDashboard::PutString("AutoVel", vel.toString());
-  // frc::SmartDashboard::PutNumber("angVel", angVel);
+  // double curS = Utils::GetCurTimeS();
+  // if (curS - m_prevTimeTest > 0.2) {
+  //   m_prevTimeTest = curS;
+  //   m_curVolts += 0.5;
+  // }
 
-  if (m_curVolts >= 5) {
-    m_curVolts = 5;
-  }
+  // // m_autoLineup.Periodic();
+  // vec::Vector2D robotVel = m_swerveController->GetRobotVelocity(curYaw);
 
-  m_swerveController->SetRobotVelocity({m_curVolts, 0}, 0, curYaw, 0.02);
+  // auto curTime = frc::Timer::GetFPGATimestamp();
+  // auto timeus = curTime.convert<units::microsecond>(); 
 
-  double curS = Utils::GetCurTimeS();
-  if (curS - m_prevTimeTest > 0.2) {
-    m_prevTimeTest = curS;
-    m_curVolts += 0.5;
-  }
-
-  // m_autoLineup.Periodic();
-  vec::Vector2D robotVel = m_swerveController->GetRobotVelocity(curYaw);
-
-  auto curTime = frc::Timer::GetFPGATimestamp();
-  auto timeus = curTime.convert<units::microsecond>(); 
-
-  m_voltsLog.Append(m_curVolts, timeus.value());
-  m_speedLog.Append(magn(robotVel), timeus.value());
-  m_swerveController->Periodic();
+  // m_voltsLog.Append(m_curVolts, timeus.value());
+  // m_speedLog.Append(magn(robotVel), timeus.value());
+  // m_swerveController->Periodic();
 }
 
 void Robot::SimulationInit() {}

@@ -66,6 +66,8 @@ void ElevatorIntake::Debug(){
     frc::SmartDashboard::PutNumber("moving state", m_movingState);
     frc::SmartDashboard::PutNumber("mechanism state", m_state);
 
+    frc::SmartDashboard::PutString("el state", m_elevator.getStateString());
+
     frc::SmartDashboard::PutNumber("intake targ state", m_intake.GetTargetState());
     frc::SmartDashboard::PutNumber("intake state", m_intake.GetState());
     frc::SmartDashboard::PutString("elevator state", m_elevator.getStateString());
@@ -205,6 +207,8 @@ void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntak
  * @param intake -1 to 1, percent of intake max volts
 */
 void ElevatorIntake::ManualPeriodic(double elevator, double intake) {
+   if (dbg) Debug();
+   DebugScoring();
     m_elevator.setManualVolts(elevator);
     m_intake.ManualPeriodic(intake * IntakeConstants::WRIST_MAX_VOLTS);
     m_elevator.TeleopPeriodic();

@@ -65,7 +65,7 @@ void Intake::TeleopPeriodic(){
                  && Utils::GetCurTimeS() > m_rollerStartTime + 0.5) 
                     m_hasGamePiece = true;
                 // else if (!(m_lidar.hasCone() || m_lidar.hasCube()))
-                else if (m_outtaking) // || (m_hasGamePiece && m_rollerMotor.GetOutputCurrent() < (m_cone)? IntakeConstants::KEEP_CONE_CURRENT : IntakeConstants::KEEP_CUBE_CURRENT)) // for now..
+                else if (m_outtaking) 
                     m_hasGamePiece = false;
             }
             if (m_hasGamePiece)
@@ -78,11 +78,13 @@ void Intake::TeleopPeriodic(){
     if (dbg){
         frc::SmartDashboard::PutNumber("wrist volts", wristVolts);
         frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
-    } 
-    frc::SmartDashboard::PutBoolean("outtaking", m_outtaking);
-    frc::SmartDashboard::PutBoolean("has gp", m_hasGamePiece);
-    frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
-    frc::SmartDashboard::PutNumber("roller current", m_rollerMotor.GetOutputCurrent());
+    }
+    if (dbg2){
+        frc::SmartDashboard::PutBoolean("outtaking", m_outtaking);
+        frc::SmartDashboard::PutBoolean("has gp", m_hasGamePiece);
+        frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
+        frc::SmartDashboard::PutNumber("roller current", m_rollerMotor.GetOutputCurrent());
+    }
     m_wristMotor.SetVoltage(units::volt_t(std::clamp(-wristVolts, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
     m_rollerMotor.SetVoltage(units::volt_t(std::clamp(rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
 }

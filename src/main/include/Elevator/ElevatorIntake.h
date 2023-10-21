@@ -31,6 +31,8 @@ class ElevatorIntake{
         void ScoreLow();
         void IntakeFromGround();
         void IntakeFromHPS();
+        void ConeCubeManual();
+        void ConeCubeLidar();
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);
         IntakeElevatorConstants::GamePieceInfo GetGPI(bool cone);
@@ -42,20 +44,22 @@ class ElevatorIntake{
         
         MechanismState m_state = MOVING;
         MovingState m_movingState = DONE;
-        // bool m_outtaking, m_cone;
         bool m_cone;
 
         bool m_stowing;
         bool m_rollers = false;
         double m_targIntakeAng, m_targElevatorPos;
 
+        bool m_useLidar = true;
+
         Elevator m_elevator{true, false};
         // tbh might move lidar out of this 
-        // LidarReader m_lidar{true, false};
+        LidarReader m_lidar{true, false};
         Intake m_intake;
 
         IntakeElevatorConstants::GamePieceInfo coneinfo = IntakeElevatorConstants::coneScoreInfo;
         IntakeElevatorConstants::GamePieceInfo cubeinfo = IntakeElevatorConstants::cubeScoreInfo;
 
+        // for debug
         IntakeElevatorConstants::GamePieceInfo& curGPInfo = coneinfo;
 };

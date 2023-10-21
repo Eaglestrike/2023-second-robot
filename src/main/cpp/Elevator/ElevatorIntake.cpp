@@ -83,10 +83,10 @@ void ElevatorIntake::DebugScoring(){
     frc::SmartDashboard::GetNumber("mid w", curGPInfo.SCORE_MID.INTAKE_ANGLE)},{
     frc::SmartDashboard::GetNumber("high e", curGPInfo.SCORE_HIGH.ELEVATOR_LENG),
     frc::SmartDashboard::GetNumber("high w", curGPInfo.SCORE_HIGH.INTAKE_ANGLE)},{
-    frc::SmartDashboard::GetNumber("hp e", curGPInfo.HP_INTAKE.ELEVATOR_LENG),
-    frc::SmartDashboard::GetNumber("hp w", curGPInfo.HP_INTAKE.INTAKE_ANGLE)},{
     frc::SmartDashboard::GetNumber("grnd e", curGPInfo.GROUND_INTAKE.ELEVATOR_LENG),
-    frc::SmartDashboard::GetNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE)}};
+    frc::SmartDashboard::GetNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE)},{
+    frc::SmartDashboard::GetNumber("hp e", curGPInfo.HP_INTAKE.ELEVATOR_LENG),
+    frc::SmartDashboard::GetNumber("hp w", curGPInfo.HP_INTAKE.INTAKE_ANGLE)}};
 }
 
 void ElevatorIntake::Periodic(){
@@ -108,7 +108,7 @@ void ElevatorIntake::ToggleRoller(bool outtaking){
 
 void ElevatorIntake::TeleopPeriodic(){
    if (dbg) Debug();
-   DebugScoring();
+   //DebugScoring();
 
     m_intake.TeleopPeriodic();
     m_elevator.TeleopPeriodic();
@@ -182,10 +182,10 @@ void ElevatorIntake::IntakeFromHPS(){
 }
 
 IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
-//    if (cone) return IntakeElevatorConstants::coneScoreInfo;
-//    return IntakeElevatorConstants::cubeScoreInfo;
-    if (cone) return coneinfo;
-    return cubeinfo;
+   if (cone) return IntakeElevatorConstants::coneScoreInfo;
+   return IntakeElevatorConstants::cubeScoreInfo;
+    // if (cone) return coneinfo;
+    // return cubeinfo;
 }
 
 void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo){

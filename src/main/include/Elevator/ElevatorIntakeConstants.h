@@ -61,11 +61,22 @@ namespace IntakeConstants{
     const double MIN_POS = 0.0;
     const double DEPLOYED_POS = 0.0;
 
-    const double NORMAL_CURRENT = 15; //acc idk
-    const double KEEP_CONE_CURRENT = 5.0;
-    const double KEEP_CUBE_CURRENT = 10.0; 
-    const double KEEP_CONE_VOLTS = -0.9;
-    const double KEEP_CUBE_VOLTS = 0.7;
+    // const double NORMAL_CURRENT = 15; //acc idk
+     struct GamePieceInfo {
+        double SPIKE_CURRENT;
+        double KEEP_VOLTS;
+        double OUT_VOLTS;
+    };
+
+    const GamePieceInfo CONE_INFO = {100.0,
+                                     -0.9,
+                                     3.0};
+    const GamePieceInfo CUBE_INFO = {15.0,
+                                     0.7,
+                                     2.0}; // MAYBE LESS
+    
+    // const double KEEP_CONE_CURRENT = 5.0;
+    // const double KEEP_CUBE_CURRENT = 10.0;
 
     const double ROLLER_MAX_VOLTS = 3.0;
     const double WRIST_MAX_VOLTS = 5.0;

@@ -57,5 +57,5 @@ class ElevatorIntake{
         IntakeElevatorConstants::GamePieceInfo coneinfo = IntakeElevatorConstants::coneScoreInfo;
         IntakeElevatorConstants::GamePieceInfo cubeinfo = IntakeElevatorConstants::cubeScoreInfo;
 
-        IntakeElevatorConstants::GamePieceInfo& curGPInfo = cubeinfo;
+        IntakeElevatorConstants::GamePieceInfo& curGPInfo = coneinfo;
 };

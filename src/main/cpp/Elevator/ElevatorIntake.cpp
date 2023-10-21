@@ -159,6 +159,7 @@ void ElevatorIntake::Kill(){
 
 void ElevatorIntake::SetCone(bool cone){
     m_cone = cone;
+    frc::SmartDashboard::PutBoolean("cone", m_cone);
 }
 
 void ElevatorIntake::ScoreHigh(){

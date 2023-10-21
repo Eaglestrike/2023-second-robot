@@ -79,7 +79,8 @@ class Intake{
         double m_rollerStartTime;
 
         double m_rollerVolts;
-        double m_customDeployPos =-1, m_customRollerVolts = -1;
+        double m_customDeployPos =-1, 
+        m_customRollerVolts = -1;// get rid of this
 
         bool m_outtaking, m_cone;
         bool m_hasGamePiece = false;

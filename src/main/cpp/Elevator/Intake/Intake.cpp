@@ -16,6 +16,8 @@ Intake::Intake() {
         frc::SmartDashboard::PutNumber("v", m_v); 
         frc::SmartDashboard::PutNumber("a", m_a); 
     }
+    frc::SmartDashboard::PutNumber("cone spike current", IntakeConstants::CONE_INFO.SPIKE_CURRENT);
+
 }
 
 // needs to be called INSTEAD of teleop periodic
@@ -36,6 +38,7 @@ void Intake::TeleopPeriodic(){
     }
 
     double wristVolts = 0, rollerVolts = 0;
+    double spikeCur;
     switch (m_state){
         case MOVING:
             UpdateTargetPose(); // bc still using motion profile 
@@ -58,10 +61,12 @@ void Intake::TeleopPeriodic(){
             wristVolts = FFPIDCalculate();
             IntakeConstants::GamePieceInfo curInfo = IntakeConstants::CUBE_INFO;
             if (m_cone) curInfo = IntakeConstants::CONE_INFO;
-
+            if(m_cone)
+                spikeCur = frc::SmartDashboard::GetNumber("cone spike current", curInfo.SPIKE_CURRENT);
+            else spikeCur =curInfo.SPIKE_CURRENT; 
             if (m_targState == DEPLOYED){
                 rollerVolts = m_rollerVolts;
-                if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > curInfo.SPIKE_CURRENT
+                if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > spikeCur
                  && Utils::GetCurTimeS() > m_rollerStartTime + 0.5) 
                     m_hasGamePiece = true;
                 // else if (!(m_lidar.hasCone() || m_lidar.hasCube()))
@@ -312,7 +317,7 @@ void Intake::debugCurPose(){
 // for tuning, can test constant voltage on wrist or rollers 
 // but need to pick which wrist or rollers in the code, since it cant be changed from shuffleboard
 void Intake::debugPutVoltage(){
-    double voltReq;
+    double voltReq = 0;
     voltReq = frc::SmartDashboard::GetNumber("voltage", voltReq);
     voltReq = std::clamp(voltReq, -IntakeConstants::ROLLER_MAX_VOLTS, IntakeConstants::ROLLER_MAX_VOLTS);
     // if(m_curPos > IntakeConstants::MAX_POS){

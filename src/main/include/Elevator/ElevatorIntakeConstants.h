@@ -14,7 +14,7 @@ namespace IntakeElevatorConstants{
 
     const GamePieceInfo coneScoreInfo{{0.0, 0.58},
                                       {0.316, 0.73},
-                                      {0.545, 0.3},
+                                      {0.545, 0.8},
                                       {0.0, 0.0}, // ground intake
                                       {0.0, 1.5}}; // intake from drop station
 

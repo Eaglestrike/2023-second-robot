@@ -13,7 +13,7 @@ LidarReader::LidarReader(bool enabled, bool shuffleboard):
 {
     frc::SmartDashboard::PutBoolean("Lidar Stale", true);
     double time = frc::Timer::GetFPGATimestamp().value();
-    reqTime_ = time;
+    reqTime_.store(time);
     data_.conePos.store(LidarReaderConstants::DEFAULT_POSITION);
     data_.cubePos.store(LidarReaderConstants::DEFAULT_POSITION);
     data_.hasCone.store(false);
@@ -21,7 +21,7 @@ LidarReader::LidarReader(bool enabled, bool shuffleboard):
     data_.isValid.store(false);
     data_.readTime.store(time);
 
-    port_.SetTimeout(1_s);
+    port_.SetTimeout(0_s);
     port_.EnableTermination('\n');
 }
 
@@ -101,7 +101,6 @@ void LidarReader::readPortData(unsigned char (&readData)[8], int& readIndex){
         bufferSize -= cleared;
     }
 
-    
     char readBuffer[8]; //Reads to this char array
     int count = port_.Read(readBuffer, 8);
 
@@ -111,7 +110,7 @@ void LidarReader::readPortData(unsigned char (&readData)[8], int& readIndex){
         readIndex++;
         if(readIndex == 4){ //Has read 4 bytes
             readIndex = 0;
-            isRequesting_ = false;
+            isRequesting_.store(false);
 
             //Check recorded data is good
             if(isValidData(readData + 4)){
@@ -129,12 +128,12 @@ void LidarReader::readPortData(unsigned char (&readData)[8], int& readIndex){
 
 /// @brief stores the data
 void LidarReader::storeData(const unsigned char data[4]){
-    data_.hasCone = (data[1] != LidarReaderConstants::NO_READ);
-    data_.hasCube = (data[2] != LidarReaderConstants::NO_READ);
-    data_.conePos = data_.hasCone? ((double)data[1]) : LidarReaderConstants::DEFAULT_POSITION;
-    data_.cubePos = data_.hasCube? ((double)data[2]) : LidarReaderConstants::DEFAULT_POSITION;
-    data_.isValid = true;
-    data_.readTime = frc::Timer::GetFPGATimestamp().value();
+    data_.hasCone.store((data[1] != LidarReaderConstants::NO_READ) && (data[1] < 31));
+    data_.hasCube.store((data[2] != LidarReaderConstants::NO_READ));
+    data_.conePos.store(data_.hasCone.load()? ((double)data[1]) : LidarReaderConstants::DEFAULT_POSITION);
+    data_.cubePos.store(data_.hasCube.load()? ((double)data[2]) : LidarReaderConstants::DEFAULT_POSITION);
+    data_.isValid.store(true);
+    data_.readTime.store(frc::Timer::GetFPGATimestamp().value());
 }
 
 /// @brief Checks if data is valid via the check sum and response key

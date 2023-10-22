@@ -89,5 +89,5 @@ class Robot : public frc::TimedRobot {
   int m_heightVal;
 
   ElevatorIntake m_elevatorIntake;
-  LidarReader m_lidarReader;
+  LidarReader m_lidar;
 };

@@ -9,17 +9,18 @@ ElevatorIntake::ElevatorIntake(){
         frc::SmartDashboard::PutBoolean("stow", false);
         frc::SmartDashboard::PutBoolean("outtake", false);
         frc::SmartDashboard::PutBoolean("cone", false);
+
+        frc::SmartDashboard::PutNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG);
+        frc::SmartDashboard::PutNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE);
+        frc::SmartDashboard::PutNumber("mid e", curGPInfo.SCORE_MID.ELEVATOR_LENG);
+        frc::SmartDashboard::PutNumber("mid w", curGPInfo.SCORE_MID.INTAKE_ANGLE);
+        frc::SmartDashboard::PutNumber("high e", curGPInfo.SCORE_HIGH.ELEVATOR_LENG);
+        frc::SmartDashboard::PutNumber("high w", curGPInfo.SCORE_HIGH.INTAKE_ANGLE);
+        frc::SmartDashboard::PutNumber("hp e", curGPInfo.HP_INTAKE.ELEVATOR_LENG);
+        frc::SmartDashboard::PutNumber("hp w", curGPInfo.HP_INTAKE.INTAKE_ANGLE);
+        frc::SmartDashboard::PutNumber("grnd e", curGPInfo.GROUND_INTAKE.ELEVATOR_LENG);
+        frc::SmartDashboard::PutNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE);
     }
-    frc::SmartDashboard::PutNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG);
-    frc::SmartDashboard::PutNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE);
-    frc::SmartDashboard::PutNumber("mid e", curGPInfo.SCORE_MID.ELEVATOR_LENG);
-    frc::SmartDashboard::PutNumber("mid w", curGPInfo.SCORE_MID.INTAKE_ANGLE);
-    frc::SmartDashboard::PutNumber("high e", curGPInfo.SCORE_HIGH.ELEVATOR_LENG);
-    frc::SmartDashboard::PutNumber("high w", curGPInfo.SCORE_HIGH.INTAKE_ANGLE);
-    frc::SmartDashboard::PutNumber("hp e", curGPInfo.HP_INTAKE.ELEVATOR_LENG);
-    frc::SmartDashboard::PutNumber("hp w", curGPInfo.HP_INTAKE.INTAKE_ANGLE);
-    frc::SmartDashboard::PutNumber("grnd e", curGPInfo.GROUND_INTAKE.ELEVATOR_LENG);
-    frc::SmartDashboard::PutNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE);
 }
 
 void ElevatorIntake::Init() {
@@ -113,8 +114,10 @@ void ElevatorIntake::ToggleRoller(bool outtaking){
 }
 
 void ElevatorIntake::TeleopPeriodic(){
-   if (dbg) Debug();
-   DebugScoring();
+   if (dbg) {
+    Debug();
+    DebugScoring();
+   }
 
     m_intake.TeleopPeriodic();
     m_elevator.TeleopPeriodic();

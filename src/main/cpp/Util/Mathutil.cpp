@@ -8,6 +8,7 @@
 #endif
 
 #include <frc/Timer.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include "GeneralConstants.h"
 
@@ -235,8 +236,8 @@ FieldConstants::ScorePair Utils::GetScoringPos(int pos, int height, bool red) {
   height--;
 
   int idx = red ? 8 - pos : pos;
-  idx = idx % 3;
   int mult = idx / 3;
+  idx = idx % 3;
 
   FieldConstants::ScorePair scoreP = FieldConstants::BLUE_SCORING_POS[idx][height];
   double newX = red ? FieldConstants::FIELD_WIDTH - x(scoreP.first) : x(scoreP.first);
@@ -245,4 +246,13 @@ FieldConstants::ScorePair Utils::GetScoringPos(int pos, int height, bool red) {
   // scoreP.second = red ? LIDAR_MAX_DIST - scoreP.second : scoreP.second;
 
   return scoreP;
+}
+
+/**
+ * Determines if currently setting a cone from scoring position
+*/
+bool Utils::IsCone(int pos) {
+  pos--;
+
+  return pos % 3 != 1;
 }

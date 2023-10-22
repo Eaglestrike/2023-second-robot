@@ -29,8 +29,11 @@ public:
   void SetAlpha(double alpha);
   void SetMaxTime(double maxTime);
   bool SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID, std::size_t age, std::size_t uniqueId);
+  void SetTrimOffset(vec::Vector2D trimOffset);
+  void AddTrimOffset(vec::Vector2D trimOffset);
   void Reset();
 
+  vec::Vector2D GetTrimOffset() const;
   vec::Vector2D GetPosition() const;
   double GetAng() const;
 
@@ -39,6 +42,8 @@ public:
 private:
   vec::Vector2D *m_posOffset;
   double *m_angOffset;
+
+  vec::Vector2D m_trimOffset;
   // KalmanFilter m_filter;
   CompFilter m_filter;
 

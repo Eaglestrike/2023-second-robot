@@ -104,14 +104,15 @@ namespace ControllerMapData{
         {BB_L3, 3}
     };
 
+    const double TRIM_SIZE = 0.025; // in m
     const std::vector<ValueMapElement<double>> GET_TRIM_X = {
-        {BB_X_TRIM_UP, 1.0},
-        {BB_X_TRIM_DOWN, -1.0}
+        {BB_X_TRIM_UP, TRIM_SIZE},
+        {BB_X_TRIM_DOWN, -TRIM_SIZE}
     };
 
     const std::vector<ValueMapElement<double>> GET_TRIM_Y = {
-        {BB_Y_TRIM_UP, 1.0},
-        {BB_Y_TRIM_DOWN, -1.0}
+        {BB_Y_TRIM_UP, TRIM_SIZE},
+        {BB_Y_TRIM_DOWN, -TRIM_SIZE}
     };
 
     //Takes the range from min to max

@@ -396,16 +396,15 @@ void Robot::TeleopPeriodic() {
   }
 
   // trim, offset shold be opposite direction of offset so it moves correct direction
-  double trimX = -m_controller.getValue(ControllerMapData::GET_TRIM_X, 0.0);
-  double trimY = -m_controller.getValue(ControllerMapData::GET_TRIM_Y, 0.0);
+  double trimX = -m_controller.getValueOnce(ControllerMapData::GET_TRIM_X, 0.0);
+  double trimY = -m_controller.getValueOnce(ControllerMapData::GET_TRIM_Y, 0.0);
   vec::Vector2D offset = {trimX, trimY};
   if (m_red) {
     offset = rotate(offset, M_PI / 2);
   } else {
     offset = rotate(offset, -M_PI / 2);
   }
-  frc::SmartDashboard::PutString("Start pos", m_startPos.toString());
-  m_startPos += offset;
+  m_odometry.AddTrimOffset(offset);
 
   AutoLineup::ExecuteState curPosAutoState = m_autoLineup.GetPosExecuteState();
   AutoLineup::ExecuteState curAngAutoState = m_autoLineup.GetAngExecuteState();

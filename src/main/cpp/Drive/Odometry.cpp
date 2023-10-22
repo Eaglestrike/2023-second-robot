@@ -21,7 +21,7 @@
  * @param angOffset pointer to angle offset in robot cpp
  */
 Odometry::Odometry(vec::Vector2D *posOffset, double *angOffset)
-  : m_posOffset{posOffset}, m_angOffset{angOffset}, 
+  : m_posOffset{posOffset}, m_angOffset{angOffset}, m_trimOffset{0, 0}, 
     // m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::CAM_TRUST_KPOSINT, OdometryConstants::MAX_TIME, posOffset, angOffset},
     m_filter{OdometryConstants::ALPHA, OdometryConstants::MAX_TIME, m_posOffset},
     m_ang{0},
@@ -120,11 +120,12 @@ bool Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
 /**
  * Resets current position and angle
  * 
- * Should do this while robot is facing AWAY
+ * Resets trim offset as well
 */
 void Odometry::Reset() {
   std::size_t curTimeMs = Utils::GetCurTimeMs();
   m_filter.Reset(curTimeMs);
+  m_trimOffset = {0, 0};
 }
 
 /**
@@ -134,7 +135,7 @@ void Odometry::Reset() {
 */
 vec::Vector2D Odometry::GetPosition() const {
   // return m_filter.GetEstimatedPos() + *m_posOffset;
-  return m_filter.GetPos();
+  return m_filter.GetPos() + m_trimOffset;
 }
 
 /**
@@ -176,4 +177,31 @@ void Odometry::Periodic(double ang, vec::Vector2D avgVelocity) {
   m_ang = ang;
   // m_filter.PredictFromWheels(avgVelocity, ang + *m_angOffset, curTimeMs);
   m_filter.AddWheelVel(avgVelocity, curTimeMs);
+}
+
+/**
+ * Sets trim offset
+ * 
+ * @param trimOffset trim offset
+*/
+void Odometry::SetTrimOffset(vec::Vector2D trimOffset) {
+  m_trimOffset = trimOffset;
+}
+
+/**
+ * Adds trim offset to what is already there
+ * 
+ * @param trimOffset trim offset
+*/
+void Odometry::AddTrimOffset(vec::Vector2D trimOffset) {
+  m_trimOffset += trimOffset;
+}
+
+/**
+ * Gets trim offset
+ * 
+ * @returns trim offset
+*/
+vec::Vector2D Odometry::GetTrimOffset() const {
+  return m_trimOffset;
 }

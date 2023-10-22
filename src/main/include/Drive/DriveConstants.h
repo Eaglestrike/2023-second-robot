@@ -169,10 +169,10 @@ namespace OdometryConstants {
 
 namespace AutoConstants {
   const double TRANS_POS_ERR_TOLERANCE = 0.1016;
-  const double TRANS_VEL_ERR_TOLERANCE = 0.005;
+  const double TRANS_VEL_ERR_TOLERANCE = 100;
 
   const double ANG_POS_ERR_TOLERANCE = 0.1;
-  const double ANG_VEL_ERR_TOLERANCE = 0.01;
+  const double ANG_VEL_ERR_TOLERANCE = 100;
 
   const double UNREASONABLE_ANG_SPEED = 62.4828; // rad/s
 

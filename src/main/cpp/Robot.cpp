@@ -29,7 +29,7 @@ Robot::Robot():
       m_swerveBr{SwerveConstants::BR_CONFIG, true, false},
       m_swerveFl{SwerveConstants::FL_CONFIG, true, false},
       m_swerveBl{SwerveConstants::BL_CONFIG, true, false},
-      m_startPos{400, 400},
+      m_startPos{0, 0},
       m_startAng{0},
       m_joystickAng{0},
       m_odometry{&m_startPos, &m_startAng},
@@ -161,6 +161,7 @@ void Robot::RobotInit()
   // m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
   // m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
 
+  m_lidar.Init();
   m_client.Init();
 }
 
@@ -293,7 +294,7 @@ void Robot::RobotPeriodic()
   }
 
   m_elevatorIntake.Periodic();
-  // m_lidar.Periodic();
+  m_lidar.Periodic();
 }
 
 /**
@@ -369,11 +370,11 @@ void Robot::TeleopPeriodic() {
     m_heightVal = heightVal;
   }
 
-  frc::SmartDashboard::PutNumber("score pos val", m_posVal);
-  frc::SmartDashboard::PutNumber("Height val", m_heightVal);
+  // frc::SmartDashboard::PutNumber("score pos val", m_posVal);
+  // frc::SmartDashboard::PutNumber("Height val", m_heightVal);
 
-  frc::SmartDashboard::PutString("cur tgt pos", m_autoLineup.GetTargetPos().toString());
-  frc::SmartDashboard::PutNumber("cur tgt Ang", m_autoLineup.GetTargetAng());
+  // frc::SmartDashboard::PutString("cur tgt pos", m_autoLineup.GetTargetPos().toString());
+  // frc::SmartDashboard::PutNumber("cur tgt Ang", m_autoLineup.GetTargetAng());
 
   if (m_posVal && m_heightVal) {
     FieldConstants::ScorePair scorePair = Utils::GetScoringPos(m_posVal, m_heightVal, m_red);
@@ -384,12 +385,14 @@ void Robot::TeleopPeriodic() {
     double lidarReading = 0;
 
     if (m_lidar.hasCone()) {
-      lidarReading = m_lidar.getConePos();
+      lidarReading = m_lidar.getConePos() / 100.0;
       scorePos -= {0, m_red ? lidarOffset - lidarReading : lidarReading - lidarOffset};
     } else if (m_lidar.hasCube()) {
-      lidarReading = m_lidar.getCubePos();
+      lidarReading = m_lidar.getCubePos() / 100.0;
       scorePos += {0, m_red ? lidarOffset - lidarReading : lidarReading - lidarOffset};
     }
+
+    frc::SmartDashboard::PutNumber("Lidar reading", lidarReading);
     
     m_autoLineup.SetPosTarget(scorePos, false);
     m_autoLineup.SetAngTarget(ang, false);
@@ -445,8 +448,8 @@ void Robot::TeleopPeriodic() {
   // m_intake.TeleopPeriodic();
 
   if (m_controller.getTriggerDown(MANUAL1) && m_controller.getTriggerDown(MANUAL2)) {
-    double elH = m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
-    double intakeAng = m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
+    double elH = -m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
+    double intakeAng = -m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
     m_elevatorIntake.ManualPeriodic(elH, intakeAng);
     // frc::SmartDashboard::PutBoolean("Manual", true);
   } else {

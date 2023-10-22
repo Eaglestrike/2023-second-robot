@@ -56,7 +56,7 @@ class Robot : public frc::TimedRobot {
 
   // IMU acclerometer and gyroscope
   // Gives information on orientation and acceleration
-  //std::shared_ptr<AHRS> m_navx;
+  std::shared_ptr<AHRS> m_navx;
 
   // swerve
   SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
@@ -69,7 +69,7 @@ class Robot : public frc::TimedRobot {
   Odometry m_odometry;
 
   //Controller
-  //Controller m_controller;
+  Controller m_controller;
 
   // auto
   AutoLineup m_autoLineup;
@@ -83,7 +83,6 @@ class Robot : public frc::TimedRobot {
 
   // jetson
   SocketClient m_client;
-  // Intake m_intake;
   bool m_red;
   int m_posVal; // for auto lineup socring positions
   int m_heightVal;

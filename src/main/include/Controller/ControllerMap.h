@@ -54,13 +54,12 @@ namespace ControllerMapData{
     const std::vector<ControlMapElement> ButtonMap = {
         {{LJOY, X_AXIS},        SWERVE_STRAFEX},
         {{LJOY, Y_AXIS},        SWERVE_STRAFEY},
-        {{LJOY, TRIGGER},       ZERO_DRIVE_PID},
+        {{LJOY, TRIGGER},       AUTO_LINEUP},
         {{LJOY, B_4},           INTAKE},
         {{RJOY, B_3},           OUTTAKE},
-        {{LJOY, B_2},           AUTO_LINEUP}, 
         {{RJOY, X_AXIS},        SWERVE_ROTATION},
         {{RJOY, Y_AXIS},        NONE},
-        {{RJOY, TRIGGER},       ZERO_YAW},
+        {{RJOY, TRIGGER},       NONE},
 
         {XBOX_LJOY_X,           NONE},
         {XBOX_LJOY_Y,           ELEVATOR_H}, 
@@ -70,10 +69,11 @@ namespace ControllerMapData{
         {XBOX_B_BUTTON ,        SCORE_MID},
         {XBOX_X_BUTTON ,        SCORE_LOW},
         {XBOX_Y_BUTTON ,        SCORE_HIGH},
-        {XBOX_L_BUMPER ,        CONE},
+        {XBOX_L_BUMPER ,        GROUND},
         {XBOX_LTRIGGER ,        MANUAL1},
         {XBOX_R_BUMPER ,        HP},
-        {{XBOX, B_7} ,          GROUND},
+        {{XBOX, B_7} ,          ZERO_DRIVE_PID},
+        {{XBOX, B_8} ,          ZERO_YAW},
         {XBOX_RTRIGGER ,        MANUAL2}
     };
 

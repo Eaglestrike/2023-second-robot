@@ -224,11 +224,13 @@ std::vector<AutoPaths::SwervePose> Utils::GetRedPoses(std::vector<AutoPaths::Swe
 */
 FieldConstants::ScorePair Utils::GetScoringPos(int pos, int height, bool red) {
   if (pos < 1 || pos > 9) {
-    return;
+    // TODO: fix this to be accurate
+    return {{}, 0.0};
   }
 
   if (height < 1 || height > 3) {
-    return;
+    // TODO: fix this to be accurate
+    return {{}, 0.0};
   }
 
   pos--;

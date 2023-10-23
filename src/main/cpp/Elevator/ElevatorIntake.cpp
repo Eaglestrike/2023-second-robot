@@ -108,8 +108,10 @@ void ElevatorIntake::ToggleRoller(bool outtaking){
         m_intake.StartRollers(outtaking, m_cone); 
         m_rollers = true;
     }
-    // m_cone = cone;
-    // m_outtaking = outtaking;
+}
+
+void ElevatorIntake::UpdateLidarData(LidarReader::LidarData lidarData){
+    if (lidarData.isValid) m_cone = lidarData.hasCone;
 }
 
 void ElevatorIntake::TeleopPeriodic(){
@@ -194,10 +196,12 @@ void ElevatorIntake::IntakeFromHPS(){
 }
 
 IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
-//    if (cone) return IntakeElevatorConstants::coneScoreInfo;
-//    return IntakeElevatorConstants::cubeScoreInfo;
-    if (cone) return coneinfo;
-    return cubeinfo;
+    if (dbg2){
+        if (cone) return coneinfo;
+        return cubeinfo;
+    } else 
+        if (cone) return IntakeElevatorConstants::coneScoreInfo;
+        return IntakeElevatorConstants::cubeScoreInfo;
 }
 
 void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo){
@@ -214,7 +218,7 @@ void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntak
 */
 void ElevatorIntake::ManualPeriodic(double elevator, double intake) {
    if (dbg) Debug();
-   DebugScoring();
+   if (dbg2) DebugScoring();
     m_elevator.setManualVolts(elevator);
     m_intake.ManualPeriodic(intake * IntakeConstants::WRIST_MAX_VOLTS);
     m_elevator.TeleopPeriodic();

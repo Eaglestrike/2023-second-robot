@@ -40,8 +40,7 @@ class ElevatorIntake{
         void ScoreLow();
         void IntakeFromGround();
         void IntakeFromHPS();
-        void ConeCubeManual();
-        void ConeCubeLidar();
+        void UpdateLidarData(LidarReader::LidarData lidarData);
         void UpdateShuffleboard();
         void ManualPeriodic(double elevator, double intake);
 
@@ -52,7 +51,7 @@ class ElevatorIntake{
         void DebugScoring();
         void CalcIntakeDeployPos();
 
-        bool dbg = false;
+        bool dbg = false, dbg2= true;
         
         MechanismState m_state = MOVING;
         MovingState m_movingState = DONE;
@@ -65,8 +64,6 @@ class ElevatorIntake{
         bool m_useLidar = true;
 
         Elevator m_elevator{true, false};
-        // tbh might move lidar out of this 
-        LidarReader m_lidar{true, false};
         Intake m_intake;
 
         IntakeElevatorConstants::GamePieceInfo coneinfo = IntakeElevatorConstants::coneScoreInfo;

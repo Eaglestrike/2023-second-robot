@@ -14,6 +14,8 @@ class EIAutoPath: public AutoPaths {
 
 
         EIAutoPath(ActionToTake action, double next);
+        void periodic() override;
+        double getCompletionPercentage() override;
 
     private:
         ActionToTake action_;

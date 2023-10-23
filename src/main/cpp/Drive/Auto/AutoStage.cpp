@@ -7,7 +7,7 @@
  * 
  * @param paths_to_use the paths for a particular auto setup to use. read from a config file.
  */
-AutoStage::AutoStage(std::vector<AutoPaths> paths_to_use): all_paths(paths_to_use) {};
+AutoStage::AutoStage(std::vector<AutoPaths> paths_to_use) {};
 
 /**
  * @brief Called every periodic cycle. Manages the auto paths and executes them.
@@ -26,21 +26,19 @@ void AutoStage::periodic() {
     // Execute all paths in the execution array
     for (int i = 0; i < paths_being_executed.size(); i++) {
         // TODO: double check this use of auto
-        auto& p = paths_being_executed[i];
-        p.periodic();
+        paths_being_executed[i].periodic();
 
         // If it's close enough to the correct percentage, start the next action
-        if (abs(p.getNextStart() - p.getCompletionPercentage()) < COMPLETION_TOLERANCE) {
+        if (abs(paths_being_executed[i].getNextStart() - paths_being_executed[i].getCompletionPercentage()) < COMPLETION_TOLERANCE) {
             transferIntoCurrentExecutionVector();
         }
+
+        // remove it if it is completed
+        if (paths_being_executed[i].isFinished()) {
+            paths_being_executed.erase(paths_being_executed.begin() + i);
+            i--;
+        }
     }
-
-    // Removes all elements that are finished
-    auto new_end = std::remove_if(paths_being_executed.begin(), paths_being_executed.end(),
-                                  [](const AutoPaths& p) { return p.isFinished(); });
-
-    paths_being_executed.erase(new_end, paths_being_executed.end());
-
 }
 
 /**
@@ -48,7 +46,7 @@ void AutoStage::periodic() {
  * 
  */
 void AutoStage::transferIntoCurrentExecutionVector() {
-    auto last_element = all_paths.front();
-    paths_being_executed.push_back(last_element);
-    all_paths.erase(all_paths.begin());
+    // downcast
+    // paths_being_executed.push_back(all_paths.front());
+    // all_paths.erase(all_paths.begin());
 }

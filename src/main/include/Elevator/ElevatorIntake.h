@@ -56,7 +56,7 @@ class ElevatorIntake{
         MechanismState m_state = MOVING;
         MovingState m_movingState = DONE;
         TargetState m_targState;
-        bool m_cone;
+        bool m_cone, m_outtaking;
 
         bool m_rollers = false;
         double m_targIntakeAng, m_targElevatorPos;

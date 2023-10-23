@@ -1,7 +1,6 @@
 #include "Elevator/ElevatorIntake.h"
 
 ElevatorIntake::ElevatorIntake(){
-    // m_intake = Intake{m_lidar};
     if (dbg){
         frc::SmartDashboard::PutNumber("elevator len", 0.0);
         frc::SmartDashboard::PutNumber("wrist angle", 0.0);
@@ -10,16 +9,18 @@ ElevatorIntake::ElevatorIntake(){
         frc::SmartDashboard::PutBoolean("outtake", false);
         frc::SmartDashboard::PutBoolean("cone", false);
     }
-    frc::SmartDashboard::PutNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG);
-    frc::SmartDashboard::PutNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE);
-    frc::SmartDashboard::PutNumber("mid e", curGPInfo.SCORE_MID.ELEVATOR_LENG);
-    frc::SmartDashboard::PutNumber("mid w", curGPInfo.SCORE_MID.INTAKE_ANGLE);
-    frc::SmartDashboard::PutNumber("high e", curGPInfo.SCORE_HIGH.ELEVATOR_LENG);
-    frc::SmartDashboard::PutNumber("high w", curGPInfo.SCORE_HIGH.INTAKE_ANGLE);
-    frc::SmartDashboard::PutNumber("hp e", curGPInfo.HP_INTAKE.ELEVATOR_LENG);
-    frc::SmartDashboard::PutNumber("hp w", curGPInfo.HP_INTAKE.INTAKE_ANGLE);
-    frc::SmartDashboard::PutNumber("grnd e", curGPInfo.GROUND_INTAKE.ELEVATOR_LENG);
-    frc::SmartDashboard::PutNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE);
+    if (dbg2){
+            frc::SmartDashboard::PutNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG);
+        frc::SmartDashboard::PutNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE);
+        frc::SmartDashboard::PutNumber("mid e", curGPInfo.SCORE_MID.ELEVATOR_LENG);
+        frc::SmartDashboard::PutNumber("mid w", curGPInfo.SCORE_MID.INTAKE_ANGLE);
+        frc::SmartDashboard::PutNumber("high e", curGPInfo.SCORE_HIGH.ELEVATOR_LENG);
+        frc::SmartDashboard::PutNumber("high w", curGPInfo.SCORE_HIGH.INTAKE_ANGLE);
+        frc::SmartDashboard::PutNumber("hp e", curGPInfo.HP_INTAKE.ELEVATOR_LENG);
+        frc::SmartDashboard::PutNumber("hp w", curGPInfo.HP_INTAKE.INTAKE_ANGLE);
+        frc::SmartDashboard::PutNumber("grnd e", curGPInfo.GROUND_INTAKE.ELEVATOR_LENG);
+        frc::SmartDashboard::PutNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE);
+    }
 }
 
 void ElevatorIntake::Init() {
@@ -102,16 +103,21 @@ void ElevatorIntake::Periodic(){
 
 void ElevatorIntake::ToggleRoller(bool outtaking){
     if (m_rollers){
-        m_intake.StopRollers();
-        m_rollers = false;
+        if (m_outtaking != outtaking){
+            m_intake.StartRollers(outtaking, m_cone);
+        } else {
+            m_intake.StopRollers();
+            m_rollers = false;
+        }
     } else {
         m_intake.StartRollers(outtaking, m_cone); 
         m_rollers = true;
     }
+    m_outtaking = outtaking;
 }
 
 void ElevatorIntake::UpdateLidarData(LidarReader::LidarData lidarData){
-    if (lidarData.isValid) m_cone = lidarData.hasCone;
+    m_intake.UpdateLidarData(lidarData);
 }
 
 void ElevatorIntake::TeleopPeriodic(){
@@ -145,6 +151,8 @@ void ElevatorIntake::TeleopPeriodic(){
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
                             m_intake.DeployNoRollers();
+                            if (m_rollers)
+                                m_intake.StartRollers(m_outtaking, m_cone);
                         }
                         m_movingState = INTAKE;
                     }

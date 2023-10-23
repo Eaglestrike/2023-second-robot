@@ -110,6 +110,10 @@ void Intake::TeleopPeriodic(){
     m_rollerMotor.SetVoltage(units::volt_t(std::clamp(rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
 }
 
+void Intake::UpdateLidarData(LidarReader::LidarData lidarData){
+    if (lidarData.isValid) m_hasGamePiece = lidarData.hasCone || lidarData.hasCube;
+}
+
 //completely stows the intake at its maximum position
 void Intake::Stow(){
     if (m_targState == STOWED) return;

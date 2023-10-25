@@ -20,7 +20,6 @@
 #include "Drive/AutoPath.h"
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
-#include "Intake/Intake.h"
 #include "Drive/SwerveModule.h"
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"

@@ -27,17 +27,17 @@ void AutoStage::periodic() {
     for (int i = 0; i < paths_being_executed.size(); i++) {
         // TODO: double check this use of auto
         auto& p = paths_being_executed[i];
-        p.periodic();
+        p.Periodic();
 
         // If it's close enough to the correct percentage, start the next action
-        if (abs(p.getNextStart() - p.getCompletionPercentage()) < COMPLETION_TOLERANCE) {
-            transferIntoCurrentExecutionVector();
-        }
+        // if (abs(p.getNextStart() - p.getCompletionPercentage()) < COMPLETION_TOLERANCE) {
+        //     transferIntoCurrentExecutionVector();
+        // }
     }
 
     // Removes all elements that are finished
     auto new_end = std::remove_if(paths_being_executed.begin(), paths_being_executed.end(),
-                                  [](const AutoPaths& p) { return p.isFinished(); });
+                                  [](const AutoPaths& p) { return p.GetCompletionPercentage() == 1.0; });
 
     paths_being_executed.erase(new_end, paths_being_executed.end());
 

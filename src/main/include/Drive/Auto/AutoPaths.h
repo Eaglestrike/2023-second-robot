@@ -5,10 +5,10 @@ class AutoPaths {
         virtual void Init() = 0;
         virtual void AutonomousPeriodic() = 0;
 
-        virtual const double GetCompletionPercentage(){
+        virtual double GetCompletionPercentage() const{
             return m_completion;
         };
-        virtual const bool GetStarted(){
+        virtual bool GetStarted() const{
             return m_started;
         };
         virtual void Start(){

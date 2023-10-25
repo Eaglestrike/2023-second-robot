@@ -1,24 +1,21 @@
 
 class AutoPaths {
     public:
-        enum ExecuteState {
-            NOT_EXECUTING,
-            EXECUTING_PATH,
-            AT_TARGET
+        virtual void Periodic() = 0;
+        virtual void Init() = 0;
+        virtual void AutonomousPeriodic() = 0;
+
+        virtual const double GetCompletionPercentage(){
+            return m_completion;
+        };
+        virtual const bool GetStarted(){
+            return m_started;
+        };
+        virtual void Start(){
+            m_started = true;
         };
 
-        AutoPaths(double next_start);
-
-        // Every subclass is responsible for managing their state in the periodic method.
-        virtual void periodic() = 0;
-
-        // TODO: rename this for clarity
-        double getNextStart();
-        virtual double getCompletionPercentage() = 0;
-        bool isFinished() const;
-        ExecuteState getCurrentState() const;
-
     protected:
-        ExecuteState current_state_ = NOT_EXECUTING;
-        double start_next_current_completion;
+        bool m_started = false;
+        double m_completion = 0.0;
 };

@@ -1,23 +1,16 @@
 #include "AutoPaths.h"
+#include "Elevator/ElevatorIntake.h"
 
 class EIAutoPath: public AutoPaths {
     public:
-        // note: these were added from elevator,
-        // assuming that intake will react to them.
-        enum ActionToTake {
-            STOW,
-            EXTEND_MID,
-            EXTEND_LOW,
-            EXTEND_HIGH,
-            HOLD_POSITION,
-        };
-
-
-        EIAutoPath(ActionToTake action, double next);
-        void periodic() override;
-        double getCompletionPercentage() override;
-
+        EIAutoPath(ElevatorIntake::TargetState action);
+        void Periodic() override;
+        void AutonomousPeriodic() override;
+        void Init() override;
+        void Start() override;
+    
     private:
-        ActionToTake action_;
+        ElevatorIntake::TargetState m_action;
+        ElevatorIntake m_EI;
 
 };

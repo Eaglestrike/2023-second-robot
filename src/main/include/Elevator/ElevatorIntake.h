@@ -43,6 +43,9 @@ class ElevatorIntake{
         void UpdateLidarData(LidarReader::LidarData lidarData);
         void UpdateShuffleboard();
         void ManualPeriodic(double elevator, double intake);
+        MovingState GetState();
+        double GetWristCompletion();
+        double GetElevatorCompletion();
 
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);

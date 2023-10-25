@@ -198,7 +198,7 @@ void ElevatorIntake::IntakeFromGround(){
 }
 
 void ElevatorIntake::IntakeFromHPS(){
-    m_targState = HP;
+   m_targState = HP;
    DeployElevatorIntake(GetGPI(m_cone).HP_INTAKE);
    m_intake.SetHPIntake(true);
 }
@@ -214,6 +214,10 @@ IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
 
 void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo){
     DeployElevatorIntake(scoreInfo.ELEVATOR_LENG, scoreInfo.INTAKE_ANGLE);
+}
+
+ElevatorIntake::MovingState ElevatorIntake::GetState(){
+    return m_movingState;
 }
 
 /**

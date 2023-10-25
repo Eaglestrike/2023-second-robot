@@ -2,10 +2,11 @@
 
 #include "AutoPaths.h"
 #include "Elevator/ElevatorIntake.h"
+#include "AutoConstants.h"
 
 class EIAutoPath: public AutoPaths {
     public:
-        EIAutoPath(ElevatorIntake::TargetState action);
+        EIAutoPath(ElevatorIntake::TargetState action, bool cone);
         void Periodic() override;
         void AutonomousPeriodic() override;
         void Init() override;

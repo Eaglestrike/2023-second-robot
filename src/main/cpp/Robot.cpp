@@ -388,8 +388,8 @@ void Robot::TeleopPeriodic() {
   // frc::SmartDashboard::PutNumber("score pos val", m_posVal);
   // frc::SmartDashboard::PutNumber("Height val", m_heightVal);
 
-  // frc::SmartDashboard::PutString("cur tgt pos", m_autoLineup.GetTargetPos().toString());
-  // frc::SmartDashboard::PutNumber("cur tgt Ang", m_autoLineup.GetTargetAng());
+  frc::SmartDashboard::PutString("cur tgt pos", m_autoLineup.GetTargetPos().toString());
+  frc::SmartDashboard::PutNumber("cur tgt Ang", m_autoLineup.GetTargetAng());
 
   if (m_posVal && m_heightVal) {
     FieldConstants::ScorePair scorePair = Utils::GetScoringPos(m_posVal, m_heightVal, m_red);

@@ -75,19 +75,19 @@ namespace FieldConstants {
   using ScorePair = std::pair<vec::Vector2D, double>;
   const std::vector<std::vector<ScorePair>> BLUE_SCORING_POS {
     { // scoring pos 1
-      {{2.07, 4.96}, 0.01}, // L
-      {{2.02, 5}, 0.0}, // M
+      {{2.07, 5}, 0}, // L
+      {{2.02, 5}, 0}, // M
       {{1.9, 5}, 0}, // H
     },
     { // scoring pos 2
       {{2.091, 4.37}, 0.06}, // L
       {{1.87, 4.353}, 0}, // M
-      {{1.93, 4.171}, 0}, // H
+      {{1.93, 4.353}, 0}, // H
     },
     { // scoring pos 3
       {{1.727, 3.651}, 0.15}, // L
-      {{2.10, 3.842}, 0.09}, // M
-      {{1.917, 3.643}, 0.1}, // H
+      {{2.07, 3.97}, 0}, // M
+      {{1.94, 3.97}, 0}, // H
     },
   };
   const double DIST_BETWEEN_TAGS = 1.6764;

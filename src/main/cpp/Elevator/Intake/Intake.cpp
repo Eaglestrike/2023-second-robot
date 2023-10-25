@@ -52,7 +52,7 @@ void Intake::TeleopPeriodic(){
             } else if (m_hasGamePiece){
                 if (m_cone){
                     if(m_hpSt){
-                        rollerVolts = m_rollerVolts;
+                        rollerVolts = -IntakeConstants::ROLLER_MAX_VOLTS;
                     } else rollerVolts = IntakeConstants::CONE_INFO.KEEP_VOLTS;
                 } else
                     rollerVolts = IntakeConstants::CUBE_INFO.KEEP_VOLTS;
@@ -61,20 +61,20 @@ void Intake::TeleopPeriodic(){
             break;
         case AT_TARGET:
             wristVolts = FFPIDCalculate();
-            if (m_hpSt && m_cone && m_hasGamePiece){
-                if (m_rollerMotor.GetOutputCurrent() > spikeCur && Utils::GetCurTimeS() > m_rollerStartTime + 0.5 && m_targetPos == STOWED) 
-                    m_hpSt = false;
-                else 
-                    rollerVolts = m_rollerVolts;
-                break;
-            } 
 
             IntakeConstants::GamePieceInfo curInfo = IntakeConstants::CUBE_INFO;
             if (m_cone) {
                 curInfo = IntakeConstants::CONE_INFO;
                 spikeCur = frc::SmartDashboard::GetNumber("cone spike current", curInfo.SPIKE_CURRENT);
             } else spikeCur = curInfo.SPIKE_CURRENT;
-
+            
+            if (m_hpSt && m_cone && m_hasGamePiece){
+                if (m_rollerMotor.GetOutputCurrent() > spikeCur && Utils::GetCurTimeS() > m_rollerStartTime + 0.5 && m_targetPos == STOWED) 
+                    m_hpSt = false;
+                else 
+                    rollerVolts = -IntakeConstants::ROLLER_MAX_VOLTS;
+                break;
+            } 
             if (m_targState == DEPLOYED){
                 rollerVolts = m_rollerVolts;
                 if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > spikeCur

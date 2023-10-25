@@ -69,11 +69,11 @@ namespace IntakeConstants{
     };
 
     const GamePieceInfo CONE_INFO = {100.0,
-                                     -0.9,
-                                     2.0};
+                                     -1.5,
+                                     3.0};
     const GamePieceInfo CUBE_INFO = {15.0,
                                      0.7,
-                                     2.0}; // MAYBE LESS
+                                     3.0}; // MAYBE LESS
     
     // const double KEEP_CONE_CURRENT = 5.0;
     // const double KEEP_CUBE_CURRENT = 10.0;

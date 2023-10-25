@@ -84,17 +84,22 @@ Robot::Robot():
       long long age = static_cast<long long>(camData[5]);
       unsigned long long uniqueId = static_cast<unsigned long long>(camData[6]);
 
-      // frc::SmartDashboard::PutNumber("camX", x);
-      // frc::SmartDashboard::PutNumber("camY", y);
+      frc::SmartDashboard::PutNumber("camX", x);
+      frc::SmartDashboard::PutNumber("camY", y);
 
-      bool res = camId == 0 && m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
+
+      bool res = false;
+      if (camId != 0) {
+        res = m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);;
+      } 
+
       // frc::SmartDashboard::PutBoolean("Good ID", res);
       if (!res) {
         tagId = 0;
       } else {
         // std::cout << "good " << tagId << " " << Utils::GetCurTimeMs() << std::endl;
       }
-      // frc::SmartDashboard::PutNumber("tag Id", tagId);
+      frc::SmartDashboard::PutNumber("tag Id", tagId);
     }
 
     // other odometry
@@ -120,7 +125,7 @@ void Robot::RobotInit()
   // frc::SmartDashboard::PutNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
   // frc::SmartDashboard::PutNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
   frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
-  frc::SmartDashboard::PutNumber("Filter maxtime", OdometryConstants::MAX_TIME);
+  // frc::SmartDashboard::PutNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
   // frc::SmartDashboard::PutNumber("Delta X", 0);
   // frc::SmartDashboard::PutNumber("Delta Y", 0);
@@ -136,19 +141,24 @@ void Robot::RobotInit()
   m_startPosChooser.AddOption("Red R", "Red R");
   frc::SmartDashboard::PutData("Starting pos", &m_startPosChooser);
 
-  frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
-  frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
-  frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
+  // frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
+  // frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
+  // frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
 
-  frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
-  frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
-  frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
+  // frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
+  // frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
+  // frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
 
-  frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
-  frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
+  // frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
+  // frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
 
-  frc::SmartDashboard::PutNumber("ang maxSp", AutoConstants::ANG_MAXSP);
-  frc::SmartDashboard::PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
+  // frc::SmartDashboard::PutNumber("ang maxSp", AutoConstants::ANG_MAXSP);
+  // frc::SmartDashboard::PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
+
+  // frc::SmartDashboard::PutNumber("1 Mid X", FieldConstants::BLUE_SCORING_POS[0][1].first.x());
+  // frc::SmartDashboard::PutNumber("1 High X", FieldConstants::BLUE_SCORING_POS[0][2].first.x());
+  // frc::SmartDashboard::PutNumber("1 Mid Y", FieldConstants::BLUE_SCORING_POS[0][1].first.y());
+  // frc::SmartDashboard::PutNumber("1 High Y", FieldConstants::BLUE_SCORING_POS[0][2].first.y());
 
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
@@ -207,10 +217,10 @@ void Robot::RobotPeriodic()
     // double kPos = frc::SmartDashboard::GetNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
     // double kPosInt = frc::SmartDashboard::GetNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
     double alpha = frc::SmartDashboard::GetNumber("Filter Alpha", OdometryConstants::ALPHA);
-    double maxTime = frc::SmartDashboard::GetNumber("Filter maxtime", OdometryConstants::MAX_TIME);
+    // double maxTime = frc::SmartDashboard::GetNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
     m_odometry.SetAlpha(alpha); 
-    m_odometry.SetMaxTime(maxTime);
+    // m_odometry.SetMaxTime(maxTime);
 
     // double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
     // double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
@@ -218,29 +228,34 @@ void Robot::RobotPeriodic()
     // m_autoLineup.SetPosTarget({deltaX, deltaY}, true);
     // m_autoLineup.SetAngTarget(deltaAng, true);
 
-    double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
-    double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
-    double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KD);
+    // double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
+    // double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
+    // double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KD);
 
-    double akP = frc::SmartDashboard::GetNumber("ang kP", AutoConstants::ANG_KP);
-    double akI = frc::SmartDashboard::GetNumber("ang kI", AutoConstants::ANG_KI);
-    double akD = frc::SmartDashboard::GetNumber("ang kD", AutoConstants::ANG_KD);
+    // double akP = frc::SmartDashboard::GetNumber("ang kP", AutoConstants::ANG_KP);
+    // double akI = frc::SmartDashboard::GetNumber("ang kI", AutoConstants::ANG_KI);
+    // double akD = frc::SmartDashboard::GetNumber("ang kD", AutoConstants::ANG_KD);
 
-    m_autoLineup.SetPosPID(tkP, tkI, tkD);
-    m_autoLineup.SetAngPID(akP, akI, akD);
-    m_autoPath.SetPosPID(tkP, tkI, tkD);
-    m_autoPath.SetAngPID(akP, akI, akD);
+    // m_autoLineup.SetPosPID(tkP, tkI, tkD);
+    // m_autoLineup.SetAngPID(akP, akI, akD);
+    // m_autoPath.SetPosPID(tkP, tkI, tkD);
+    // m_autoPath.SetAngPID(akP, akI, akD);
 
-    double tMaxSp = frc::SmartDashboard::GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
-    double tMaxAcc = frc::SmartDashboard::GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
+    // double tMaxSp = frc::SmartDashboard::GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
+    // double tMaxAcc = frc::SmartDashboard::GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
 
-    double aMaxSp = frc::SmartDashboard::GetNumber("ang maxSp", AutoConstants::ANG_MAXSP);
-    double aMaxAcc = frc::SmartDashboard::GetNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
+    // double aMaxSp = frc::SmartDashboard::GetNumber("ang maxSp", AutoConstants::ANG_MAXSP);
+    // double aMaxAcc = frc::SmartDashboard::GetNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
 
-    m_autoLineup.SetPosFF({tMaxSp, tMaxAcc});
-    m_autoLineup.SetAngFF({aMaxSp, aMaxAcc});
+    // m_autoLineup.SetPosFF({tMaxSp, tMaxAcc});
+    // m_autoLineup.SetAngFF({aMaxSp, aMaxAcc});
 
     // m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
+
+    // double mx = frc::SmartDashboard::GetNumber("1 Mid X", FieldConstants::BLUE_SCORING_POS[0][1].first.x());
+    // double hx = frc::SmartDashboard::GetNumber("1 High X", FieldConstants::BLUE_SCORING_POS[0][2].first.x());
+    // double my = frc::SmartDashboard::GetNumber("1 Mid Y", FieldConstants::BLUE_SCORING_POS[0][1].first.y());
+    // double hy = frc::SmartDashboard::GetNumber("1 High Y", FieldConstants::BLUE_SCORING_POS[0][2].first.y());
   }
 
   if (m_controller.getPressedOnce(ZERO_YAW))

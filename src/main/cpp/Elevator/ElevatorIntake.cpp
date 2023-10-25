@@ -132,7 +132,7 @@ void ElevatorIntake::TeleopPeriodic(){
                     if (m_intake.GetTargetState() != Intake::HALFSTOWED)
                         m_intake.HalfStow();
                     else if (m_intake.GetState() == Intake::AT_TARGET){
-                        if(m_targElevatorPos == STOWED)
+                        if(m_targState == STOWED)
                             m_elevator.Stow();
                         else
                             m_elevator.ExtendToCustomPos(m_targElevatorPos);

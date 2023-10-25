@@ -70,7 +70,6 @@ bool Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
   }
   m_prevId = static_cast<long long>(uniqueId);
 
-  // I know I can use an array, i was just being an idiot when writing this
   if (tagID < 1 || tagID > 8) {
     return false;
   }

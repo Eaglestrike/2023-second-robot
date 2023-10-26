@@ -1,7 +1,6 @@
 #include "Elevator/ElevatorIntake.h"
 
 ElevatorIntake::ElevatorIntake(){
-    // m_intake = Intake{m_lidar};
     if (dbg){
         frc::SmartDashboard::PutNumber("elevator len", 0.0);
         frc::SmartDashboard::PutNumber("wrist angle", 0.0);
@@ -103,14 +102,21 @@ void ElevatorIntake::Periodic(){
 
 void ElevatorIntake::ToggleRoller(bool outtaking){
     if (m_rollers){
-        m_intake.StopRollers();
-        m_rollers = false;
+        if (m_outtaking != outtaking){
+            m_intake.StartRollers(outtaking, m_cone);
+        } else {
+            m_intake.StopRollers();
+            m_rollers = false;
+        }
     } else {
         m_intake.StartRollers(outtaking, m_cone); 
         m_rollers = true;
     }
-    // m_cone = cone;
-    // m_outtaking = outtaking;
+    m_outtaking = outtaking;
+}
+
+void ElevatorIntake::UpdateLidarData(LidarReader::LidarData& lidarData){
+    m_intake.UpdateLidarData(lidarData);
 }
 
 void ElevatorIntake::TeleopPeriodic(){
@@ -146,6 +152,8 @@ void ElevatorIntake::TeleopPeriodic(){
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
                             m_intake.DeployNoRollers();
+                            if (m_rollers)
+                                m_intake.StartRollers(m_outtaking, m_cone);
                         }
                         m_movingState = INTAKE;
                     }
@@ -197,10 +205,12 @@ void ElevatorIntake::IntakeFromHPS(){
 }
 
 IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
-//    if (cone) return IntakeElevatorConstants::coneScoreInfo;
-//    return IntakeElevatorConstants::cubeScoreInfo;
-    if (cone) return coneinfo;
-    return cubeinfo;
+    if (dbg2){
+        if (cone) return coneinfo;
+        return cubeinfo;
+    } else 
+        if (cone) return IntakeElevatorConstants::coneScoreInfo;
+        return IntakeElevatorConstants::cubeScoreInfo;
 }
 
 void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo){
@@ -217,7 +227,7 @@ void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntak
 */
 void ElevatorIntake::ManualPeriodic(double elevator, double intake) {
    if (dbg) Debug();
-   DebugScoring();
+   if (dbg2) DebugScoring();
     m_elevator.setManualVolts(elevator);
     m_intake.ManualPeriodic(intake * IntakeConstants::WRIST_MAX_VOLTS);
     m_elevator.TeleopPeriodic();

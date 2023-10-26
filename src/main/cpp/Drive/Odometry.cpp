@@ -53,7 +53,7 @@ Odometry::Odometry(vec::Vector2D *posOffset, double *angOffset)
  * @param camPos Position data from camera
  * @param camAng Angle from camera (unused, may use later)
  * @param tagID Apriltag ID
- * @param age delay measurement from camera (combined delay from camera to jetson and from jetson to rio through network)
+ * @param age delay measurement from camera (combined delay from camera to jetson and from jetson to rio through network), ms
  * @param uniqueId unique ID from camera
  * 
  * @returns Wheter data is valid (new uniqueID)

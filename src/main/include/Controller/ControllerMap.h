@@ -104,7 +104,7 @@ namespace ControllerMapData{
         {BB_L3, 3}
     };
 
-    const double TRIM_SIZE = 0.025; // in m
+    const double TRIM_SIZE = 0.05; // in m
     const std::vector<ValueMapElement<double>> GET_TRIM_X = {
         {BB_X_TRIM_UP, TRIM_SIZE},
         {BB_X_TRIM_DOWN, -TRIM_SIZE}

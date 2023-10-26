@@ -118,7 +118,7 @@ void Intake::Stow(){
     if (m_targState == STOWED) return;
     m_targState = STOWED;
     SetSetpoint(IntakeConstants::STOWED_POS);
-    m_rollerVolts = 0;
+    if (!m_hpSt) m_rollerVolts = 0;
     m_state = MOVING;
 }
 
@@ -127,7 +127,7 @@ void Intake::HalfStow(){
     if (m_targState == HALFSTOWED) return;
     m_targState = HALFSTOWED;
     SetSetpoint(IntakeConstants::INTAKE_UPRIGHT_ANGLE);
-    m_rollerVolts = 0;
+    if (!m_hpSt) m_rollerVolts = 0;
     m_state = MOVING;
 }
 

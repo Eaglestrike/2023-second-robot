@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Elevator/ElevatorIntakeConstants.h"
+#include "Elevator/Lidar/LidarReader.h"
 #include "Util/Mathutil.h"
 #include <ctre/Phoenix.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -37,7 +38,8 @@ class Intake{
         void DeployIntake(bool cone); 
         void DeployOuttake(bool cone);
         void ChangeDeployPos(double newPos); //pos should be in radians, w 0 as extended and parallel to ground
-        void ChangeRollerVoltage(double newVolotage); 
+        void ChangeRollerVoltage(double newVoltage); 
+        void UpdateLidarData(LidarReader::LidarData& lidarData);
         void Kill();
         // for debugging
         MechState GetState();

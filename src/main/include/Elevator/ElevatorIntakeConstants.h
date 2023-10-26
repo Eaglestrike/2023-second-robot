@@ -54,14 +54,13 @@ namespace IntakeConstants{
     // wrist positions in radians, 0.0 is parallel to ground and flipping intake up is positive
     const double MAX_POS = 1.85;
     const double STOWED_POS = 1.84;
-    const double INTAKE_UPRIGHT_ANGLE = 1.4;
+    const double INTAKE_UPRIGHT_ANGLE = 1.4; // halfstowed
 
 
     //todo:
-    const double MIN_POS = 0.0;
-    const double DEPLOYED_POS = 0.0;
+    const double MIN_POS = 0.0; // this is fine for now bc we currently have no need for negative pos
+    const double DEPLOYED_POS = 0.0; // unused
 
-    // const double NORMAL_CURRENT = 15; //acc idk
      struct GamePieceInfo {
         double SPIKE_CURRENT;
         double KEEP_VOLTS;

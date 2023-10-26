@@ -40,8 +40,7 @@ class ElevatorIntake{
         void ScoreLow();
         void IntakeFromGround();
         void IntakeFromHPS();
-        void ConeCubeManual();
-        void ConeCubeLidar();
+        void UpdateLidarData(LidarReader::LidarData& lidarData);
         void UpdateShuffleboard();
         void ManualPeriodic(double elevator, double intake);
 
@@ -52,12 +51,12 @@ class ElevatorIntake{
         void DebugScoring();
         void CalcIntakeDeployPos();
 
-        bool dbg = false;
+        bool dbg = false, dbg2= true;
         
         MechanismState m_state = MOVING;
         MovingState m_movingState = DONE;
         TargetState m_targState;
-        bool m_cone;
+        bool m_cone, m_outtaking;
 
         bool m_rollers = false;
         double m_targIntakeAng, m_targElevatorPos;

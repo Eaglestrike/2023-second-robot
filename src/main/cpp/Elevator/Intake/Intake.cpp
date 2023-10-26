@@ -63,18 +63,12 @@ void Intake::TeleopPeriodic(){
             wristVolts = FFPIDCalculate();
 
             IntakeConstants::GamePieceInfo curInfo = IntakeConstants::CUBE_INFO;
-            if (m_cone) {
+            if (m_cone) //{
                 curInfo = IntakeConstants::CONE_INFO;
-                spikeCur = frc::SmartDashboard::GetNumber("cone spike current", curInfo.SPIKE_CURRENT);
-            } else spikeCur = curInfo.SPIKE_CURRENT;
+            //     spikeCur = frc::SmartDashboard::GetNumber("cone spike current", curInfo.SPIKE_CURRENT);
+            // } else 
+            spikeCur = curInfo.SPIKE_CURRENT;
             
-            if (m_hpSt && m_cone && m_hasGamePiece){
-                if (m_rollerMotor.GetOutputCurrent() > spikeCur && Utils::GetCurTimeS() > m_rollerStartTime + 0.5 && m_targetPos == STOWED) 
-                    m_hpSt = false;
-                else 
-                    rollerVolts = -IntakeConstants::ROLLER_MAX_VOLTS;
-                break;
-            } 
             if (m_targState == DEPLOYED){
                 rollerVolts = m_rollerVolts;
                 if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > spikeCur
@@ -82,15 +76,20 @@ void Intake::TeleopPeriodic(){
                     m_hasGamePiece = true;
                     if (m_hpSt) 
                         m_rollerStartTime = Utils::GetCurTimeS();
-                 }
-                // else if (!(m_lidar.hasCone() || m_lidar.hasCube()))
+                }
                 else if (m_outtaking) 
                     m_hasGamePiece = false;
             }
             if (m_hasGamePiece)
-                if (m_cone)
-                    rollerVolts = IntakeConstants::CONE_INFO.KEEP_VOLTS;
-                else
+                if (m_cone){
+                    if (m_hpSt){
+                        if (m_rollerMotor.GetOutputCurrent() > spikeCur && m_targetPos == STOWED) 
+                            m_hpSt = false;
+                        else 
+                            rollerVolts = -IntakeConstants::ROLLER_MAX_VOLTS;
+                    } else
+                        rollerVolts = IntakeConstants::CONE_INFO.KEEP_VOLTS;
+                } else
                     rollerVolts = IntakeConstants::CUBE_INFO.KEEP_VOLTS;
             break;
     }
@@ -110,12 +109,16 @@ void Intake::TeleopPeriodic(){
     m_rollerMotor.SetVoltage(units::volt_t(std::clamp(rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
 }
 
+void Intake::UpdateLidarData(LidarReader::LidarData& lidarData){
+    if (lidarData.isValid) m_hasGamePiece = lidarData.hasCone || lidarData.hasCube;
+}
+
 //completely stows the intake at its maximum position
 void Intake::Stow(){
     if (m_targState == STOWED) return;
     m_targState = STOWED;
     SetSetpoint(IntakeConstants::STOWED_POS);
-    m_rollerVolts = 0;
+    if (!m_hpSt) m_rollerVolts = 0;
     m_state = MOVING;
 }
 
@@ -124,7 +127,7 @@ void Intake::HalfStow(){
     if (m_targState == HALFSTOWED) return;
     m_targState = HALFSTOWED;
     SetSetpoint(IntakeConstants::INTAKE_UPRIGHT_ANGLE);
-    m_rollerVolts = 0;
+    if (!m_hpSt) m_rollerVolts = 0;
     m_state = MOVING;
 }
 

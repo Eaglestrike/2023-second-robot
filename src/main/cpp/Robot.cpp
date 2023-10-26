@@ -313,6 +313,9 @@ void Robot::RobotPeriodic()
 
   m_elevatorIntake.Periodic();
   m_lidar.Periodic();
+
+  m_elevatorIntake.UpdateLidarData(m_lidar.getData());
+
 }
 
 /**

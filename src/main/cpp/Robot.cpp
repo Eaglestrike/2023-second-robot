@@ -76,7 +76,7 @@ Robot::Robot():
     // process camera data
     std::vector<double> camData = m_client.GetData();
     bool isCorrecting = false;
-    if (!m_isAutoLineup && m_client.HasConn() && !m_client.IsStale()) {
+    if (!m_isAutoLineup && !m_isTrimming && m_client.HasConn() && !m_client.IsStale()) {
       int camId = static_cast<int>(camData[0]);
       int tagId = static_cast<int>(camData[1]);
       double x = camData[2];
@@ -371,9 +371,11 @@ void Robot::TeleopPeriodic() {
 
   double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION, 0.1);
 
-  double vx = std::clamp(lx, -1.0, 1.0) * 12.0;
-  double vy = std::clamp(ly, -1.0, 1.0) * 12.0;
-  double w = -std::clamp(rx, -1.0, 1.0) * 12.0;
+  double fast = m_elevatorIntake.CanMoveFast();
+  double mult = fast ? SwerveConstants::NORMAL_SWERVE_MULT : SwerveConstants::SLOW_SWERVE_MULT;
+  double vx = std::clamp(lx, -1.0, 1.0) * mult;
+  double vy = std::clamp(ly, -1.0, 1.0) * mult;
+  double w = -std::clamp(rx, -1.0, 1.0) * mult;
 
   vec::Vector2D curPos = m_odometry.GetPosition();
   double curYaw = m_odometry.GetAng();
@@ -445,8 +447,7 @@ void Robot::TeleopPeriodic() {
 
   //                                          don't auto lineup to (0,0)
   if (m_controller.getPressed(AUTO_LINEUP) && m_posVal && m_heightVal) {
-    m_isAutoLineup = true;
-
+    // m_isAutoLineup = true;
     if (m_isTrimming) {
       // just do feedforward for trim, just needs to move a little
       m_autoLineup.SetPosPID(0, 0, 0);
@@ -466,7 +467,7 @@ void Robot::TeleopPeriodic() {
 
     vec::Vector2D driveVel = m_autoLineup.GetVel();
     double angVel = m_autoLineup.GetAngVel();
-    double angVel = 0;
+    // double angVel = 0;
 
     // frc::SmartDashboard::PutString("Auto drive vel", driveVel.toString());
     // frc::SmartDashboard::PutNumber("Auto ang vel", angVel);

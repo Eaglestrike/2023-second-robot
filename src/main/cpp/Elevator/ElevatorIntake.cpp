@@ -232,3 +232,11 @@ void ElevatorIntake::ManualPeriodic(double elevator, double intake) {
     m_intake.ManualPeriodic(intake * IntakeConstants::WRIST_MAX_VOLTS);
     m_elevator.TeleopPeriodic();
 }
+
+/**
+ * Determines if elevator & intake can move fast
+*/
+bool ElevatorIntake::CanMoveFast() const {
+    return (m_movingState == DONE) &&
+        (m_targState == STOWED || m_targState == HP || m_targState == GROUND);
+}

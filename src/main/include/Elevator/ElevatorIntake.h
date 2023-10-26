@@ -43,6 +43,7 @@ class ElevatorIntake{
         void UpdateLidarData(LidarReader::LidarData& lidarData);
         void UpdateShuffleboard();
         void ManualPeriodic(double elevator, double intake);
+        bool CanMoveFast() const;
 
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);

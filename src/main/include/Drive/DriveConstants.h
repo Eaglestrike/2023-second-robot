@@ -73,6 +73,9 @@ namespace SwerveConstants
   const double kV = 2.326;
   const double kA = 0; // DON't TOUCH THIS, KA REMAINS AT 0
 
+  const double NORMAL_SWERVE_MULT = 12.0;
+  const double SLOW_SWERVE_MULT = 6.0;
+
   struct SwerveConfig{
     std::string name;
     std::size_t driveMotorId;

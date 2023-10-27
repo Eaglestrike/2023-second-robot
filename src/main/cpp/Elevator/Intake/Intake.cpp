@@ -68,18 +68,8 @@ void Intake::TeleopPeriodic(){
             //     spikeCur = frc::SmartDashboard::GetNumber("cone spike current", curInfo.SPIKE_CURRENT);
             // } else 
             spikeCur = curInfo.SPIKE_CURRENT;
+            rollerVolts = m_rollerVolts;
             
-            if (m_targState == DEPLOYED){
-                rollerVolts = m_rollerVolts;
-                if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > spikeCur
-                 && Utils::GetCurTimeS() > m_rollerStartTime + 0.5) {
-                    m_hasGamePiece = true;
-                    if (m_hpSt) 
-                        m_rollerStartTime = Utils::GetCurTimeS();
-                }
-                else if (m_outtaking) 
-                    m_hasGamePiece = false;
-            }
             if (m_hasGamePiece)
                 if (m_cone){
                     if (m_hpSt){
@@ -91,6 +81,17 @@ void Intake::TeleopPeriodic(){
                         rollerVolts = IntakeConstants::CONE_INFO.KEEP_VOLTS;
                 } else
                     rollerVolts = IntakeConstants::CUBE_INFO.KEEP_VOLTS;
+
+            if (m_targState == DEPLOYED){
+                if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > spikeCur
+                 && Utils::GetCurTimeS() > m_rollerStartTime + 0.5) {
+                    m_hasGamePiece = true;
+                    if (m_hpSt) 
+                        m_rollerStartTime = Utils::GetCurTimeS();
+                }
+                else if (m_outtaking) 
+                    m_hasGamePiece = false;
+            }
             break;
     }
     if (dbg){

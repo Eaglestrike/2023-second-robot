@@ -38,7 +38,7 @@ void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeAn
     m_movingState = HALFSTOWING;
     m_targElevatorPos = elevatorLength;
     m_targIntakeAng = intakeAng;
-    m_intake.SetHPIntake(false);
+    // m_intake.SetHPIntake(false);
 }
 
 void ElevatorIntake::Stow(){
@@ -162,8 +162,7 @@ void ElevatorIntake::TeleopPeriodic(){
                             m_intake.Stow();
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
-                            // std::cout << "extending intake " << std::endl;
-                            m_intake.DeployNoRollers();
+                            m_intake.DeployNoRollers(m_targState == HP);
                             if (m_rollers)
                                 m_intake.StartRollers(m_outtaking, m_cone);
                         }
@@ -214,7 +213,7 @@ void ElevatorIntake::IntakeFromGround(){
 void ElevatorIntake::IntakeFromHPS(){
     m_targState = HP;
    DeployElevatorIntake(GetGPI(m_cone).HP_INTAKE);
-   m_intake.SetHPIntake(true);
+//    m_intake.SetHPIntake(true);
 }
 
 IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){

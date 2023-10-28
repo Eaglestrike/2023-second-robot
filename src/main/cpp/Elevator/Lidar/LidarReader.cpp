@@ -167,14 +167,14 @@ void LidarReader::findOffset(unsigned char (&readData)[8], int& readIndex){
 
 /// @brief Gets the current data
 /// @return LidarData struct with all info
-LidarReader::LidarData& LidarReader::getData(){
+LidarReader::LidarData LidarReader::getData(){
     LidarData newData;
-    newData.conePos.store(data_.conePos.load());
-    newData.cubePos.store(data_.cubePos.load());
-    newData.hasCone.store(data_.hasCone.load());
-    newData.hasCube.store(data_.hasCube.load());
-    newData.isValid.store(data_.isValid.load());
-    newData.readTime.store(data_.readTime.load());
+    newData.conePos = data_.conePos.load();
+    newData.cubePos = data_.cubePos.load();
+    newData.hasCone = data_.hasCone.load();
+    newData.hasCube = (data_.hasCube.load());
+    newData.isValid = (data_.isValid.load());
+    newData.readTime = (data_.readTime.load());
     return newData;
 }
 

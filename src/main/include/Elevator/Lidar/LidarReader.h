@@ -28,7 +28,8 @@ namespace LidarReaderConstants{
 
 class LidarReader : public Mechanism{
     public:
-        struct LidarData{
+        // for thread only
+        struct LidarDataAtomic{
            std::atomic<double> conePos; //cm
            std::atomic<double> cubePos; //cm
            std::atomic<bool> hasCone;
@@ -37,12 +38,22 @@ class LidarReader : public Mechanism{
            std::atomic<double> readTime; //Time in which data was recorded
         };
 
+        // for outside access
+        struct LidarData {
+            double conePos;
+            double cubePos;
+            bool hasCone;
+            bool hasCube;
+            bool isValid;
+            double readTime;
+        };
+
         LidarReader(bool enable = true, bool shuffleboard = false);
         void RequestData();
 
         void setAutoRequest(bool autoRequest);
 
-        LidarData& getData();
+        LidarData getData();
         double getConePos();
         double getCubePos();
         bool hasCone();
@@ -70,5 +81,5 @@ class LidarReader : public Mechanism{
         std::atomic<double> reqTime_; //Time since last request
         std::atomic<bool> isRequesting_; //If currently there is a call
 
-        LidarData data_;
+        LidarDataAtomic data_;
 };

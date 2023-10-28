@@ -39,7 +39,7 @@ class Intake{
         void DeployOuttake(bool cone);
         void ChangeDeployPos(double newPos); //pos should be in radians, w 0 as extended and parallel to ground
         void ChangeRollerVoltage(double newVoltage); 
-        void UpdateLidarData(LidarReader::LidarData& lidarData);
+        void UpdateLidarData(LidarReader::LidarData lidarData);
         void Kill();
         // for debugging
         MechState GetState();

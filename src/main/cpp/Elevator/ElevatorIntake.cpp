@@ -1,5 +1,7 @@
 #include "Elevator/ElevatorIntake.h"
 
+#include <iostream>
+
 ElevatorIntake::ElevatorIntake(){
     if (dbg){
         frc::SmartDashboard::PutNumber("elevator len", 0.0);
@@ -8,7 +10,8 @@ ElevatorIntake::ElevatorIntake(){
         frc::SmartDashboard::PutBoolean("stow", false);
         frc::SmartDashboard::PutBoolean("outtake", false);
         frc::SmartDashboard::PutBoolean("cone", false);
-
+    } 
+    if (dbg2){
         frc::SmartDashboard::PutNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG);
         frc::SmartDashboard::PutNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE);
         frc::SmartDashboard::PutNumber("mid e", curGPInfo.SCORE_MID.ELEVATOR_LENG);
@@ -115,14 +118,19 @@ void ElevatorIntake::ToggleRoller(bool outtaking){
     m_outtaking = outtaking;
 }
 
-void ElevatorIntake::UpdateLidarData(LidarReader::LidarData& lidarData){
+void ElevatorIntake::UpdateLidarData(LidarReader::LidarData lidarData){
     m_intake.UpdateLidarData(lidarData);
 }
 
 void ElevatorIntake::TeleopPeriodic(){
    if (dbg) {
     Debug();
+
+   }
+    if (dbg2){
     DebugScoring();
+    //  std::cout << "elevator targ pos " << m_targElevatorPos << std::endl;
+    // std::cout << "intake targ pos " << m_targIntakeAng << std::endl;
    }
 
     m_intake.TeleopPeriodic();
@@ -140,8 +148,11 @@ void ElevatorIntake::TeleopPeriodic(){
                     else if (m_intake.GetState() == Intake::AT_TARGET){
                         if(m_targState == STOWED)
                             m_elevator.Stow();
-                        else
-                            m_elevator.ExtendToCustomPos(m_targElevatorPos);
+                        else{
+                            // std::cout << "extending elevator " << std::endl;
+                             m_elevator.ExtendToCustomPos(m_targElevatorPos);
+                        }
+                           
                         m_movingState = ELEVATOR;
                     }
                     break;
@@ -151,6 +162,7 @@ void ElevatorIntake::TeleopPeriodic(){
                             m_intake.Stow();
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
+                            // std::cout << "extending intake " << std::endl;
                             m_intake.DeployNoRollers();
                             if (m_rollers)
                                 m_intake.StartRollers(m_outtaking, m_cone);
@@ -180,6 +192,7 @@ void ElevatorIntake::SetCone(bool cone){
 }
 
 void ElevatorIntake::ScoreHigh(){
+    // std::cout << "scoring high" << std::endl;
     m_targState = HIGH;
     DeployElevatorIntake(GetGPI(m_cone).SCORE_HIGH);
 }
@@ -208,12 +221,14 @@ IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
     if (dbg2){
         if (cone) return coneinfo;
         return cubeinfo;
-    } else 
+    } else {
         if (cone) return IntakeElevatorConstants::coneScoreInfo;
         return IntakeElevatorConstants::cubeScoreInfo;
+    }
 }
 
 void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo){
+    std::cout << "el length: " << scoreInfo.ELEVATOR_LENG << " + ang: " << scoreInfo.INTAKE_ANGLE << std::endl;
     DeployElevatorIntake(scoreInfo.ELEVATOR_LENG, scoreInfo.INTAKE_ANGLE);
 }
 

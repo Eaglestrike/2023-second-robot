@@ -40,7 +40,7 @@ class ElevatorIntake{
         void ScoreLow();
         void IntakeFromGround();
         void IntakeFromHPS();
-        void UpdateLidarData(LidarReader::LidarData& lidarData);
+        void UpdateLidarData(LidarReader::LidarData lidarData);
         void UpdateShuffleboard();
         void ManualPeriodic(double elevator, double intake);
         bool CanMoveFast() const;
@@ -52,7 +52,8 @@ class ElevatorIntake{
         void DebugScoring();
         void CalcIntakeDeployPos();
 
-        bool dbg = false, dbg2= true;
+        // do not put dbg to true, breaks elevatorintake
+        bool dbg = false, dbg2= false;
         
         MechanismState m_state = MOVING;
         MovingState m_movingState = DONE;

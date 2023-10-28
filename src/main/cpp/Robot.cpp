@@ -85,8 +85,8 @@ Robot::Robot():
       long long age = static_cast<long long>(camData[5]);
       unsigned long long uniqueId = static_cast<unsigned long long>(camData[6]);
 
-      frc::SmartDashboard::PutNumber("camX", x);
-      frc::SmartDashboard::PutNumber("camY", y);
+      // frc::SmartDashboard::PutNumber("camX", x);
+      // frc::SmartDashboard::PutNumber("camY", y);
 
 
       bool res = false;
@@ -103,7 +103,7 @@ Robot::Robot():
       }
       frc::SmartDashboard::PutNumber("tag Id", tagId);
     }
-    frc::SmartDashboard::PutBoolean("Is correcting", isCorrecting);
+    // frc::SmartDashboard::PutBoolean("Is correcting", isCorrecting);
 
     // other odometry
     double angNavX = Utils::DegToRad(m_navx->GetYaw());
@@ -144,19 +144,19 @@ void Robot::RobotInit()
   m_startPosChooser.AddOption("Red R", "Red R");
   frc::SmartDashboard::PutData("Starting pos", &m_startPosChooser);
 
-  frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
-  frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
-  frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
+  // frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
+  // frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
+  // frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
 
-  frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
-  frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
-  frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
+  // frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
+  // frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
+  // frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
 
-  frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
-  frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
+  // frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
+  // frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
 
-  frc::SmartDashboard::PutNumber("ang maxSp", AutoConstants::ANG_MAXSP);
-  frc::SmartDashboard::PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
+  // frc::SmartDashboard::PutNumber("ang maxSp", AutoConstants::ANG_MAXSP);
+  // frc::SmartDashboard::PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
 
   // frc::SmartDashboard::PutNumber("1 Mid X", FieldConstants::BLUE_SCORING_POS[0][1].first.x());
   // frc::SmartDashboard::PutNumber("1 High X", FieldConstants::BLUE_SCORING_POS[0][2].first.x());
@@ -167,7 +167,7 @@ void Robot::RobotInit()
   m_swerveController->ResetAngleCorrection();
 
   // Starts recording to data log
-  frc::DataLogManager::Start();
+  // frc::DataLogManager::Start();
 
   // Set up custom log entries
   // wpi::log::DataLog& log = frc::DataLogManager::GetLog();
@@ -259,6 +259,8 @@ void Robot::RobotPeriodic()
     // double hx = frc::SmartDashboard::GetNumber("1 High X", FieldConstants::BLUE_SCORING_POS[0][2].first.x());
     // double my = frc::SmartDashboard::GetNumber("1 Mid Y", FieldConstants::BLUE_SCORING_POS[0][1].first.y());
     // double hy = frc::SmartDashboard::GetNumber("1 High Y", FieldConstants::BLUE_SCORING_POS[0][2].first.y());
+
+    m_elevatorIntake.UpdateShuffleboard();
   }
 
   if (m_controller.getPressedOnce(ZERO_YAW))
@@ -301,21 +303,11 @@ void Robot::RobotPeriodic()
   //   // elevator_.setManualVolts(m_controller.getRawAxis(ELEVATOR_RANGE));
   // }
 
-  if (m_controller.getPressedOnce(ZERO_DRIVE_PID)) {
-    m_elevatorIntake.UpdateShuffleboard();
-  }
-
-  if (m_controller.getPressedOnce(ZERO_YAW))
-  {
-    m_navx->ZeroYaw();
-    m_swerveController->ResetAngleCorrection();
-  }
 
   m_elevatorIntake.Periodic();
   m_lidar.Periodic();
 
   m_elevatorIntake.UpdateLidarData(m_lidar.getData());
-
 }
 
 /**
@@ -371,7 +363,7 @@ void Robot::TeleopPeriodic() {
 
   double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION, 0.1);
 
-  double fast = m_elevatorIntake.CanMoveFast();
+  bool fast = m_elevatorIntake.CanMoveFast();
   double mult = fast ? SwerveConstants::NORMAL_SWERVE_MULT : SwerveConstants::SLOW_SWERVE_MULT;
   double vx = std::clamp(lx, -1.0, 1.0) * mult;
   double vy = std::clamp(ly, -1.0, 1.0) * mult;
@@ -493,33 +485,33 @@ void Robot::TeleopPeriodic() {
   m_prevTime = curTime;
   // m_intake.TeleopPeriodic();
 
-  if (m_controller.getTriggerDown(MANUAL1) && m_controller.getTriggerDown(MANUAL2)) {
-    double elH = -m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
-    double intakeAng = -m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
-    m_elevatorIntake.ManualPeriodic(elH, intakeAng);
-    // frc::SmartDashboard::PutBoolean("Manual", true);
-  } else {
-    // frc::SmartDashboard::PutBoolean("Manual", false);
-    m_elevatorIntake.TeleopPeriodic();
-    bool cone = Utils::IsCone(m_posVal);
-    m_elevatorIntake.SetCone(cone);
-    if(m_controller.getPressed(SCORE_HIGH))
-      m_elevatorIntake.ScoreHigh();
-    else if (m_controller.getPressed(SCORE_MID))
-      m_elevatorIntake.ScoreMid();
-    else if (m_controller.getPressed(SCORE_LOW))
-      m_elevatorIntake.ScoreLow();
-    else if (m_controller.getPressed(STOW))
-      m_elevatorIntake.Stow();
-    else if (m_controller.getPressed(HP))
-      m_elevatorIntake.IntakeFromHPS();
-    else if (m_controller.getPressed(GROUND))
-      m_elevatorIntake.IntakeFromGround();
-    else if (m_controller.getPressedOnce(INTAKE))
-      m_elevatorIntake.ToggleRoller(false);
-    else if (m_controller.getPressedOnce(OUTTAKE))
-      m_elevatorIntake.ToggleRoller(true);
-  }
+  // if (m_controller.getTriggerDown(MANUAL1) && m_controller.getTriggerDown(MANUAL2)) {
+  //   double elH = -m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
+  //   double intakeAng = -m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
+  //   m_elevatorIntake.ManualPeriodic(elH, intakeAng);
+  //   // frc::SmartDashboard::PutBoolean("Manual", true);
+  // } else {
+  //   // frc::SmartDashboard::PutBoolean("Manual", false);
+  //   m_elevatorIntake.TeleopPeriodic();
+  //   bool cone = Utils::IsCone(m_posVal);
+  //   m_elevatorIntake.SetCone(cone);
+  //   if(m_controller.getPressed(SCORE_HIGH))
+  //     m_elevatorIntake.ScoreHigh();
+  //   else if (m_controller.getPressed(SCORE_MID))
+  //     m_elevatorIntake.ScoreMid();
+  //   else if (m_controller.getPressed(SCORE_LOW))
+  //     m_elevatorIntake.ScoreLow();
+  //   else if (m_controller.getPressed(STOW))
+  //     m_elevatorIntake.Stow();
+  //   else if (m_controller.getPressed(HP))
+  //     m_elevatorIntake.IntakeFromHPS();
+  //   else if (m_controller.getPressed(GROUND))
+  //     m_elevatorIntake.IntakeFromGround();
+  //   else if (m_controller.getPressedOnce(INTAKE))
+  //     m_elevatorIntake.ToggleRoller(false);
+  //   else if (m_controller.getPressedOnce(OUTTAKE))
+  //     m_elevatorIntake.ToggleRoller(true);
+  // }
 }
 
 void Robot::DisabledInit() {}

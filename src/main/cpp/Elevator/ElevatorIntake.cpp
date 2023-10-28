@@ -163,8 +163,9 @@ void ElevatorIntake::TeleopPeriodic(){
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
                             m_intake.DeployNoRollers(m_targState == HP);
-                            if (m_rollers)
-                                m_intake.StartRollers(m_outtaking, m_cone);
+                            // uncomment below if want to start rollers without explicitly tleling it to
+                            // if (m_rollers)
+                            //     m_intake.StartRollers(m_outtaking, m_cone);
                         }
                         m_movingState = INTAKE;
                     }
@@ -227,7 +228,8 @@ IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
 }
 
 void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo){
-    std::cout << "el length: " << scoreInfo.ELEVATOR_LENG << " + ang: " << scoreInfo.INTAKE_ANGLE << std::endl;
+    // std::cout << "el length: " << scoreInfo.ELEVATOR_LENG << " + ang: " << scoreInfo.INTAKE_ANGLE << std::endl;
+    m_rollers = false;
     DeployElevatorIntake(scoreInfo.ELEVATOR_LENG, scoreInfo.INTAKE_ANGLE);
 }
 

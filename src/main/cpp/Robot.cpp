@@ -482,36 +482,36 @@ void Robot::TeleopPeriodic() {
   // frc::SmartDashboard::PutString("vel:", vel.toString());
   // frc::SmartDashboard::PutString("setVel:", setVel.toString());
   // frc::SmartDashboard::PutNumber("setAngVel:", w);
-  m_prevTime = curTime;
-  // m_intake.TeleopPeriodic();
 
-  // if (m_controller.getTriggerDown(MANUAL1) && m_controller.getTriggerDown(MANUAL2)) {
-  //   double elH = -m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
-  //   double intakeAng = -m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
-  //   m_elevatorIntake.ManualPeriodic(elH, intakeAng);
-  //   // frc::SmartDashboard::PutBoolean("Manual", true);
-  // } else {
-  //   // frc::SmartDashboard::PutBoolean("Manual", false);
-  //   m_elevatorIntake.TeleopPeriodic();
-  //   bool cone = Utils::IsCone(m_posVal);
-  //   m_elevatorIntake.SetCone(cone);
-  //   if(m_controller.getPressed(SCORE_HIGH))
-  //     m_elevatorIntake.ScoreHigh();
-  //   else if (m_controller.getPressed(SCORE_MID))
-  //     m_elevatorIntake.ScoreMid();
-  //   else if (m_controller.getPressed(SCORE_LOW))
-  //     m_elevatorIntake.ScoreLow();
-  //   else if (m_controller.getPressed(STOW))
-  //     m_elevatorIntake.Stow();
-  //   else if (m_controller.getPressed(HP))
-  //     m_elevatorIntake.IntakeFromHPS();
-  //   else if (m_controller.getPressed(GROUND))
-  //     m_elevatorIntake.IntakeFromGround();
-  //   else if (m_controller.getPressedOnce(INTAKE))
-  //     m_elevatorIntake.ToggleRoller(false);
-  //   else if (m_controller.getPressedOnce(OUTTAKE))
-  //     m_elevatorIntake.ToggleRoller(true);
-  // }
+  if (m_controller.getTriggerDown(MANUAL1) && m_controller.getTriggerDown(MANUAL2)) {
+    double elH = -m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
+    double intakeAng = -m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
+    m_elevatorIntake.ManualPeriodic(elH, intakeAng);
+    // frc::SmartDashboard::PutBoolean("Manual", true);
+  } else {
+    // frc::SmartDashboard::PutBoolean("Manual", false);
+    m_elevatorIntake.TeleopPeriodic();
+    bool cone = Utils::IsCone(m_posVal);
+    m_elevatorIntake.SetCone(cone);
+    if(m_controller.getPressed(SCORE_HIGH))
+      m_elevatorIntake.ScoreHigh();
+    else if (m_controller.getPressed(SCORE_MID))
+      m_elevatorIntake.ScoreMid();
+    else if (m_controller.getPressed(SCORE_LOW))
+      m_elevatorIntake.ScoreLow();
+    else if (m_controller.getPressed(STOW))
+      m_elevatorIntake.Stow();
+    else if (m_controller.getPressed(HP))
+      m_elevatorIntake.IntakeFromHPS();
+    else if (m_controller.getPressed(GROUND))
+      m_elevatorIntake.IntakeFromGround();
+    else if (m_controller.getPressedOnce(INTAKE))
+      m_elevatorIntake.ToggleRoller(false);
+    else if (m_controller.getPressedOnce(OUTTAKE))
+      m_elevatorIntake.ToggleRoller(true);
+  }
+
+  m_prevTime = curTime;
 }
 
 void Robot::DisabledInit() {}

@@ -48,7 +48,7 @@ class Robot : public frc::TimedRobot {
 
  private:
   // timer
-  double m_prevTime;
+  double m_prevTime, m_prevTime2 = 0;
 
   // smartdashboard
   frc::SendableChooser<std::string> m_startPosChooser;

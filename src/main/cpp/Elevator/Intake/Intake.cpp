@@ -141,7 +141,7 @@ void Intake::DeployIntake(bool cone){
 }
 
 // deploys the intake to intake a cone or cube
-void Intake::DeployNoRollers(bool hp = false){
+void Intake::DeployNoRollers(bool hp){
     if ((m_targState == DEPLOYED && !hp) ||(m_targState == HP && hp)) return;
     if (hp) m_targState = HP;
     else m_targState = DEPLOYED;

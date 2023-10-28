@@ -35,7 +35,7 @@ void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeAn
     m_movingState = HALFSTOWING;
     m_targElevatorPos = elevatorLength;
     m_targIntakeAng = intakeAng;
-    m_intake.SetHPIntake(false);
+    // m_intake.SetHPIntake(false);
 }
 
 void ElevatorIntake::Stow(){
@@ -201,7 +201,7 @@ void ElevatorIntake::IntakeFromGround(){
 void ElevatorIntake::IntakeFromHPS(){
     m_targState = HP;
    DeployElevatorIntake(GetGPI(m_cone).HP_INTAKE);
-   m_intake.SetHPIntake(true);
+//    m_intake.SetHPIntake(true);
 }
 
 IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){

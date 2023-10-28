@@ -67,6 +67,8 @@ class Robot : public frc::TimedRobot {
   double m_startAng; // offset; starting angle (radians) on field relative to +x axis of apriltag coords, can use for trim
   double m_joystickAng;
   Odometry m_odometry;
+  bool m_isAutoLineup = false; // UNUSED; disables tag odometry when auto lineup so robot isnt jumpy
+  bool m_isTrimming = false; // if true, use ff only
 
   //Controller
   Controller m_controller;

@@ -73,6 +73,9 @@ namespace SwerveConstants
   const double kV = 2.326;
   const double kA = 0; // DON't TOUCH THIS, KA REMAINS AT 0
 
+  const double NORMAL_SWERVE_MULT = 12.0;
+  const double SLOW_SWERVE_MULT = 6.0;
+
   struct SwerveConfig{
     std::string name;
     std::size_t driveMotorId;
@@ -161,7 +164,7 @@ namespace OdometryConstants {
   const double MAX_TIME = 0.5;
 
   // trust term for wheels
-  const double ALPHA = 0.98;
+  const double ALPHA = 0.9;
 
   // for cam data greater than AT_REJECT meters, we reject
   const double AT_REJECT = 6;
@@ -187,6 +190,8 @@ namespace AutoConstants {
   const double ANG_KD = 0.5;
   const double ANG_MAXSP = 1.5;
   const double ANG_MAXACC = 1.5;
+
+  const double TRIM_DIST = 0.3;
 }
 
 namespace AutoPaths {

@@ -356,6 +356,7 @@ void Robot::TeleopInit() {
 
 void Robot::TeleopPeriodic() {
   double curTime = Utils::GetCurTimeS();
+  double time1 = curTime;
   double deltaT = curTime - m_prevTime;
 
   double lx = m_controller.getWithDeadContinuous(SWERVE_STRAFEX, 0.1);
@@ -478,6 +479,8 @@ void Robot::TeleopPeriodic() {
   m_autoLineup.Periodic();
   m_swerveController->Periodic();
 
+  double time2 = Utils::GetCurTimeS();
+
   // frc::SmartDashboard::PutString("pos:", m_pos.toString());
   // frc::SmartDashboard::PutString("vel:", vel.toString());
   // frc::SmartDashboard::PutString("setVel:", setVel.toString());
@@ -510,6 +513,11 @@ void Robot::TeleopPeriodic() {
     else if (m_controller.getPressedOnce(OUTTAKE))
       m_elevatorIntake.ToggleRoller(true);
   }
+
+  double time3 = Utils::GetCurTimeS();
+
+  frc::SmartDashboard::PutNumber("swerve time", time2 - time1);
+  frc::SmartDashboard::PutNumber("el time", time3 - time2);
 
   m_prevTime = curTime;
 }

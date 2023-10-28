@@ -68,6 +68,8 @@ class Elevator : public Mechanism{
         double max_volts_;
         double debug_manual_volts_;
 
+        bool zeroed_ = false;
+
         double talonUnitsToMeters(double motor_units);
         double talonUnitsToAngle(double motor_units);
 };

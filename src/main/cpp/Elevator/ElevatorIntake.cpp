@@ -151,7 +151,7 @@ void ElevatorIntake::TeleopPeriodic(){
                             m_intake.Stow();
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
-                            m_intake.DeployNoRollers();
+                            m_intake.DeployNoRollers(m_targState == HP);
                             if (m_rollers)
                                 m_intake.StartRollers(m_outtaking, m_cone);
                         }

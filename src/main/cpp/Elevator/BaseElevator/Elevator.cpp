@@ -35,7 +35,7 @@ Elevator::Elevator(bool enabled, bool shuffleboard):
 };
 
 void Elevator::CorePeriodic(){
-    current_pose_.position = talonUnitsToMeters(left_.GetSelectedSensorPosition());
+    current_pose_.position = getElevatorHeight();
     // dividing by 10 to convert from 100 milliseconds to seconds.
     current_pose_.velocity = talonUnitsToMeters(left_.GetSelectedSensorVelocity()) * 10.0;
 }
@@ -62,22 +62,24 @@ void Elevator::CoreTeleopPeriodic() {
             if (feedforward_.atSetpoint(current_pose_, 0.04, 0.05)){
                 current_state_ = HOLDING_POS;
             }
+            if (feedforward_.isFinished() && current_target_ == STOWED){
+                current_state_ = HOLDING_POS;
+            }
             break;
         default:
             motor_output = 0.0;
     }
 
     if(!limit_switch_.Get() && current_state_ != MOVING){
-        if (!zeroed_) {
+        if (current_pose_.position < 0.0 || current_pose_.position > 0.1) {
             zero_motors();
-            zeroed_ = true;
         }
         if(motor_output < feedforward_.getKg() + 0.001){
             motor_output = 0.0;
         }
     }
 
-    if(getElevatorHeight() > ElevatorConstants::MAX_EXTENSION - 0.001){
+    if(current_pose_.position > ElevatorConstants::MAX_EXTENSION - 0.001){
         if(motor_output > feedforward_.getKg() + 0.001){
             motor_output = feedforward_.getKg();
         }
@@ -104,7 +106,7 @@ Elevator::ElevatorState Elevator::getState() {
  * @return double height (in meters)
  */
 double Elevator::getElevatorHeight() {
-    return talonUnitsToMeters(left_.GetSelectedSensorPosition());
+    return talonUnitsToMeters(left_.GetSelectedSensorPosition()) + elevatorOffset;
 }
 
 /**
@@ -186,8 +188,9 @@ void Elevator::setManualVolts(double range) {
  * 
  */
 void Elevator::zero_motors() {
-    left_.SetSelectedSensorPosition(0);
-    right_.SetSelectedSensorPosition(0);
+    elevatorOffset = -getElevatorHeight();
+    // left_.SetSelectedSensorPosition(0);
+    // right_.SetSelectedSensorPosition(0);
 }
 
 /**

@@ -63,7 +63,7 @@ class Intake{
         bool dbg = false, dbg2 = true;
 
         rev::CANSparkMax m_wristMotor{IntakeConstants::WRIST_MOTOR_ID, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
-        WPI_TalonFX m_rollerMotor{IntakeConstants::ROLLER_MOTOR_ID};
+        // WPI_TalonFX m_rollerMotor{IntakeConstants::ROLLER_MOTOR_ID};
         frc::DutyCycleEncoder m_wristEncoder{IntakeConstants::WRIST_ENCODER_CAN_ID};
 
         TargetState m_targState = TargetState::STOWED;

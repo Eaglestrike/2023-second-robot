@@ -311,6 +311,7 @@ void Robot::RobotPeriodic()
   m_lidar.Periodic();
 
   m_elevatorIntake.UpdateLidarData(m_lidar.getData());
+  m_rollers.UpdateLidarData(m_lidar.getData());
 }
 
 /**
@@ -499,6 +500,7 @@ void Robot::TeleopPeriodic() {
     m_elevatorIntake.TeleopPeriodic();
     bool cone = Utils::IsCone(m_posVal);
     m_elevatorIntake.SetCone(cone);
+    m_rollers.SetCone(cone);
     if(m_controller.getPressed(SCORE_HIGH))
       m_elevatorIntake.ScoreHigh();
     else if (m_controller.getPressed(SCORE_MID))
@@ -512,11 +514,12 @@ void Robot::TeleopPeriodic() {
     else if (m_controller.getPressed(GROUND))
       m_elevatorIntake.IntakeFromGround();
     else if (m_controller.getPressedOnce(INTAKE))
-      m_elevatorIntake.ToggleRoller(false);
+      m_rollers.Intake();
     else if (m_controller.getPressedOnce(OUTTAKE))
-      m_elevatorIntake.ToggleRoller(true);
+      m_rollers.Outtake();
   }
 
+  m_rollers.Periodic();
   double time3 = Utils::GetCurTimeS();
 
   // frc::SmartDashboard::PutNumber("swerve time", time2 - time1);

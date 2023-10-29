@@ -91,16 +91,16 @@ void Intake::TeleopPeriodic(){
                 rollerVolts = m_rollerVolts;
             }
 
-            if (m_targState == DEPLOYED){
-                if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > spikeCur
-                 && Utils::GetCurTimeS() > m_rollerStartTime + 0.5) {
-                    m_hasGamePiece = true;
-                    if (m_targState == HP) 
-                        m_rollerStartTime = Utils::GetCurTimeS();
-                }
-                else if (m_outtaking) 
-                    m_hasGamePiece = false;
-            }
+            // if (m_targState == DEPLOYED){
+            //     if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > spikeCur
+            //      && Utils::GetCurTimeS() > m_rollerStartTime + 0.5) {
+            //         m_hasGamePiece = true;
+            //         if (m_targState == HP) 
+            //             m_rollerStartTime = Utils::GetCurTimeS();
+            //     }
+            //     else if (m_outtaking) 
+            //         m_hasGamePiece = false;
+            // }
             break;
     }
     if (dbg){
@@ -113,10 +113,10 @@ void Intake::TeleopPeriodic(){
         // frc::SmartDashboard::PutBoolean("hpst", m_hpSt);
         frc::SmartDashboard::PutNumber("roller volts", rollerVolts);
         frc::SmartDashboard::PutNumber("m roller volts", m_rollerVolts);
-        frc::SmartDashboard::PutNumber("roller current", m_rollerMotor.GetOutputCurrent());
+        // frc::SmartDashboard::PutNumber("roller current", m_rollerMotor.GetOutputCurrent());
     }
     m_wristMotor.SetVoltage(units::volt_t(std::clamp(-wristVolts, -IntakeConstants::WRIST_MAX_VOLTS, IntakeConstants::WRIST_MAX_VOLTS)));
-    m_rollerMotor.SetVoltage(units::volt_t(std::clamp(rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
+    // m_rollerMotor.SetVoltage(units::volt_t(std::clamp(rollerVolts, -IntakeConstants::ROLLER_MAX_VOLTS,IntakeConstants::ROLLER_MAX_VOLTS)));
 }
 
 void Intake::UpdateLidarData(LidarReader::LidarData lidarData){
@@ -361,8 +361,8 @@ void Intake::debugPutVoltage(){
     // }
     std::cout << voltReq << std::endl ;
 
-    frc::SmartDashboard::PutNumber("roller current", m_rollerMotor.GetOutputCurrent());
+    // frc::SmartDashboard::PutNumber("roller current", m_rollerMotor.GetOutputCurrent());
 
-    m_rollerMotor.SetVoltage(units::volt_t(voltReq));
+    // m_rollerMotor.SetVoltage(units::volt_t(voltReq));
     //m_wristMotor.SetVoltage(units::volt_t(-voltReq));
 }

@@ -21,6 +21,7 @@
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
 #include "Elevator/ElevatorIntake.h"
+#include "Elevator/Intake/Rollers.h"
 #include "Drive/SwerveModule.h"
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"
@@ -91,4 +92,5 @@ class Robot : public frc::TimedRobot {
 
   ElevatorIntake m_elevatorIntake;
   LidarReader m_lidar;
+  Rollers m_rollers;
 };

@@ -79,6 +79,10 @@ void Intake::TeleopPeriodic(){
                         rollerVolts = IntakeConstants::CONE_INFO.KEEP_VOLTS;
                 } else
                     rollerVolts = IntakeConstants::CUBE_INFO.KEEP_VOLTS;
+            
+            if (m_outtaking) {
+                    rollerVolts = m_rollerVolts;
+            }
 
             if (m_targState == DEPLOYED){
                 if(!m_outtaking && m_rollerMotor.GetOutputCurrent() > spikeCur

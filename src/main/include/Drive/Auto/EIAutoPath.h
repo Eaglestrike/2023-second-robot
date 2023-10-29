@@ -1,19 +1,19 @@
 #pragma once
 
-#include "AutoPaths.h"
+#include "AutoPath.h"
 #include "Elevator/ElevatorIntake.h"
 #include "AutoConstants.h"
 
-class EIAutoPath: public AutoPaths {
+class EIAutoPath: public AutoPath {
     public:
-        EIAutoPath(ElevatorIntake::TargetState action, bool cone);
-        void Periodic() override;
+        EIAutoPath(ElevatorIntake::TargetState action, bool cone, double cue);
+        static void Init();
+        static void Periodic();
         void AutonomousPeriodic() override;
-        void Init() override;
         void Start() override;
     
     private:
         ElevatorIntake::TargetState m_action;
-        ElevatorIntake m_EI;
+        static ElevatorIntake m_EI;
 
 };

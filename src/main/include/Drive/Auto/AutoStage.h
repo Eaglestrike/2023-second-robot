@@ -1,16 +1,26 @@
-#include "AutoPaths.h"
+#include "AutoPath.h"
+#include "EIAutoPath.h"
 #include <vector>
+#include <set>
+#include <map>
 
 class AutoStage {
     public:
-        AutoStage(std::vector<AutoPaths> paths_to_use);
-        void periodic();
+        struct AutoPathX{
+            int index;
+            double lastCompletion;
+            AutoPath& path;
+        };
+        AutoStage(std::vector<AutoPath> allPaths, int startPathIdx);
+        void Periodic();
+        void Init();
+        void AutonomousPeriodic();
+
 
     private:
-        std::vector<AutoPaths> all_paths;
-        std::vector<AutoPaths> paths_being_executed;
+        std::vector<AutoPath> allPaths; // never changes beyond init
+        std::set<AutoPathX> curPaths;
+        std::map<double, AutoPathX> cueToPath; //where cue is a decimal where ones place represents index and decimal represents completion
 
-        const double COMPLETION_TOLERANCE = 0.1;
-
-        void transferIntoCurrentExecutionVector();
+        void StartPath(AutoPathX xpath);
 };

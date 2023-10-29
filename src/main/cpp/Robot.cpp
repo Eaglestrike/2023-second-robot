@@ -367,11 +367,11 @@ void Robot::TeleopPeriodic() {
 
   double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION, 0.1);
 
-  bool fast = m_elevatorIntake.CanMoveFast();
+  bool fast = !m_controller.getPressed(SLOW);
   double mult = fast ? SwerveConstants::NORMAL_SWERVE_MULT : SwerveConstants::SLOW_SWERVE_MULT;
   double vx = std::clamp(lx, -1.0, 1.0) * mult;
   double vy = std::clamp(ly, -1.0, 1.0) * mult;
-  double w = -std::clamp(rx, -1.0, 1.0) * mult;
+  double w = -std::clamp(rx, -1.0, 1.0) * mult / 2;
 
   vec::Vector2D curPos = m_odometry.GetPosition();
   double curYaw = m_odometry.GetAng();
@@ -418,7 +418,7 @@ void Robot::TeleopPeriodic() {
       scorePos += {0, m_red ? lidarOffset - lidarReading : lidarReading - lidarOffset};
     }
 
-    frc::SmartDashboard::PutNumber("Lidar reading", lidarReading);
+    // frc::SmartDashboard::PutNumber("Lidar reading", lidarReading);
     
     m_autoLineup.SetPosTarget(scorePos, false);
     m_autoLineup.SetAngTarget(ang, false);

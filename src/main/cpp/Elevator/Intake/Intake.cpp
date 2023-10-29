@@ -71,17 +71,24 @@ void Intake::TeleopPeriodic(){
             spikeCur = curInfo.SPIKE_CURRENT;
             rollerVolts = m_rollerVolts;
             
-            if (m_hasGamePiece)
+            if (m_hasGamePiece){
                 if (m_cone){
                     if (m_targState == HP){
                         rollerVolts = -IntakeConstants::ROLLER_MAX_VOLTS;
-                    } else
+                    } else{
                         rollerVolts = IntakeConstants::CONE_INFO.KEEP_VOLTS;
-                } else
-                    rollerVolts = IntakeConstants::CUBE_INFO.KEEP_VOLTS;
+                    }
+                } else {
+                    if (Utils::GetCurTimeS() - m_hasConeStartTime > 1) {
+                        rollerVolts = IntakeConstants::CUBE_INFO.KEEP_VOLTS;
+                    }
+                }
+            } else {
+                m_hasConeStartTime = Utils::GetCurTimeS();
+            }
             
             if (m_outtaking) {
-                    rollerVolts = m_rollerVolts;
+                rollerVolts = m_rollerVolts;
             }
 
             if (m_targState == DEPLOYED){

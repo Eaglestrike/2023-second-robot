@@ -89,4 +89,6 @@ class Intake{
         bool m_outtaking, m_cone;
         // bool m_hpSt = false;
         bool m_hasGamePiece = false;
+
+        double m_hasConeStartTime = 0;
 };

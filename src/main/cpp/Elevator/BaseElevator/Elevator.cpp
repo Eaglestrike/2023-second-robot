@@ -82,6 +82,13 @@ void Elevator::CoreTeleopPeriodic() {
             motor_output = feedforward_.getKg();
         }
     }
+
+    if (shuffleboard_) {
+        frc::SmartDashboard::PutNumber("El Motor output", motor_output);
+        frc::SmartDashboard::PutNumber("El Motor output true", std::clamp(motor_output, -max_volts_, max_volts_));
+        frc::SmartDashboard::PutNumber("El max volts", max_volts_);
+    }
+
     left_.SetVoltage(units::volt_t{std::clamp(motor_output, -max_volts_, max_volts_)});
     //right_.SetVoltage(units::volt_t{std::clamp(motor_output, -max_volts_, max_volts_)});
 }
@@ -301,5 +308,5 @@ void Elevator::CoreShuffleboardUpdate(){
         ExtendToCustomPos(setPoint);
     }
 
-    max_volts_ = frc::SmartDashboard::GetNumber(name_ + " volts to use", 0.0);
+    max_volts_ = frc::SmartDashboard::GetNumber(name_ + " volts to use", ElevatorConstants::MAX_VOLTS);
 };

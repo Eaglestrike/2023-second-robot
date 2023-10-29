@@ -73,6 +73,10 @@ Robot::Robot():
     // frc::SmartDashboard::PutData("Field", &m_field);
     // END UNCOMMENT
 
+    // odometry getposition
+    // if blue and x < ignore tags blue or red and x > ignore tags red
+    // return
+
     // process camera data
     std::vector<double> camData = m_client.GetData();
     bool isCorrecting = false;
@@ -85,9 +89,8 @@ Robot::Robot():
       long long age = static_cast<long long>(camData[5]);
       unsigned long long uniqueId = static_cast<unsigned long long>(camData[6]);
 
-      // frc::SmartDashboard::PutNumber("camX", x);
-      // frc::SmartDashboard::PutNumber("camY", y);
-
+      frc::SmartDashboard::PutNumber("camX", x);
+      frc::SmartDashboard::PutNumber("camY", y);
 
       bool res = false;
       if (camId != 0) {
@@ -516,8 +519,14 @@ void Robot::TeleopPeriodic() {
 
   double time3 = Utils::GetCurTimeS();
 
-  frc::SmartDashboard::PutNumber("swerve time", time2 - time1);
-  frc::SmartDashboard::PutNumber("el time", time3 - time2);
+  // frc::SmartDashboard::PutNumber("swerve time", time2 - time1);
+  // frc::SmartDashboard::PutNumber("el time", time3 - time2);
+
+  // if (time2 - time1 > 0.01) {
+  //   std::cout << "Swerve Time Overrun" << std::endl;
+  // } else {
+  //   std::cout << "El Time Overrun" << std::endl;
+  // }
 
   m_prevTime = curTime;
 }

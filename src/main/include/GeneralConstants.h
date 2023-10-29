@@ -91,4 +91,6 @@ namespace FieldConstants {
     },
   };
   const double DIST_BETWEEN_TAGS = 1.6764;
+
+  const double IGNORE_TAGS_X_BLUE = 0.4;
 }

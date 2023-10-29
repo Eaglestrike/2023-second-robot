@@ -132,10 +132,10 @@ void ElevatorIntake::TeleopPeriodic(){
     //  std::cout << "elevator targ pos " << m_targElevatorPos << std::endl;
     // std::cout << "intake targ pos " << m_targIntakeAng << std::endl;
    }
-    // frc::SmartDashboard::PutNumber("elevator acc pos", m_elevator.getElevatorHeight());
-    // frc::SmartDashboard::PutNumber("intake acc angle", m_intake.GetPos());
-    // frc::SmartDashboard::PutNumber("elevator targ pos", m_targElevatorPos);
-    // frc::SmartDashboard::PutNumber("intake targ angle", m_targIntakeAng);    
+    frc::SmartDashboard::PutNumber("elevator acc pos", m_elevator.getElevatorHeight());
+    frc::SmartDashboard::PutNumber("intake acc angle", m_intake.GetPos());
+    frc::SmartDashboard::PutNumber("elevator targ pos", m_targElevatorPos);
+    frc::SmartDashboard::PutNumber("intake targ angle", m_targIntakeAng);    
     m_intake.TeleopPeriodic();
     m_elevator.TeleopPeriodic();
     switch(m_state){

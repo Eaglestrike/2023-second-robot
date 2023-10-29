@@ -1,3 +1,5 @@
+#pragma once
+
 namespace IntakeElevatorConstants{
     struct ElevatorIntakePosInfo{
         double ELEVATOR_LENG; //vir units

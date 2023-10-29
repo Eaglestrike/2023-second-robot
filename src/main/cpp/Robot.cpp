@@ -513,11 +513,11 @@ void Robot::TeleopPeriodic() {
       m_elevatorIntake.IntakeFromHPS();
     else if (m_controller.getPressed(GROUND))
       m_elevatorIntake.IntakeFromGround();
-    else if (m_controller.getPressedOnce(INTAKE))
-      m_rollers.Intake();
-    else if (m_controller.getPressedOnce(OUTTAKE))
-      m_rollers.Outtake();
   }
+  if (m_controller.getPressedOnce(INTAKE))
+    m_rollers.Intake();
+  else if (m_controller.getPressedOnce(OUTTAKE))
+    m_rollers.Outtake();
 
   m_rollers.Periodic();
   double time3 = Utils::GetCurTimeS();

@@ -11,11 +11,19 @@ void Rollers::UpdateLidarData(LidarReader::LidarData lidarData) {
 }
 
 void Rollers::Intake() {
-    m_state = INTAKE;
+    if (m_state == INTAKE) {
+        Stop();
+    } else {
+        m_state = INTAKE;
+    }
 }
 
 void Rollers::Outtake() {
-    m_state = OUTTAKE;
+    if (m_state == OUTTAKE) {
+        Stop();
+    } else {
+        m_state = OUTTAKE;
+    }
 }
 
 void Rollers::Stop() {
@@ -24,7 +32,7 @@ void Rollers::Stop() {
 
 void Rollers::Periodic() {
     // cone out = postiive, in = negative
-    int mult = m_cone ? 1 : -1; // outtake
+    int mult = m_cone ? -1 : 1; // outtake
     double intakeVolt = IntakeConstants::ROLLER_MAX_VOLTS * mult;
     double outtakeVolt = m_cone ? IntakeConstants::CONE_INFO.OUT_VOLTS : -IntakeConstants::CUBE_INFO.OUT_VOLTS;
     double keepVolt = m_cone ? IntakeConstants::CONE_INFO.KEEP_VOLTS : IntakeConstants::CUBE_INFO.KEEP_VOLTS;
@@ -44,6 +52,9 @@ void Rollers::Periodic() {
             break;
         }
         case RETAIN:
+            if (!m_hasGamePiece) {
+                m_state = INTAKE;
+            }
             setVolts = keepVolt;
             break;
         case OUTTAKE:

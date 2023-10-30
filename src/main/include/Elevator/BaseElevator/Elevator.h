@@ -56,6 +56,7 @@ class Elevator : public Mechanism{
         // motors
         WPI_TalonFX left_;
         WPI_TalonFX right_;
+        double elevatorOffset = 0.0;
 
         // limit switch
         frc::DigitalInput limit_switch_;
@@ -67,8 +68,6 @@ class Elevator : public Mechanism{
         FeedforwardPID feedforward_;
         double max_volts_;
         double debug_manual_volts_;
-
-        bool zeroed_ = false;
 
         double talonUnitsToMeters(double motor_units);
         double talonUnitsToAngle(double motor_units);

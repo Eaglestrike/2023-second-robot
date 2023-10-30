@@ -70,6 +70,7 @@ class Robot : public frc::TimedRobot {
   Odometry m_odometry;
   bool m_isAutoLineup = false; // UNUSED; disables tag odometry when auto lineup so robot isnt jumpy
   bool m_isTrimming = false; // if true, use ff only
+  bool m_isFirstTag = false;
 
   //Controller
   Controller m_controller;

@@ -70,12 +70,10 @@ Robot::Robot():
     frc::SmartDashboard::PutNumber("Robot ang", ang);
     frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
     frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
-    // frc::SmartDashboard::PutData("Field", &m_field);
+    frc::SmartDashboard::PutData("Field", &m_field);
     // END UNCOMMENT
 
-    // odometry getposition
-    // if blue and x < ignore tags blue or red and x > ignore tags red
-    // return
+    int expectedId = Utils::GetExpectedTagId(m_posVal, m_red);
 
     // process camera data
     std::vector<double> camData = m_client.GetData();
@@ -93,7 +91,7 @@ Robot::Robot():
       frc::SmartDashboard::PutNumber("camY", y);
 
       bool res = false;
-      if (camId != 0) {
+      if (camId != 0 && m_isFirstTag) {
         res = m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
       } 
 
@@ -105,6 +103,9 @@ Robot::Robot():
         // std::cout << "good " << tagId << " " << Utils::GetCurTimeMs() << std::endl;
       }
       frc::SmartDashboard::PutNumber("tag Id", tagId);
+      m_isFirstTag = true;
+    } else {
+      m_isFirstTag = false;
     }
     // frc::SmartDashboard::PutBoolean("Is correcting", isCorrecting);
 

@@ -256,3 +256,23 @@ bool Utils::IsCone(int pos) {
 
   return pos % 3 != 1;
 }
+
+/**
+ * Gets expected tag ID from button board position
+ * 
+ * @param pos Position
+ * @param red Is red
+ * 
+ * @returns Tag ID
+*/
+int Utils::GetExpectedTagId(int pos, bool red) {
+  if (pos == 0) {
+    return 0;
+  }
+
+  pos--;
+
+  int id = pos / 3 + 1;
+  if (!red) id += 5;
+  return id;
+}

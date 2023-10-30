@@ -33,4 +33,5 @@ public:
   static std::vector<AutoPaths::SwervePose> GetRedPoses(std::vector<AutoPaths::SwervePose> bluePoses);
   static FieldConstants::ScorePair GetScoringPos(int pos, int height, bool red);
   static bool IsCone(int pos);
+  static int GetExpectedTagId(int pos, bool red);
 };

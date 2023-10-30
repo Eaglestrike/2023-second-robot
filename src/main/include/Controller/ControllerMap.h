@@ -35,7 +35,7 @@ namespace Actions{
     //Different enum for POV actions because logic is different
     enum POVAction{
         NO_POV_ACTION = -1,
-        I_PUT_A_NEW_FORGIS_ON_THE_JEEP,
+        CUBE_INTAKE,
         ACTION_COUNT_POV //Just the number of actions, as it is at the end of a enum
     };
 }
@@ -136,5 +136,6 @@ namespace ControllerMapData{
     };
 
     const std::vector<POVMapElement> POVMap = {
+        {XBOX_POV, POV_RIGHT, CUBE_INTAKE},
     };
 };

@@ -216,7 +216,7 @@ void ElevatorIntake::IntakeFromGround(){
 
 void ElevatorIntake::IntakeFromHPS(){
     m_targState = HP;
-   DeployElevatorIntake(GetGPI(m_cone).HP_INTAKE);
+   DeployElevatorIntake(GetGPI(true).HP_INTAKE);
 //    m_intake.SetHPIntake(true);
 }
 

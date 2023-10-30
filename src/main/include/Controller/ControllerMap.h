@@ -65,8 +65,8 @@ namespace ControllerMapData{
 
         {XBOX_LJOY_X,           NONE},
         {XBOX_LJOY_Y,           ELEVATOR_H}, 
-        {XBOX_RJOY_X,           INTAKE_ANG},
-        {XBOX_RJOY_Y,           NONE},
+        {XBOX_RJOY_X,           NONE},
+        {XBOX_RJOY_Y,           INTAKE_ANG},
         {XBOX_A_BUTTON ,        STOW},
         {XBOX_B_BUTTON ,        SCORE_MID},
         {XBOX_X_BUTTON ,        SCORE_LOW},

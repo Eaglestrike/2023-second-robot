@@ -36,7 +36,8 @@ void Intake::TeleopPeriodic(){
         debugTargPose();    
         debugPutVoltage();
     }
-
+    
+    frc::SmartDashboard::PutNumber("wrist setpt", m_setPt);
     double wristVolts = 0, rollerVolts = 0;
     double spikeCur;
     switch (m_state){
@@ -286,6 +287,10 @@ double Intake::FFPIDCalculate(){
         m_v = frc::SmartDashboard::GetNumber("v", m_v); 
         m_a = frc::SmartDashboard::GetNumber("a", m_a); 
     }
+        frc::SmartDashboard::PutNumber("pid", pid);
+            frc::SmartDashboard::PutNumber("ff", ff);
+
+
     return pid+ff;
 }
 

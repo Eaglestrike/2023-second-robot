@@ -42,6 +42,7 @@ void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeAn
 }
 
 void ElevatorIntake::Stow(){
+    if (m_targState == STOWED) return;
     m_state = MOVING;
     m_movingState = HALFSTOWING;
     m_targElevatorPos = ElevatorConstants::STOWED_HEIGHT;
@@ -153,7 +154,7 @@ void ElevatorIntake::TeleopPeriodic(){
                             m_elevator.Stow();
                         else{
                             // std::cout << "extending elevator " << std::endl;
-                             m_elevator.ExtendToCustomPos(m_targElevatorPos);
+                            m_elevator.ExtendToCustomPos(m_targElevatorPos);
                         }
                            
                         m_movingState = ELEVATOR;
@@ -195,28 +196,33 @@ void ElevatorIntake::SetCone(bool cone){
 }
 
 void ElevatorIntake::ScoreHigh(){
+    if (m_targState == HIGH) return;
     // std::cout << "scoring high" << std::endl;
     m_targState = HIGH;
     DeployElevatorIntake(GetGPI(m_cone).SCORE_HIGH);
 }
 
 void ElevatorIntake::ScoreMid(){
+    if (m_targState == MID) return;
     m_targState = MID;
     DeployElevatorIntake(GetGPI(m_cone).SCORE_MID);
 }
 void ElevatorIntake::ScoreLow(){
+    if (m_targState == LOW) return;
     m_targState = LOW;
    DeployElevatorIntake(GetGPI(m_cone).SCORE_LOW);
 }
 
 void ElevatorIntake::IntakeFromGround(){
+    if (m_targState == GROUND) return;
     m_targState = GROUND;
    DeployElevatorIntake(GetGPI(m_cone).GROUND_INTAKE);
 }
 
 void ElevatorIntake::IntakeFromHPS(){
+    if(m_targState == HP) return;
     m_targState = HP;
-   DeployElevatorIntake(GetGPI(true).HP_INTAKE);
+    DeployElevatorIntake(GetGPI(true).HP_INTAKE);
 //    m_intake.SetHPIntake(true);
 }
 

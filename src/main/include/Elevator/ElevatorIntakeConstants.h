@@ -42,7 +42,7 @@ namespace IntakeConstants{
 
     //pid accounts for velocity and position error
     const double EXTEND_DEPLOY_P = 1.75; // corrects position error
-    const double EXTEND_DEPLOY_I = 0.1; // accounts for cumulative pos err
+    const double EXTEND_DEPLOY_I = 0.15; // accounts for cumulative pos err
     const double EXTEND_DEPLOY_D = 0.1; // corrects velocity error
     
     //trapezoidal motion profiling
@@ -50,7 +50,7 @@ namespace IntakeConstants{
     const double WRIST_MAX_ACC = 10; //rads per sec^2
 
     // all in rads
-    const double WRIST_POS_TOLERANCE = 0.05;
+    const double WRIST_POS_TOLERANCE = 0.1;
     const double WRIST_ABS_ENCODER_OFFSET = - 1.84 - 0.094; //cad says 0.094 should b 0.034 but idk
 
     // wrist positions in radians, 0.0 is parallel to ground and flipping intake up is positive

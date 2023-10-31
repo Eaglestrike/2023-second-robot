@@ -1,3 +1,5 @@
+#pragma once
+
 #include "AutoPath.h"
 #include "EIAutoPath.h"
 #include <vector>
@@ -22,6 +24,15 @@ class AutoStage {
             int index;
             double lastCompletion;
             AutoPath& path;
+            bool operator<(const AutoPathX &other) const {
+                return index < other.index;
+            }
+            bool operator==(const AutoPathX &other) const {
+                return index == other.index;
+            }
+            bool operator !=(const AutoPathX &other) const {
+                return index != other.index;
+            }
         };
         std::vector<AutoPath> allPaths; // never changes beyond init
         std::unordered_set<AutoPathX> curPaths;

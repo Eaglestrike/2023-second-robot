@@ -69,16 +69,19 @@ namespace IntakeConstants{
      struct GamePieceInfo {
         double SPIKE_CURRENT;
         double IN_VOLTS;
+        double STRONG_IN_VOLTS;
         double KEEP_VOLTS;
         double OUT_VOLTS;
     };
 
     const GamePieceInfo CONE_INFO = {.SPIKE_CURRENT = 100.0,
                                      .IN_VOLTS = 5.0,
+                                     .STRONG_IN_VOLTS = 9.0,
                                      .KEEP_VOLTS = -1.1,
                                      .OUT_VOLTS = 3.0};
     const GamePieceInfo CUBE_INFO = {.SPIKE_CURRENT = 15.0,
                                      .IN_VOLTS = 4.0,
+                                     .STRONG_IN_VOLTS = 4.0,
                                      .KEEP_VOLTS = 0.7,
                                      .OUT_VOLTS = 3.0}; // MAYBE LESS
     

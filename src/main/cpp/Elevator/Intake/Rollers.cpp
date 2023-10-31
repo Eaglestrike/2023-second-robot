@@ -18,12 +18,16 @@ void Rollers::Intake() {
     }
 }
 
-void Rollers::HoldIntake(){
-    if(m_state == INTAKE){
-        m_hasGamePieceStart = Utils::GetCurTimeS();
+void Rollers::HoldIntake(bool on){
+    if(on){
+        if(m_state == RETAIN || m_state == INTAKE){
+            m_state = INTAKE_STRONG;
+        }
     }
-    if(m_state == RETAIN){
-        m_state == INTAKE;
+    else{
+        if(m_state == INTAKE_STRONG){
+            m_state = INTAKE;
+        }
     }
 }
 
@@ -41,14 +45,13 @@ void Rollers::Stop() {
 
 void Rollers::Periodic() {
     // cone out = postiive, in = negative
-    double intakeVolt = m_cone ? -IntakeConstants::CONE_INFO.IN_VOLTS : IntakeConstants::CUBE_INFO.IN_VOLTS;
     double outtakeVolt = m_cone ? IntakeConstants::CONE_INFO.OUT_VOLTS : -IntakeConstants::CUBE_INFO.OUT_VOLTS;
     double keepVolt = m_cone ? IntakeConstants::CONE_INFO.KEEP_VOLTS : IntakeConstants::CUBE_INFO.KEEP_VOLTS;
 
     double setVolts = 0;
 
     switch (m_state) {
-        case INTAKE: {
+        case INTAKE:
             if (m_hasGamePiece) {
                 if (Utils::GetCurTimeS() - m_hasGamePieceStart > 1.0) {
                     m_state = RETAIN;
@@ -56,9 +59,11 @@ void Rollers::Periodic() {
             } else {
                 m_hasGamePieceStart = Utils::GetCurTimeS();
             }
-            setVolts = intakeVolt;
+            setVolts = m_cone ? -IntakeConstants::CONE_INFO.IN_VOLTS : IntakeConstants::CUBE_INFO.IN_VOLTS;
             break;
-        }
+        case INTAKE_STRONG:
+            setVolts = m_cone ? -IntakeConstants::CONE_INFO.STRONG_IN_VOLTS : IntakeConstants::CUBE_INFO.STRONG_IN_VOLTS;
+            break;
         case RETAIN:
             if (!m_hasGamePiece) {
                 m_state = INTAKE;

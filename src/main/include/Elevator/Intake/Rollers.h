@@ -9,6 +9,7 @@ class Rollers {
 public:
   enum RollerState {
     INTAKE,
+    INTAKE_STRONG, //Hold and intake strong
     RETAIN,
     STOP,
     OUTTAKE
@@ -20,7 +21,7 @@ public:
   void UpdateLidarData(LidarReader::LidarData lidardata);
 
   void Intake();
-  void HoldIntake();
+  void HoldIntake(bool on);
   void Outtake();
   void Stop();
   void Periodic();

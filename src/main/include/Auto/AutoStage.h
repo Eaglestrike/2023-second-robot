@@ -1,9 +1,11 @@
 #pragma once
 
+#include <cmath>
+#include <algorithm>
 #include "AutoPath.h"
 #include "EIAutoPath.h"
 #include <vector>
-#include <unordered_set>
+#include <set>
 #include <map>
 
 struct AutoPathInit{
@@ -16,14 +18,14 @@ class AutoStage {
         AutoStage(std::vector<AutoPathInit> allPaths, int startPathIdx);
         void AutonomousPeriodic();
         void Periodic();
-        void Init();
+        void Init(ElevatorIntake& ei);
         
 
     private:
         struct AutoPathX{
             int index;
             double lastCompletion;
-            AutoPath& path;
+            AutoPath* path;
             bool operator<(const AutoPathX &other) const {
                 return index < other.index;
             }
@@ -35,7 +37,7 @@ class AutoStage {
             }
         };
         std::vector<AutoPath> allPaths; // never changes beyond init
-        std::unordered_set<AutoPathX> curPaths;
+        std::set<AutoPathX> curPaths;
         std::map<double, AutoPathX> cueToPath; //where cue is a decimal where ones place represents index and decimal represents completion
 
         void StartPath(AutoPathX xpath);

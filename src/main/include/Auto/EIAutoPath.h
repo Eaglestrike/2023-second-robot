@@ -7,13 +7,13 @@
 class EIAutoPath: public AutoPath {
     public:
         EIAutoPath(ElevatorIntake::TargetState action, bool cone);
-        static void Init();
+        static void Init(ElevatorIntake& ei);
         static void Periodic();
         void AutonomousPeriodic() override;
         void Start() override;
     
     private:
         ElevatorIntake::TargetState m_action;
-        static ElevatorIntake m_EI;
+        static ElevatorIntake* m_EI;
 
 };

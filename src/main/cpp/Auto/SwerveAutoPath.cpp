@@ -1,4 +1,4 @@
-#include "Drive/AutoPath.h"
+#include "Auto/SwerveAutoPath.h"
 
 #include "Drive/DriveConstants.h"
 
@@ -9,7 +9,7 @@
 /**
  * Constructor
 */
-AutoPath::AutoPath() : 
+SwerveAutoPath::SwerveAutoPath() : 
   m_curAng{0}, m_multiplier{0}, m_curAngVel{0}, m_prevTime{0}, m_prevTimeOdom{0},
   m_calcTrans{100}, m_calcAng{100}, m_curState{NOT_EXECUTING},
   m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0}
@@ -22,13 +22,13 @@ AutoPath::AutoPath() :
 /**
  * Adds a singular pose
  * 
- * @param pose Pose to add, an AutoPath::SwervePose object (use initializer list)
+ * @param pose Pose to add, an SwerveAutoPath::SwervePose object (use initializer list)
  * 
  * @note Robot will not take shortest path between angles, to make it take the shortest path,
  * add or subtract M_PI to angle
  * @note Units are m, rad, and s
 */
-void AutoPath::AddPose(AutoPaths::SwervePose pose) {
+void SwerveAutoPath::AddPose(AutoPaths::SwervePose pose) {
   Pose2 poseTrans = {pose.time, {pose.x, pose.y}, {pose.vx, pose.vy}};
   Pose1 poseAng = {pose.time, {pose.ang}, {pose.angVel}};
 
@@ -39,13 +39,13 @@ void AutoPath::AddPose(AutoPaths::SwervePose pose) {
 /**
  * Adds a list of poses
  * 
- * @param poses Poses to add, a vector of AutoPath::SwervePose objects (use initializer list)
+ * @param poses Poses to add, a vector of SwerveAutoPath::SwervePose objects (use initializer list)
  * 
  * @note Robot will not take shortest path between angles, to make it take the shortest path,
  * add or subtract M_PI to angle
  * @note Units are m, rad, and s
 */
-void AutoPath::AddPoses(std::vector<AutoPaths::SwervePose> poses) {
+void SwerveAutoPath::AddPoses(std::vector<AutoPaths::SwervePose> poses) {
   for (auto pose : poses) {
     AddPose(pose);
   }
@@ -54,7 +54,7 @@ void AutoPath::AddPoses(std::vector<AutoPaths::SwervePose> poses) {
 /**
  * Clears auto paths
 */
-void AutoPath::ResetPath() {
+void SwerveAutoPath::ResetPath() {
   m_calcTrans = Hermite2{100};
   m_calcAng = Hermite1{100};
 }
@@ -67,7 +67,7 @@ void AutoPath::ResetPath() {
  * @param kI i
  * @param kD d
 */
-void AutoPath::SetPosPID(double kP, double kI, double kD) {
+void SwerveAutoPath::SetPosPID(double kP, double kI, double kD) {
   m_kPPos = kP;
   m_kIPos = kI;
   m_kDPos = kD;
@@ -80,7 +80,7 @@ void AutoPath::SetPosPID(double kP, double kI, double kD) {
  * @param kI i
  * @param kD d
 */
-void AutoPath::SetAngPID(double kP, double kI, double kD) {
+void SwerveAutoPath::SetAngPID(double kP, double kI, double kD) {
   m_kPAng = kP;
   m_kIAng = kI;
   m_kDAng = kD;
@@ -89,14 +89,14 @@ void AutoPath::SetAngPID(double kP, double kI, double kD) {
 /**
  * Stops auto path
 */
-void AutoPath::Stop() {
+void SwerveAutoPath::Stop() {
   m_curState = NOT_EXECUTING;
 }
 
 /**
  * Starts auto path
 */
-void AutoPath::StartMove() {
+void SwerveAutoPath::StartMove() {
   m_curState = EXECUTING_PATH;
   m_startTime = Utils::GetCurTimeS();
   m_expectFinish = m_calcTrans.getHighestTime();
@@ -110,7 +110,7 @@ void AutoPath::StartMove() {
  * @param pos Current position
  * @param ang Current angle
 */
-void AutoPath::UpdateOdom(vec::Vector2D curPos, double curAng) {
+void SwerveAutoPath::UpdateOdom(vec::Vector2D curPos, double curAng) {
   m_curPos = curPos;
 
   // update multiplier of angle
@@ -131,7 +131,7 @@ void AutoPath::UpdateOdom(vec::Vector2D curPos, double curAng) {
 /**
  * Periodic function
 */
-void AutoPath::Periodic() {
+void SwerveAutoPath::Periodic() {
   double curTime = Utils::GetCurTimeS();
   double deltaT = curTime - m_prevTime;
 
@@ -191,7 +191,7 @@ void AutoPath::Periodic() {
  * 
  * @returns Wheter robot is where it is supposed to be 
 */
-bool AutoPath::AtTarget() const {
+bool SwerveAutoPath::AtTarget() const {
   using namespace AutoConstants;
   return AtTransTarget(TRANS_POS_ERR_TOLERANCE, TRANS_VEL_ERR_TOLERANCE)
     && AtRotTarget(ANG_POS_ERR_TOLERANCE, ANG_VEL_ERR_TOLERANCE);
@@ -205,7 +205,7 @@ bool AutoPath::AtTarget() const {
  * 
  * @returns Whether robot is where it is supposed to be 
 */
-bool AutoPath::AtTransTarget(double posErrTol, double velErrTol) const {
+bool SwerveAutoPath::AtTransTarget(double posErrTol, double velErrTol) const {
   vec::Vector2D targetPos = m_calcTrans.getPos(m_calcTrans.getHighestTime());
 
   return Utils::NearZero(targetPos - m_curPos, posErrTol) && Utils::NearZero(m_curVel, velErrTol);
@@ -219,7 +219,7 @@ bool AutoPath::AtTransTarget(double posErrTol, double velErrTol) const {
  * 
  * @returns Whether robot is where it is supposed to be 
 */
-bool AutoPath::AtRotTarget(double posErrTol, double velErrTol) const {
+bool SwerveAutoPath::AtRotTarget(double posErrTol, double velErrTol) const {
   double targetAng = m_calcAng.getPos(m_calcAng.getHighestTime())[0];
   return Utils::NearZero(targetAng - GetMultipliedAng(), posErrTol) && Utils::NearZero(m_curAngVel, velErrTol);
 }
@@ -229,7 +229,7 @@ bool AutoPath::AtRotTarget(double posErrTol, double velErrTol) const {
  * 
  * @returns Multiplied angle
 */
-double AutoPath::GetMultipliedAng() const {
+double SwerveAutoPath::GetMultipliedAng() const {
   return m_curAng + m_multiplier * M_PI * 2;
 }
 
@@ -241,7 +241,7 @@ double AutoPath::GetMultipliedAng() const {
  * 
  * @returns Velocity from PID
 */
-vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos) {
+vec::Vector2D SwerveAutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos) {
   vec::Vector2D err = curExpectedPos - m_curPos;
 
   vec::Vector2D deltaErr = (err - m_prevPosErr) / deltaT;
@@ -261,7 +261,7 @@ vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos)
  * 
  * @returns Velocity from PID
 */
-double AutoPath::GetPIDAng(double deltaT, double curExpectedAng) {
+double SwerveAutoPath::GetPIDAng(double deltaT, double curExpectedAng) {
   double curAngAbs = m_curAng + m_multiplier * M_PI * 2;
   double err = curExpectedAng - curAngAbs;
 
@@ -279,7 +279,7 @@ double AutoPath::GetPIDAng(double deltaT, double curExpectedAng) {
  * 
  * @returns Translational velocity
 */
-vec::Vector2D AutoPath::GetVel() const {
+vec::Vector2D SwerveAutoPath::GetVel() const {
   return m_curVel;
 }
 
@@ -288,7 +288,7 @@ vec::Vector2D AutoPath::GetVel() const {
  * 
  * @returns Rotational velocity
 */
-double AutoPath::GetAngVel() const {
+double SwerveAutoPath::GetAngVel() const {
   // TODO add angle calculations
   return m_curAngVel;
 }
@@ -298,7 +298,7 @@ double AutoPath::GetAngVel() const {
  * 
  * @returns Current execute state
 */
-AutoPath::ExecuteState AutoPath::GetExecuteState() const {
+SwerveAutoPath::ExecuteState SwerveAutoPath::GetExecuteState() const {
   return m_curState;
 }
 

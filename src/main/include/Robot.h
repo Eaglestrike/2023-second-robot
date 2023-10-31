@@ -17,7 +17,7 @@
 
 #include "Controller/Controller.h"
 #include "Drive/AutoLineup.h"
-#include "Drive/AutoPath.h"
+#include "Auto/SwerveAutoPath.h"
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
 #include "Drive/SwerveModule.h"
@@ -70,7 +70,7 @@ class Robot : public frc::TimedRobot {
 
   // auto
   AutoLineup m_autoLineup;
-  AutoPath m_autoPath;
+  SwerveAutoPath m_autoPath;
   // TEMP, for testing
   double m_curVolts;
   double m_prevTimeTest;

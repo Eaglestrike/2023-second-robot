@@ -1,6 +1,6 @@
-#include "Drive/Auto/EIAutoPath.h"
+#include "Auto/EIAutoPath.h"
 
-EIAutoPath::EIAutoPath(ElevatorIntake::TargetState action, bool cone, double cue): m_action(action), AutoPath(cue){
+EIAutoPath::EIAutoPath(ElevatorIntake::TargetState action, bool cone): m_action(action){
     m_EI.SetCone(cone);
 }
 

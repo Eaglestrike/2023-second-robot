@@ -12,7 +12,7 @@
 namespace hm = hermite;
 namespace vec = svector;
 
-class AutoPath {
+class SwerveAutoPath {
   typedef hm::Hermite<1> Hermite1;
   typedef hm::Pose<1> Pose1;
   typedef hm::Hermite<2> Hermite2;
@@ -25,7 +25,7 @@ public:
     AT_TARGET
   };
 
-  AutoPath();
+  SwerveAutoPath();
 
   void AddPose(AutoPaths::SwervePose pose);
   void AddPoses(std::vector<AutoPaths::SwervePose> poses);

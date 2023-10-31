@@ -1,4 +1,4 @@
-#include "Drive/Auto/AutoStage.h"
+#include "Auto/AutoStage.h"
 #include <cmath>
 #include <algorithm>
 
@@ -7,10 +7,14 @@
  * 
  * @param allPaths the paths for a particular auto setup to use. read from a config file.
  */
-AutoStage::AutoStage(std::vector<AutoPath> allPaths, int startPathIdx) {
+AutoStage::AutoStage(std::vector<AutoPathInit> initAllPaths, int startPathIdx) {
+    for (int i = 0 ; i< initAllPaths.size(); i++){
+        AutoPathInit a = initAllPaths[i];
+        allPaths[i] = a.path;
+        cueToPath[a.cue] = {i, 0.0, a.path};
+    }
     StartPath({startPathIdx, 0.0, allPaths[startPathIdx]});
-    // need to fill cueToPath
-};
+}
 
 /**
  * @brief Called every periodic cycle. Manages the auto paths and executes them.

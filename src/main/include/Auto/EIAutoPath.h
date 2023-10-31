@@ -6,7 +6,7 @@
 
 class EIAutoPath: public AutoPath {
     public:
-        EIAutoPath(ElevatorIntake::TargetState action, bool cone, double cue);
+        EIAutoPath(ElevatorIntake::TargetState action, bool cone);
         static void Init();
         static void Periodic();
         void AutonomousPeriodic() override;

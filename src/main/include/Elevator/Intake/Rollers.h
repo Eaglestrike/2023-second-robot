@@ -20,6 +20,7 @@ public:
   void UpdateLidarData(LidarReader::LidarData lidardata);
 
   void Intake();
+  void HoldIntake();
   void Outtake();
   void Stop();
   void Periodic();

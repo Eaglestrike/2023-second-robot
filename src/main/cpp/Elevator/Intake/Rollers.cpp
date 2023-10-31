@@ -18,6 +18,15 @@ void Rollers::Intake() {
     }
 }
 
+void Rollers::HoldIntake(){
+    if(m_state == INTAKE){
+        m_hasGamePieceStart = Utils::GetCurTimeS();
+    }
+    if(m_state == RETAIN){
+        m_state == INTAKE;
+    }
+}
+
 void Rollers::Outtake() {
     if (m_state == OUTTAKE) {
         Stop();

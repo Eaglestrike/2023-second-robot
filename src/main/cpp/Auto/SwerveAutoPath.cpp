@@ -31,6 +31,7 @@ SwerveAutoPath::SwerveAutoPath(SwerveControl& drivebase, std::vector<AutoPaths::
   frc::SmartDashboard::PutNumber("swerve kp ang", m_kPAng);
   frc::SmartDashboard::PutNumber("swerve ki ang", m_kIAng);
   frc::SmartDashboard::PutNumber("swerve kd ang", m_kDAng);
+  frc::SmartDashboard::PutNumber("Swerve Auto Completion", m_completion);
 }
 
 /**
@@ -83,6 +84,7 @@ void SwerveAutoPath::ShuffleboardUpdate() {
   m_kIAng = frc::SmartDashboard::GetNumber("swerve ki ang", m_kIAng);
   m_kDAng = frc::SmartDashboard::GetNumber("swerve kd ang", m_kDAng);
 
+  frc::SmartDashboard::PutNumber("Swerve Auto Completion", m_completion);
 }
 /**
  * Adds a singular pose

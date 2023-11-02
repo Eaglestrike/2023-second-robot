@@ -10,13 +10,13 @@ namespace EIAutoConstants{
 
 namespace SwerveAutoConstants {
     const double SWERVE_TOLERANCE = 1.0;
-    AutoPaths::SwervePose swp_1 = {0.0, 0.5, 0.5, 0.5, 0.5, 0, 0};
-    AutoPaths::SwervePose swp_2 = {1.0, 1.0, 1.0, 0.6, 0.6, 0, 0};
+    // AutoPaths::SwervePose swp_1 = {0.0, 0.5, 0.5, 0.5, 0.5, 0, 0};
+    // AutoPaths::SwervePose swp_2 = {1.0, 1.0, 1.0, 0.6, 0.6, 0, 0};
     // AutoPaths::SwervePose swp_3 = {2.0, 10, 20, 30, 30, 40, 10};
     
 
     // used for initializing the SwerveAutoPath
-    std::vector<AutoPaths::SwervePose> swerve_poses = {
-        swp_1, swp_2
+    const std::vector<AutoPaths::SwervePose> swerve_poses = {
+        {0.0, 0.5, 0.5, 0.5, 0.0, 0.0}, {1.0, 1.0, 1.0, 0.6, 0.6, 0, 0}
     };
 }

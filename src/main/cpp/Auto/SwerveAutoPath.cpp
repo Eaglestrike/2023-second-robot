@@ -34,20 +34,28 @@ void SwerveAutoPath::calculateTotalDistance() {
 void SwerveAutoPath::calculateCurrentProgress() {
   double num_waypoints = m_calcTrans.getAllWaypoints().size();
 
+  double curr_x = m_curPos.x();
+  double curr_y = m_curPos.y();
+
+  double num_stages_completed = 0;
+  double num_stages_total = num_waypoints * 2;
+
   for (SwerveAutoPath::Pose2 waypoint: m_calcTrans.getAllWaypoints()) {
-    
+    double dim_1 = waypoint.getPos().at(0);
+    double dim_2 = waypoint.getPos().at(1);
+
+    if (curr_x > dim_1) {
+      num_stages_completed++;
+    }
+
+    if (curr_y > dim_2) {
+      num_stages_completed++;
+    }
   }
-  // find the waypoint closest to current position
 
-  // integrate distance, otherwise
-  double x_completion = m_curPos.x() / m_calcTrans.getAllWaypoints()[0].getPos().at(0);
-  double y_completion = m_curPos.y() / m_calcTrans.getAllWaypoints()[0].getPos().at(1);
-
-  double ang_completion = m_curAng / m_calcAng.getMaxDistance(m_expectFinish);
-
+  // double, representing the range of values
+  // for example, if there are 2 waypoints, the possible completion values are: [0.25, 0.5, 0.75, 1.0]
   double current_distance = m_calcTrans.getLength(current_distance);
-
-  m_completion = (x_completion + y_completion + ang_completion) / 3.0;
 }
 
 /**

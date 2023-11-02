@@ -39,6 +39,7 @@ Robot::Robot():
       m_posVal{0},
       m_heightVal{0}
 {
+
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
   m_swerveController = new SwerveControl(moduleArray, true, false);
@@ -63,10 +64,10 @@ Robot::Robot():
     // m_autoPath.UpdateOdom(pos, ang);
 
     // UNCOMMENT BELOW
-    frc::SmartDashboard::PutString("Robot pos", pos.toString());
-    frc::SmartDashboard::PutNumber("Robot ang", ang);
-    frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
-    frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
+    // frc::SmartDashboard::PutString("Robot pos", pos.toString());
+    // frc::SmartDashboard::PutNumber("Robot ang", ang);
+    // frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
+    // frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
     // frc::SmartDashboard::PutData("Field", &m_field);
     // END UNCOMMENT
 
@@ -91,7 +92,7 @@ Robot::Robot():
       } else {
         // std::cout << "good " << tagId << " " << Utils::GetCurTimeMs() << std::endl;
       }
-      frc::SmartDashboard::PutNumber("tag Id", tagId);
+      // frc::SmartDashboard::PutNumber("tag Id", tagId);
     }
 
     // other odometry
@@ -105,10 +106,12 @@ Robot::Robot():
 
 void Robot::RobotInit()
 {
+  m_EI.Init();
+  EIAutoPath::Init(m_EI);
   // initialization
-  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+  // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+  // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+  // frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
   // kalman filter constants
   // frc::SmartDashboard::PutNumber("KF E0", OdometryConstants::E0);
@@ -116,49 +119,59 @@ void Robot::RobotInit()
   // frc::SmartDashboard::PutNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
   // frc::SmartDashboard::PutNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
   // frc::SmartDashboard::PutNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
-  frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
-  frc::SmartDashboard::PutNumber("Filter maxtime", OdometryConstants::MAX_TIME);
+  // frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
+  // frc::SmartDashboard::PutNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
-  frc::SmartDashboard::PutNumber("Delta X", 0);
-  frc::SmartDashboard::PutNumber("Delta Y", 0);
-  frc::SmartDashboard::PutNumber("Delta Ang", 0);
+  // frc::SmartDashboard::PutNumber("Delta X", 0);
+  // frc::SmartDashboard::PutNumber("Delta Y", 0);
+  // frc::SmartDashboard::PutNumber("Delta Ang", 0);
 
-  // starting position
-  m_startPosChooser.SetDefaultOption("Debug", "Debug");
-  m_startPosChooser.AddOption("Blue L", "Blue L");
-  m_startPosChooser.AddOption("Blue M", "Blue M");
-  m_startPosChooser.AddOption("Blue R", "Blue R");
-  m_startPosChooser.AddOption("Red L", "Red L");
-  m_startPosChooser.AddOption("Red M", "Red M");
-  m_startPosChooser.AddOption("Red R", "Red R");
-  frc::SmartDashboard::PutData("Starting pos", &m_startPosChooser);
+  // // starting position
+  frc::SmartDashboard::PutBoolean("cone", false);
+  frc::SmartDashboard::PutBoolean("start", false);
+  m_EIautochooser.SetDefaultOption("STOWED", "STOWED");
+  m_EIautochooser.AddOption("LOW", "LOW");
+  m_EIautochooser.AddOption("MID", "MID");
+  m_EIautochooser.AddOption("HIGH", "HIGH");
+  m_EIautochooser.AddOption("HP", "HP");
+  m_EIautochooser.AddOption("GROUND", "GROUND");
+  frc::SmartDashboard::PutData("ei auto chooser", &m_EIautochooser);
 
-  frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
-  frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
-  frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KI);
+  // m_startPosChooser.SetDefaultOption("Debug", "Debug");
+  // m_startPosChooser.AddOption("Blue L", "Blue L");
+  // m_startPosChooser.AddOption("Blue M", "Blue M");
+  // m_startPosChooser.AddOption("Blue R", "Blue R");
+  // m_startPosChooser.AddOption("Red L", "Red L");
+  // m_startPosChooser.AddOption("Red M", "Red M");
+  // m_startPosChooser.AddOption("Red R", "Red R");
+  // frc::SmartDashboard::PutData("Starting pos", &m_startPosChooser);
 
-  frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
-  frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
-  frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KI);
+  // frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
+  // frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
+  // frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KI);
 
-  frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
-  frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
+  // frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
+  // frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
+  // frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KI);
 
-  frc::SmartDashboard::PutNumber("ang maxSp", AutoConstants::ANG_MAXSP);
-  frc::SmartDashboard::PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
+  // frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
+  // frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
 
-  m_navx->ZeroYaw();
-  m_swerveController->ResetAngleCorrection();
+  // frc::SmartDashboard::PutNumber("ang maxSp", AutoConstants::ANG_MAXSP);
+  // frc::SmartDashboard::PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
 
-  // Starts recording to data log
-  frc::DataLogManager::Start();
+  // m_navx->ZeroYaw();
+  // m_swerveController->ResetAngleCorrection();
 
-  // Set up custom log entries
-  wpi::log::DataLog& log = frc::DataLogManager::GetLog();
-  m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
-  m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
+  // // Starts recording to data log
+  // frc::DataLogManager::Start();
 
-  m_client.Init();
+  // // Set up custom log entries
+  // wpi::log::DataLog& log = frc::DataLogManager::GetLog();
+  // m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
+  // m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
+
+  // m_client.Init();
 }
 
 /**
@@ -171,14 +184,16 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
-  frc::SmartDashboard::PutBoolean("Pos Currently executing", m_autoLineup.GetPosExecuteState() == AutoLineup::EXECUTING_TARGET);
-  frc::SmartDashboard::PutBoolean("Ang Currently executing", m_autoLineup.GetAngExecuteState() == AutoLineup::EXECUTING_TARGET);
+  m_EI.Periodic();
+  // m_eiAutoPath.Periodic();
+  // frc::SmartDashboard::PutBoolean("Pos Currently executing", m_autoLineup.GetPosExecuteState() == AutoLineup::EXECUTING_TARGET);
+  // frc::SmartDashboard::PutBoolean("Ang Currently executing", m_autoLineup.GetAngExecuteState() == AutoLineup::EXECUTING_TARGET);
 
-  frc::SmartDashboard::PutBoolean("Pos at target", m_autoLineup.GetPosExecuteState() == AutoLineup::AT_TARGET);
-  frc::SmartDashboard::PutBoolean("Ang at target", m_autoLineup.GetAngExecuteState() == AutoLineup::AT_TARGET);
+  // frc::SmartDashboard::PutBoolean("Pos at target", m_autoLineup.GetPosExecuteState() == AutoLineup::AT_TARGET);
+  // frc::SmartDashboard::PutBoolean("Ang at target", m_autoLineup.GetAngExecuteState() == AutoLineup::AT_TARGET);
 
-  if (m_controller.getPressedOnce(ZERO_DRIVE_PID))
-  {
+  // if (m_controller.getPressedOnce(ZERO_DRIVE_PID))
+  // {
     // double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
     // double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
     // double kD = frc::SmartDashboard::GetNumber("wheel kD", SwerveConstants::TURN_D);
@@ -188,63 +203,63 @@ void Robot::RobotPeriodic()
     // m_swerveBl.SetPID(kP, kI, kD);
     // m_swerveBr.SetPID(kP, kI, kD);
 
-    double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-    double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-    double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
+    // double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
+    // double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
+    // double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
     // m_swerveFl.UpdateShuffleboard();
     // m_swerveFr.UpdateShuffleboard();
     // m_swerveBl.UpdateShuffleboard();
     // m_swerveBr.UpdateShuffleboard();
-    m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
+    // m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
 
     // double E0 = frc::SmartDashboard::GetNumber("KF E0", OdometryConstants::E0);
     // double Q = frc::SmartDashboard::GetNumber("KF Q", OdometryConstants::Q);
     // double kAng = frc::SmartDashboard::GetNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
     // double kPos = frc::SmartDashboard::GetNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
     // double kPosInt = frc::SmartDashboard::GetNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
-    double alpha = frc::SmartDashboard::GetNumber("Filter Alpha", OdometryConstants::ALPHA);
-    double maxTime = frc::SmartDashboard::GetNumber("Filter maxtime", OdometryConstants::MAX_TIME);
+    // double alpha = frc::SmartDashboard::GetNumber("Filter Alpha", OdometryConstants::ALPHA);
+    // double maxTime = frc::SmartDashboard::GetNumber("Filter maxtime", OdometryConstants::MAX_TIME);
 
-    m_odometry.SetAlpha(alpha); 
-    m_odometry.SetMaxTime(maxTime);
+    // m_odometry.SetAlpha(alpha); 
+    // m_odometry.SetMaxTime(maxTime);
 
-    double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
-    double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
-    double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
-    m_autoLineup.SetPosTarget({deltaX, deltaY}, true);
-    m_autoLineup.SetAngTarget(deltaAng, true);
+    // double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
+    // double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
+    // double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
+    // m_autoLineup.SetPosTarget({deltaX, deltaY}, true);
+    // m_autoLineup.SetAngTarget(deltaAng, true);
 
-    double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
-    double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
-    double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KI);
+    // double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
+    // double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
+    // double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KI);
 
-    double akP = frc::SmartDashboard::GetNumber("ang kP", AutoConstants::ANG_KP);
-    double akI = frc::SmartDashboard::GetNumber("ang kI", AutoConstants::ANG_KI);
-    double akD = frc::SmartDashboard::GetNumber("ang kD", AutoConstants::ANG_KI);
+    // double akP = frc::SmartDashboard::GetNumber("ang kP", AutoConstants::ANG_KP);
+    // double akI = frc::SmartDashboard::GetNumber("ang kI", AutoConstants::ANG_KI);
+    // double akD = frc::SmartDashboard::GetNumber("ang kD", AutoConstants::ANG_KI);
 
-    m_autoLineup.SetPosPID(tkP, tkI, tkD);
-    m_autoLineup.SetAngPID(akP, akI, akD);
+    // m_autoLineup.SetPosPID(tkP, tkI, tkD);
+    // m_autoLineup.SetAngPID(akP, akI, akD);
     // m_autoPath.SetPosPID(tkP, tkI, tkD);
     // m_autoPath.SetAngPID(akP, akI, akD);
 
-    double tMaxSp = frc::SmartDashboard::GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
-    double tMaxAcc = frc::SmartDashboard::GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
+    // double tMaxSp = frc::SmartDashboard::GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
+    // double tMaxAcc = frc::SmartDashboard::GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
 
-    double aMaxSp = frc::SmartDashboard::GetNumber("ang maxSp", AutoConstants::ANG_MAXSP);
-    double aMaxAcc = frc::SmartDashboard::GetNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
+    // double aMaxSp = frc::SmartDashboard::GetNumber("ang maxSp", AutoConstants::ANG_MAXSP);
+    // double aMaxAcc = frc::SmartDashboard::GetNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
 
-    m_autoLineup.SetPosFF({tMaxSp, tMaxAcc});
-    m_autoLineup.SetAngFF({aMaxSp, aMaxAcc});
+    // m_autoLineup.SetPosFF({tMaxSp, tMaxAcc});
+    // m_autoLineup.SetAngFF({aMaxSp, aMaxAcc});
 
     // m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
-  }
+  // }
 
-  if (m_controller.getPressedOnce(ZERO_YAW))
-  {
-    m_navx->ZeroYaw();
-    m_swerveController->ResetAngleCorrection(m_startAng);
-    m_odometry.Reset();
-  }
+  // if (m_controller.getPressedOnce(ZERO_YAW))
+  // {
+  //   m_navx->ZeroYaw();
+  //   m_swerveController->ResetAngleCorrection(m_startAng);
+  //   m_odometry.Reset();
+  // }
 
   // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
   // frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
@@ -270,7 +285,7 @@ void Robot::RobotPeriodic()
  */
 void Robot::AutonomousInit()
 {
-  m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
+ // m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
 
   // TESTING CODE
   // MAKE SURE BLUE RIGHT OR ELSE ROBOT WILL UNALIVE ITSELF
@@ -278,12 +293,31 @@ void Robot::AutonomousInit()
   // m_autoPath.StartMove();
 
   // TODO: where did the elevator intake member go?
-  m_auto_manager{&m_swerveController};
+  
+ // m_auto_manager{&m_swerveController};
 }
 
-void Robot::AutonomousPeriodic()
-{
-  m_auto_manager.AutonomousPeriodic();
+void Robot::AutonomousPeriodic(){
+  if (frc::SmartDashboard::GetBoolean("start", false)){
+    frc::SmartDashboard::PutBoolean("start", false);
+    std::string s = m_EIautochooser.GetSelected();
+    ElevatorIntake::TargetState targ = ElevatorIntake::TargetState::STOWED;
+    if(s=="LOW"){
+      targ =ElevatorIntake::TargetState::LOW;
+    } else if(s=="MID"){
+      targ =ElevatorIntake::TargetState::MID;
+    }else if(s=="HIGH"){
+      targ =ElevatorIntake::TargetState::HIGH;
+    }else if(s=="HP"){
+      targ =ElevatorIntake::TargetState::HP;
+    }else if(s=="GROUND"){
+      targ =ElevatorIntake::TargetState::GROUND;
+    }
+    m_eiAutoPath = EIAutoPath(targ, frc::SmartDashboard::GetBoolean("cone", false));
+    m_eiAutoPath.Start();
+  }
+  m_eiAutoPath.AutonomousPeriodic();
+  // m_auto_manager.AutonomousPeriodic();
   // double curTime = Utils::GetCurTimeS();
   // double deltaT = curTime - m_prevTime;
   // vec::Vector2D driveVel = m_autoPath.GetVel();

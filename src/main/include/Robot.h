@@ -18,6 +18,7 @@
 #include "Controller/Controller.h"
 #include "Drive/AutoLineup.h"
 #include "Auto/SwerveAutoPath.h"
+#include "Auto/EIAutoPath.h"
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
 #include "Drive/SwerveModule.h"
@@ -51,6 +52,8 @@ class Robot : public frc::TimedRobot {
 
   // smartdashboard
   frc::SendableChooser<std::string> m_startPosChooser;
+  frc::SendableChooser<std::string> m_EIautochooser;
+
   frc::Field2d m_field;
 
   // IMU acclerometer and gyroscope
@@ -72,7 +75,9 @@ class Robot : public frc::TimedRobot {
 
   // auto
   AutoLineup m_autoLineup;
-  AutoManager m_auto_manager;
+  //AutoManager m_auto_manager;
+  ElevatorIntake m_EI;
+  EIAutoPath m_eiAutoPath{ElevatorIntake::TargetState::STOWED, false};
 
   // TEMP, for testing
   double m_curVolts;

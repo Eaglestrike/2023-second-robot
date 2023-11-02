@@ -15,7 +15,14 @@ struct AutoPathInit{
 
 class AutoStage {
     public:
+        enum StageState{
+            NOT_STARTED,
+            IN_PROGRESS,
+            DONE
+        };
         AutoStage();
+        void Start();
+        StageState GetState();
         AutoStage(std::vector<AutoPathInit> allPaths, int startPathIdx);
         void AutonomousPeriodic();
         void Periodic();
@@ -37,6 +44,8 @@ class AutoStage {
                 return index != other.index;
             }
         };
+        int m_startIdx;
+        StageState m_state = NOT_STARTED;
         std::vector<AutoPath> allPaths; // never changes beyond init
         std::set<AutoPathX> curPaths;
         std::map<double, AutoPathX> cueToPath; //where cue is a decimal where ones place represents index and decimal represents completion

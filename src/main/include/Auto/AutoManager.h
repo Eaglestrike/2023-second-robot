@@ -18,10 +18,10 @@ class AutoManager: public Mechanism {
             std::string name; // for driver choosing
 
             // TODO: fix this compilation
-            AutoStage::AutoStage stage;
-        }
+            // AutoStage::AutoStage stage;
+        };
 
-        std::vector<AutoStageX> all_stages;
+        // std::vector<AutoStageX> all_stages;
 
         void loadAutoStage();
 

@@ -13,7 +13,16 @@ AutoStage::AutoStage(std::vector<AutoPathInit> initAllPaths, int startPathIdx) {
             continue;
         cueToPath[a.cue] = {i, 0.0, &a.path};
     }
-    StartPath({startPathIdx, 0.0, &allPaths[startPathIdx]});
+    m_startIdx = startPathIdx;
+}
+
+void AutoStage::Start(){
+    m_state = IN_PROGRESS;
+    StartPath({m_startIdx, 0.0, &allPaths[m_startIdx]});
+}
+
+AutoStage::StageState AutoStage::GetState(){
+    return m_state;
 }
 
 /**
@@ -21,8 +30,13 @@ AutoStage::AutoStage(std::vector<AutoPathInit> initAllPaths, int startPathIdx) {
  * 
  */
 void AutoStage::AutonomousPeriodic() {
+    if (m_state == NOT_STARTED || m_state == DONE) return;
     std::vector<AutoPathX> donePaths;
     // should error check not telling same mechanism to do smt 2x
+    if (curPaths.empty()){ 
+        m_state == DONE;
+        return;
+    }
     for (auto i : curPaths){
         i.path->AutonomousPeriodic();
         auto itr = cueToPath.lower_bound(i.index+i.lastCompletion);

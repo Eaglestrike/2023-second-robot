@@ -40,12 +40,10 @@ class ElevatorIntake{
         void ScoreLow();
         void IntakeFromGround();
         void IntakeFromHPS();
-        void UpdateLidarData(LidarReader::LidarData lidarData);
+        void UpdateLidarData(LidarReader::LidarData& lidarData);
         void UpdateShuffleboard();
         void ManualPeriodic(double elevator, double intake);
-        MovingState GetState();
-        double GetWristCompletion();
-        double GetElevatorCompletion();
+        bool CanMoveFast() const;
 
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);

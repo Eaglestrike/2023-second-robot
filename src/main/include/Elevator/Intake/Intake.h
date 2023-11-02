@@ -24,6 +24,7 @@ class Intake{
             STOWED,
             DEPLOYED,
             HALFSTOWED,
+            HP
         };
         
         void ManualPeriodic(double wristVolts);
@@ -31,7 +32,7 @@ class Intake{
         void Periodic();    
         void Stow();
         void HalfStow();
-        void DeployNoRollers();
+        void DeployNoRollers(bool hp = false);
         void StopRollers();
         void StartRollers(bool outtaking, bool cone);
         void SetHPIntake(bool hp);
@@ -39,7 +40,7 @@ class Intake{
         void DeployOuttake(bool cone);
         void ChangeDeployPos(double newPos); //pos should be in radians, w 0 as extended and parallel to ground
         void ChangeRollerVoltage(double newVoltage); 
-        void UpdateLidarData(LidarReader::LidarData lidarData);
+        void UpdateLidarData(LidarReader::LidarData& lidarData);
         void Kill();
         // for debugging
         MechState GetState();
@@ -86,6 +87,6 @@ class Intake{
         m_customRollerVolts = -1;// get rid of this
 
         bool m_outtaking, m_cone;
-        bool m_hpSt = false;
+        // bool m_hpSt = false;
         bool m_hasGamePiece = false;
 };

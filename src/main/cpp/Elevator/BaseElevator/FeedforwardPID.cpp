@@ -70,7 +70,11 @@ double FeedforwardPID::periodic(Poses::Pose1D current_pose)
 double FeedforwardPID::calculatePIDVoltage(Poses::Pose1D expected, Poses::Pose1D current, double dt)
 {
     accum_ += dt * (expected.position - current.position);
-    return kp * (expected.position - current.position) + ki * accum_ + kd * (expected.velocity - current.velocity);
+    double posErr = expected.position - current.position;
+    if (std::abs(posErr) < ElevatorConstants::POSITION_ERROR_TOLERANCE){
+        posErr = 0.0;
+    }
+    return kp * posErr + ki * accum_ + kd * (expected.velocity - current.velocity);
 }
 
 /**

@@ -8,9 +8,8 @@ ElevatorIntake::ElevatorIntake(){
         frc::SmartDashboard::PutBoolean("stow", false);
         frc::SmartDashboard::PutBoolean("outtake", false);
         frc::SmartDashboard::PutBoolean("cone", false);
-    }
-    if (dbg2){
-            frc::SmartDashboard::PutNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG);
+
+        frc::SmartDashboard::PutNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG);
         frc::SmartDashboard::PutNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE);
         frc::SmartDashboard::PutNumber("mid e", curGPInfo.SCORE_MID.ELEVATOR_LENG);
         frc::SmartDashboard::PutNumber("mid w", curGPInfo.SCORE_MID.INTAKE_ANGLE);
@@ -36,7 +35,7 @@ void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeAn
     m_movingState = HALFSTOWING;
     m_targElevatorPos = elevatorLength;
     m_targIntakeAng = intakeAng;
-    m_intake.SetHPIntake(false);
+    // m_intake.SetHPIntake(false);
 }
 
 void ElevatorIntake::Stow(){
@@ -116,13 +115,15 @@ void ElevatorIntake::ToggleRoller(bool outtaking){
     m_outtaking = outtaking;
 }
 
-void ElevatorIntake::UpdateLidarData(LidarReader::LidarData lidarData){
+void ElevatorIntake::UpdateLidarData(LidarReader::LidarData& lidarData){
     m_intake.UpdateLidarData(lidarData);
 }
 
 void ElevatorIntake::TeleopPeriodic(){
-   if (dbg) Debug();
-   DebugScoring();
+   if (dbg) {
+    Debug();
+    DebugScoring();
+   }
 
     m_intake.TeleopPeriodic();
     m_elevator.TeleopPeriodic();
@@ -137,7 +138,7 @@ void ElevatorIntake::TeleopPeriodic(){
                     if (m_intake.GetTargetState() != Intake::HALFSTOWED)
                         m_intake.HalfStow();
                     else if (m_intake.GetState() == Intake::AT_TARGET){
-                        if(m_targElevatorPos == STOWED)
+                        if(m_targState == STOWED)
                             m_elevator.Stow();
                         else
                             m_elevator.ExtendToCustomPos(m_targElevatorPos);
@@ -150,7 +151,7 @@ void ElevatorIntake::TeleopPeriodic(){
                             m_intake.Stow();
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
-                            m_intake.DeployNoRollers();
+                            m_intake.DeployNoRollers(m_targState == HP);
                             if (m_rollers)
                                 m_intake.StartRollers(m_outtaking, m_cone);
                         }
@@ -198,9 +199,9 @@ void ElevatorIntake::IntakeFromGround(){
 }
 
 void ElevatorIntake::IntakeFromHPS(){
-   m_targState = HP;
+    m_targState = HP;
    DeployElevatorIntake(GetGPI(m_cone).HP_INTAKE);
-   m_intake.SetHPIntake(true);
+//    m_intake.SetHPIntake(true);
 }
 
 IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
@@ -214,10 +215,6 @@ IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
 
 void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo){
     DeployElevatorIntake(scoreInfo.ELEVATOR_LENG, scoreInfo.INTAKE_ANGLE);
-}
-
-ElevatorIntake::MovingState ElevatorIntake::GetState(){
-    return m_movingState;
 }
 
 /**
@@ -234,4 +231,12 @@ void ElevatorIntake::ManualPeriodic(double elevator, double intake) {
     m_elevator.setManualVolts(elevator);
     m_intake.ManualPeriodic(intake * IntakeConstants::WRIST_MAX_VOLTS);
     m_elevator.TeleopPeriodic();
+}
+
+/**
+ * Determines if elevator & intake can move fast
+*/
+bool ElevatorIntake::CanMoveFast() const {
+    return (m_movingState == DONE) &&
+        (m_targState == STOWED || m_targState == HP || m_targState == GROUND);
 }

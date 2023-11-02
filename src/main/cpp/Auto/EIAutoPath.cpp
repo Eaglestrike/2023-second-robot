@@ -6,14 +6,15 @@ EIAutoPath::EIAutoPath( ElevatorIntake::TargetState action, bool cone): m_action
 
 void EIAutoPath::Init(ElevatorIntake& ei){
     m_EI = &ei;
-    m_EI->Init();
+    // m_EI->Init();
 }
 
-void EIAutoPath::Periodic(){
-    m_EI->Periodic();
-}
+// void EIAutoPath::Periodic(){
+//     m_EI->Periodic();
+// }
 
 void EIAutoPath::AutonomousPeriodic() {
+    frc::SmartDashboard::PutNumber("completion", m_completion);
     if (m_started){
        switch (m_EI->GetState()){
         case ElevatorIntake::HALFSTOWING:

@@ -68,11 +68,14 @@ namespace IntakeConstants{
     };
 
     const GamePieceInfo CONE_INFO = {100.0,
-                                     -0.9,
-                                     2.0};
+                                     -1.1,
+                                     3.0};
     const GamePieceInfo CUBE_INFO = {15.0,
                                      0.7,
-                                     2.0}; 
+                                     3.0}; // MAYBE LESS
+    
+    // const double KEEP_CONE_CURRENT = 5.0;
+    // const double KEEP_CUBE_CURRENT = 10.0;
 
     const double ROLLER_MAX_VOLTS = 4.0;
     const double WRIST_MAX_VOLTS = 5.0;

@@ -1,10 +1,13 @@
 #include "Auto/SwerveAutoPath.h"
 
 #include "Drive/DriveConstants.h"
+#include "Auto/AutoConstants.h"
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643383279502884197169399
 #endif
+
+#include <frc/smartdashboard/SmartDashboard.h>
 
 /**
  * Constructor
@@ -19,6 +22,16 @@ SwerveAutoPath::SwerveAutoPath(SwerveControl& drivebase, std::vector<AutoPaths::
   SetAngPID(ANG_KP, ANG_KI, ANG_KD);
   calculateTotalDistance();
   AddPoses(poses);
+
+  // shuffleboard init
+  frc::SmartDashboard::PutNumber("swerve kp pos", m_kPPos);
+  frc::SmartDashboard::PutNumber("swerve ki pos", m_kIPos);
+  frc::SmartDashboard::PutNumber("swerve kd pos", m_kDPos);
+
+  frc::SmartDashboard::PutNumber("swerve kp ang", m_kPAng);
+  frc::SmartDashboard::PutNumber("swerve ki ang", m_kIAng);
+  frc::SmartDashboard::PutNumber("swerve kd ang", m_kDAng);
+  frc::SmartDashboard::PutNumber("Swerve Auto Completion", m_completion);
 }
 
 /**
@@ -34,22 +47,45 @@ void SwerveAutoPath::calculateTotalDistance() {
 void SwerveAutoPath::calculateCurrentProgress() {
   double num_waypoints = m_calcTrans.getAllWaypoints().size();
 
+  double curr_x = m_curPos.x();
+  double curr_y = m_curPos.y();
+
+  double num_stages_completed = 0;
+  double num_stages_total = num_waypoints * 2;
+
   for (SwerveAutoPath::Pose2 waypoint: m_calcTrans.getAllWaypoints()) {
-    
+    double dim_1 = waypoint.getPos()[0];
+    double dim_2 = waypoint.getPos()[1];
+
+    if (abs(curr_x - dim_1) < SwerveAutoConstants::SWERVE_TOLERANCE) {
+      num_stages_completed++;
+    }
+
+    if (abs(curr_y - dim_2) < SwerveAutoConstants::SWERVE_TOLERANCE) {
+      num_stages_completed++;
+    }
   }
-  // find the waypoint closest to current position
 
-  // integrate distance, otherwise
-  double x_completion = m_curPos.x() / m_calcTrans.getAllWaypoints()[0].getPos().at(0);
-  double y_completion = m_curPos.y() / m_calcTrans.getAllWaypoints()[0].getPos().at(1);
+  m_completion = num_stages_completed / num_stages_total;
 
-  double ang_completion = m_curAng / m_calcAng.getMaxDistance(m_expectFinish);
+  frc::SmartDashboard::PutNumber("Swerve Auto Completion", m_completion);
 
-  double current_distance = m_calcTrans.getLength(current_distance);
-
-  m_completion = (x_completion + y_completion + ang_completion) / 3.0;
+  // // double, representing the range of values
+  // // for example, if there are 2 waypoints, the possible completion values are: [0.25, 0.5, 0.75, 1.0]
+  // double current_distance = m_calcTrans.getLength(current_distance);
 }
 
+void SwerveAutoPath::ShuffleboardUpdate() {
+  m_kPPos = frc::SmartDashboard::GetNumber("swerve kp pos", m_kPPos);
+  m_kIPos = frc::SmartDashboard::GetNumber("swerve ki pos", m_kIPos);
+  m_kDPos = frc::SmartDashboard::GetNumber("swerve kd pos", m_kDPos);
+
+  m_kPAng = frc::SmartDashboard::GetNumber("swerve kp ang", m_kPAng);
+  m_kIAng = frc::SmartDashboard::GetNumber("swerve ki ang", m_kIAng);
+  m_kDAng = frc::SmartDashboard::GetNumber("swerve kd ang", m_kDAng);
+
+  frc::SmartDashboard::PutNumber("Swerve Auto Completion", m_completion);
+}
 /**
  * Adds a singular pose
  * 
@@ -163,6 +199,8 @@ void SwerveAutoPath::UpdateOdom(vec::Vector2D curPos, double curAng) {
  * Periodic function
 */
 void SwerveAutoPath::Periodic() {
+  ShuffleboardUpdate();
+
   double curTime = Utils::GetCurTimeS();
   double deltaT = curTime - m_prevTime;
 
@@ -345,6 +383,6 @@ void SwerveAutoPath::AutonomousPeriodic() {
   // does the calculations
   Periodic();
   
-  // implements it
+  // adjusts motor voltage
   drivebase_.SetRobotVelocity(m_curVel, m_curAngVel, m_curAng, m_prevTime);
 }

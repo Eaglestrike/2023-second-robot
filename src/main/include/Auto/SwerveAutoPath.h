@@ -39,6 +39,8 @@ public:
   void UpdateOdom(vec::Vector2D curPos, double curAng);
   void Periodic();
 
+  void ShuffleboardUpdate();
+
   vec::Vector2D GetVel() const;
   double GetAngVel() const;
   ExecuteState GetExecuteState() const;

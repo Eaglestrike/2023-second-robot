@@ -57,3 +57,14 @@ void AutoStage::StartPath(AutoPathX xpath){
     xpath.path->AutonomousPeriodic();
     curPaths.insert(xpath);
 }
+
+void AutoStage::Initialize(std::vector<AutoPathInit> initAllPaths, int startPathIdx) {
+    for (int i = 0 ; i < initAllPaths.size(); i++){
+        AutoPathInit a = initAllPaths[i];
+        allPaths[i] = a.path;
+        if (i == startPathIdx)
+            continue;
+        cueToPath[a.cue] = {i, 0.0, &a.path};
+    }
+    StartPath({startPathIdx, 0.0, &allPaths[startPathIdx]});
+}

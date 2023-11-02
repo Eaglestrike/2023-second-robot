@@ -9,14 +9,45 @@
 /**
  * Constructor
 */
-SwerveAutoPath::SwerveAutoPath() : 
+SwerveAutoPath::SwerveAutoPath(SwerveControl& drivebase, std::vector<AutoPaths::SwervePose> poses) : 
   m_curAng{0}, m_multiplier{0}, m_curAngVel{0}, m_prevTime{0}, m_prevTimeOdom{0},
   m_calcTrans{100}, m_calcAng{100}, m_curState{NOT_EXECUTING},
-  m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0}
+  m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0}, drivebase_{drivebase}
 {
   using namespace AutoConstants;
   SetPosPID(TRANS_KP, TRANS_KI, TRANS_KD);
   SetAngPID(ANG_KP, ANG_KI, ANG_KD);
+  calculateTotalDistance();
+  AddPoses(poses);
+}
+
+/**
+ * @brief Recalculates the total distance that will be travelled by this spline
+ */
+void SwerveAutoPath::calculateTotalDistance() {
+  total_distance = m_calcTrans.getMaxDistance(0.1);
+}
+
+/**
+ * @brief Calculates the current progress, by averaging the x, y, and angle components.
+ */
+void SwerveAutoPath::calculateCurrentProgress() {
+  double num_waypoints = m_calcTrans.getAllWaypoints().size();
+
+  for (SwerveAutoPath::Pose2 waypoint: m_calcTrans.getAllWaypoints()) {
+    
+  }
+  // find the waypoint closest to current position
+
+  // integrate distance, otherwise
+  double x_completion = m_curPos.x() / m_calcTrans.getAllWaypoints()[0].getPos().at(0);
+  double y_completion = m_curPos.y() / m_calcTrans.getAllWaypoints()[0].getPos().at(1);
+
+  double ang_completion = m_curAng / m_calcAng.getMaxDistance(m_expectFinish);
+
+  double current_distance = m_calcTrans.getLength(current_distance);
+
+  m_completion = (x_completion + y_completion + ang_completion) / 3.0;
 }
 
 /**
@@ -146,6 +177,9 @@ void SwerveAutoPath::Periodic() {
       double highestTime = m_calcTrans.getHighestTime();
       double getTime = (relTime <= highestTime ? relTime : highestTime);
 
+      // TODO: manage the completion code
+      double current_distance = m_calcAng.getLength(getTime);
+
       vec::Vector2D curExpectedPos = m_calcTrans.getPos(getTime);
       vec::Vector2D curExpectedVel = m_calcTrans.getVel(getTime);
 
@@ -172,6 +206,7 @@ void SwerveAutoPath::Periodic() {
     {
       m_curVel = {0, 0};
       m_curAngVel = 0;
+      m_completion = 1.0;
 
       if (!AtTarget()) {
         m_curState = NOT_EXECUTING;
@@ -302,3 +337,14 @@ SwerveAutoPath::ExecuteState SwerveAutoPath::GetExecuteState() const {
   return m_curState;
 }
 
+/**
+ * @brief Called every periodic cycle. Manages the motors.
+ * 
+ */
+void SwerveAutoPath::AutonomousPeriodic() {
+  // does the calculations
+  Periodic();
+  
+  // implements it
+  drivebase_.SetRobotVelocity(m_curVel, m_curAngVel, m_curAng, m_prevTime);
+}

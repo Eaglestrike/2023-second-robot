@@ -24,6 +24,8 @@
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"
 
+#include "Auto/AutoManager.h"
+
 namespace vec = svector;
 
 class Robot : public frc::TimedRobot {
@@ -70,7 +72,8 @@ class Robot : public frc::TimedRobot {
 
   // auto
   AutoLineup m_autoLineup;
-  SwerveAutoPath m_autoPath;
+  AutoManager m_auto_manager;
+
   // TEMP, for testing
   double m_curVolts;
   double m_prevTimeTest;

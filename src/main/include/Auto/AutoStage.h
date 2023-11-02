@@ -15,6 +15,7 @@ struct AutoPathInit{
 
 class AutoStage {
     public:
+        AutoStage();
         AutoStage(std::vector<AutoPathInit> allPaths, int startPathIdx);
         void AutonomousPeriodic();
         void Periodic();
@@ -41,4 +42,5 @@ class AutoStage {
         std::map<double, AutoPathX> cueToPath; //where cue is a decimal where ones place represents index and decimal represents completion
 
         void StartPath(AutoPathX xpath);
+        void Initialize(std::vector<AutoPathInit> allPaths, int startPathIdx);
 };

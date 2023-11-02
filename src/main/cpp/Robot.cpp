@@ -60,7 +60,7 @@ Robot::Robot():
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
 
     m_autoLineup.UpdateOdom(pos, ang);
-    m_autoPath.UpdateOdom(pos, ang);
+    // m_autoPath.UpdateOdom(pos, ang);
 
     // UNCOMMENT BELOW
     frc::SmartDashboard::PutString("Robot pos", pos.toString());
@@ -224,8 +224,8 @@ void Robot::RobotPeriodic()
 
     m_autoLineup.SetPosPID(tkP, tkI, tkD);
     m_autoLineup.SetAngPID(akP, akI, akD);
-    m_autoPath.SetPosPID(tkP, tkI, tkD);
-    m_autoPath.SetAngPID(akP, akI, akD);
+    // m_autoPath.SetPosPID(tkP, tkI, tkD);
+    // m_autoPath.SetAngPID(akP, akI, akD);
 
     double tMaxSp = frc::SmartDashboard::GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
     double tMaxAcc = frc::SmartDashboard::GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
@@ -274,23 +274,27 @@ void Robot::AutonomousInit()
 
   // TESTING CODE
   // MAKE SURE BLUE RIGHT OR ELSE ROBOT WILL UNALIVE ITSELF
-  m_autoPath.AddPoses(AutoPaths::BIG_BOY);
-  m_autoPath.StartMove();
+  // m_autoPath.AddPoses(AutoPaths::BIG_BOY);
+  // m_autoPath.StartMove();
+
+  // TODO: where did the elevator intake member go?
+  m_auto_manager{&m_swerveController};
 }
 
 void Robot::AutonomousPeriodic()
 {
-  double curTime = Utils::GetCurTimeS();
-  double deltaT = curTime - m_prevTime;
-  vec::Vector2D driveVel = m_autoPath.GetVel();
-  double angVel = m_autoPath.GetAngVel();
+  m_auto_manager.AutonomousPeriodic();
+  // double curTime = Utils::GetCurTimeS();
+  // double deltaT = curTime - m_prevTime;
+  // vec::Vector2D driveVel = m_autoPath.GetVel();
+  // double angVel = m_autoPath.GetAngVel();
 
-  double curYaw = m_odometry.GetAng();
+  // double curYaw = m_odometry.GetAng();
 
-  m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  // m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
 
-  m_autoPath.Periodic();
-  m_prevTime = curTime;
+  // m_autoPath.Periodic();
+  // m_prevTime = curTime;
 }
 
 void Robot::TeleopInit() {

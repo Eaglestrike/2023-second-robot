@@ -8,11 +8,13 @@
 #include "Util/thirdparty/hermite.hpp"
 #include "Util/thirdparty/simplevectors.hpp"
 #include "Drive/DriveConstants.h"
+#include "Auto/AutoPath.h"
+#include "Drive/SwerveControl.h"
 
 namespace hm = hermite;
 namespace vec = svector;
 
-class SwerveAutoPath {
+class SwerveAutoPath: public AutoPath {
   typedef hm::Hermite<1> Hermite1;
   typedef hm::Pose<1> Pose1;
   typedef hm::Hermite<2> Hermite2;
@@ -25,7 +27,7 @@ public:
     AT_TARGET
   };
 
-  SwerveAutoPath();
+  SwerveAutoPath(SwerveControl& drivebase, std::vector<AutoPaths::SwervePose> poses);
 
   void AddPose(AutoPaths::SwervePose pose);
   void AddPoses(std::vector<AutoPaths::SwervePose> poses);
@@ -54,6 +56,10 @@ private:
   double m_prevTime;
   double m_prevTimeOdom;
 
+  // distance managing
+  double current_distance;
+  double total_distance;
+
   // Hermite3 m_calc;
   Hermite2 m_calcTrans;
   Hermite1 m_calcAng;
@@ -81,4 +87,11 @@ private:
   bool AtTransTarget(double posErrTol, double velErrTol) const;
   bool AtRotTarget(double posErrTol, double velErrTol) const;
   double GetMultipliedAng() const;
+
+  // methods from AutoPath, for overriding purposes
+  void AutonomousPeriodic() override;
+  SwerveControl& drivebase_;
+
+  void calculateTotalDistance();
+  void calculateCurrentProgress();
 };

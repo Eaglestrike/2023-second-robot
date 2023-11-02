@@ -11,20 +11,23 @@ namespace IntakeElevatorConstants{
         ElevatorIntakePosInfo SCORE_MID;
         ElevatorIntakePosInfo SCORE_HIGH;
         ElevatorIntakePosInfo GROUND_INTAKE;
+        ElevatorIntakePosInfo FLANGE_INTAKE;
         ElevatorIntakePosInfo HP_INTAKE;
     };
 
-    const GamePieceInfo coneScoreInfo{{0.0, 0.58},
-                                      {0.316, 0.73},
-                                      {0.545, 0.8},
-                                      {0.0, 0.0}, // ground intake
-                                      {0.0, 1.5}}; // intake from drop station
+    const GamePieceInfo coneScoreInfo{.SCORE_LOW =      {0.0, 1.4}, // was 0.58
+                                      .SCORE_MID =      {0.316, 0.73},
+                                      .SCORE_HIGH =     {0.545, 0.8},
+                                      .GROUND_INTAKE =  {0.0, 0.183}, // ground intake upright
+                                      .FLANGE_INTAKE =  {0.0, 0.0}, // ground intake flange
+                                      .HP_INTAKE =      {0.0, 1.5}}; // intake from drop station
 
-    const GamePieceInfo cubeScoreInfo{{0.0, 0.58},
-                                      {0.291, 1.25},
-                                      {0.573, 0.8}, // elevator pos seems wayyy to high
-                                      {0.0, 0.13}, // intake from ground
-                                      {0.0, 0.0}}; 
+    const GamePieceInfo cubeScoreInfo{.SCORE_LOW =      {0.0, 1.4}, // was 0.58
+                                      .SCORE_MID =      {0.291, 1.25},
+                                      .SCORE_HIGH =     {0.573, 0.8}, // elevator pos seems wayyy to high
+                                      .GROUND_INTAKE =  {0.0, 0.13}, // intake from ground
+                                      .FLANGE_INTAKE =  {0.0, 0.44}, // NA for cube (set to default?)
+                                      .HP_INTAKE =      {0.0, 0.0}}; 
 }
 
 namespace IntakeConstants{
@@ -65,20 +68,27 @@ namespace IntakeConstants{
 
      struct GamePieceInfo {
         double SPIKE_CURRENT;
+        double IN_VOLTS;
+        double STRONG_IN_VOLTS;
         double KEEP_VOLTS;
         double OUT_VOLTS;
     };
 
-    const GamePieceInfo CONE_INFO = {100.0,
-                                     -1.1,
-                                     3.0};
-    const GamePieceInfo CUBE_INFO = {15.0,
-                                     0.7,
-                                     3.0}; // MAYBE LESS
+    const GamePieceInfo CONE_INFO = {.SPIKE_CURRENT = 100.0,
+                                     .IN_VOLTS = 5.0,
+                                     .STRONG_IN_VOLTS = 9.0,
+                                     .KEEP_VOLTS = -1.1,
+                                     .OUT_VOLTS = 3.0};
+    const GamePieceInfo CUBE_INFO = {.SPIKE_CURRENT = 15.0,
+                                     .IN_VOLTS = 4.0,
+                                     .STRONG_IN_VOLTS = 4.0,
+                                     .KEEP_VOLTS = 0.7,
+                                     .OUT_VOLTS = 3.0}; // MAYBE LESS
     
     // const double KEEP_CONE_CURRENT = 5.0;
     // const double KEEP_CUBE_CURRENT = 10.0;
 
-    const double ROLLER_MAX_VOLTS = 4.0;
+    const double ROLLER_MAX_VOLTS = 5.0;
+
     const double WRIST_MAX_VOLTS = 5.0;
 }

@@ -515,16 +515,20 @@ void Robot::TeleopPeriodic() {
       m_rollers.SetCone(true);
       m_posVal = 1;
     }
-    else if (m_controller.getPOVDownOnce(CUBE_INTAKE)) {
+    else if (m_controller.getPressedOnce(GROUND_INTAKE)) {
       m_elevatorIntake.IntakeFromGround();
       m_rollers.SetCone(false);
       m_posVal = 2;
+    }
+    else if (m_controller.getPOVDownOnce(INTAKE_FLANGE)){
+      m_elevatorIntake.IntakeFlange();
     }
   }
   if (m_controller.getPressedOnce(INTAKE))
     m_rollers.Intake();
   else if (m_controller.getPressedOnce(OUTTAKE))
     m_rollers.Outtake();
+  m_rollers.HoldIntake(m_controller.getPressed(INTAKE));
 
   m_rollers.Periodic();
   double time3 = Utils::GetCurTimeS();

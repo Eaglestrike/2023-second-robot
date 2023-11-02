@@ -220,6 +220,14 @@ void ElevatorIntake::IntakeFromGround(){
    DeployElevatorIntake(GetGPI(m_cone).GROUND_INTAKE);
 }
 
+/**
+ * Ground Flange Cone intake
+*/
+void ElevatorIntake::IntakeFlange(){
+    m_targState = GROUND;
+   DeployElevatorIntake(GetGPI(true).FLANGE_INTAKE);
+}
+
 void ElevatorIntake::IntakeFromHPS(){
     if(m_targState == HP) return;
     m_targState = HP;

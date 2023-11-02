@@ -29,12 +29,14 @@ namespace Actions{
         INTAKE_ANG,
         AUTO_LINEUP,
         SLOW,
+        GROUND_INTAKE,
         ACTION_COUNT //Just the number of actions, as it is at the end of a enum
     };
 
     //Different enum for POV actions because logic is different
     enum POVAction{
         NO_POV_ACTION = -1,
+        INTAKE_FLANGE,
         CUBE_INTAKE,
         ACTION_COUNT_POV //Just the number of actions, as it is at the end of a enum
     };
@@ -71,7 +73,7 @@ namespace ControllerMapData{
         {XBOX_B_BUTTON ,        SCORE_MID},
         {XBOX_X_BUTTON ,        SCORE_LOW},
         {XBOX_Y_BUTTON ,        SCORE_HIGH},
-        {XBOX_L_BUMPER ,        GROUND},
+        {XBOX_L_BUMPER ,        GROUND_INTAKE},
         {XBOX_LTRIGGER ,        MANUAL1},
         {XBOX_R_BUMPER ,        HP},
         {{XBOX, B_7} ,          ZERO_DRIVE_PID},
@@ -136,6 +138,6 @@ namespace ControllerMapData{
     };
 
     const std::vector<POVMapElement> POVMap = {
-        {XBOX_POV, POV_RIGHT, CUBE_INTAKE},
+        {XBOX_POV, POV_LEFT, INTAKE_FLANGE},
     };
 };

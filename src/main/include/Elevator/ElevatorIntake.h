@@ -39,6 +39,7 @@ class ElevatorIntake{
         void ScoreMid();
         void ScoreLow();
         void IntakeFromGround();
+        void IntakeFlange();
         void IntakeFromHPS();
         void UpdateLidarData(LidarReader::LidarData lidarData);
         void UpdateShuffleboard();

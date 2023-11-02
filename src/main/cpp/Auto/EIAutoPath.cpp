@@ -1,4 +1,5 @@
 #include "Auto/EIAutoPath.h"
+#include "Auto/AutoConstants.h"
 
 EIAutoPath::EIAutoPath( ElevatorIntake::TargetState action, bool cone): m_action(action){
     m_EI->SetCone(cone);

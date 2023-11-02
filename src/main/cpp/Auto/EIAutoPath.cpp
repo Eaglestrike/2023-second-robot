@@ -6,7 +6,6 @@ EIAutoPath::EIAutoPath( ElevatorIntake::TargetState action, bool cone): m_action
 
 void EIAutoPath::Init(ElevatorIntake& ei){
     m_EI = &ei;
-    // m_EI->Init();
 }
 
 // void EIAutoPath::Periodic(){

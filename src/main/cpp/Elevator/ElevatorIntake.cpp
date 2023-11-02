@@ -26,6 +26,10 @@ void ElevatorIntake::Init() {
     m_elevator.Init();
 }
 
+ElevatorIntake::MovingState ElevatorIntake::GetState(){
+    return m_movingState;
+}
+
 void ElevatorIntake::UpdateShuffleboard() {
     m_elevator.UpdateShuffleboard();
 }
@@ -35,6 +39,8 @@ void ElevatorIntake::DeployElevatorIntake(double elevatorLength, double intakeAn
     m_movingState = HALFSTOWING;
     m_targElevatorPos = elevatorLength;
     m_targIntakeAng = intakeAng;
+    m_startElevatorPos = m_elevator.GetPos();
+    m_startIntakeAng = m_intake.GetPos();
     // m_intake.SetHPIntake(false);
 }
 
@@ -43,6 +49,8 @@ void ElevatorIntake::Stow(){
     m_movingState = HALFSTOWING;
     m_targElevatorPos = ElevatorConstants::STOWED_HEIGHT;
     m_targIntakeAng =  IntakeConstants::STOWED_POS;
+    m_startElevatorPos = m_elevator.GetPos();
+    m_startIntakeAng = m_intake.GetPos();
     m_targState = STOWED;
 }
 
@@ -182,6 +190,13 @@ void ElevatorIntake::SetCone(bool cone){
 void ElevatorIntake::ScoreHigh(){
     m_targState = HIGH;
     DeployElevatorIntake(GetGPI(m_cone).SCORE_HIGH);
+}
+
+double ElevatorIntake::GetWristCompletion(){
+    return fabs(m_targIntakeAng - m_intake.GetPos())/fabs(m_targIntakeAng-m_startIntakeAng);
+}
+double ElevatorIntake::GetElevatorCompletion(){
+    return fabs(m_targElevatorPos - m_elevator.GetPos())/fabs(m_targElevatorPos-m_startIntakeAng);
 }
 
 void ElevatorIntake::ScoreMid(){

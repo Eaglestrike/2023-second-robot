@@ -38,12 +38,16 @@ class ElevatorIntake{
         void ScoreHigh();
         void ScoreMid();
         void ScoreLow();
+        // TargetState GetState();
         void IntakeFromGround();
         void IntakeFromHPS();
         void UpdateLidarData(LidarReader::LidarData& lidarData);
         void UpdateShuffleboard();
         void ManualPeriodic(double elevator, double intake);
         bool CanMoveFast() const;
+        MovingState GetState();
+        double GetWristCompletion();
+        double GetElevatorCompletion();
 
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);
@@ -61,6 +65,7 @@ class ElevatorIntake{
 
         bool m_rollers = false;
         double m_targIntakeAng, m_targElevatorPos;
+        double m_startIntakeAng, m_startElevatorPos;
 
         bool m_useLidar = true;
 

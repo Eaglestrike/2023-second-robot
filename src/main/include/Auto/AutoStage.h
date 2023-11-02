@@ -25,7 +25,7 @@ class AutoStage {
         StageState GetState();
         AutoStage(std::vector<AutoPathInit> allPaths, int startPathIdx);
         void AutonomousPeriodic();
-        void Periodic();
+        // void Periodic();
         void Init(ElevatorIntake& ei);
         
 

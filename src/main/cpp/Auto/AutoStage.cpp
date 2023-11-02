@@ -57,9 +57,9 @@ void AutoStage::AutonomousPeriodic() {
     }
 }
 
-void AutoStage::Periodic(){
-    EIAutoPath::Periodic();
-}
+// void AutoStage::Periodic(){
+//     EIAutoPath::Periodic();
+// }
 
 void AutoStage::Init(ElevatorIntake& ei){
     EIAutoPath::Init(ei);

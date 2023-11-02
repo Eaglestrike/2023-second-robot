@@ -22,6 +22,15 @@ SwerveAutoPath::SwerveAutoPath(SwerveControl& drivebase, std::vector<AutoPaths::
   SetAngPID(ANG_KP, ANG_KI, ANG_KD);
   calculateTotalDistance();
   AddPoses(poses);
+
+  // shuffleboard init
+  frc::SmartDashboard::PutNumber("swerve kp pos", m_kPPos);
+  frc::SmartDashboard::PutNumber("swerve ki pos", m_kIPos);
+  frc::SmartDashboard::PutNumber("swerve kd pos", m_kDPos);
+
+  frc::SmartDashboard::PutNumber("swerve kp ang", m_kPAng);
+  frc::SmartDashboard::PutNumber("swerve ki ang", m_kIAng);
+  frc::SmartDashboard::PutNumber("swerve kd ang", m_kDAng);
 }
 
 /**
@@ -65,6 +74,16 @@ void SwerveAutoPath::calculateCurrentProgress() {
   // double current_distance = m_calcTrans.getLength(current_distance);
 }
 
+void SwerveAutoPath::ShuffleboardUpdate() {
+  m_kPPos = frc::SmartDashboard::GetNumber("swerve kp pos", m_kPPos);
+  m_kIPos = frc::SmartDashboard::GetNumber("swerve ki pos", m_kIPos);
+  m_kDPos = frc::SmartDashboard::GetNumber("swerve kd pos", m_kDPos);
+
+  m_kPAng = frc::SmartDashboard::GetNumber("swerve kp ang", m_kPAng);
+  m_kIAng = frc::SmartDashboard::GetNumber("swerve ki ang", m_kIAng);
+  m_kDAng = frc::SmartDashboard::GetNumber("swerve kd ang", m_kDAng);
+
+}
 /**
  * Adds a singular pose
  * 
@@ -178,6 +197,8 @@ void SwerveAutoPath::UpdateOdom(vec::Vector2D curPos, double curAng) {
  * Periodic function
 */
 void SwerveAutoPath::Periodic() {
+  ShuffleboardUpdate();
+
   double curTime = Utils::GetCurTimeS();
   double deltaT = curTime - m_prevTime;
 
@@ -360,6 +381,6 @@ void SwerveAutoPath::AutonomousPeriodic() {
   // does the calculations
   Periodic();
   
-  // implements it
+  // adjusts motor voltage
   drivebase_.SetRobotVelocity(m_curVel, m_curAngVel, m_curAng, m_prevTime);
 }

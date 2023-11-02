@@ -317,18 +317,15 @@ void Robot::AutonomousPeriodic(){
     m_eiAutoPath.Start();
   }
   m_eiAutoPath.AutonomousPeriodic();
+  m_swerve_auto.AutonomousPeriodic();
   // m_auto_manager.AutonomousPeriodic();
-  // double curTime = Utils::GetCurTimeS();
-  // double deltaT = curTime - m_prevTime;
-  // vec::Vector2D driveVel = m_autoPath.GetVel();
-  // double angVel = m_autoPath.GetAngVel();
+  // m_auto_manager{&m_swerveController};
+  AutoPaths::SwervePose swp_1 = {0.0, 10, 20, 30, 30, 40, 10};
+  AutoPaths::SwervePose swp_2 = {0.0, 10, 20, 30, 30, 40, 10};
+  AutoPaths::SwervePose swp_3 = {0.0, 10, 20, 30, 30, 40, 10};
 
-  // double curYaw = m_odometry.GetAng();
+  
 
-  // m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
-
-  // m_autoPath.Periodic();
-  // m_prevTime = curTime;
 }
 
 void Robot::TeleopInit() {

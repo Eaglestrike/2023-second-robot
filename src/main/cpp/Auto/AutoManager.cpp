@@ -1,6 +1,6 @@
 
 // #include "Auto/AutoManager.h"
-// #include "Auto/AutoConstants.h"
+// #include "AutoConstants.h"
 
 // AutoManager::AutoManager(SwerveControl& db, ElevatorIntake& ei): drivebase_(db), elevator_intake_(ei) {
 //     // TODO: add items from constants file to vector, as appropriate

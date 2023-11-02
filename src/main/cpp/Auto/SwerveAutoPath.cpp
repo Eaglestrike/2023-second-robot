@@ -45,30 +45,42 @@ void SwerveAutoPath::calculateTotalDistance() {
  * @brief Calculates the current progress, by averaging the x, y, and angle components.
  */
 void SwerveAutoPath::calculateCurrentProgress() {
-  double num_waypoints = m_calcTrans.getAllWaypoints().size();
-
   double curr_x = m_curPos.x();
   double curr_y = m_curPos.y();
+  double num_waypoints = m_calcTrans.getAllWaypoints().size();
 
-  double num_stages_completed = 0;
-  double num_stages_total = num_waypoints * 2;
+  SwerveAutoPath::Pose2 current_waypoint = m_calcTrans.getAllWaypoints()[waypoints_completed];
+  double x_completion = curr_x / current_waypoint.getPos().at(0);
+  double y_completion = curr_y / current_waypoint.getPos().at(1);
+  double averaged = (x_completion + y_completion) / 2.0;
 
-  for (SwerveAutoPath::Pose2 waypoint: m_calcTrans.getAllWaypoints()) {
-    double dim_1 = waypoint.getPos()[0];
-    double dim_2 = waypoint.getPos()[1];
-
-    if (abs(curr_x - dim_1) < SwerveAutoConstants::SWERVE_TOLERANCE) {
-      num_stages_completed++;
-    }
-
-    if (abs(curr_y - dim_2) < SwerveAutoConstants::SWERVE_TOLERANCE) {
-      num_stages_completed++;
-    }
+  if (averaged == 1.0) {
+    waypoints_completed++;
   }
 
-  m_completion = num_stages_completed / num_stages_total;
+  m_completion = (waypoints_completed + averaged) / num_waypoints;
 
-  frc::SmartDashboard::PutNumber("Swerve Auto Completion", m_completion);
+
+
+  // double num_stages_completed = 0;
+  // double num_stages_total = num_waypoints * 2;
+
+  // for (SwerveAutoPath::Pose2 waypoint: m_calcTrans.getAllWaypoints()) {
+  //   double dim_1 = waypoint.getPos()[0];
+  //   double dim_2 = waypoint.getPos()[1];
+
+  //   if (abs(curr_x - dim_1) < SwerveAutoConstants::SWERVE_TOLERANCE) {
+  //     num_stages_completed++;
+  //   }
+
+  //   if (abs(curr_y - dim_2) < SwerveAutoConstants::SWERVE_TOLERANCE) {
+  //     num_stages_completed++;
+  //   }
+  // }
+
+  // m_completion = num_stages_completed / num_stages_total;
+
+  // frc::SmartDashboard::PutNumber("Swerve Auto Completion", m_completion);
 
   // // double, representing the range of values
   // // for example, if there are 2 waypoints, the possible completion values are: [0.25, 0.5, 0.75, 1.0]

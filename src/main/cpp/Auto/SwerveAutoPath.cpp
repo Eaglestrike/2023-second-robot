@@ -6,6 +6,8 @@
 #define M_PI 3.141592653589793238462643383279502884197169399
 #endif
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 /**
  * Constructor
 */
@@ -53,9 +55,13 @@ void SwerveAutoPath::calculateCurrentProgress() {
     }
   }
 
-  // double, representing the range of values
-  // for example, if there are 2 waypoints, the possible completion values are: [0.25, 0.5, 0.75, 1.0]
-  double current_distance = m_calcTrans.getLength(current_distance);
+  m_completion = num_stages_completed / num_stages_total;
+
+  frc::SmartDashboard::PutNumber("Swerve Auto Completion", m_completion);
+
+  // // double, representing the range of values
+  // // for example, if there are 2 waypoints, the possible completion values are: [0.25, 0.5, 0.75, 1.0]
+  // double current_distance = m_calcTrans.getLength(current_distance);
 }
 
 /**

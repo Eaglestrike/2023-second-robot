@@ -510,10 +510,16 @@ void Robot::TeleopPeriodic() {
       m_elevatorIntake.ScoreLow();
     else if (m_controller.getPressedOnce(STOW))
       m_elevatorIntake.Stow();
-    else if (m_controller.getPressedOnce(HP))
+    else if (m_controller.getPressedOnce(HP)) {
       m_elevatorIntake.IntakeFromHPS();
-    else if (m_controller.getPOVDownOnce(CUBE_INTAKE))
+      m_rollers.SetCone(true);
+      m_posVal = 1;
+    }
+    else if (m_controller.getPOVDownOnce(CUBE_INTAKE)) {
       m_elevatorIntake.IntakeFromGround();
+      m_rollers.SetCone(false);
+      m_posVal = 2;
+    }
   }
   if (m_controller.getPressedOnce(INTAKE))
     m_rollers.Intake();

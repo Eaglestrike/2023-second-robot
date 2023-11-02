@@ -216,13 +216,15 @@ void ElevatorIntake::ScoreLow(){
 void ElevatorIntake::IntakeFromGround(){
     if (m_targState == GROUND) return;
     m_targState = GROUND;
+    m_cone = false;
    DeployElevatorIntake(GetGPI(m_cone).GROUND_INTAKE);
 }
 
 void ElevatorIntake::IntakeFromHPS(){
     if(m_targState == HP) return;
     m_targState = HP;
-    DeployElevatorIntake(GetGPI(true).HP_INTAKE);
+    m_cone = true;
+    DeployElevatorIntake(GetGPI(m_cone).HP_INTAKE);
 //    m_intake.SetHPIntake(true);
 }
 

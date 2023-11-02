@@ -1,6 +1,7 @@
 #include "Auto/SwerveAutoPath.h"
 
 #include "Drive/DriveConstants.h"
+#include "Auto/AutoConstants.h"
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643383279502884197169399
@@ -43,14 +44,14 @@ void SwerveAutoPath::calculateCurrentProgress() {
   double num_stages_total = num_waypoints * 2;
 
   for (SwerveAutoPath::Pose2 waypoint: m_calcTrans.getAllWaypoints()) {
-    double dim_1 = waypoint.getPos().at(0);
-    double dim_2 = waypoint.getPos().at(1);
+    double dim_1 = waypoint.getPos()[0];
+    double dim_2 = waypoint.getPos()[1];
 
-    if (curr_x > dim_1) {
+    if (abs(curr_x - dim_1) < SwerveAutoConstants::SWERVE_TOLERANCE) {
       num_stages_completed++;
     }
 
-    if (curr_y > dim_2) {
+    if (abs(curr_y - dim_2) < SwerveAutoConstants::SWERVE_TOLERANCE) {
       num_stages_completed++;
     }
   }

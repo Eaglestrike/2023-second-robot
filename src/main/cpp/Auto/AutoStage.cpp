@@ -61,10 +61,6 @@ void AutoStage::AutonomousPeriodic() {
 //     EIAutoPath::Periodic();
 // }
 
-void AutoStage::Init(ElevatorIntake& ei){
-    EIAutoPath::Init(ei);
-}
-
 
 void AutoStage::StartPath(AutoPathX xpath){
     xpath.path->Start();

@@ -107,7 +107,6 @@ Robot::Robot():
 void Robot::RobotInit()
 {
   m_EI.Init();
-  EIAutoPath::Init(m_EI);
   // initialization
   // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
   // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
@@ -314,6 +313,7 @@ void Robot::AutonomousPeriodic(){
       targ =ElevatorIntake::TargetState::GROUND;
     }
     m_eiAutoPath = EIAutoPath(targ, frc::SmartDashboard::GetBoolean("cone", false));
+    m_eiAutoPath.Init(m_EI);
     m_eiAutoPath.Start();
   }
   m_eiAutoPath.AutonomousPeriodic();

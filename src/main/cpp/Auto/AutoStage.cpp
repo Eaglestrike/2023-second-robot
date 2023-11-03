@@ -11,9 +11,10 @@ AutoStage::AutoStage(std::vector<AutoPathInit> initAllPaths, int startPathIdx) {
         m_allPaths[i] = a.path;
         if (i == startPathIdx)
             continue;
-        cueToPath[a.cue] = {i, &a.path};
+        m_cueToPath[a.cue] = {i, &a.path};
     }
     m_startIdx = startPathIdx;
+    m_mechInUse = *(new std::vector<bool>(AutoPath::LAST, false));
 }
 
 void AutoStage::Start(){
@@ -39,9 +40,9 @@ void AutoStage::AutonomousPeriodic() {
     }
     for (auto i : m_curPaths){
         i.path->AutonomousPeriodic();
-        auto itr = cueToPath.lower_bound(i.index);
+        auto itr = m_cueToPath.lower_bound(i.index);
         double curCompletion =  i.path->GetCompletionPercentage();
-        while (itr!=cueToPath.end()){
+        while (itr!=m_cueToPath.end()){
             double curCue = itr->first;
             if (curCue <= i.index + curCompletion){
                 StartPath(itr->second);

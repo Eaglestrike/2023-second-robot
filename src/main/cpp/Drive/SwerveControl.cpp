@@ -183,15 +183,10 @@ void SwerveControl::CorePeriodic(){
 }
 
 void SwerveControl::CoreShuffleboardInit(){
-  frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
-}
+  shuff_.add("ang correct", &m_angleCorrector, {3,3,0,0}, true);
+  shuff_.add("kS", &m_kS, {1,1,3,1}, true);
+  shuff_.add("kV", &m_kV, {1,1,4,1}, true);
+  shuff_.add("kA", &m_kA, {1,1,5,1}, true);
 
-void SwerveControl::CoreShuffleboardUpdate(){
-  double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
-
-  SetAngleCorrectionPID(kP2, kI2, kD2);
+  shuff_.add("current angle", &m_curAngle, {1,1,2,3}, false);
 }

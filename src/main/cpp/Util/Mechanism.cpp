@@ -10,7 +10,7 @@
 Mechanism::Mechanism():
     name_("Unnamed Mechanism"),
     enabled_(true),
-    shuffleboard_(false)
+    shuff_(name_, false)
 {
 
 }
@@ -25,7 +25,7 @@ Mechanism::Mechanism():
 Mechanism::Mechanism(std::string name, bool enabled, bool shuffleboard):
     name_(name),
     enabled_(enabled),
-    shuffleboard_(shuffleboard)
+    shuff_(name_, shuffleboard)
 {
 
 }
@@ -37,7 +37,7 @@ void Mechanism::Init(){
     if(enabled_){
         CoreInit();
     }
-    if(shuffleboard_){
+    if(shuff_.isEnabled()){
         CoreShuffleboardInit();
     }
 };
@@ -49,9 +49,7 @@ void Mechanism::Periodic(){
     if(enabled_){
         CorePeriodic();
     }
-    if(shuffleboard_){
-        CoreShuffleboardPeriodic();
-    }
+    shuff_.update(true);
 }
 
 
@@ -116,14 +114,14 @@ void Mechanism::DisabledPeriodic(){
 */
 void Mechanism::EnableShuffleboard(){
     CoreShuffleboardInit();
-    shuffleboard_ = true;
+    shuff_.enable();
 }
 
 /**
  * Disables Shuffleboard fuctions to be executed
 */
 void Mechanism::DisableShuffleboard(){
-    shuffleboard_ = false;
+    shuff_.disable();
 }
 
 /**

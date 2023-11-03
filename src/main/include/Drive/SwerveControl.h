@@ -36,7 +36,6 @@ private:
   void CorePeriodic() override;
 
   void CoreShuffleboardInit() override;
-  void CoreShuffleboardUpdate() override;
 
   RefArray<SwerveModule> m_modules;
   std::array<double, 4> m_prevSpeeds;

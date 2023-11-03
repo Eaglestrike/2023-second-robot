@@ -30,3 +30,7 @@ void ShuffleboardSender::disable(){
         item->disable();
     }
 }
+
+bool ShuffleboardSender::isEnabled(){
+    return enabled_;
+}

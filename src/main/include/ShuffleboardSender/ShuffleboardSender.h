@@ -48,6 +48,8 @@ class ShuffleboardSender{
         void enable();
         void disable();
 
+        bool isEnabled();
+
     private:
         std::string name_;
         

@@ -24,6 +24,9 @@ SwerveAutoPath::SwerveAutoPath(SwerveControl& drivebase, std::vector<AutoPaths::
   AddPoses(poses);
 
   // shuffleboard init
+  frc::SmartDashboard::PutNumber("length of poses array recieved", poses.size());
+  frc::SmartDashboard::PutNumber("waypoints completed", waypoints_completed);
+
   frc::SmartDashboard::PutNumber("swerve kp pos", m_kPPos);
   frc::SmartDashboard::PutNumber("swerve ki pos", m_kIPos);
   frc::SmartDashboard::PutNumber("swerve kd pos", m_kDPos);
@@ -49,9 +52,12 @@ void SwerveAutoPath::calculateCurrentProgress() {
   double curr_y = m_curPos.y();
   double num_waypoints = m_calcTrans.getAllWaypoints().size();
 
+  SwerveAutoPath::Pose2 previous_waypoint = m_calcTrans.getAllWaypoints()[waypoints_completed > 0 ? waypoints_completed - 1 : 0];
   SwerveAutoPath::Pose2 current_waypoint = m_calcTrans.getAllWaypoints()[waypoints_completed];
-  double x_completion = curr_x / current_waypoint.getPos().at(0);
-  double y_completion = curr_y / current_waypoint.getPos().at(1);
+  // double x_completion = curr_x / current_waypoint.getPos().at(0);
+  // double y_completion = curr_y / current_waypoint.getPos().at(1);
+  double x_completion = calcGenericCompletion(previous_waypoint.getPos().at(0), curr_x, current_waypoint.getPos().at(0));
+  double y_completion = calcGenericCompletion(previous_waypoint.getPos().at(1), curr_y, current_waypoint.getPos().at(1));
   double averaged = (x_completion + y_completion) / 2.0;
 
   if (averaged == 1.0) {
@@ -88,6 +94,8 @@ void SwerveAutoPath::calculateCurrentProgress() {
 }
 
 void SwerveAutoPath::ShuffleboardUpdate() {
+  frc::SmartDashboard::PutNumber("waypoints completed", waypoints_completed);
+
   m_kPPos = frc::SmartDashboard::GetNumber("swerve kp pos", m_kPPos);
   m_kIPos = frc::SmartDashboard::GetNumber("swerve ki pos", m_kIPos);
   m_kDPos = frc::SmartDashboard::GetNumber("swerve kd pos", m_kDPos);
@@ -205,6 +213,11 @@ void SwerveAutoPath::UpdateOdom(vec::Vector2D curPos, double curAng) {
   m_prevTimeOdom = curTimeS;
 
   m_curAng = curAng;
+}
+
+double SwerveAutoPath::calcGenericCompletion(double start, double current, double end) {
+  double frac = abs(current_distance - start) / abs(end - start);
+  return 1.0 - frac;
 }
 
 /**
@@ -394,6 +407,8 @@ SwerveAutoPath::ExecuteState SwerveAutoPath::GetExecuteState() const {
 void SwerveAutoPath::AutonomousPeriodic() {
   // does the calculations
   Periodic();
+
+  frc::SmartDashboard::PutNumber("m cur vel magnitude", m_curVel.magn());
   
   // adjusts motor voltage
   drivebase_.SetRobotVelocity(m_curVel, m_curAngVel, m_curAng, m_prevTime);

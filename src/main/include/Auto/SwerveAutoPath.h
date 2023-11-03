@@ -44,6 +44,7 @@ public:
   vec::Vector2D GetVel() const;
   double GetAngVel() const;
   ExecuteState GetExecuteState() const;
+  void AutonomousPeriodic() override;
 
 private:
   vec::Vector2D m_curPos;
@@ -83,6 +84,9 @@ private:
   double m_kIAng;
   double m_kDAng;
 
+  // waypoint counter
+  int waypoints_completed;
+
   vec::Vector2D GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos); 
   double GetPIDAng(double deltaT, double curExpectedAng);
   bool AtTarget() const;
@@ -91,9 +95,9 @@ private:
   double GetMultipliedAng() const;
 
   // methods from AutoPath, for overriding purposes
-  void AutonomousPeriodic() override;
   SwerveControl& drivebase_;
 
   void calculateTotalDistance();
   void calculateCurrentProgress();
+  void calcGenericCompletion(double start, double current, double end);
 };

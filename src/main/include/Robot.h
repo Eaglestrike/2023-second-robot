@@ -25,7 +25,8 @@
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"
 
-#include "Auto/AutoManager.h"
+#include "Auto/SwerveAutoPath.h"
+#include "Auto/AutoConstants.h"
 
 namespace vec = svector;
 
@@ -78,6 +79,8 @@ class Robot : public frc::TimedRobot {
   //AutoManager m_auto_manager;
   ElevatorIntake m_EI{};
   EIAutoPath m_eiAutoPath{ElevatorIntake::TargetState::STOWED, false};
+  // AutoManager m_auto_manager;
+  SwerveAutoPath m_swerve_auto{*m_swerveController, SwerveAutoConstants::swerve_poses};
 
   // TEMP, for testing
   double m_curVolts;

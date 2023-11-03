@@ -1,37 +1,24 @@
-// #pragma once
+#pragma once
 
-// #include "Util/Mechanism.h"
-// #include "Drive/SwerveControl.h"
-// #include "Elevator/ElevatorIntake.h"
-// #include "AutoStage.h"
+#include "AutoStage.h"
 
-// #include <vector>
-// #include <string>
+#include <vector>
+#include <string>
 
-// class AutoManager: public Mechanism {
-//     public:
-//         AutoManager(SwerveControl& db, ElevatorIntake& ei);
-//         void chooseAutoStage(int index);
+class AutoManager {
+    public:
+        AutoManager(std::vector<AutoStage> stages): m_stages{stages}{}
+        void AutonomousPeriodic(){
+            if (m_curStage == -1 || m_curStage > m_stages.size()) return;
+            m_stages[m_curStage].AutonomousPeriodic();
+            if (m_stages[m_curStage].GetState() == AutoStage::DONE) m_curStage++;
+        };
 
-//     private:
-//         struct AutoStageX {
-//             std::string name; // for driver choosing
+        void Start(){
+            m_curStage = 0;
+        };
 
-//             // TODO: fix this compilation
-//             AutoStage::AutoStage stage;
-//         }
-
-//         std::vector<AutoStageX> all_stages;
-
-//         void loadAutoStage();
-
-//         // virtual void CorePeriodic() override;
-//         virtual void CoreAutonomousInit() override;
-//         virtual void CoreAutonomousPeriodic() override;
-
-//         // member variables
-//         SwerveControl& drivebase_;
-//         ElevatorIntake& elevator_intake_;
-
-//         AutoStageX chosenStage;
-// };
+    private:
+        int m_curStage = -1;
+        std::vector<AutoStage> m_stages;
+};

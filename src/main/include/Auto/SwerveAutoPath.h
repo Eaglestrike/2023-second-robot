@@ -99,5 +99,5 @@ private:
 
   void calculateTotalDistance();
   void calculateCurrentProgress();
-  void calcGenericCompletion(double start, double current, double end);
+  double calcGenericCompletion(double start, double current, double end);
 };

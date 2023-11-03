@@ -58,8 +58,20 @@ void AutoStage::AutonomousPeriodic() {
 }
 
 
+
 void AutoStage::StartPath(AutoPathX xpath){
     if (m_donePaths.contains(xpath)) return;
+    std::string type = typeid(*xpath.path).name();
+    std::regex EIreg("\d+EIAutoPath"), swrvReg("\d+SwerveAutoPath");
+    bool isEI = std::regex_match(type, EIreg), isSwrve = std::regex_match(type, swrvReg);
+    if (isEI) {
+        if (curEI) return; 
+        else curEI = true;
+    } if (isSwrve) {
+        if (curSwrve) return; 
+        else curSwrve = true;
+    }
+
     xpath.path->Start();
     xpath.path->AutonomousPeriodic();
     m_curPaths.insert(xpath);

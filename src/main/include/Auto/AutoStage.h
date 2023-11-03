@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "AutoPath.h"
 #include "EIAutoPath.h"
+#include <regex>
 #include <vector>
 #include <set>
 #include <map>
@@ -45,6 +46,7 @@ class AutoStage {
         StageState m_state = NOT_STARTED;
         std::vector<AutoPath> m_allPaths; // never changes beyond init
         std::set<AutoPathX> m_curPaths;
+        bool curEI = false, curSwrve = false;
         std::set<AutoPathX> m_donePaths;
         std::map<double, AutoPathX> cueToPath; //where cue is a decimal where ones place represents index and decimal represents completion
 

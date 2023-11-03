@@ -76,7 +76,7 @@ class Robot : public frc::TimedRobot {
   // auto
   AutoLineup m_autoLineup;
   //AutoManager m_auto_manager;
-  ElevatorIntake m_EI;
+  ElevatorIntake m_EI{};
   EIAutoPath m_eiAutoPath{ElevatorIntake::TargetState::STOWED, false};
 
   // TEMP, for testing

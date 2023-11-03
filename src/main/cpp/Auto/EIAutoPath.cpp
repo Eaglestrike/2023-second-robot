@@ -1,12 +1,14 @@
 #include "Auto/EIAutoPath.h"
 #include "Auto/AutoConstants.h"
+#include <iostream>
 
-EIAutoPath::EIAutoPath( ElevatorIntake::TargetState action, bool cone): m_action(action){
-    m_EI->SetCone(cone);
+EIAutoPath::EIAutoPath(ElevatorIntake::TargetState action, bool cone): m_action(action), m_cone(cone){
+    std::cout << "ei auto path constructor called"<< std::endl;
 }
 
 void EIAutoPath::Init(ElevatorIntake& ei){
     m_EI = &ei;
+    m_EI->SetCone(m_cone);
 }
 
 // void EIAutoPath::Periodic(){

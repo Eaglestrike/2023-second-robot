@@ -15,5 +15,6 @@ class EIAutoPath: public AutoPath {
     private:
         ElevatorIntake::TargetState m_action;
         ElevatorIntake* m_EI;
+        bool m_cone;
 
 };

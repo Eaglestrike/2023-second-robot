@@ -39,7 +39,7 @@ Robot::Robot():
       m_posVal{0},
       m_heightVal{0}
 {
-
+  std::cout << "constructor starting" << std::endl;
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
   m_swerveController = new SwerveControl(moduleArray, true, false);
@@ -47,7 +47,7 @@ Robot::Robot():
   // navx
   try
   {
-    m_navx = std::make_shared<AHRS>(frc::SerialPort::kMXP);
+    m_navx = std::make_shared<AHRS>(frc::SerialPort::kUSB2);
   }
   catch (const std::exception &e)
   {
@@ -102,6 +102,8 @@ Robot::Robot():
     m_odometry.Periodic(angNavX, velWorld);
     // END ODOMETRY
   }, 5_ms, 2_ms);
+
+  std::cout << "constructor done" << std::endl;
 }
 
 void Robot::RobotInit()
@@ -159,18 +161,20 @@ void Robot::RobotInit()
   // frc::SmartDashboard::PutNumber("ang maxSp", AutoConstants::ANG_MAXSP);
   // frc::SmartDashboard::PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
 
-  // m_navx->ZeroYaw();
-  // m_swerveController->ResetAngleCorrection();
+  m_navx->ZeroYaw();
+  m_swerveController->ResetAngleCorrection();
 
   // // Starts recording to data log
-  // frc::DataLogManager::Start();
+  frc::DataLogManager::Start();
 
   // // Set up custom log entries
-  // wpi::log::DataLog& log = frc::DataLogManager::GetLog();
-  // m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
-  // m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
+  wpi::log::DataLog& log = frc::DataLogManager::GetLog();
+  m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
+  m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
 
-  // m_client.Init();
+  m_client.Init();
+
+  std::cout << "init done" << std::endl;
 }
 
 /**

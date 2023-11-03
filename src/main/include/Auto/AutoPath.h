@@ -2,8 +2,6 @@
 
 class AutoPath {
     public:
-        // virtual static void Periodic() = 0;
-        // virtual void Init() = 0;
         virtual void AutonomousPeriodic() = 0;
 
         virtual double GetCompletionPercentage() const{

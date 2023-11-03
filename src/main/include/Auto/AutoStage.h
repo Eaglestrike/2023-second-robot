@@ -25,14 +25,11 @@ class AutoStage {
         StageState GetState();
         AutoStage(std::vector<AutoPathInit> allPaths, int startPathIdx);
         void AutonomousPeriodic();
-        // void Periodic();
-        // void Init(ElevatorIntake& ei);
         
 
     private:
         struct AutoPathX{
             int index;
-            double lastCompletion;
             AutoPath* path;
             bool operator<(const AutoPathX &other) const {
                 return index < other.index;
@@ -46,10 +43,10 @@ class AutoStage {
         };
         int m_startIdx;
         StageState m_state = NOT_STARTED;
-        std::vector<AutoPath> allPaths; // never changes beyond init
-        std::set<AutoPathX> curPaths;
+        std::vector<AutoPath> m_allPaths; // never changes beyond init
+        std::set<AutoPathX> m_curPaths;
+        std::set<AutoPathX> m_donePaths;
         std::map<double, AutoPathX> cueToPath; //where cue is a decimal where ones place represents index and decimal represents completion
 
         void StartPath(AutoPathX xpath);
-        void Initialize(std::vector<AutoPathInit> allPaths, int startPathIdx);
 };

@@ -8,17 +8,17 @@
 AutoStage::AutoStage(std::vector<AutoPathInit> initAllPaths, int startPathIdx) {
     for (int i = 0 ; i < initAllPaths.size(); i++){
         AutoPathInit a = initAllPaths[i];
-        allPaths[i] = a.path;
+        m_allPaths[i] = a.path;
         if (i == startPathIdx)
             continue;
-        cueToPath[a.cue] = {i, 0.0, &a.path};
+        cueToPath[a.cue] = {i, &a.path};
     }
     m_startIdx = startPathIdx;
 }
 
 void AutoStage::Start(){
     m_state = IN_PROGRESS;
-    StartPath({m_startIdx, 0.0, &allPaths[m_startIdx]});
+    StartPath({m_startIdx, &m_allPaths[m_startIdx]});
 }
 
 AutoStage::StageState AutoStage::GetState(){
@@ -33,48 +33,34 @@ void AutoStage::AutonomousPeriodic() {
     if (m_state == NOT_STARTED || m_state == DONE) return;
     std::vector<AutoPathX> donePaths;
     // should error check not telling same mechanism to do smt 2x
-    if (curPaths.empty()){ 
+    if (m_curPaths.empty()){ 
         m_state == DONE;
         return;
     }
-    for (auto i : curPaths){
+    for (auto i : m_curPaths){
         i.path->AutonomousPeriodic();
-        auto itr = cueToPath.lower_bound(i.index+i.lastCompletion);
+        auto itr = cueToPath.lower_bound(i.index);
         double curCompletion =  i.path->GetCompletionPercentage();
-        while (true){
+        while (itr!=cueToPath.end()){
             double curCue = itr->first;
             if (curCue <= i.index + curCompletion){
                 StartPath(itr->second);
             } else break;
             itr++;
         }
-        i.lastCompletion = curCompletion;
         if (curCompletion >= 1.0) donePaths.push_back(i);
     }
 
     for (auto i : donePaths){
-        curPaths.erase(i);
+        m_donePaths.insert(i);
+        m_curPaths.erase(i);
     }
 }
-
-// void AutoStage::Periodic(){
-//     EIAutoPath::Periodic();
-// }
 
 
 void AutoStage::StartPath(AutoPathX xpath){
+    if (m_donePaths.contains(xpath)) return;
     xpath.path->Start();
     xpath.path->AutonomousPeriodic();
-    curPaths.insert(xpath);
-}
-
-void AutoStage::Initialize(std::vector<AutoPathInit> initAllPaths, int startPathIdx) {
-    for (int i = 0 ; i < initAllPaths.size(); i++){
-        AutoPathInit a = initAllPaths[i];
-        allPaths[i] = a.path;
-        if (i == startPathIdx)
-            continue;
-        cueToPath[a.cue] = {i, 0.0, &a.path};
-    }
-    StartPath({startPathIdx, 0.0, &allPaths[startPathIdx]});
+    m_curPaths.insert(xpath);
 }

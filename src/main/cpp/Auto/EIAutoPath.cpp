@@ -30,7 +30,7 @@ void EIAutoPath::AutonomousPeriodic() {
             m_completion = EIAutoConstants::ELEVATOR_PERCENT * m_EI->GetElevatorCompletion() + EIAutoConstants::HALFSTOW_PERCENT; 
             break;
         case ElevatorIntake::INTAKE:
-            m_completion = EIAutoConstants::INTAKE_PERCENT * m_EI->GetElevatorCompletion() + EIAutoConstants::ELEVATOR_PERCENT + EIAutoConstants::HALFSTOW_PERCENT; 
+            m_completion = EIAutoConstants::INTAKE_PERCENT * m_EI->GetWristCompletion() + EIAutoConstants::ELEVATOR_PERCENT + EIAutoConstants::HALFSTOW_PERCENT; 
             break;
        }
     }

@@ -53,6 +53,7 @@ void AutoStage::AutonomousPeriodic() {
 
     for (auto i : donePaths){
         m_donePaths.insert(i);
+        m_mechInUse[i.path->GetType()] = false;
         m_curPaths.erase(i);
     }
 }

@@ -17,6 +17,7 @@ SwerveAutoPath::SwerveAutoPath(SwerveControl& drivebase, std::vector<AutoPaths::
   m_calcTrans{100}, m_calcAng{100}, m_curState{NOT_EXECUTING},
   m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0}, drivebase_{drivebase}
 {
+  m_type = SWERVE;
   using namespace AutoConstants;
   SetPosPID(TRANS_KP, TRANS_KI, TRANS_KD);
   SetAngPID(ANG_KP, ANG_KI, ANG_KD);

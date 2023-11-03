@@ -46,9 +46,9 @@ class AutoStage {
         StageState m_state = NOT_STARTED;
         std::vector<AutoPath> m_allPaths; // never changes beyond init
         std::set<AutoPathX> m_curPaths;
-        bool curEI = false, curSwrve = false;
         std::set<AutoPathX> m_donePaths;
         std::map<double, AutoPathX> cueToPath; //where cue is a decimal where ones place represents index and decimal represents completion
+        std::vector<bool> m_mechInUse{int(AutoPath::LAST), false};
 
         void StartPath(AutoPathX xpath);
 };

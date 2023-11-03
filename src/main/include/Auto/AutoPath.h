@@ -2,6 +2,12 @@
 
 class AutoPath {
     public:
+        enum ChildType{
+            EI,
+            SWERVE,
+            LAST
+        };
+        
         virtual void AutonomousPeriodic() = 0;
 
         virtual double GetCompletionPercentage() const{
@@ -11,6 +17,10 @@ class AutoPath {
         virtual bool GetStarted() const{
             return m_started;
         };
+         
+        virtual bool GetType() const{
+            return m_type;
+        };
 
         virtual void Start(){
             m_started = true;
@@ -18,5 +28,6 @@ class AutoPath {
 
     protected:
         bool m_started = false;
+        ChildType m_type; // should be intialized in constructor of childclass
         double m_completion = 0.0;
 };

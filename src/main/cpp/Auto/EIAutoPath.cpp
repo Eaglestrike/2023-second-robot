@@ -4,6 +4,7 @@
 
 EIAutoPath::EIAutoPath(ElevatorIntake::TargetState action, bool cone): m_action(action), m_cone(cone){
     std::cout << "ei auto path constructor called"<< std::endl;
+    m_type = EI;
 }
 
 void EIAutoPath::Init(ElevatorIntake& ei){

@@ -7,8 +7,10 @@ EIAutoPath::EIAutoPath(ElevatorIntake::TargetState action, bool cone): m_action(
 }
 
 void EIAutoPath::Init(ElevatorIntake& ei){
+    std::cout << "ei auto path init called"<< std::endl;
     m_EI = &ei;
     m_EI->SetCone(m_cone);
+    std::cout << "ei auto path init finished"<< std::endl;
 }
 
 // void EIAutoPath::Periodic(){
@@ -17,7 +19,9 @@ void EIAutoPath::Init(ElevatorIntake& ei){
 
 void EIAutoPath::AutonomousPeriodic() {
     frc::SmartDashboard::PutNumber("completion", m_completion);
+    frc::SmartDashboard::PutBoolean("started", m_started);
     if (m_started){
+        m_EI->TeleopPeriodic();
        switch (m_EI->GetState()){
         case ElevatorIntake::HALFSTOWING:
             m_completion = EIAutoConstants::HALFSTOW_PERCENT * m_EI->GetWristCompletion();
@@ -33,6 +37,7 @@ void EIAutoPath::AutonomousPeriodic() {
 }
 
 void EIAutoPath::Start(){
+    std::cout << "ei auto path start called"<< std::endl;
     m_started = true;
     switch (m_action){
             case ElevatorIntake::TargetState::STOWED:
@@ -54,4 +59,5 @@ void EIAutoPath::Start(){
                 m_EI->IntakeFromGround();
                 break;
         }
+        std::cout << "ei auto path start finished"<< std::endl;
     }

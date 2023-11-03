@@ -316,12 +316,12 @@ void Robot::AutonomousPeriodic(){
     }else if(s=="GROUND"){
       targ =ElevatorIntake::TargetState::GROUND;
     }
-    m_eiAutoPath = EIAutoPath(targ, frc::SmartDashboard::GetBoolean("cone", false));
+    m_eiAutoPath = *(new EIAutoPath(targ, frc::SmartDashboard::GetBoolean("cone", false)));
     m_eiAutoPath.Init(m_EI);
     m_eiAutoPath.Start();
   }
   m_eiAutoPath.AutonomousPeriodic();
-  m_swerve_auto.AutonomousPeriodic();
+  // m_swerve_auto.AutonomousPeriodic();
   // m_auto_manager.AutonomousPeriodic();
   // m_auto_manager{&m_swerveController};
   AutoPaths::SwervePose swp_1 = {0.0, 10, 20, 30, 30, 40, 10};

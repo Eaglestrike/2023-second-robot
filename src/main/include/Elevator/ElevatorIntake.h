@@ -3,9 +3,10 @@
 #include "BaseElevator/Elevator.h"
 #include "Lidar/LidarReader.h"
 
-class ElevatorIntake{
+class ElevatorIntake : public Mechanism{
     public:
         enum MechanismState{
+            MANUAL,
             MOVING,
             STOPPED
         };
@@ -27,34 +28,37 @@ class ElevatorIntake{
         };
 
         ElevatorIntake();
-        void Init();
-        void Periodic();
-        void TeleopPeriodic();
-        void Kill();
         void ToggleRoller(bool outtaking);
         void DeployElevatorIntake(double elevatorLength, double intakeDeg);
+        void Kill();
+
         void Stow();
-        void SetCone(bool cone);
         void ScoreHigh();
         void ScoreMid();
         void ScoreLow();
+
         void IntakeFromGround();
         void IntakeFlange();
         void IntakeFromHPS();
+
         void UpdateLidarData(LidarReader::LidarData lidarData);
-        void UpdateShuffleboard();
-        void ManualPeriodic(double elevator, double intake);
+        void SetManualPeriodic(double elevator, double intake);
         bool CanMoveFast() const;
 
+        void SetCone(bool cone);
+
     private:
+        void CoreInit() override;
+        void CorePeriodic() override;
+        void CoreTeleopPeriodic() override;
+
+        void CoreShuffleboardInit() override;
+        void CoreShuffleboardPeriodic() override;
+        void CoreShuffleboardUpdate() override;
+
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);
         IntakeElevatorConstants::GamePieceInfo GetGPI(bool cone);
-        void Debug();
-        void DebugScoring();
         void CalcIntakeDeployPos();
-
-        // do not put dbg to true, breaks elevatorintake
-        bool dbg = false, dbg2= false;
         
         MechanismState m_state = MOVING;
         MovingState m_movingState = DONE;

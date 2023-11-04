@@ -40,6 +40,12 @@ class ShuffleboardSender{
         }
         
         /**
+         * Adds a button that executes some function
+        */
+        void addButton(std::string name, std::function<void()> callback);
+        void addButton(std::string name, std::function<void()> callback, ShuffleboardItemInterface::ShuffleboardPose pose);
+
+        /**
          * Updates variables by reading and configuring, and then sending the data
          * 
          * edit boolean enable editing
@@ -51,6 +57,9 @@ class ShuffleboardSender{
 
         bool isEnabled();
         
+        /**
+         * Normal Shuffleboard behavior
+        */
         void PutNumber(std::string name, double val);
         void PutNumber(std::string name, double val, ShuffleboardItemInterface::ShuffleboardPose pose);
         void PutBoolean(std::string name, bool val);

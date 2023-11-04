@@ -1,5 +1,7 @@
 #include "ShuffleboardSender\ShuffleboardSender.h"
 
+#include "ShuffleboardSender\ShuffleboardButton.h"
+
 ShuffleboardSender::ShuffleboardSender(std::string name, bool enabled):
     name_(name),
     enabled_(enabled)
@@ -7,6 +9,14 @@ ShuffleboardSender::ShuffleboardSender(std::string name, bool enabled):
     if(enabled){
         tab_ = &frc::Shuffleboard::GetTab(name_);
     }
+}
+
+void ShuffleboardSender::addButton(std::string name, std::function<void()> callback){
+    items_.push_back(new ShuffleboardButton({name, tab_}, callback));
+}
+
+void ShuffleboardSender::addButton(std::string name, std::function<void()> callback, ShuffleboardItemInterface::ShuffleboardPose pose){
+    items_.push_back(new ShuffleboardButton({name, tab_, true, pose}, callback));
 }
 
 void ShuffleboardSender::update(bool edit){

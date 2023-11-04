@@ -495,11 +495,10 @@ void Robot::TeleopPeriodic() {
   if (m_controller.getTriggerDown(MANUAL1) && m_controller.getTriggerDown(MANUAL2)) {
     double elH = -m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
     double intakeAng = -m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
-    m_elevatorIntake.ManualPeriodic(elH, intakeAng);
+    m_elevatorIntake.SetManualPeriodic(elH, intakeAng);
     // frc::SmartDashboard::PutBoolean("Manual", true);
   } else {
     // frc::SmartDashboard::PutBoolean("Manual", false);
-    m_elevatorIntake.TeleopPeriodic();
     bool cone = Utils::IsCone(m_posVal);
     m_elevatorIntake.SetCone(cone);
     m_rollers.SetCone(cone);
@@ -530,7 +529,8 @@ void Robot::TeleopPeriodic() {
   else if (m_controller.getPressedOnce(OUTTAKE))
     m_rollers.Outtake();
   m_rollers.HoldIntake(m_controller.getPressed(INTAKE));
-
+  
+  m_elevatorIntake.TeleopPeriodic();
   m_rollers.Periodic();
   double time3 = Utils::GetCurTimeS();
 

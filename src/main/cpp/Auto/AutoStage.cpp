@@ -8,7 +8,7 @@
 AutoStage::AutoStage(std::vector<AutoPathInit> initAllPaths, int startPathIdx) {
     for (int i = 0 ; i < initAllPaths.size(); i++){
         AutoPathInit a = initAllPaths[i];
-        m_allPaths[i] = a.path;
+        m_allPaths[i] = &a.path;
         if (i == startPathIdx)
             continue;
         m_cueToPath[a.cue] = {i, &a.path};
@@ -17,9 +17,14 @@ AutoStage::AutoStage(std::vector<AutoPathInit> initAllPaths, int startPathIdx) {
     m_mechInUse = *(new std::vector<bool>(AutoPath::LAST, false));
 }
 
+AutoStage::AutoStage(){
+    m_state = NOT_STARTED;
+}
+
 void AutoStage::Start(){
+    if (m_allPaths.size() < 1) 
     m_state = IN_PROGRESS;
-    StartPath({m_startIdx, &m_allPaths[m_startIdx]});
+    StartPath({m_startIdx, m_allPaths[m_startIdx]});
 }
 
 AutoStage::StageState AutoStage::GetState(){
@@ -58,8 +63,6 @@ void AutoStage::AutonomousPeriodic() {
         m_curPaths.erase(i);
     }
 }
-
-
 
 void AutoStage::StartPath(AutoPathX xpath){
     if (m_donePaths.contains(xpath)) return;

@@ -12,6 +12,9 @@
 struct AutoPathInit{
     double cue;
     AutoPath& path;
+    std::string toString(){
+        return (std::to_string(cue) + ": " + path.toString());
+    }
 };
 
 class AutoStage {
@@ -22,9 +25,9 @@ class AutoStage {
             DONE
         };
         AutoStage();
+        AutoStage(std::vector<AutoPathInit> initAllPaths, int startPathIdx);
         void Start();
         StageState GetState();
-        AutoStage(std::vector<AutoPathInit> allPaths, int startPathIdx);
         void AutonomousPeriodic();
         
 
@@ -44,11 +47,11 @@ class AutoStage {
         };
         int m_startIdx;
         StageState m_state = NOT_STARTED;
-        std::vector<AutoPath> m_allPaths; // never changes beyond init
+        std::vector<AutoPath*> m_allPaths; // never changes beyond init
         std::set<AutoPathX> m_curPaths;
         std::set<AutoPathX> m_donePaths;
         std::map<double, AutoPathX> m_cueToPath; //where cue is a decimal where ones place represents index and decimal represents completion
-        std::vector<bool> m_mechInUse;
+        std::vector<bool> m_mechInUse{false, false};
 
         void StartPath(AutoPathX xpath);
 };

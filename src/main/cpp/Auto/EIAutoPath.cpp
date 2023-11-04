@@ -14,9 +14,34 @@ void EIAutoPath::Init(ElevatorIntake& ei){
     std::cout << "ei auto path init finished"<< std::endl;
 }
 
-// void EIAutoPath::Periodic(){
-//     m_EI->Periodic();
-// }
+std::string EIAutoPath::toString(){
+    std::string s = "";
+    switch(m_action){
+        case ElevatorIntake::STOWED:
+            s += "stow";
+            break;
+        case ElevatorIntake::LOW:
+         s += "low";
+            break;
+        case ElevatorIntake::MID:
+         s += "mid";
+            break;
+        case ElevatorIntake::HIGH:
+         s += "high";
+            break;
+        case ElevatorIntake::HP:
+         s += "hp";
+            break;
+        case ElevatorIntake::GROUND:
+         s += "grnd";
+            break;
+    }
+
+    if (m_cone){
+        s+= " cone";
+    } else s += " cube";
+    return s;
+}
 
 void EIAutoPath::AutonomousPeriodic() {
     frc::SmartDashboard::PutNumber("completion", m_completion);

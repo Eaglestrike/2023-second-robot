@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 class AutoPath {
     public:
@@ -8,7 +9,11 @@ class AutoPath {
             LAST
         };
         
+        // AutoPath() {};
+
         virtual void AutonomousPeriodic() = 0;
+
+        virtual std::string toString() = 0;
 
         virtual double GetCompletionPercentage() const{
             return m_completion;

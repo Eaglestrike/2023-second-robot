@@ -11,6 +11,7 @@ class EIAutoPath: public AutoPath {
         // static void Periodic();
         void AutonomousPeriodic() override;
         void Start() override;
+        std::string toString() override;
     
     private:
         ElevatorIntake::TargetState m_action;

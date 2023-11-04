@@ -5,6 +5,7 @@
 #pragma once
 
 #include <array>
+#include <vector>
 #include <memory>
 #include <string>
 
@@ -18,6 +19,7 @@
 #include "Controller/Controller.h"
 #include "Drive/AutoLineup.h"
 #include "Auto/SwerveAutoPath.h"
+#include "Auto/AutoStage.h"
 #include "Auto/EIAutoPath.h"
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
@@ -79,8 +81,10 @@ class Robot : public frc::TimedRobot {
   //AutoManager m_auto_manager;
   ElevatorIntake m_EI{};
   EIAutoPath m_eiAutoPath{ElevatorIntake::TargetState::STOWED, false};
+  std::vector<AutoPathInit> m_initpaths;
+  AutoStage m_testStage;
   // AutoManager m_auto_manager;
-  SwerveAutoPath m_swerve_auto{*m_swerveController, SwerveAutoConstants::swerve_poses};
+  // SwerveAutoPath m_swerve_auto{*m_swerveController, SwerveAutoConstants::swerve_poses};
 
   // TEMP, for testing
   double m_curVolts;

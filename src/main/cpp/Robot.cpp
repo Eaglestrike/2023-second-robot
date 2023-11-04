@@ -39,7 +39,7 @@ Robot::Robot():
       m_posVal{0},
       m_heightVal{0}
 {
-  std::cout << "constructor starting" << std::endl;
+  // std::cout << "constructor starting" << std::endl;
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
   m_swerveController = new SwerveControl(moduleArray, true, false);
@@ -102,8 +102,9 @@ Robot::Robot():
     m_odometry.Periodic(angNavX, velWorld);
     // END ODOMETRY
   }, 5_ms, 2_ms);
-
-  std::cout << "constructor done" << std::endl;
+  // std::vector<AutoPathInit> v (1, {1.1, *(new EIAutoPath{ElevatorIntake::STOWED, false})});
+  // m_testStage = *(new AutoStage(v, 0));
+  //std::cout << "constructor done" << std::endl;
 }
 
 void Robot::RobotInit()
@@ -127,9 +128,14 @@ void Robot::RobotInit()
   // frc::SmartDashboard::PutNumber("Delta Y", 0);
   // frc::SmartDashboard::PutNumber("Delta Ang", 0);
 
-  // // starting position
-  frc::SmartDashboard::PutBoolean("cone", false);
   frc::SmartDashboard::PutBoolean("start", false);
+  frc::SmartDashboard::PutBoolean("add EI", false);
+  frc::SmartDashboard::PutBoolean("rmv path", false);
+  frc::SmartDashboard::PutBoolean("add swrve", false);
+  frc::SmartDashboard::PutNumber("cue", 0.0);
+  frc::SmartDashboard::GetNumber("strt idx", 0);
+
+  frc::SmartDashboard::PutBoolean("cone", false);
   m_EIautochooser.SetDefaultOption("STOWED", "STOWED");
   m_EIautochooser.AddOption("LOW", "LOW");
   m_EIautochooser.AddOption("MID", "MID");
@@ -137,6 +143,8 @@ void Robot::RobotInit()
   m_EIautochooser.AddOption("HP", "HP");
   m_EIautochooser.AddOption("GROUND", "GROUND");
   frc::SmartDashboard::PutData("ei auto chooser", &m_EIautochooser);
+  
+  // // starting position
 
   // m_startPosChooser.SetDefaultOption("Debug", "Debug");
   // m_startPosChooser.AddOption("Blue L", "Blue L");
@@ -301,8 +309,9 @@ void Robot::AutonomousInit()
 }
 
 void Robot::AutonomousPeriodic(){
-  if (frc::SmartDashboard::GetBoolean("start", false)){
-    frc::SmartDashboard::PutBoolean("start", false);
+  // add paths to stage
+  if (frc::SmartDashboard::GetBoolean("add EI", false)){
+    frc::SmartDashboard::PutBoolean("add EI", false);
     std::string s = m_EIautochooser.GetSelected();
     ElevatorIntake::TargetState targ = ElevatorIntake::TargetState::STOWED;
     if(s=="LOW"){
@@ -318,9 +327,30 @@ void Robot::AutonomousPeriodic(){
     }
     m_eiAutoPath = *(new EIAutoPath(targ, frc::SmartDashboard::GetBoolean("cone", false)));
     m_eiAutoPath.Init(m_EI);
-    m_eiAutoPath.Start();
+    m_initpaths.push_back({frc::SmartDashboard::GetNumber("cue", -1.0), m_eiAutoPath});
   }
-  m_eiAutoPath.AutonomousPeriodic();
+  // print paths to be in stage
+  std::vector<std::string> s;
+  for (auto i : m_initpaths){
+    s.push_back(i.path.toString());
+  }
+  std::span<std::string> spn(s);
+  frc::SmartDashboard::PutStringArray("paths", spn);
+
+  //remove a path
+  if (frc::SmartDashboard::GetBoolean("rmv path", false)){
+    frc::SmartDashboard::PutBoolean("rmv path", false);
+    m_initpaths.pop_back();
+  }
+
+  //initalize the stage with the path list on smart dash
+  if (frc::SmartDashboard::GetBoolean("start", false)){
+    frc::SmartDashboard::PutBoolean("start", false);
+    m_testStage = *(new AutoStage(m_initpaths, frc::SmartDashboard::GetNumber("strt idx", 0)));
+    m_testStage.Start();
+  }
+  // m_eiAutoPath.AutonomousPeriodic();
+  m_testStage.AutonomousPeriodic();
   // m_swerve_auto.AutonomousPeriodic();
   // m_auto_manager.AutonomousPeriodic();
   // m_auto_manager{&m_swerveController};

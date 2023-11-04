@@ -84,14 +84,15 @@ void Elevator::CoreTeleopPeriodic() {
             motor_output = feedforward_.getKg();
         }
     }
+    double outVolts = std::clamp(motor_output, -max_volts_, max_volts_);
 
-    if (shuffleboard_) {
-        frc::SmartDashboard::PutNumber("El Motor output", motor_output);
-        frc::SmartDashboard::PutNumber("El Motor output true", std::clamp(motor_output, -max_volts_, max_volts_));
-        frc::SmartDashboard::PutNumber("El max volts", max_volts_);
+    if (shuff_.isEnabled()) {
+        shuff_.PutNumber("El Motor output", motor_output);
+        shuff_.PutNumber("El Motor output true", outVolts);
+        shuff_.PutNumber("El max volts", max_volts_);
     }
 
-    left_.SetVoltage(units::volt_t{std::clamp(motor_output, -max_volts_, max_volts_)});
+    left_.SetVoltage(units::volt_t{outVolts});
     //right_.SetVoltage(units::volt_t{std::clamp(motor_output, -max_volts_, max_volts_)});
 }
 
@@ -244,72 +245,72 @@ std::string Elevator::getTargetString(){
 }
 
 void Elevator::CoreShuffleboardInit(){
-    frc::SmartDashboard::PutNumber(name_ + " ks", ElevatorConstants::KS);
-    frc::SmartDashboard::PutNumber(name_ + " kv", ElevatorConstants::KV);
-    frc::SmartDashboard::PutNumber(name_ + " ka", ElevatorConstants::KA);
-    frc::SmartDashboard::PutNumber(name_ + " kg", ElevatorConstants::KG);
+    shuff_.PutNumber(name_ + " ks", ElevatorConstants::KS);
+    shuff_.PutNumber(name_ + " kv", ElevatorConstants::KV);
+    shuff_.PutNumber(name_ + " ka", ElevatorConstants::KA);
+    shuff_.PutNumber(name_ + " kg", ElevatorConstants::KG);
 
-    frc::SmartDashboard::PutNumber(name_ + " kp", ElevatorConstants::KP);
-    frc::SmartDashboard::PutNumber(name_ + " ki", ElevatorConstants::KI);
-    frc::SmartDashboard::PutNumber(name_ + " kd", ElevatorConstants::KD);
+    shuff_.PutNumber(name_ + " kp", ElevatorConstants::KP);
+    shuff_.PutNumber(name_ + " ki", ElevatorConstants::KI);
+    shuff_.PutNumber(name_ + " kd", ElevatorConstants::KD);
 
-    frc::SmartDashboard::PutNumber(name_ + " mv", ElevatorConstants::MAX_VELOCITY);
-    frc::SmartDashboard::PutNumber(name_ + " ma", ElevatorConstants::MAX_ACCELERATION);
+    shuff_.PutNumber(name_ + " mv", ElevatorConstants::MAX_VELOCITY);
+    shuff_.PutNumber(name_ + " ma", ElevatorConstants::MAX_ACCELERATION);
 
-    frc::SmartDashboard::PutNumber(name_ + " set setPoint", 0.0);
+    shuff_.PutNumber(name_ + " set setPoint", 0.0);
 
-    frc::SmartDashboard::PutNumber(name_ + " volts to use", ElevatorConstants::MAX_VOLTS);
+    shuff_.PutNumber(name_ + " volts to use", ElevatorConstants::MAX_VOLTS);
 
-    frc::SmartDashboard::PutString(name_ + " state", getStateString());
-    frc::SmartDashboard::PutString(name_ + " target", getTargetString());
+    shuff_.PutString(name_ + " state", getStateString());
+    shuff_.PutString(name_ + " target", getTargetString());
 
-    frc::SmartDashboard::PutNumber(name_ + " ff setPoint", feedforward_.getSetpoint());
-    frc::SmartDashboard::PutNumber(name_ + " ff startPoint", feedforward_.getStartpoint());
+    shuff_.PutNumber(name_ + " ff setPoint", feedforward_.getSetpoint());
+    shuff_.PutNumber(name_ + " ff startPoint", feedforward_.getStartpoint());
 
-    frc::SmartDashboard::PutNumber(name_ + " out current",  left_.GetOutputCurrent());
-    frc::SmartDashboard::PutNumber(name_ + " supply current",  left_.GetSupplyCurrent());
-    frc::SmartDashboard::PutNumber(name_ + " left temp", left_.GetTemperature());
-    frc::SmartDashboard::PutNumber(name_ + " right temp", right_.GetTemperature());
+    shuff_.PutNumber(name_ + " out current",  left_.GetOutputCurrent());
+    shuff_.PutNumber(name_ + " supply current",  left_.GetSupplyCurrent());
+    shuff_.PutNumber(name_ + " left temp", left_.GetTemperature());
+    shuff_.PutNumber(name_ + " right temp", right_.GetTemperature());
 };
 
 void Elevator::CoreShuffleboardPeriodic(){
     // frc::SmartDashboard::PutNumber(name_ + " lm rotation", getLeftRotation());
     // frc::SmartDashboard::PutNumber(name_ + " rm rotation", getRightRotation());
 
-    frc::SmartDashboard::PutNumber("current ev position", current_pose_.position);
-    frc::SmartDashboard::PutNumber("current ev velocity", current_pose_.velocity);
+    shuff_.PutNumber("current ev position", current_pose_.position);
+    shuff_.PutNumber("current ev velocity", current_pose_.velocity);
 
-    frc::SmartDashboard::PutString(name_ + " state", getStateString());
-    frc::SmartDashboard::PutString(name_ + " target", getTargetString());
+    shuff_.PutString(name_ + " state", getStateString());
+    shuff_.PutString(name_ + " target", getTargetString());
 
-    frc::SmartDashboard::PutNumber(name_ + " ff setPoint", feedforward_.getSetpoint());
-    frc::SmartDashboard::PutNumber(name_ + " ff startPoint", feedforward_.getStartpoint());
+    shuff_.PutNumber(name_ + " ff setPoint", feedforward_.getSetpoint());
+    shuff_.PutNumber(name_ + " ff startPoint", feedforward_.getStartpoint());
 
-    frc::SmartDashboard::PutBoolean(name_ + " limit switch", !limit_switch_.Get());
+    shuff_.PutBoolean(name_ + " limit switch", !limit_switch_.Get());
 
-    frc::SmartDashboard::PutNumber(name_ + " out current",  left_.GetOutputCurrent());
-    frc::SmartDashboard::PutNumber(name_ + " supply current",  left_.GetSupplyCurrent());
-    frc::SmartDashboard::PutNumber(name_ + " left temp", left_.GetTemperature());
-    frc::SmartDashboard::PutNumber(name_ + " right temp", right_.GetTemperature());
+    shuff_.PutNumber(name_ + " out current",  left_.GetOutputCurrent());
+    shuff_.PutNumber(name_ + " supply current",  left_.GetSupplyCurrent());
+    shuff_.PutNumber(name_ + " left temp", left_.GetTemperature());
+    shuff_.PutNumber(name_ + " right temp", right_.GetTemperature());
 };
 
 void Elevator::CoreShuffleboardUpdate(){
-    feedforward_.setKs(frc::SmartDashboard::GetNumber(name_ + " ks", ElevatorConstants::KS));
-    feedforward_.setKv(frc::SmartDashboard::GetNumber(name_ + " kv", ElevatorConstants::KV));
-    feedforward_.setKa(frc::SmartDashboard::GetNumber(name_ + " ka", ElevatorConstants::KA));
-    feedforward_.setKg(frc::SmartDashboard::GetNumber(name_ + " kg", ElevatorConstants::KG));
+    feedforward_.setKs(shuff_.GetNumber(name_ + " ks", ElevatorConstants::KS));
+    feedforward_.setKv(shuff_.GetNumber(name_ + " kv", ElevatorConstants::KV));
+    feedforward_.setKa(shuff_.GetNumber(name_ + " ka", ElevatorConstants::KA));
+    feedforward_.setKg(shuff_.GetNumber(name_ + " kg", ElevatorConstants::KG));
 
-    feedforward_.setPIDConstants(frc::SmartDashboard::GetNumber(name_ + " kp", ElevatorConstants::KP),
-                                 frc::SmartDashboard::GetNumber(name_ + " ki", ElevatorConstants::KI),
-                                 frc::SmartDashboard::GetNumber(name_ + " kd", ElevatorConstants::KD));
+    feedforward_.setPIDConstants(shuff_.GetNumber(name_ + " kp", ElevatorConstants::KP),
+                                 shuff_.GetNumber(name_ + " ki", ElevatorConstants::KI),
+                                 shuff_.GetNumber(name_ + " kd", ElevatorConstants::KD));
 
-    feedforward_.setMaxVelocity(frc::SmartDashboard::GetNumber(name_ + " mv", ElevatorConstants::MAX_VELOCITY));
-    feedforward_.setMaxAcceleration(frc::SmartDashboard::GetNumber(name_ + " ma", ElevatorConstants::MAX_ACCELERATION));
+    feedforward_.setMaxVelocity(shuff_.GetNumber(name_ + " mv", ElevatorConstants::MAX_VELOCITY));
+    feedforward_.setMaxAcceleration(shuff_.GetNumber(name_ + " ma", ElevatorConstants::MAX_ACCELERATION));
 
-    double setPoint = frc::SmartDashboard::GetNumber(name_ + " set setPoint", 0);
+    double setPoint = shuff_.GetNumber(name_ + " set setPoint", 0);
     if (setPoint < ElevatorConstants::MAX_EXTENSION) {
         ExtendToCustomPos(setPoint);
     }
 
-    max_volts_ = frc::SmartDashboard::GetNumber(name_ + " volts to use", ElevatorConstants::MAX_VOLTS);
+    max_volts_ = shuff_.GetNumber(name_ + " volts to use", ElevatorConstants::MAX_VOLTS);
 };

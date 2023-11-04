@@ -22,8 +22,8 @@ class ShuffleboardItemInterface{
         struct ItemData{
             std::string name;
             frc::ShuffleboardTab* tab;
-            bool edit;
-            ShuffleboardPose pose;
+            bool edit = false;
+            ShuffleboardPose pose = {1,1,-1,-1};
         };
         
         ShuffleboardItemInterface(ItemData data);

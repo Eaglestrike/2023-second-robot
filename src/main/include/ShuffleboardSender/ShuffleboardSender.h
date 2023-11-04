@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include <frc/shuffleboard/Shuffleboard.h>
 
@@ -49,6 +50,21 @@ class ShuffleboardSender{
         void disable();
 
         bool isEnabled();
+        
+        void PutNumber(std::string name, double val);
+        void PutNumber(std::string name, double val, ShuffleboardItemInterface::ShuffleboardPose pose);
+        void PutBoolean(std::string name, bool val);
+        void PutBoolean(std::string name, bool val, ShuffleboardItemInterface::ShuffleboardPose pose);
+        void PutInteger(std::string name, int val);
+        void PutInteger(std::string name, int val, ShuffleboardItemInterface::ShuffleboardPose pose);
+        void PutString(std::string name, std::string val);
+        void PutString(std::string name, std::string val, ShuffleboardItemInterface::ShuffleboardPose pose);
+
+        double GetNumber(std::string name, double defaultVal);
+        bool GetBoolean(std::string name, bool defaultVal);
+        int GetInteger(std::string name, int defaultVal);
+        std::string GetString(std::string name, std::string defaultVal);
+
 
     private:
         std::string name_;
@@ -57,4 +73,6 @@ class ShuffleboardSender{
         
         frc::ShuffleboardTab* tab_;
         std::vector<ShuffleboardItemInterface*> items_;
+
+        std::map<std::string, nt::GenericEntry*> keyMap_;
 };

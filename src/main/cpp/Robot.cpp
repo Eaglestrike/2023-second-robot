@@ -37,7 +37,8 @@ Robot::Robot():
       m_red{false},
       m_posVal{0},
       m_heightVal{0},
-      m_lidar{true, false}
+      m_lidar{true, false},
+      m_shuff{"Robot", true}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};

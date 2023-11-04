@@ -16,17 +16,23 @@
 #include <wpi/DataLog.h>
 
 #include "Controller/Controller.h"
+
 #include "Drive/AutoLineup.h"
 #include "Drive/AutoPath.h"
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
+#include "Drive/SwerveModule.h"
+
 #include "Elevator/ElevatorIntake.h"
 #include "Elevator/Intake/Rollers.h"
-#include "Drive/SwerveModule.h"
+
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"
 #include "Util/Mathutil.h"
+
 #include "Elevator/Lidar/LidarReader.h"
+
+#include "ShuffleboardSender/ShuffleboardSender.h"
 
 namespace vec = svector;
 
@@ -94,4 +100,6 @@ class Robot : public frc::TimedRobot {
   ElevatorIntake m_elevatorIntake;
   LidarReader m_lidar;
   Rollers m_rollers;
+
+  ShuffleboardSender m_shuff;
 };

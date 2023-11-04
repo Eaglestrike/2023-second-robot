@@ -34,3 +34,93 @@ void ShuffleboardSender::disable(){
 bool ShuffleboardSender::isEnabled(){
     return enabled_;
 }
+
+void ShuffleboardSender::PutNumber(std::string name, double val){
+    if(keyMap_.contains(name)){
+        keyMap_[name]->SetDouble(val);
+        return;
+    }
+    keyMap_[name] = ShuffleboardHelper::createItem({.name = name, .tab = tab_}, val);
+}
+
+void ShuffleboardSender::PutNumber(std::string name, double val, ShuffleboardItemInterface::ShuffleboardPose pose){
+    if(keyMap_.contains(name)){
+        keyMap_[name]->SetDouble(val);
+        return;
+    }
+    keyMap_[name] = ShuffleboardHelper::createItem({.name = name, .tab = tab_, .pose = pose}, val);
+}
+
+void ShuffleboardSender::PutBoolean(std::string name, bool val){
+    if(keyMap_.contains(name)){
+        keyMap_[name]->SetBoolean(val);
+        return;
+    }
+    keyMap_[name] = ShuffleboardHelper::createItem({.name = name, .tab = tab_}, val);
+}
+
+void ShuffleboardSender::PutBoolean(std::string name, bool val, ShuffleboardItemInterface::ShuffleboardPose pose){
+    if(keyMap_.contains(name)){
+        keyMap_[name]->SetBoolean(val);
+        return;
+    }
+    keyMap_[name] = ShuffleboardHelper::createItem({.name = name, .tab = tab_, .pose = pose}, val);
+}
+
+void ShuffleboardSender::PutInteger(std::string name, int val){
+    if(keyMap_.contains(name)){
+        keyMap_[name]->SetInteger(val);
+        return;
+    }
+    keyMap_[name] = ShuffleboardHelper::createItem({.name = name, .tab = tab_}, val);
+}
+
+void ShuffleboardSender::PutInteger(std::string name, int val, ShuffleboardItemInterface::ShuffleboardPose pose){
+    if(keyMap_.contains(name)){
+        keyMap_[name]->SetInteger(val);
+        return;
+    }
+    keyMap_[name] = ShuffleboardHelper::createItem({.name = name, .tab = tab_, .pose = pose}, val);
+}
+
+void ShuffleboardSender::PutString(std::string name, std::string val){
+    if(keyMap_.contains(name)){
+        keyMap_[name]->SetString(val);
+        return;
+    }
+    keyMap_[name] = ShuffleboardHelper::createItem({.name = name, .tab = tab_}, val);
+}
+
+void ShuffleboardSender::PutString(std::string name, std::string val, ShuffleboardItemInterface::ShuffleboardPose pose){
+    if(keyMap_.contains(name)){
+        keyMap_[name]->SetString(val);
+        return;
+    }
+    keyMap_[name] = ShuffleboardHelper::createItem({.name = name, .tab = tab_, .pose = pose}, val);
+}
+
+double ShuffleboardSender::GetNumber(std::string name, double defaultVal){
+    if(keyMap_.contains(name)){
+        return keyMap_[name]->GetDouble(defaultVal);
+    }
+    return defaultVal;
+}
+bool ShuffleboardSender::GetBoolean(std::string name, bool defaultVal){
+    if(keyMap_.contains(name)){
+        return keyMap_[name]->GetBoolean(defaultVal);
+    }
+    return defaultVal;
+}
+int ShuffleboardSender::GetInteger(std::string name, int defaultVal){
+    if(keyMap_.contains(name)){
+        return keyMap_[name]->GetInteger(defaultVal);
+    }
+    return defaultVal;
+}
+std::string ShuffleboardSender::GetString(std::string name, std::string defaultVal){
+    if(keyMap_.contains(name)){
+        return keyMap_[name]->GetString(defaultVal);
+    }
+    return defaultVal;
+}
+

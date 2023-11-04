@@ -25,19 +25,21 @@ using namespace Actions;
 
 Robot::Robot():
       m_prevTime{0},
+
+      m_elevatorIntake{"ElevatorIntake", true, true},
+      m_lidar{true, false},
+
       m_swerveFr{SwerveConstants::FR_CONFIG, true, false},
       m_swerveBr{SwerveConstants::BR_CONFIG, true, false},
       m_swerveFl{SwerveConstants::FL_CONFIG, true, false},
       m_swerveBl{SwerveConstants::BL_CONFIG, true, false},
-      m_startPos{0, 0},
-      m_startAng{0},
-      m_joystickAng{0},
-      m_odometry{&m_startPos, &m_startAng},
+      
       m_client{"10.1.14.107", 5807, 500, 5000},
-      m_red{false},
-      m_posVal{0},
-      m_heightVal{0},
-      m_lidar{true, false},
+      m_red{false}, m_posVal{0}, m_heightVal{0},
+
+      m_odometry{&m_startPos, &m_startAng},
+      m_startPos{0, 0}, m_startAng{0}, m_joystickAng{0},
+      
       m_shuff{"Robot", true}
 {
   // swerve
@@ -121,10 +123,6 @@ Robot::Robot():
 
 void Robot::RobotInit()
 {
-  // initialization
-  // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-  // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-  // frc::SmartDashboard::PutNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
   // kalman filter constants
   // frc::SmartDashboard::PutNumber("KF E0", OdometryConstants::E0);
@@ -495,7 +493,7 @@ void Robot::TeleopPeriodic() {
   if (m_controller.getTriggerDown(MANUAL1) && m_controller.getTriggerDown(MANUAL2)) {
     double elH = -m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
     double intakeAng = -m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
-    m_elevatorIntake.SetManualPeriodic(elH, intakeAng);
+    m_elevatorIntake.SetManualVolts(elH, intakeAng);
     // frc::SmartDashboard::PutBoolean("Manual", true);
   } else {
     // frc::SmartDashboard::PutBoolean("Manual", false);

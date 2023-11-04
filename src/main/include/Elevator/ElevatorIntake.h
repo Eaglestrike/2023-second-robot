@@ -27,7 +27,7 @@ class ElevatorIntake : public Mechanism{
             GROUND
         };
 
-        ElevatorIntake();
+        ElevatorIntake(std::string name, bool enabled, bool shuffleboard);
         void ToggleRoller(bool outtaking);
         void DeployElevatorIntake(double elevatorLength, double intakeDeg);
         void Kill();
@@ -42,9 +42,9 @@ class ElevatorIntake : public Mechanism{
         void IntakeFromHPS();
 
         void UpdateLidarData(LidarReader::LidarData lidarData);
-        void SetManualPeriodic(double elevator, double intake);
         bool CanMoveFast() const;
-
+        
+        void SetManualVolts(double elevator, double intake);
         void SetCone(bool cone);
 
     private:
@@ -63,10 +63,10 @@ class ElevatorIntake : public Mechanism{
         MechanismState m_state = MOVING;
         MovingState m_movingState = DONE;
         TargetState m_targState;
-        bool m_cone, m_outtaking;
+        bool m_cone;
 
-        bool m_rollers = false;
         double m_targIntakeAng, m_targElevatorPos;
+        double m_manualIntake, m_manualElevator;
 
         bool m_useLidar = true;
 

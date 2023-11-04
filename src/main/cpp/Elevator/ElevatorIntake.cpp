@@ -2,7 +2,10 @@
 
 #include <iostream>
 
-ElevatorIntake::ElevatorIntake(){
+ElevatorIntake::ElevatorIntake(std::string name, bool enabled, bool shuffleboard):
+    Mechanism(name, enabled, shuffleboard),
+    m_intake("Intake", enabled, shuffleboard)
+{
 }
 
 void ElevatorIntake::CoreInit() {
@@ -29,21 +32,6 @@ void ElevatorIntake::Stow(){
     m_targElevatorPos = ElevatorConstants::STOWED_HEIGHT;
     m_targIntakeAng =  IntakeConstants::STOWED_POS;
     m_targState = STOWED;
-}
-
-void ElevatorIntake::ToggleRoller(bool outtaking){
-    if (m_rollers){
-        if (m_outtaking != outtaking){
-            m_intake.StartRollers(outtaking, m_cone);
-        } else {
-            m_intake.StopRollers();
-            m_rollers = false;
-        }
-    } else {
-        m_intake.StartRollers(outtaking, m_cone); 
-        m_rollers = true;
-    }
-    m_outtaking = outtaking;
 }
 
 void ElevatorIntake::UpdateLidarData(LidarReader::LidarData lidarData){
@@ -84,10 +72,7 @@ void ElevatorIntake::CoreTeleopPeriodic(){
                             m_intake.Stow();
                         } else {
                             m_intake.ChangeDeployPos(m_targIntakeAng);
-                            m_intake.DeployNoRollers(m_targState == HP);
-                            // uncomment below if want to start rollers without explicitly tleling it to
-                            // if (m_rollers)
-                            //     m_intake.StartRollers(m_outtaking, m_cone);
+                            m_intake.Deploy();
                         }
                         m_movingState = INTAKE;
                     }
@@ -100,6 +85,8 @@ void ElevatorIntake::CoreTeleopPeriodic(){
                     break;
             }
             break;
+        case MANUAL:
+            m_elevator.setManualVolts(m_manualElevator);
     }
 }
 
@@ -161,7 +148,6 @@ IntakeElevatorConstants::GamePieceInfo ElevatorIntake::GetGPI(bool cone){
 
 void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo){
     // std::cout << "el length: " << scoreInfo.ELEVATOR_LENG << " + ang: " << scoreInfo.INTAKE_ANGLE << std::endl;
-    m_rollers = false;
     DeployElevatorIntake(scoreInfo.ELEVATOR_LENG, scoreInfo.INTAKE_ANGLE);
 }
 
@@ -173,11 +159,10 @@ void ElevatorIntake::DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntak
  * @param elevator -1 to 1, percent of elevator max volts
  * @param intake -1 to 1, percent of intake max volts
 */
-void ElevatorIntake::SetManualPeriodic(double elevator, double intake) {
+void ElevatorIntake::SetManualVolts(double elevator, double intake) {
     m_state = MANUAL;
     m_elevator.setManualVolts(elevator);
-    m_intake.ManualPeriodic(intake * IntakeConstants::WRIST_MAX_VOLTS);
-    m_elevator.TeleopPeriodic();
+    m_intake.setManualVolts(intake * IntakeConstants::WRIST_MAX_VOLTS);
 }
 
 /**
@@ -198,9 +183,7 @@ void ElevatorIntake::CoreShuffleboardInit(){
     shuff_.addButton("Stow", [&](){Stow();}, {1,1,5,0});
 
     //Status
-    shuff_.add("Outtaking", &m_outtaking, {1,1,0,1}, true);
     shuff_.add("Cone", &m_cone, {1,1,1,1}, true);
-    shuff_.add("Rollers", &m_rollers, {1,1,2,1}, true);
 
     //Scoring pos
     shuff_.PutNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG, {1,1,0,5});

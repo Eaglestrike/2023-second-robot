@@ -57,29 +57,40 @@ class Robot : public frc::TimedRobot {
   // timer
   double m_prevTime;
 
-  // smartdashboard
-  frc::SendableChooser<std::string> m_startPosChooser;
-  frc::Field2d m_field;
+  //Controller
+  Controller m_controller;
+
+  //Elevator
+  ElevatorIntake m_elevatorIntake;
+  LidarReader m_lidar;
+  Rollers m_rollers;
 
   // IMU acclerometer and gyroscope
   // Gives information on orientation and acceleration
   std::shared_ptr<AHRS> m_navx;
 
+  // smartdashboard
+  frc::SendableChooser<std::string> m_startPosChooser;
+  frc::Field2d m_field;
+
   // swerve
   SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
   SwerveControl *m_swerveController;
 
+  // jetson
+  SocketClient m_client;
+  bool m_red;
+  int m_posVal; // for auto lineup socring positions
+  int m_heightVal;
+
   // odometry
+  Odometry m_odometry;
   vec::Vector2D m_startPos; // offset; starting position on field relative to apriltag origin, can use for trim
   double m_startAng; // offset; starting angle (radians) on field relative to +x axis of apriltag coords, can use for trim
   double m_joystickAng;
-  Odometry m_odometry;
   bool m_isAutoLineup = false; // UNUSED; disables tag odometry when auto lineup so robot isnt jumpy
   bool m_isTrimming = false; // if true, use ff only
   bool m_isFirstTag = false;
-
-  //Controller
-  Controller m_controller;
 
   // auto
   AutoLineup m_autoLineup;
@@ -90,16 +101,6 @@ class Robot : public frc::TimedRobot {
   // wpi::log::DoubleLogEntry m_speedLog;
   // wpi::log::DoubleLogEntry m_voltsLog;
   // END TEMP
-
-  // jetson
-  SocketClient m_client;
-  bool m_red;
-  int m_posVal; // for auto lineup socring positions
-  int m_heightVal;
-
-  ElevatorIntake m_elevatorIntake;
-  LidarReader m_lidar;
-  Rollers m_rollers;
 
   ShuffleboardSender m_shuff;
 };

@@ -4,8 +4,8 @@
 #include <algorithm>
 #include "AutoPath.h"
 #include "EIAutoPath.h"
-#include <regex>
 #include <vector>
+#include <iostream>
 #include <set>
 #include <map>
 
@@ -29,6 +29,7 @@ class AutoStage {
         void Start();
         StageState GetState();
         void AutonomousPeriodic();
+        void EnableDBG(bool d = true);
         
 
     private:
@@ -46,6 +47,7 @@ class AutoStage {
             }
         };
         int m_startIdx;
+        bool dbg = false; 
         StageState m_state = NOT_STARTED;
         std::vector<AutoPath*> m_allPaths; // never changes beyond init
         std::set<AutoPathX> m_curPaths;

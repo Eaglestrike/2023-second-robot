@@ -6,9 +6,11 @@ namespace EIAutoConstants{
     const double HALFSTOW_PERCENT = 0.25; // 0 to 0.25 are halfstowing
     const double ELEVATOR_PERCENT = 0.5; // 2.5 to 0.75 are moving elevator
     const double INTAKE_PERCENT = 0.25; // 0.75 to 1 are moving wrist
+    const double COMPLETION_TOLERANCE = 0.0;
 }
 
 namespace SwerveAutoConstants {
+    const double COMPLETION_TOLERANCE = 0.0;
     const double SWERVE_TOLERANCE = 1.0;
     // AutoPaths::SwervePose swp_1 = {0.0, 0.5, 0.5, 0.5, 0.5, 0, 0};
     // AutoPaths::SwervePose swp_2 = {1.0, 1.0, 1.0, 0.6, 0.6, 0, 0};
@@ -16,7 +18,7 @@ namespace SwerveAutoConstants {
     
 
     // used for initializing the SwerveAutoPath
-    const std::vector<AutoPaths::SwervePose> swerve_poses = {
-        {0.0, 0.5, 0.5, 0.5, 0.0, 0.0}, {1.0, 1.0, 1.0, 0.6, 0.6, 0, 0}
-    };
+    // const std::vector<AutoPaths::SwervePose> swerve_poses = {
+    //     {0.0, 0.5, 0.5, 0.5, 0.0, 0.0}, {1.0, 1.0, 1.0, 0.6, 0.6, 0, 0}
+    // };
 }

@@ -50,6 +50,10 @@ class Robot : public frc::TimedRobot {
   void SimulationPeriodic() override;
 
  private:
+  void initEIAutoDBG();
+  void periodicEIAutoDBG();
+  void initAutoStagesDBG();
+  void periodicAutoStagesDBG();
   // timer
   double m_prevTime;
 
@@ -76,7 +80,7 @@ class Robot : public frc::TimedRobot {
   //Controller
   Controller m_controller;
 
-  // auto
+  // A8uto
   AutoLineup m_autoLineup;
   //AutoManager m_auto_manager;
   ElevatorIntake m_EI{};

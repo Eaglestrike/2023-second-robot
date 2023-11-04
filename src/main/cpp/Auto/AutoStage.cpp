@@ -21,6 +21,10 @@ AutoStage::AutoStage(){
     m_state = NOT_STARTED;
 }
 
+void AutoStage::EnableDBG(bool d){
+    dbg = d;
+}
+
 void AutoStage::Start(){
     if (m_allPaths.size() < 1) 
     m_state = IN_PROGRESS;
@@ -36,13 +40,31 @@ AutoStage::StageState AutoStage::GetState(){
  * 
  */
 void AutoStage::AutonomousPeriodic() {
+    if (dbg) frc::SmartDashboard::PutNumber("stage state", m_state);
     if (m_state == NOT_STARTED || m_state == DONE) return;
     std::vector<AutoPathX> donePaths;
-    // should error check not telling same mechanism to do smt 2x
     if (m_curPaths.empty()){ 
-        m_state == DONE;
+        m_state = DONE;
         return;
     }
+    if (dbg) {
+        //print curpaths
+        std::vector<std::string> s;
+        for (auto i : m_curPaths){
+            s.push_back(i.path->toString());
+        }
+        std::span<std::string> spn(s);
+        frc::SmartDashboard::PutStringArray("cur paths", spn);
+        
+        //print mech in use
+        std::vector<int> k;
+        for (auto i : m_mechInUse){
+            k.push_back(i);
+        }
+        std::span<int> bSpn(k);
+        frc::SmartDashboard::PutBooleanArray("mech in use", bSpn);
+    }
+
     for (auto i : m_curPaths){
         i.path->AutonomousPeriodic();
         auto itr = m_cueToPath.lower_bound(i.index);
@@ -69,7 +91,7 @@ void AutoStage::StartPath(AutoPathX xpath){
     int tp =xpath.path->GetType();
     if (m_mechInUse[tp]) return;
     else m_mechInUse[tp] = true;
-
+    if(dbg) std::cout << "Starting path " << xpath.index << ": " << xpath.path->toString()<< std::endl;
     xpath.path->Start();
     xpath.path->AutonomousPeriodic();
     m_curPaths.insert(xpath);

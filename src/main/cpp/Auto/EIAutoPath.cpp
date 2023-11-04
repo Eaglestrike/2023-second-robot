@@ -2,16 +2,16 @@
 #include "Auto/AutoConstants.h"
 #include <iostream>
 
-EIAutoPath::EIAutoPath(ElevatorIntake::TargetState action, bool cone): m_action(action), m_cone(cone){
-    std::cout << "ei auto path constructor called"<< std::endl;
+EIAutoPath::EIAutoPath(ElevatorIntake::TargetState action, bool cone): AutoPath(EIAutoConstants::COMPLETION_TOLERANCE), m_action(action), m_cone(cone){
+    if (dbg) std::cout << "ei auto path constructor called"<< std::endl;
     m_type = EI;
 }
 
 void EIAutoPath::Init(ElevatorIntake& ei){
-    std::cout << "ei auto path init called"<< std::endl;
+    if (dbg) std::cout << "ei auto path init called"<< std::endl;
     m_EI = &ei;
     m_EI->SetCone(m_cone);
-    std::cout << "ei auto path init finished"<< std::endl;
+    if (dbg) std::cout << "ei auto path init finished"<< std::endl;
 }
 
 std::string EIAutoPath::toString(){
@@ -44,8 +44,11 @@ std::string EIAutoPath::toString(){
 }
 
 void EIAutoPath::AutonomousPeriodic() {
-    frc::SmartDashboard::PutNumber("completion", m_completion);
-    frc::SmartDashboard::PutBoolean("started", m_started);
+    if (dbg){
+        frc::SmartDashboard::PutNumber("completion", m_completion);
+        frc::SmartDashboard::PutBoolean("started", m_started);
+    }
+    
     if (m_started){
         m_EI->TeleopPeriodic();
        switch (m_EI->GetState()){
@@ -63,7 +66,7 @@ void EIAutoPath::AutonomousPeriodic() {
 }
 
 void EIAutoPath::Start(){
-    std::cout << "ei auto path start called"<< std::endl;
+    if (dbg) std::cout << "ei auto path start called"<< std::endl;
     m_started = true;
     switch (m_action){
             case ElevatorIntake::TargetState::STOWED:
@@ -84,6 +87,10 @@ void EIAutoPath::Start(){
             case ElevatorIntake::TargetState::GROUND:
                 m_EI->IntakeFromGround();
                 break;
-        }
-        std::cout << "ei auto path start finished"<< std::endl;
     }
+    if (dbg) std::cout << "ei auto path start finished"<< std::endl;
+}
+
+void EIAutoPath::EnableDBG(bool d){
+    dbg = d;
+}

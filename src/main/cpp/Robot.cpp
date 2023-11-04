@@ -91,7 +91,7 @@ Robot::Robot():
       frc::SmartDashboard::PutNumber("camY", y);
 
       bool res = false;
-      if (camId != 0 && m_isFirstTag) {
+      if (tagId != 0 && m_isSecondTag) {
         res = m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
       } 
 
@@ -103,9 +103,9 @@ Robot::Robot():
         // std::cout << "good " << tagId << " " << Utils::GetCurTimeMs() << std::endl;
       }
       frc::SmartDashboard::PutNumber("tag Id", tagId);
-      m_isFirstTag = true;
+      m_isSecondTag = true;
     } else {
-      m_isFirstTag = false;
+      m_isSecondTag = false;
     }
     // frc::SmartDashboard::PutBoolean("Is correcting", isCorrecting);
 
@@ -330,6 +330,11 @@ void Robot::AutonomousInit()
 {
   m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
 
+  m_autoPath.SetPosPID(0, 0, 0);
+  m_autoPath.SetAngPID(0, 0, 0);
+
+  m_elevatorIntake.Stow();
+
   // TESTING CODE
   // MAKE SURE BLUE RIGHT OR ELSE ROBOT WILL UNALIVE ITSELF
   m_autoPath.AddPoses(AutoPaths::BIG_BOY);
@@ -345,9 +350,11 @@ void Robot::AutonomousPeriodic()
 
   double curYaw = m_odometry.GetAng();
 
-  m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  m_swerveController->SetRobotVelocity(driveVel, 0, curYaw, deltaT);
 
   m_autoPath.Periodic();
+  m_swerveController->Periodic();
+  m_elevatorIntake.TeleopPeriodic();
   m_prevTime = curTime;
 }
 

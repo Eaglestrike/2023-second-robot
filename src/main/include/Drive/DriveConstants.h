@@ -69,9 +69,9 @@ namespace SwerveConstants
   const double ANG_CORRECT_D = 0.5;
 
   const double MAX_VOLTS = 10.0; 
-  const double kS = 0.6;
-  const double kV = 2.326;
-  const double kA = 0; // DON't TOUCH THIS, KA REMAINS AT 0
+  const double kS = 0.5;
+  const double kV = 2.18;
+  const double kA = 0.55;
 
   const double NORMAL_SWERVE_MULT = 12.0;
   const double SLOW_SWERVE_MULT = 3.0;
@@ -179,9 +179,9 @@ namespace AutoConstants {
 
   const double UNREASONABLE_ANG_SPEED = 62.4828; // rad/s
 
-  const double TRANS_KP = 5.2;
+  const double TRANS_KP = 1.0;
   const double TRANS_KI = 0;
-  const double TRANS_KD = 1.5;
+  const double TRANS_KD = 0.07;
   const double TRANS_MAXSP = 3;
   const double TRANS_MAXACC = 2.5;
 

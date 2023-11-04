@@ -119,13 +119,17 @@ void AutoPath::UpdateOdom(vec::Vector2D curPos, double curAng, vec::Vector2D cur
   // update multiplier of angle
   double curTimeS = Utils::GetCurTimeS();
   double curAngSpeed = (curAng - m_curAng) / (curTimeS - m_prevTimeOdom);
-  if (curAngSpeed < -AutoConstants::UNREASONABLE_ANG_SPEED) {
+  if (curAngSpeed < -AutoConstants::UNREASONABLE_ANG_SPEED && curAng < 0 && m_curAng > 0 && Utils::NearZero(curAng + M_PI, 0.2)) {
     // looping around counterclockwise
     m_multiplier++;
-  } else if (curAngSpeed > AutoConstants::UNREASONABLE_ANG_SPEED) {
+  } else if (curAngSpeed > AutoConstants::UNREASONABLE_ANG_SPEED && curAng > 0 && m_curAng < 0 && Utils::NearZero(curAng - M_PI, 0.2)) {
     // looping around clockwise
     m_multiplier--;
   }
+
+  frc::SmartDashboard::PutNumber("multiplier", m_multiplier);
+  frc::SmartDashboard::PutNumber("cur ang speed", curAngSpeed);
+
   m_prevTimeOdom = curTimeS;
 
   m_curAng = curAng;
@@ -247,15 +251,15 @@ double AutoPath::GetMultipliedAng() const {
 vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos, vec::Vector2D curExpectedVel) {
   vec::Vector2D err = curExpectedPos - m_curPos;
 
-  frc::SmartDashboard::PutNumber("Error x", err.x());
-  frc::SmartDashboard::PutNumber("Error y", err.y());
+  // frc::SmartDashboard::PutNumber("Error x", err.x());
+  // frc::SmartDashboard::PutNumber("Error y", err.y());
 
   vec::Vector2D deltaErr =  curExpectedVel - m_curWheelVel;
   m_totalPosErr += err * deltaT;
   vec::Vector2D res = err * m_kPPos + m_totalPosErr * m_kIPos + deltaErr * m_kDPos;
 
-  frc::SmartDashboard::PutNumber("Delta Error x", deltaErr.x());
-  frc::SmartDashboard::PutNumber("Delta Error y", deltaErr.y());
+  // frc::SmartDashboard::PutNumber("Delta Error x", deltaErr.x());
+  // frc::SmartDashboard::PutNumber("Delta Error y", deltaErr.y());
 
   m_prevPosErr = err;
 
@@ -273,6 +277,9 @@ vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos,
 double AutoPath::GetPIDAng(double deltaT, double curExpectedAng) {
   double curAngAbs = m_curAng + m_multiplier * M_PI * 2;
   double err = curExpectedAng - curAngAbs;
+
+  frc::SmartDashboard::PutNumber("ang err", err);
+  frc::SmartDashboard::PutNumber("ang abs", curAngAbs);
 
   double deltaErr = (err - m_prevAngErr) / deltaT;
   m_totalAngErr += err * deltaT;

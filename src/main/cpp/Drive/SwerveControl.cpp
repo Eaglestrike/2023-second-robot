@@ -26,6 +26,7 @@ SwerveControl::SwerveControl(RefArray<SwerveModule> modules, bool enabled, bool 
     Mechanism("Swerve Control", enabled, shuffleboard),
     m_modules{modules}, 
     m_kS{0.0}, m_kV{0.0}, m_kA{0.0}, m_curAngle{0},
+    m_angCorrection{true},
     m_angleCorrector{SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D}
 {
   m_angleCorrector.EnableContinuousInput(-M_PI, M_PI);
@@ -115,7 +116,7 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
     m_curAngle = ang;
   }
 
-  if (!Utils::NearZero(vel) && Utils::NearZero(angVel))
+  if (!Utils::NearZero(vel) && Utils::NearZero(angVel) && m_angCorrection)
   {
     // if not turning, correct robot so that it doesnt turn
     angVel = m_angleCorrector.Calculate(ang, m_curAngle);
@@ -194,4 +195,8 @@ void SwerveControl::CoreShuffleboardUpdate(){
   double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
   SetAngleCorrectionPID(kP2, kI2, kD2);
+}
+
+void SwerveControl::SetAngCorrection(bool angCorrection) {
+  m_angCorrection = angCorrection;
 }

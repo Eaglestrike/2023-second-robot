@@ -42,7 +42,7 @@ public:
   void StartAngMove();
   void StopPos();
   void StopAng();
-  void UpdateOdom(vec::Vector2D pos, double ang);
+  void UpdateOdom(vec::Vector2D pos, double ang, vec::Vector2D curWheelVel);
   void Periodic();
   void SetPosPID(double kP, double kI, double kD);
   void SetAngPID(double kP, double kI, double kD);
@@ -56,6 +56,7 @@ public:
 
 private:
   vec::Vector2D m_curPos;
+  vec::Vector2D m_curWheelVel;
   double m_curAng;
 
   double m_prevTime;
@@ -104,7 +105,7 @@ private:
   void CalcTimes(FFConfig &config, double dist, Times &times);
   double GetSpeed(FFConfig &config, Times &times);
 
-  vec::Vector2D GetPIDTrans(double deltaT);
+  vec::Vector2D GetPIDTrans(double deltaT, vec::Vector2D curExpectedVel);
   double GetPIDAng(double deltaT);
 
   vec::Vector2D GetPIDTransVel(double deltaT, vec::Vector2D expectedVel);

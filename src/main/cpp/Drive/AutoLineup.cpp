@@ -304,7 +304,7 @@ void AutoLineup::Periodic() {
       vec::Vector2D ffVel = m_posVecDir * speed;
       m_curExpectedPos += ffVel * deltaT;
 
-      vec::Vector2D correctionVel = GetPIDTrans(deltaT);
+      vec::Vector2D correctionVel = GetPIDTrans(deltaT, ffVel);
       // vec::Vector2D correctionVel = GetPIDTransVel(deltaT, ffVel);
       vec::Vector2D totalVel = ffVel + correctionVel;
 
@@ -426,10 +426,10 @@ double AutoLineup::GetAngVel() const {
  * 
  * @returns Velocity from PID
 */
-vec::Vector2D AutoLineup::GetPIDTrans(double deltaT) {
+vec::Vector2D AutoLineup::GetPIDTrans(double deltaT, vec::Vector2D curExpectedVel) {
   vec::Vector2D err = m_curExpectedPos - m_curPos;
 
-  vec::Vector2D deltaErr = (err - m_prevPosErr) / deltaT;
+  vec::Vector2D deltaErr = curExpectedVel - m_curVel;
   m_totalPosErr += err * deltaT;
   vec::Vector2D res = err * m_kPPos + m_totalPosErr * m_kIPos + deltaErr * m_kDPos;
 
@@ -534,9 +534,10 @@ void AutoLineup::SetAngPID(double kP, double kI, double kD) {
  * @param pos Current position
  * @param ang Current angle
 */
-void AutoLineup::UpdateOdom(vec::Vector2D pos, double ang) {
+void AutoLineup::UpdateOdom(vec::Vector2D pos, double ang, vec::Vector2D curWheelVel) {
   m_curPos = pos;
   m_curAng = ang;
+  m_curWheelVel = curWheelVel;
 }
 
 /**

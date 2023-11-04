@@ -58,23 +58,7 @@ Robot::Robot():
 
   AddPeriodic([&](){
     // ODOMETRY
-    vec::Vector2D pos = m_odometry.GetPosition();
-    double ang = m_odometry.GetAng();
-    vec::Vector2D wheelVel = m_swerveController->GetRobotVelocity(ang);
-    m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
-
-    m_autoLineup.UpdateOdom(pos, ang);
-    m_autoPath.UpdateOdom(pos, ang, wheelVel);
-
-    // UNCOMMENT BELOW
-    frc::SmartDashboard::PutString("Robot pos", pos.toString());
-    frc::SmartDashboard::PutNumber("Robot ang", ang);
-    frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
-    frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
-    frc::SmartDashboard::PutData("Field", &m_field);
-    // END UNCOMMENT
-
-    int expectedId = Utils::GetExpectedTagId(m_posVal, m_red);
+    // int expectedId = Utils::GetExpectedTagId(m_posVal, m_red);
 
     // process camera data
     std::vector<double> camData = m_client.GetData();
@@ -115,6 +99,23 @@ Robot::Robot():
     vec::Vector2D velWorld = m_swerveController->GetRobotVelocity(angNavX + m_startAng);
 
     m_odometry.Periodic(angNavX, velWorld);
+
+    vec::Vector2D pos = m_odometry.GetPosition();
+    double ang = m_odometry.GetAng();
+    vec::Vector2D wheelVel = m_swerveController->GetRobotVelocity(ang);
+    m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
+
+    m_autoLineup.UpdateOdom(pos, ang, wheelVel);
+    m_autoPath.UpdateOdom(pos, ang, wheelVel);
+
+    // UNCOMMENT BELOW
+    frc::SmartDashboard::PutString("Robot pos", pos.toString());
+    frc::SmartDashboard::PutNumber("Robot ang", ang);
+    frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
+    frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
+    frc::SmartDashboard::PutData("Field", &m_field);
+    // END UNCOMMENT
+
     // END ODOMETRY
   }, 5_ms, 2_ms);
 }
@@ -342,8 +343,14 @@ void Robot::AutonomousInit()
   double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
   double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KD);
 
+  double akP = frc::SmartDashboard::GetNumber("ang kP", AutoConstants::ANG_KP);
+  double akI = frc::SmartDashboard::GetNumber("ang kI", AutoConstants::ANG_KI);
+  double akD = frc::SmartDashboard::GetNumber("ang kD", AutoConstants::ANG_KD);
+
   m_autoPath.SetPosPID(tkP, tkI, tkD);
-  m_autoPath.SetAngPID(0, 0, 0);
+  m_autoPath.SetAngPID(akP, akI, akD);
+
+  m_swerveController->SetAngCorrection(false);
 
   m_elevatorIntake.Stow();
 
@@ -360,9 +367,11 @@ void Robot::AutonomousPeriodic()
   vec::Vector2D driveVel = m_autoPath.GetVel();
   double angVel = m_autoPath.GetAngVel();
 
+  // std::cout << angVel << std::endl;
+
   double curYaw = m_odometry.GetAng();
 
-  m_swerveController->SetRobotVelocity(driveVel, 0, curYaw, deltaT);
+  m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
 
   m_autoPath.Periodic();
   m_swerveController->Periodic();
@@ -372,6 +381,7 @@ void Robot::AutonomousPeriodic()
 
 void Robot::TeleopInit() {
   m_swerveController->SetFeedForward(0, 1, 0);
+  m_swerveController->SetAngCorrection(true);
   // m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
   // m_autoLineup.SetPosFF({.maxSpeed = AutoConstants::TRANS_MAXSP, .maxAccel = AutoConstants::TRANS_MAXACC});
   // m_autoLineup.SetAngFF({.maxSpeed = AutoConstants::ANG_MAXSP, .maxAccel = AutoConstants::ANG_MAXACC});
@@ -464,6 +474,7 @@ void Robot::TeleopPeriodic() {
 
   //                                          don't auto lineup to (0,0)
   if (m_controller.getPressed(AUTO_LINEUP) && m_posVal && m_heightVal) {
+    m_swerveController->SetAngCorrection(false);
     // m_isAutoLineup = true;
     if (m_isTrimming) {
       // just do feedforward for trim, just needs to move a little
@@ -492,6 +503,7 @@ void Robot::TeleopPeriodic() {
     m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   } else {
+    m_swerveController->SetAngCorrection(true);
     m_isAutoLineup = false;
     m_autoLineup.StopPos();
     m_autoLineup.StopAng();
@@ -502,6 +514,9 @@ void Robot::TeleopPeriodic() {
 
   m_autoLineup.Periodic();
   m_swerveController->Periodic();
+
+  m_autoPath.StartMove();
+  m_autoPath.Periodic();
 
   double time2 = Utils::GetCurTimeS();
 

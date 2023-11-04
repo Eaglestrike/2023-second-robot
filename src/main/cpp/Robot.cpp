@@ -150,13 +150,21 @@ void Robot::RobotInit()
   m_startPosChooser.AddOption("Red R", "Red R");
   frc::SmartDashboard::PutData("Starting pos", &m_startPosChooser);
 
-  frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
-  frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
-  frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
+  // frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
+  // frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
+  // frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
 
-  frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
-  frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
-  frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
+  // frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
+  // frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
+  // frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
+
+  frc::SmartDashboard::PutNumber("ltrans kP", LineupConstants::TRANS_KP);
+  frc::SmartDashboard::PutNumber("ltrans kI", LineupConstants::TRANS_KI);
+  frc::SmartDashboard::PutNumber("ltrans kD", LineupConstants::TRANS_KD);
+
+  frc::SmartDashboard::PutNumber("lang kP", LineupConstants::ANG_KP);
+  frc::SmartDashboard::PutNumber("lang kI", LineupConstants::ANG_KI);
+  frc::SmartDashboard::PutNumber("lang kD", LineupConstants::ANG_KD);
 
   frc::SmartDashboard::PutNumber("swerve kS", SwerveConstants::kS);
   frc::SmartDashboard::PutNumber("swerve kV", SwerveConstants::kV);
@@ -241,18 +249,16 @@ void Robot::RobotPeriodic()
     // m_autoLineup.SetPosTarget({deltaX, deltaY}, true);
     // m_autoLineup.SetAngTarget(deltaAng, true);
 
-    double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
-    double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
-    double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KD);
+    double tkP = frc::SmartDashboard::GetNumber("ltrans kP", LineupConstants::TRANS_KP);
+    double tkI = frc::SmartDashboard::GetNumber("ltrans kI", LineupConstants::TRANS_KI);
+    double tkD = frc::SmartDashboard::GetNumber("ltrans kD", LineupConstants::TRANS_KD);
 
-    double akP = frc::SmartDashboard::GetNumber("ang kP", AutoConstants::ANG_KP);
-    double akI = frc::SmartDashboard::GetNumber("ang kI", AutoConstants::ANG_KI);
-    double akD = frc::SmartDashboard::GetNumber("ang kD", AutoConstants::ANG_KD);
+    double akP = frc::SmartDashboard::GetNumber("lang kP", LineupConstants::ANG_KP);
+    double akI = frc::SmartDashboard::GetNumber("lang kI", LineupConstants::ANG_KI);
+    double akD = frc::SmartDashboard::GetNumber("lang kD", LineupConstants::ANG_KD);
 
     m_autoLineup.SetPosPID(tkP, tkI, tkD);
     m_autoLineup.SetAngPID(akP, akI, akD);
-    m_autoPath.SetPosPID(tkP, tkI, tkD);
-    m_autoPath.SetAngPID(akP, akI, akD);
 
     double tMaxSp = frc::SmartDashboard::GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
     double tMaxAcc = frc::SmartDashboard::GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
@@ -480,9 +486,9 @@ void Robot::TeleopPeriodic() {
       // just do feedforward for trim, just needs to move a little
       m_autoLineup.SetPosPID(0, 0, 0);
     } else {
-      double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
-      double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
-      double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KD);
+      double tkP = frc::SmartDashboard::GetNumber("ltrans kP", LineupConstants::TRANS_KP);
+      double tkI = frc::SmartDashboard::GetNumber("ltrans kI", LineupConstants::TRANS_KI);
+      double tkD = frc::SmartDashboard::GetNumber("ltrans kD", LineupConstants::TRANS_KD);
       m_autoLineup.SetPosPID(tkP, tkI, tkD);
     }
 

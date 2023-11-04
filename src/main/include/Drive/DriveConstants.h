@@ -170,6 +170,28 @@ namespace OdometryConstants {
   const double AT_REJECT = 6;
 }
 
+namespace LineupConstants {
+  const double TRANS_KP = 0.0;
+  const double TRANS_KI = 0;
+  const double TRANS_KD = 0;
+
+  const double ANG_KP = 0.0;
+  const double ANG_KI = 0;
+  const double ANG_KD = 0;
+
+  const double TRANS_MAXSP = 3;
+  const double TRANS_MAXACC = 2.5;
+
+  const double ANG_MAXSP = 1.5;
+  const double ANG_MAXACC = 1.5;
+
+  const double TRANS_POS_ERR_TOLERANCE = 0.025;
+  const double TRANS_VEL_ERR_TOLERANCE = 100;
+
+  const double ANG_POS_ERR_TOLERANCE = 0.025;
+  const double ANG_VEL_ERR_TOLERANCE = 100;
+}
+
 namespace AutoConstants {
   const double TRANS_POS_ERR_TOLERANCE = 0.025;
   const double TRANS_VEL_ERR_TOLERANCE = 100;

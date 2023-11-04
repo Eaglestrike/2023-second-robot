@@ -60,10 +60,11 @@ Robot::Robot():
     // ODOMETRY
     vec::Vector2D pos = m_odometry.GetPosition();
     double ang = m_odometry.GetAng();
+    vec::Vector2D wheelVel = m_swerveController->GetRobotVelocity(ang);
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
 
     m_autoLineup.UpdateOdom(pos, ang);
-    m_autoPath.UpdateOdom(pos, ang);
+    m_autoPath.UpdateOdom(pos, ang, wheelVel);
 
     // UNCOMMENT BELOW
     frc::SmartDashboard::PutString("Robot pos", pos.toString());
@@ -148,13 +149,17 @@ void Robot::RobotInit()
   m_startPosChooser.AddOption("Red R", "Red R");
   frc::SmartDashboard::PutData("Starting pos", &m_startPosChooser);
 
-  // frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
-  // frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
-  // frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
+  frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
+  frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
+  frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
 
-  // frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
-  // frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
-  // frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
+  frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
+  frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
+  frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
+
+  frc::SmartDashboard::PutNumber("swerve kS", SwerveConstants::kS);
+  frc::SmartDashboard::PutNumber("swerve kV", SwerveConstants::kV);
+  frc::SmartDashboard::PutNumber("swerve kA", SwerveConstants::kA);
 
   // frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
   // frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
@@ -328,9 +333,16 @@ void Robot::RobotPeriodic()
  */
 void Robot::AutonomousInit()
 {
-  m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
+  double kS = frc::SmartDashboard::GetNumber("swerve kS", SwerveConstants::kS);
+  double kV = frc::SmartDashboard::GetNumber("swerve kV", SwerveConstants::kV);
+  double kA = frc::SmartDashboard::GetNumber("swerve kA", SwerveConstants::kA);
+  m_swerveController->SetFeedForward(kS, kV, kA);
 
-  m_autoPath.SetPosPID(0, 0, 0);
+  double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
+  double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
+  double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KD);
+
+  m_autoPath.SetPosPID(tkP, tkI, tkD);
   m_autoPath.SetAngPID(0, 0, 0);
 
   m_elevatorIntake.Stow();

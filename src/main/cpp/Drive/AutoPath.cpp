@@ -2,6 +2,8 @@
 
 #include "Drive/DriveConstants.h"
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643383279502884197169399
 #endif
@@ -110,8 +112,9 @@ void AutoPath::StartMove() {
  * @param pos Current position
  * @param ang Current angle
 */
-void AutoPath::UpdateOdom(vec::Vector2D curPos, double curAng) {
+void AutoPath::UpdateOdom(vec::Vector2D curPos, double curAng, vec::Vector2D curWheelVel) {
   m_curPos = curPos;
+  m_curWheelVel = curWheelVel;
 
   // update multiplier of angle
   double curTimeS = Utils::GetCurTimeS();
@@ -149,7 +152,7 @@ void AutoPath::Periodic() {
       vec::Vector2D curExpectedPos = m_calcTrans.getPos(getTime);
       vec::Vector2D curExpectedVel = m_calcTrans.getVel(getTime);
 
-      vec::Vector2D correctionVel = GetPIDTrans(deltaT, curExpectedPos);
+      vec::Vector2D correctionVel = GetPIDTrans(deltaT, curExpectedPos, curExpectedVel);
       vec::Vector2D totalVel = curExpectedVel + correctionVel;
 
       double curExpectedAng = m_calcAng.getPos(getTime)[0];
@@ -241,12 +244,18 @@ double AutoPath::GetMultipliedAng() const {
  * 
  * @returns Velocity from PID
 */
-vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos) {
+vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos, vec::Vector2D curExpectedVel) {
   vec::Vector2D err = curExpectedPos - m_curPos;
 
-  vec::Vector2D deltaErr = (err - m_prevPosErr) / deltaT;
+  frc::SmartDashboard::PutNumber("Error x", err.x());
+  frc::SmartDashboard::PutNumber("Error y", err.y());
+
+  vec::Vector2D deltaErr =  curExpectedVel - m_curWheelVel;
   m_totalPosErr += err * deltaT;
   vec::Vector2D res = err * m_kPPos + m_totalPosErr * m_kIPos + deltaErr * m_kDPos;
+
+  frc::SmartDashboard::PutNumber("Delta Error x", deltaErr.x());
+  frc::SmartDashboard::PutNumber("Delta Error y", deltaErr.y());
 
   m_prevPosErr = err;
 

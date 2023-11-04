@@ -34,7 +34,7 @@ public:
   void SetAngPID(double kP, double kI, double kD);
   void Stop();
   void StartMove();
-  void UpdateOdom(vec::Vector2D curPos, double curAng);
+  void UpdateOdom(vec::Vector2D curPos, double curAng, vec::Vector2D curWheelVel);
   void Periodic();
 
   vec::Vector2D GetVel() const;
@@ -43,6 +43,7 @@ public:
 
 private:
   vec::Vector2D m_curPos;
+  vec::Vector2D m_curWheelVel;
   double m_curAng;
   int m_multiplier; // markplier???
 
@@ -75,7 +76,7 @@ private:
   double m_kIAng;
   double m_kDAng;
 
-  vec::Vector2D GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos); 
+  vec::Vector2D GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos, vec::Vector2D curExpectedVel); 
   double GetPIDAng(double deltaT, double curExpectedAng);
   bool AtTarget() const;
   bool AtTransTarget(double posErrTol, double velErrTol) const;

@@ -95,6 +95,7 @@ class Robot : public frc::TimedRobot {
   AutoPath m_autoPath;
   AutoDock m_autoDock;
   TwoPieceDock m_twoPieceDock;
+  SadAuto m_sadAuto;
   // TEMP, for testing
   // double m_curVolts;
   // double m_prevTimeTest;

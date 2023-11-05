@@ -166,6 +166,7 @@ void Robot::RobotInit()
   m_autoChooser.AddOption("3 Piece Dock", "3 Piece Dock");
   m_autoChooser.AddOption("Dumb Dock", "Dumb Dock");
   m_autoChooser.AddOption("Sad Auto", "Sad Auto");
+  frc::SmartDashboard::PutData("auto chooser", &m_autoChooser);
 
   frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
   frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);

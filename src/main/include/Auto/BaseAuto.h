@@ -20,6 +20,7 @@ public:
 
     virtual vec::Vector2D GetDriveVel();
     virtual double GetAngVel();
+    virtual bool DockNow();
 
 protected:
     vec::Vector2D m_curPos; 

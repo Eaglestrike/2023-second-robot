@@ -165,6 +165,7 @@ void Robot::RobotInit()
   m_autoChooser.AddOption("3 Piece Dock", "3 Piece Dock");
   m_autoChooser.AddOption("Dumb Dock", "Dumb Dock");
   m_autoChooser.AddOption("Sad Auto", "Sad Auto");
+  frc::SmartDashboard::PutData("Auto", &m_autoChooser);
 
   frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
   frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
@@ -419,6 +420,8 @@ void Robot::AutonomousInit()
   m_autoDock.SetSide(m_red);
   m_twoPieceDock.SetSide(m_red);
 
+  m_autoPath.ResetMultiplier();
+
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
     m_twoPieceDock.Init();
   }
@@ -445,6 +448,7 @@ void Robot::AutonomousPeriodic()
       driveVel = m_autoDock.GetVel();
       angVel = 0;
     } 
+    frc::SmartDashboard::PutString("Drive vel", driveVel.toString());
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   }
   m_swerveController->Periodic();

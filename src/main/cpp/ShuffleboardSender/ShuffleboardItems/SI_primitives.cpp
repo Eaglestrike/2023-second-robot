@@ -16,7 +16,9 @@ ShuffleboardItem<bool>::ShuffleboardItem(ItemData data, bool* value):
     if(data.edit){
         entry_ = ShuffleboardHelper::createItem(data, *value, frc::BuiltInWidgets::kToggleButton);
     }
-    entry_ = ShuffleboardHelper::createItem(data, *value);
+    else{
+        entry_ = ShuffleboardHelper::createItem(data, *value);
+    }
 }
 
 ShuffleboardItem<int>::ShuffleboardItem(ItemData data, int* value):

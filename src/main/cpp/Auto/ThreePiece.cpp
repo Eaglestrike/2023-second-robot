@@ -209,8 +209,8 @@ void ThreePiece::startNewPath(std::vector<SwervePose> poses){
     m_ei.Stow();
     m_ap.ResetPath();
     m_ap.AddPoses(poses);
-    m_ap.StartMove();
     m_targetPose = poses.back();
+    m_ap.StartMove();
 }
 
 void ThreePiece::ScorePos(bool cone, ElevatorTarget target){
@@ -254,18 +254,19 @@ void ThreePiece::CalcPositions(){
     //Placing locations
     bool coneSpots[3] {false}; //If a cone is placed on the outer column
     m_targetPoses.placingFirst = CalcScorePositions(m_setup.firstCone, m_targetHeights.first, coneSpots, posOffset);
+    m_targetPoses.placingFirst.time = PLACING_TIME;
     m_targetPoses.placingSecond = CalcScorePositions(m_setup.secondCone, m_targetHeights.second, coneSpots, posOffset);
     m_targetPoses.placingThird = CalcScorePositions(m_setup.thirdCone, m_targetHeights.third, coneSpots, posOffset);
 
     //Picking pieces
     m_targetPoses.pickingSecond = {
-        .time = 0.0,
+        .time = TRAVEL_TIME,
         .x = PIECE_X, .y = top? PIECE_Y_4 : PIECE_Y_1,
         .vx = 0.0, .vy = 0.0,
         .ang = forwardAng, .angVel = 0.0
     };
     m_targetPoses.pickingThird = {
-        .time = 0.0,
+        .time = TRAVEL_TIME,
         .x = PIECE_X, .y = top? PIECE_Y_3 : PIECE_Y_2,
         .vx = 0.0, .vy = 0.0,
         .ang = forwardAng + left? -60.0 : 60.0, .angVel = 0.0
@@ -277,7 +278,7 @@ void ThreePiece::CalcPositions(){
 
     //Navigating Charge station
     m_targetPoses.navChargeForward = {
-        .time = 0.0,
+        .time = CHARGETIME_FORWARD,
         .x = CHARGE_X, .y = CHARGE_Y + (top? NAV_WIDTH : -NAV_WIDTH),
         .vx = NAV_VEL, .vy = 0.0,
         .ang = forwardAng, .angVel = 0.0
@@ -286,6 +287,7 @@ void ThreePiece::CalcPositions(){
         m_targetPoses.navChargeForward = Utils::GetRedPose(m_targetPoses.navChargeForward);
     }
     m_targetPoses.navChargeBack = m_targetPoses.navChargeForward;
+    m_targetPoses.navChargeBack.time = CHARGETIME_BACK;
     m_targetPoses.navChargeBack.vx *= -1.0;
     m_targetPoses.navChargeBack.vy *= -1.0;
 }
@@ -309,7 +311,7 @@ SwervePose ThreePiece::CalcScorePositions(bool cone, ElevatorTarget target, bool
     FieldConstants::ScorePair score = Utils::GetScoringPos(targPos, height, m_red);
     printf("target: %d, %d, position: %s", targPos, height, score.first.toString().data());
     return {
-        .time = 0.0,
+        .time = TRAVEL_TIME,
         .x = x(score.first), .y = y(score.first),
         .vx = 0.0, .vy = 0.0,
         .ang = forwardAng + M_PI, .angVel = 0.0

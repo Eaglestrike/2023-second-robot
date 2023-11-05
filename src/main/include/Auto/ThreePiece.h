@@ -22,6 +22,12 @@ class ThreePiece : public BaseAuto{
     const double NAV_WIDTH = 2.0;//Distance from center of charge station to go around
     const double NAV_VEL = 3.0;
 
+    //Timing
+    const double PLACING_TIME = 0.5; //1st placing time
+    const double TRAVEL_TIME = 3.0; //Travel to items
+    const double CHARGETIME_FORWARD = 2.0;
+    const double CHARGETIME_BACK = 1.0;
+
     public:
         enum State{
             NONE,

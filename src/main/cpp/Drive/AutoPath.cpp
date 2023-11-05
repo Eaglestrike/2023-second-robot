@@ -61,6 +61,12 @@ void AutoPath::ResetPath() {
   m_calcAng = Hermite1{100};
 }
 
+/**
+ * Resets angle multiplier
+*/
+void AutoPath::ResetMultiplier() {
+  m_multiplier = 0;
+}
 
 /**
  * Sets position correction PID

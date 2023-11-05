@@ -39,6 +39,7 @@ Robot::Robot():
       m_lidar{true, false},
       m_client{"10.1.14.107", 5807, 500, 5000},
       m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
+      m_sadAuto{*m_swerveController, m_elevatorIntake},
       m_red{false},
       m_posVal{0},
       m_heightVal{0}
@@ -165,7 +166,7 @@ void Robot::RobotInit()
   m_autoChooser.AddOption("3 Piece Dock", "3 Piece Dock");
   m_autoChooser.AddOption("Dumb Dock", "Dumb Dock");
   m_autoChooser.AddOption("Sad Auto", "Sad Auto");
-  frc::SmartDashboard::PutData("Auto", &m_autoChooser);
+  frc::SmartDashboard::PutData("auto chooser", &m_autoChooser);
 
   frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
   frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
@@ -187,6 +188,7 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutNumber("swerve kV", SwerveConstants::kV);
   frc::SmartDashboard::PutNumber("swerve kA", SwerveConstants::kA);
 
+  frc::SmartDashboard::PutNumber("sad auto move time", 1.0);
   // frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
   // frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
 
@@ -302,6 +304,9 @@ void Robot::RobotPeriodic()
     m_swerveController->ResetAngleCorrection(m_startAng);
     m_odometry.Reset();
   }
+
+  double new_time = frc::SmartDashboard::GetNumber("sad auto move time", 1.0);
+  m_sadAuto.debugChangeTime(new_time);
 
   // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
   // frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
@@ -424,6 +429,8 @@ void Robot::AutonomousInit()
 
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
     m_twoPieceDock.Init();
+  } else if (m_autoChooser.GetSelected() == "Sad Auto") {
+    m_sadAuto.Start();
   }
 }
 
@@ -450,6 +457,10 @@ void Robot::AutonomousPeriodic()
     } 
     frc::SmartDashboard::PutString("Drive vel", driveVel.toString());
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  }
+
+  else if (m_autoChooser.GetSelected() == "Sad Auto") {
+    m_sadAuto.Periodic();
   }
   m_swerveController->Periodic();
   m_prevTime = curTime;

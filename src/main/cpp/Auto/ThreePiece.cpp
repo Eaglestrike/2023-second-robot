@@ -37,6 +37,8 @@ void ThreePiece::Init(){
     m_prevState = NONE;
     m_targetPose = m_targetPoses.placingFirst;
     m_stateStartTime = m_autoStartTime;
+
+    m_ap.ResetMultiplier();
 }
 
 void ThreePiece::Periodic(){
@@ -88,7 +90,7 @@ void ThreePiece::Periodic(){
             else if(m_ei.IsDone()){
                 m_r.Intake();
             }
-            if((!m_lidarData.hasCone) || (!m_lidarData.hasCube)){ //TODO could do better check
+            if((m_lidarData.hasCone) || (m_lidarData.hasCube)){ //TODO could do better check
                 m_state = COMING_FROM_SECOND;
             }
             else if(curTime - m_stateStartTime > 3.0){
@@ -140,7 +142,7 @@ void ThreePiece::Periodic(){
             else if(m_ei.IsDone()){
                 m_r.Intake();
             }
-            if((!m_lidarData.hasCone) || (!m_lidarData.hasCube)){ //TODO could do better check
+            if((m_lidarData.hasCone) || (m_lidarData.hasCube)){ //TODO could do better check
                 m_state = COMING_FROM_THIRD;
             }
             break;

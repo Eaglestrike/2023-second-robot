@@ -7,6 +7,23 @@ class TwoPieceDock : public BaseAuto {
     const double SPLINE_TIME_OFFSET = 0.3;
     const double INTAKE_CUBE_TIME = 1;
 
+    const AutoPaths::SwervePose ORIG_PIECE_2_GND = {3, 7.085, 0.923, 0, 0, 0.124, 0};
+    const AutoPaths::SwervePose ORIG_PIECE_2_SCORE = {3, 1.93, 1.07, 0, 0, M_PI, 0};
+
+    const AutoPaths::SwervePose ORIG_PIECE_3_MID = {1.5, 4.525, 0.6, 1, 0, 0, 0};
+    const AutoPaths::SwervePose ORIG_PIECE_3_GND = {3, 7.16, 2.18, 0, 0, 0.55, 0};
+
+    const AutoPaths::SwervePose ORIG_PRE_DOCK = {0.7, 6, 2.13, -AutoConstants::PRE_DOCK_SPEED, 0, M_PI / 2, 0};
+
+    // first argument is time OFFSET
+    AutoPaths::SwervePose PIECE_2_GND;
+    AutoPaths::SwervePose PIECE_2_SCORE;
+
+    AutoPaths::SwervePose PIECE_3_MID;
+    AutoPaths::SwervePose PIECE_3_GND;
+
+    AutoPaths::SwervePose PRE_DOCK;
+
 public:
     enum State {
         NOT_STARTED,

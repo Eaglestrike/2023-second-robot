@@ -9,6 +9,21 @@ void TwoPieceDock::Init() {
     m_ei.SetCone(true);
     m_r.SetCone(true);
     m_ei.ScoreHigh();
+
+    // sorry for baad code
+    PIECE_2_GND = ORIG_PIECE_2_GND;
+    PIECE_2_SCORE = ORIG_PIECE_2_SCORE;
+    PIECE_3_MID = ORIG_PIECE_3_MID;
+    PIECE_3_GND = ORIG_PIECE_3_GND;
+    PRE_DOCK = ORIG_PRE_DOCK;
+
+    if (m_red) {
+        PIECE_2_GND = Utils::GetRedPose(PIECE_2_GND);
+        PIECE_2_SCORE = Utils::GetRedPose(PIECE_2_SCORE);
+        PIECE_3_MID = Utils::GetRedPose(PIECE_3_MID);
+        PIECE_3_GND = Utils::GetRedPose(PIECE_3_GND);
+        PRE_DOCK = Utils::GetRedPose(PRE_DOCK);
+    }
 }
 
 void TwoPieceDock::Periodic() {
@@ -36,7 +51,8 @@ void TwoPieceDock::Periodic() {
                 m_state = GO_TO_PIECE_2;
                 m_ap.ResetPath();
                 m_ap.AddPose({curTime, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
-                m_ap.AddPose({curTime + 3, 7.085, 0.923, 0, 0, 0.124, 0});
+                PIECE_2_GND.time += curTime;
+                m_ap.AddPose(PIECE_2_GND);
                 m_ap.StartMove();
             }
             break;
@@ -56,7 +72,13 @@ void TwoPieceDock::Periodic() {
                 m_state = GO_TO_GRID_2;
                 m_ap.ResetPath();
                 m_ap.AddPose({curTime, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
-                m_ap.AddPose({curTime + 3, 1.93, 1.07, 0, 0, M_PI, 0});
+                PIECE_2_SCORE.time += curTime;
+                // IF WRONG, FLIP
+                if (m_red & m_lidarData.hasCube) {
+                    PIECE_2_SCORE.y -= m_lidarData.cubePos;
+                } else {
+                    PIECE_2_SCORE.y += m_lidarData.cubePos;
+                }
                 m_ap.StartMove();
             }
             break;
@@ -85,8 +107,8 @@ void TwoPieceDock::Periodic() {
                 m_state = GO_TO_PIECE_3;
                 m_ap.ResetPath();
                 m_ap.AddPose({curTime, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
-                m_ap.AddPose({curTime + 1.5, 4.525, 0.6, 1, 0, 0, 0});
-                m_ap.AddPose({curTime + 3, 7.16, 2.18, 0, 0, 0.55, 0});
+                PIECE_3_MID.time += curTime;
+                PIECE_3_GND.time += curTime;
                 m_ap.StartMove();
             }
             break;
@@ -104,7 +126,8 @@ void TwoPieceDock::Periodic() {
                 m_state = GO_TO_DOCK;
                 m_ap.ResetPath();
                 m_ap.AddPose({curTime, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
-                m_ap.AddPose({curTime + 0.7, 6, 2.13, -AutoConstants::PRE_DOCK_SPEED, 0, M_PI / 2, 0});
+                m_ap.AddPose(PRE_DOCK);
+                PRE_DOCK.time += curTime;
                 m_ap.StartMove();
             }
             break;

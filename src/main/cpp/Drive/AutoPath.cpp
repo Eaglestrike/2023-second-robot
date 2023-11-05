@@ -65,7 +65,13 @@ void AutoPath::ResetPath() {
  * Resets angle multiplier
 */
 void AutoPath::ResetMultiplier() {
-  m_multiplier = 0;
+  if (Utils::NearZero(m_curAng, M_PI / 2)) {
+    m_multiplier = 0;
+  } else if (m_curAng < 0) {
+    m_multiplier = 1;
+  } else {
+    m_multiplier = 0;
+  }
 }
 
 /**

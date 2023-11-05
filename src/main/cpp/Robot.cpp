@@ -458,6 +458,7 @@ void Robot::AutonomousPeriodic()
   else if (m_autoChooser.GetSelected() == "Sad Auto") {
     m_sadAuto.Periodic();
   }
+  m_swerveController->Periodic();
   m_prevTime = curTime;
 }
 

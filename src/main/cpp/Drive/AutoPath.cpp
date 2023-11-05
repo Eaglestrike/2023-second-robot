@@ -61,6 +61,18 @@ void AutoPath::ResetPath() {
   m_calcAng = Hermite1{100};
 }
 
+/**
+ * Resets angle multiplier
+*/
+void AutoPath::ResetMultiplier() {
+  if (Utils::NearZero(m_curAng, M_PI / 2)) {
+    m_multiplier = 0;
+  } else if (m_curAng < 0) {
+    m_multiplier = 1;
+  } else {
+    m_multiplier = 0;
+  }
+}
 
 /**
  * Sets position correction PID
@@ -127,8 +139,8 @@ void AutoPath::UpdateOdom(vec::Vector2D curPos, double curAng, vec::Vector2D cur
     m_multiplier--;
   }
 
-  frc::SmartDashboard::PutNumber("multiplier", m_multiplier);
-  frc::SmartDashboard::PutNumber("cur ang speed", curAngSpeed);
+  // frc::SmartDashboard::PutNumber("multiplier", m_multiplier);
+  // frc::SmartDashboard::PutNumber("cur ang speed", curAngSpeed);
 
   m_prevTimeOdom = curTimeS;
 
@@ -151,7 +163,8 @@ void AutoPath::Periodic() {
     {
       double relTime = curTime - m_startTime;
       double highestTime = m_calcTrans.getHighestTime();
-      double getTime = (relTime <= highestTime ? relTime : highestTime);
+      double lowestTime = m_calcTrans.getLowestTime();
+      double getTime = std::clamp(relTime, lowestTime, highestTime);
 
       vec::Vector2D curExpectedPos = m_calcTrans.getPos(getTime);
       vec::Vector2D curExpectedVel = m_calcTrans.getVel(getTime);
@@ -171,8 +184,6 @@ void AutoPath::Periodic() {
       if (AtTarget()) {
         m_curState = AT_TARGET;
       }
-
-      // TODO impelemnt angle
       break;
     }
     case AT_TARGET:
@@ -278,8 +289,10 @@ double AutoPath::GetPIDAng(double deltaT, double curExpectedAng) {
   double curAngAbs = m_curAng + m_multiplier * M_PI * 2;
   double err = curExpectedAng - curAngAbs;
 
-  frc::SmartDashboard::PutNumber("ang err", err);
-  frc::SmartDashboard::PutNumber("ang abs", curAngAbs);
+  // frc::SmartDashboard::PutNumber("ang expect", curExpectedAng);
+  // frc::SmartDashboard::PutNumber("ang now", curAngAbs);
+  // frc::SmartDashboard::PutNumber("ang err", err);
+  // frc::SmartDashboard::PutNumber("ang abs", curAngAbs);
 
   double deltaErr = (err - m_prevAngErr) / deltaT;
   m_totalAngErr += err * deltaT;

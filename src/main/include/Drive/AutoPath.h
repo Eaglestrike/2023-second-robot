@@ -4,10 +4,11 @@
 #include <map>
 #include <vector>
 
-#include "Util/Mathutil.h"
+#include "Drive/DriveConstants.h"
+
+#include "Util/Utils.h"
 #include "Util/thirdparty/hermite.hpp"
 #include "Util/thirdparty/simplevectors.hpp"
-#include "Drive/DriveConstants.h"
 
 namespace hm = hermite;
 namespace vec = svector;
@@ -30,6 +31,7 @@ public:
   void AddPose(AutoPaths::SwervePose pose);
   void AddPoses(std::vector<AutoPaths::SwervePose> poses);
   void ResetPath();
+  void ResetMultiplier();
   void SetPosPID(double kP, double kI, double kD);
   void SetAngPID(double kP, double kI, double kD);
   void Stop();

@@ -1,5 +1,6 @@
 #pragma once
 #include "Elevator/Intake/Intake.h"
+#include <iostream>
 #include "BaseElevator/Elevator.h"
 #include "Lidar/LidarReader.h"
 
@@ -64,13 +65,13 @@ class ElevatorIntake{
         bool m_cone, m_outtaking;
 
         bool m_rollers = false;
-        double m_targIntakeAng, m_targElevatorPos;
-        double m_startIntakeAng, m_startElevatorPos;
+        double m_targIntakeAng = 0.0, m_targElevatorPos = 0.0;
+        double m_startIntakeAng= 0.0, m_startElevatorPos = 0.0;
 
         bool m_useLidar = true;
 
         Elevator m_elevator{true, false};
-        Intake m_intake;
+        Intake m_intake{};
 
         IntakeElevatorConstants::GamePieceInfo coneinfo = IntakeElevatorConstants::coneScoreInfo;
         IntakeElevatorConstants::GamePieceInfo cubeinfo = IntakeElevatorConstants::cubeScoreInfo;

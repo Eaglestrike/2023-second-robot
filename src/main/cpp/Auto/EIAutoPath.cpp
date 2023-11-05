@@ -7,9 +7,11 @@ EIAutoPath::EIAutoPath(ElevatorIntake::TargetState action, bool cone): AutoPath(
     m_type = EI;
 }
 
-void EIAutoPath::Init(ElevatorIntake& ei){
+void EIAutoPath::Init(ElevatorIntake& ei, Rollers& r){
     if (dbg) std::cout << "ei auto path init called"<< std::endl;
     m_EI = &ei;
+    m_rollers = &r;
+    m_rollers->SetCone(m_cone);
     m_EI->SetCone(m_cone);
     if (dbg) std::cout << "ei auto path init finished"<< std::endl;
 }
@@ -50,6 +52,10 @@ void EIAutoPath::AutonomousPeriodic() {
     }
     
     if (m_started){
+        if (dbg){
+            frc::SmartDashboard::PutNumber("w comp", m_EI->GetWristCompletion());
+        frc::SmartDashboard::PutNumber("e comp", m_EI->GetElevatorCompletion());
+        }
         m_EI->TeleopPeriodic();
        switch (m_EI->GetState()){
         case ElevatorIntake::HALFSTOWING:
@@ -60,6 +66,19 @@ void EIAutoPath::AutonomousPeriodic() {
             break;
         case ElevatorIntake::INTAKE:
             m_completion = EIAutoConstants::INTAKE_PERCENT * m_EI->GetWristCompletion() + EIAutoConstants::ELEVATOR_PERCENT + EIAutoConstants::HALFSTOW_PERCENT; 
+        case ElevatorIntake::DONE:
+            if (m_action == ElevatorIntake::TargetState::LOW || m_action == ElevatorIntake::TargetState::MID || ElevatorIntake::TargetState::HIGH){
+                if (m_rollers->GetState() != Rollers::OUTTAKE)
+                    m_rollers->Outtake();
+                else if (m_rollers->GetState() == Rollers::OUTTAKE && !m_rollers->HasGamePiece()) {
+                    m_rollers->Stop();
+                    m_completion = 1.0;
+                    m_started = false;
+                }
+            } else if (m_rollers->HasGamePiece()){
+                m_completion = 1.0;
+                m_started = false;
+            }
             break;
        }
     }
@@ -70,6 +89,7 @@ void EIAutoPath::Start(){
     m_started = true;
     switch (m_action){
             case ElevatorIntake::TargetState::STOWED:
+                if (!m_rollers->HasGamePiece()) m_rollers->Stop();
                 m_EI->Stow();
                 break;
             case ElevatorIntake::TargetState::LOW:
@@ -82,9 +102,11 @@ void EIAutoPath::Start(){
                 m_EI->ScoreHigh();
                 break;
             case ElevatorIntake::TargetState::HP:
+                m_rollers->Intake();
                 m_EI->IntakeFromHPS();
                 break;
             case ElevatorIntake::TargetState::GROUND:
+                m_rollers->Intake();
                 m_EI->IntakeFromGround();
                 break;
     }

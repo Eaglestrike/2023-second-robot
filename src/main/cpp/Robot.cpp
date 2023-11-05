@@ -37,8 +37,11 @@ Robot::Robot():
       m_client{"10.1.14.107", 5807, 500, 5000},
       m_red{false},
       m_posVal{0},
+      m_lidar{true, false},
       m_heightVal{0}
 {
+    m_lidar.setAutoRequest(true);
+
   // std::cout << "constructor starting" << std::endl;
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
@@ -110,7 +113,7 @@ Robot::Robot():
 void Robot::RobotInit()
 {
   m_EI.Init();
-  initAutoStagesDBG();
+  m_lidar.Init();
   // initialization
   // frc::SmartDashboard::PutNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
   // frc::SmartDashboard::PutNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
@@ -219,7 +222,8 @@ void Robot::periodicEIAutoDBG(){
       targ =ElevatorIntake::TargetState::GROUND;
     }
     m_eiAutoPath = *(new EIAutoPath(targ, frc::SmartDashboard::GetBoolean("cone", false)));
-    m_eiAutoPath.Init(m_EI);
+    m_eiAutoPath.EnableDBG();
+    m_eiAutoPath.Init(m_EI, m_rollers);
     m_eiAutoPath.Start();
   }
   m_eiAutoPath.AutonomousPeriodic();
@@ -243,7 +247,7 @@ void Robot::periodicAutoStagesDBG(){
       targ =ElevatorIntake::TargetState::GROUND;
     }
     m_eiAutoPath = *(new EIAutoPath(targ, frc::SmartDashboard::GetBoolean("cone", false)));
-    m_eiAutoPath.Init(m_EI);
+    m_eiAutoPath.Init(m_EI, m_rollers);
     m_initpaths.push_back({frc::SmartDashboard::GetNumber("cue", -1.0), m_eiAutoPath});
   }
   // print paths to be in stage
@@ -280,6 +284,11 @@ void Robot::periodicAutoStagesDBG(){
 void Robot::RobotPeriodic()
 {
   m_EI.Periodic();
+  m_rollers.Periodic();
+  m_lidar.Periodic();
+  m_rollers.UpdateLidarData(m_lidar.getData());
+  // m_EI.UpdateLidarData(m_lidar.getData());
+
   // m_eiAutoPath.Periodic();
   // frc::SmartDashboard::PutBoolean("Pos Currently executing", m_autoLineup.GetPosExecuteState() == AutoLineup::EXECUTING_TARGET);
   // frc::SmartDashboard::PutBoolean("Ang Currently executing", m_autoLineup.GetAngExecuteState() == AutoLineup::EXECUTING_TARGET);
@@ -379,8 +388,9 @@ void Robot::RobotPeriodic()
  * make sure to add them to the chooser code above as well.
  */
 void Robot::AutonomousInit() {
-
- // m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
+  initEIAutoDBG();
+  // initAutoStagesDBG();
+  //m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
   // TESTING CODE
   // MAKE SURE BLUE RIGHT OR ELSE ROBOT WILL UNALIVE ITSELF
   // m_autoPath.AddPoses(AutoPaths::BIG_BOY);
@@ -392,8 +402,8 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic(){
-  // periodicEIAutoDBG();
-  periodicAutoStagesDBG();
+  periodicEIAutoDBG();
+  // periodicAutoStagesDBG();
 
   // m_swerve_auto.AutonomousPeriodic();
   // m_auto_manager.AutonomousPeriodic();

@@ -84,6 +84,8 @@ class Robot : public frc::TimedRobot {
   AutoLineup m_autoLineup;
   //AutoManager m_auto_manager;
   ElevatorIntake m_EI{};
+  Rollers m_rollers{};
+  LidarReader m_lidar;
   EIAutoPath m_eiAutoPath{ElevatorIntake::TargetState::STOWED, false};
   std::vector<AutoPathInit> m_initpaths;
   AutoStage m_testStage;

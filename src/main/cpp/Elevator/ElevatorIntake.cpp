@@ -193,10 +193,14 @@ void ElevatorIntake::ScoreHigh(){
 }
 
 double ElevatorIntake::GetWristCompletion(){
+    //std::cout << "calling get w comp" << std::endl;
+    if (fabs(m_targIntakeAng-m_startIntakeAng) == 0.0) return -1.0;
     return fabs(m_targIntakeAng - m_intake.GetPos())/fabs(m_targIntakeAng-m_startIntakeAng);
 }
 double ElevatorIntake::GetElevatorCompletion(){
-    return fabs(m_targElevatorPos - m_elevator.GetPos())/fabs(m_targElevatorPos-m_startIntakeAng);
+    //std::cout << "calling get e comp" << std::endl;
+    if (fabs(m_targElevatorPos-m_startElevatorPos) == 0.0) return -1.0;
+    return fabs(m_targElevatorPos - m_elevator.GetPos())/fabs(m_targElevatorPos-m_startElevatorPos);
 }
 
 void ElevatorIntake::ScoreMid(){

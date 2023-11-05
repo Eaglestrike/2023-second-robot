@@ -10,6 +10,8 @@ void TwoPieceDock::Init() {
     m_r.SetCone(true);
     m_ei.ScoreHigh();
 
+    m_ap.ResetMultiplier();
+
     // sorry for baad code
     PIECE_2_GND = ORIG_PIECE_2_GND;
     PIECE_2_SCORE = ORIG_PIECE_2_SCORE;

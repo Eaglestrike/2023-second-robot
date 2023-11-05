@@ -163,13 +163,13 @@ void Robot::RobotInit()
   m_autoChooser.AddOption("Dumb Dock", "Dumb Dock");
   m_autoChooser.AddOption("Sad Auto", "Sad Auto");
 
-  // frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
-  // frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
-  // frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
+  frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
+  frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
+  frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
 
-  // frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
-  // frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
-  // frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
+  frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
+  frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
+  frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
 
   frc::SmartDashboard::PutNumber("ltrans kP", LineupConstants::TRANS_KP);
   frc::SmartDashboard::PutNumber("ltrans kI", LineupConstants::TRANS_KI);

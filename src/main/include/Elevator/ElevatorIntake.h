@@ -68,7 +68,7 @@ class ElevatorIntake{
 
         bool m_useLidar = true;
 
-        Elevator m_elevator{true, true};
+        Elevator m_elevator{true, false};
         Intake m_intake;
 
         IntakeElevatorConstants::GamePieceInfo coneinfo = IntakeElevatorConstants::coneScoreInfo;

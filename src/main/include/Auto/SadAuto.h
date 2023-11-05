@@ -5,20 +5,23 @@
 #include "Auto/BaseAuto.h"
 #include <string>
 #include <frc/Timer.h>
+#include <iostream>
+
+#include "Elevator/Intake/Rollers.h"
+
 
 class SadAuto {
 public:
     enum State {
         NOT_STARTED,
         PLACING_UP,
-        PLACING_DOWN,
         PLACING_ROLLERS,
         STOWING,
         MOVING,
         DONE
     };
 
-    SadAuto(SwerveControl& swerve_control, ElevatorIntake& elevator_intake);
+    SadAuto(ElevatorIntake& elevator_intake, Rollers& roller);
 
     void Start();
     void Periodic();
@@ -32,14 +35,15 @@ public:
 private:
     State m_state;
 
-    SwerveControl &m_swerveDrivebase;
     frc::Timer timer{};
     ElevatorIntake &m_ei;
+    Rollers &m_rollers;
 
-    svector::Vector2D target{2.0, 0.0};
+    svector::Vector2D target{0.5, 0.0};
     
     std::string StateToString(State state);
 
     double time_with_velocity = 1.0;
-    double prevTime = 0.02;
+    double time_outtaking = 2.0;
+    svector::Vector2D m_vel{0.0, 0.0};
 };

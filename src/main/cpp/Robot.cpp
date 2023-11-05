@@ -39,7 +39,7 @@ Robot::Robot():
       m_lidar{true, false},
       m_client{"10.1.14.107", 5807, 500, 5000},
       m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
-      m_sadAuto{*m_swerveController, m_elevatorIntake},
+      m_sadAuto{m_elevatorIntake, m_rollers},
       m_red{false},
       m_posVal{0},
       m_heightVal{0}
@@ -427,8 +427,6 @@ void Robot::AutonomousInit()
 
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
     m_twoPieceDock.Init();
-  } else if (m_autoChooser.GetSelected() == "Sad Auto") {
-    m_sadAuto.Start();
   }
 }
 
@@ -458,6 +456,7 @@ void Robot::AutonomousPeriodic()
 
   else if (m_autoChooser.GetSelected() == "Sad Auto") {
     m_sadAuto.Periodic();
+    m_swerveController->SetRobotVelocity(m_sadAuto.GetVelocity(), 0, curYaw, deltaT);
   }
   m_swerveController->Periodic();
   m_prevTime = curTime;

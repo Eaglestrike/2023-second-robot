@@ -21,7 +21,6 @@ void Intake::CorePeriodic(){
 // teleop periodic runs on state machine
 void Intake::CoreTeleopPeriodic(){
     double wristVolts = 0;
-    double spikeCur;
     switch (m_state){
         case MOVING:
             UpdateTargetPose(); // bc still using motion profile 
@@ -39,6 +38,12 @@ void Intake::CoreTeleopPeriodic(){
             break;
         case MANUAL:
             wristVolts = m_manualVolts;
+            break;
+        case STOPPED:
+            [[fallthrough]];
+        default:
+            wristVolts = 0.0;
+            break;
     }
     if (shuff_.isEnabled()){
         shuff_.PutNumber("wrist volts", wristVolts, {2,1,0,1});

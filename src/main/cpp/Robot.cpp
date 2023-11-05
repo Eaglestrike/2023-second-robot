@@ -76,11 +76,8 @@ Robot::Robot():
     frc::SmartDashboard::PutData("Field", &m_field);
     // END UNCOMMENT
 
-    int expectedId = Utils::GetExpectedTagId(m_posVal, m_red);
-
     // process camera data
     std::vector<double> camData = m_client.GetData();
-    bool isCorrecting = false;
     if (!m_isAutoLineup && !m_isTrimming && m_client.HasConn() && !m_client.IsStale()) {
       int camId = static_cast<int>(camData[0]);
       int tagId = static_cast<int>(camData[1]);
@@ -101,16 +98,12 @@ Robot::Robot():
       // frc::SmartDashboard::PutBoolean("Good ID", res);
       if (!res) {
         tagId = 0;
-      } else {
-        isCorrecting = true;
-        // std::cout << "good " << tagId << " " << Utils::GetCurTimeMs() << std::endl;
       }
       frc::SmartDashboard::PutNumber("tag Id", tagId);
       m_isFirstTag = true;
     } else {
       m_isFirstTag = false;
     }
-    // frc::SmartDashboard::PutBoolean("Is correcting", isCorrecting);
 
     // other odometry
     double angNavX = Utils::DegToRad(m_navx->GetYaw());
@@ -176,7 +169,7 @@ void Robot::RobotInit()
   // wpi::log::DataLog& log = frc::DataLogManager::GetLog();
   // m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
   // m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
-
+  m_elevatorIntake.Init();
   m_lidar.Init();
   m_client.Init();
 }
@@ -286,31 +279,9 @@ void Robot::RobotPeriodic()
   //   // elevator_.UpdateShuffleboard();
   // }
 
-  // if (m_controller.getPressed(ELEVATOR_EXTEND_STOWED)) {
-  //   // elevator_.Stow();
-  // }
-  // else if (m_controller.getPressed(ELEVATOR_EXTEND_LOW)) {
-  //   // elevator_.ExtendLow();
-  // }
-  // else if (m_controller.getPressed(ELEVATOR_EXTEND_MID)) {
-  //   // elevator_.ExtendMid();
-  // }
-  // else if (m_controller.getPressed(ELEVATOR_EXTEND_HIGH)) {
-  //   // elevator_.ExtendHigh();
-  // }
-  // else{
-  //   // elevator_.HoldPosition();
-  // }
-
-  // if (m_controller.getRawAxis(ELEVATOR_SET_MANUAL) > 0.75) {
-  //   // elevator_.setManualVolts(m_controller.getRawAxis(ELEVATOR_RANGE));
-  // }
-
-
   m_elevatorIntake.Periodic();
   m_lidar.Periodic();
 
-  m_elevatorIntake.UpdateLidarData(m_lidar.getData());
   m_rollers.UpdateLidarData(m_lidar.getData());
 }
 
@@ -360,7 +331,6 @@ void Robot::TeleopInit() {
 
 void Robot::TeleopPeriodic() {
   double curTime = Utils::GetCurTimeS();
-  double time1 = curTime;
   double deltaT = curTime - m_prevTime;
 
   double lx = m_controller.getWithDeadContinuous(SWERVE_STRAFEX, 0.1);
@@ -483,8 +453,6 @@ void Robot::TeleopPeriodic() {
   m_autoLineup.Periodic();
   m_swerveController->Periodic();
 
-  double time2 = Utils::GetCurTimeS();
-
   // frc::SmartDashboard::PutString("pos:", m_pos.toString());
   // frc::SmartDashboard::PutString("vel:", vel.toString());
   // frc::SmartDashboard::PutString("setVel:", setVel.toString());
@@ -530,16 +498,6 @@ void Robot::TeleopPeriodic() {
   
   m_elevatorIntake.TeleopPeriodic();
   m_rollers.Periodic();
-  double time3 = Utils::GetCurTimeS();
-
-  // frc::SmartDashboard::PutNumber("swerve time", time2 - time1);
-  // frc::SmartDashboard::PutNumber("el time", time3 - time2);
-
-  // if (time2 - time1 > 0.01) {
-  //   std::cout << "Swerve Time Overrun" << std::endl;
-  // } else {
-  //   std::cout << "El Time Overrun" << std::endl;
-  // }
 
   m_prevTime = curTime;
 }

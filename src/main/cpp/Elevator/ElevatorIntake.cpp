@@ -9,6 +9,7 @@ ElevatorIntake::ElevatorIntake(std::string name, bool enabled, bool shuffleboard
 }
 
 void ElevatorIntake::CoreInit() {
+    m_intake.Init();
     m_elevator.Init();
 }
 
@@ -32,10 +33,6 @@ void ElevatorIntake::Stow(){
     m_targElevatorPos = ElevatorConstants::STOWED_HEIGHT;
     m_targIntakeAng =  IntakeConstants::STOWED_POS;
     m_targState = STOWED;
-}
-
-void ElevatorIntake::UpdateLidarData(LidarReader::LidarData lidarData){
-    m_intake.UpdateLidarData(lidarData);
 }
 
 void ElevatorIntake::CoreTeleopPeriodic(){

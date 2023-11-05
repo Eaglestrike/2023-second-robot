@@ -41,7 +41,6 @@ class ElevatorIntake : public Mechanism{
         void IntakeFlange();
         void IntakeFromHPS();
 
-        void UpdateLidarData(LidarReader::LidarData lidarData);
         bool CanMoveFast() const;
         
         void SetManualVolts(double elevator, double intake);

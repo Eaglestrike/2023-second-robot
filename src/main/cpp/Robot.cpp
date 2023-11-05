@@ -425,6 +425,8 @@ void Robot::AutonomousInit()
   m_autoDock.SetSide(m_red);
   m_twoPieceDock.SetSide(m_red);
 
+  m_autoPath.ResetMultiplier();
+
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
     m_twoPieceDock.Init();
   }
@@ -451,6 +453,7 @@ void Robot::AutonomousPeriodic()
       driveVel = m_autoDock.GetVel();
       angVel = 0;
     } 
+    frc::SmartDashboard::PutString("Drive vel", driveVel.toString());
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   }
 

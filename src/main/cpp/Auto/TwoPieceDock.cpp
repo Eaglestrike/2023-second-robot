@@ -3,14 +3,14 @@
 #include "Util/Utils.h"
 #include "GeneralConstants.h"
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 void TwoPieceDock::Init() {
     m_ei.Init();
     m_state = PLACE1_UP;
     m_ei.SetCone(true);
     m_r.SetCone(true);
     m_ei.ScoreHigh();
-
-    m_ap.ResetMultiplier();
 
     // sorry for baad code
     PIECE_2_GND = ORIG_PIECE_2_GND;
@@ -35,6 +35,8 @@ void TwoPieceDock::Periodic() {
     m_ap.UpdateOdom(m_curPos, m_curAng, m_curWheelVel);
     m_r.UpdateLidarData(m_lidarData);
 
+    frc::SmartDashboard::PutNumber("2piece state", m_state);
+
     switch (m_state) {
         case NOT_STARTED:
             break;
@@ -42,7 +44,7 @@ void TwoPieceDock::Periodic() {
             if (m_ei.IsDone()) {
                 m_state = PLACE1_HOLD;
                 m_r.Outtake();
-                m_startTime = Utils::GetCurTimeS();
+                m_startTime = curTime;
             }
             break;
         case PLACE1_HOLD:
@@ -56,20 +58,20 @@ void TwoPieceDock::Periodic() {
             if (m_ei.IsDone()) {
                 m_state = GO_TO_PIECE_2;
                 m_ap.ResetPath();
-                m_ap.AddPose({curTime, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
-                PIECE_2_GND.time += curTime;
+                m_ap.AddPose({0, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
                 m_ap.AddPose(PIECE_2_GND);
                 m_ap.StartMove();
+                m_startTime = curTime;
             }
             break;
         case GO_TO_PIECE_2:
-            if (curTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET) {
+            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET) {
                 m_ei.SetCone(false);
                 m_r.SetCone(false);
                 m_ei.IntakeFromGround();
                 m_r.Intake();
                 m_state = INTAKE2;
-                m_startTime = Utils::GetCurTimeS();
+                m_startTime = curTime;
             }
             break;
         case INTAKE2:
@@ -77,19 +79,22 @@ void TwoPieceDock::Periodic() {
                 m_ei.Stow();
                 m_state = GO_TO_GRID_2;
                 m_ap.ResetPath();
-                m_ap.AddPose({curTime, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
-                PIECE_2_SCORE.time += curTime;
+                m_ap.AddPose({0, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
                 // IF WRONG, FLIP
-                if (m_red & m_lidarData.hasCube) {
-                    PIECE_2_SCORE.y -= m_lidarData.cubePos;
-                } else {
-                    PIECE_2_SCORE.y += m_lidarData.cubePos;
+                if (m_lidarData.hasCube) {
+                    if (m_red) {
+                        PIECE_2_SCORE.y -= m_lidarData.cubePos / 100.0;
+                    } else {
+                        PIECE_2_SCORE.y += m_lidarData.cubePos / 100.0;
+                    }
                 }
+                m_startTime = curTime;
+                m_ap.AddPose(PIECE_2_SCORE);
                 m_ap.StartMove();
             }
             break;
         case GO_TO_GRID_2:
-            if (curTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET) {
+            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET) {
                 m_ei.ScoreHigh();
                 m_state = PLACE2_UP;
             }
@@ -98,7 +103,7 @@ void TwoPieceDock::Periodic() {
             if (m_ei.IsDone()) {
                 m_state = PLACE2_HOLD;
                 m_r.Outtake();
-                m_startTime = Utils::GetCurTimeS();
+                m_startTime = curTime;
             }
             break;
         case PLACE2_HOLD:
@@ -112,18 +117,19 @@ void TwoPieceDock::Periodic() {
             if (m_ei.IsDone()) {
                 m_state = GO_TO_PIECE_3;
                 m_ap.ResetPath();
-                m_ap.AddPose({curTime, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
-                PIECE_3_MID.time += curTime;
-                PIECE_3_GND.time += curTime;
+                m_ap.AddPose({0, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
+                m_ap.AddPose(PIECE_3_MID);
+                m_ap.AddPose(PIECE_3_GND);
+                m_startTime = curTime;
                 m_ap.StartMove();
             }
             break;
         case GO_TO_PIECE_3:
-            if (curTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET) {
+            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET) {
                 m_ei.IntakeFromGround();
                 m_r.Intake();
                 m_state = INTAKE3;
-                m_startTime = Utils::GetCurTimeS();
+                m_startTime = curTime;
             }
             break;
         case INTAKE3:
@@ -131,14 +137,14 @@ void TwoPieceDock::Periodic() {
                 m_ei.Stow();
                 m_state = GO_TO_DOCK;
                 m_ap.ResetPath();
-                m_ap.AddPose({curTime, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
+                m_ap.AddPose({0, m_curPos.x(), m_curPos.y(), 0, 0, m_curAng, 0});
                 m_ap.AddPose(PRE_DOCK);
-                PRE_DOCK.time += curTime;
                 m_ap.StartMove();
+                m_startTime = curTime;
             }
             break;
         case GO_TO_DOCK:
-            if (curTime > m_ap.GreatestTime()) {
+            if (curTime - m_startTime > m_ap.GreatestTime()) {
                 m_state = CAN_DOCK;
             }
             break;

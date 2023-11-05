@@ -40,6 +40,7 @@ public:
   vec::Vector2D GetVel() const;
   double GetAngVel() const;
   ExecuteState GetExecuteState() const;
+  double GreatestTime() const;
 
 private:
   vec::Vector2D m_curPos;

@@ -318,3 +318,11 @@ AutoPath::ExecuteState AutoPath::GetExecuteState() const {
   return m_curState;
 }
 
+/**
+ * Gets greatest time of setpoints
+ * 
+ * @returns greatest time
+*/
+double AutoPath::GreatestTime() const {
+  return m_calcTrans.getHighestTime();
+}

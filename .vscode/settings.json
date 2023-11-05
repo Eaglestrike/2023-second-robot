@@ -86,6 +86,7 @@
         "__tree": "cpp",
         "__tuple": "cpp",
         "ios": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "*.inc": "cpp"
     }
 }

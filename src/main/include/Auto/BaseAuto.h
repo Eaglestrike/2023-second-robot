@@ -3,6 +3,7 @@
 #include "Drive/AutoLineup.h"
 #include "Drive/AutoPath.h"
 #include "Elevator/ElevatorIntake.h"
+#include "Elevator/Intake/Rollers.h"
 
 #include "Util/thirdparty/simplevectors.hpp"
 
@@ -10,7 +11,7 @@ namespace vec = svector;
 
 class BaseAuto {
 public:
-    BaseAuto(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap);
+    BaseAuto(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap, Rollers &r);
 
     virtual void Init();
     virtual void Periodic();
@@ -19,7 +20,7 @@ public:
     virtual vec::Vector2D GetDriveVel();
     virtual double GetAngVel();
 
-private:
+protected:
     vec::Vector2D m_curPos; 
     double m_curAng; 
     vec::Vector2D m_curWheelVel;
@@ -28,4 +29,5 @@ private:
     ElevatorIntake &m_ei;
     AutoLineup &m_al;
     AutoPath &m_ap;
+    Rollers &m_r;
 };

@@ -1,7 +1,7 @@
 #include "Auto/BaseAuto.h"
 
-BaseAuto::BaseAuto(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap)
-    : m_curAng{0}, m_curTilt{0}, m_ei{ei}, m_al{al}, m_ap{ap} {}
+BaseAuto::BaseAuto(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap, Rollers &r)
+    : m_curAng{0}, m_curTilt{0}, m_ei{ei}, m_al{al}, m_ap{ap}, m_r{r} {}
 
 void BaseAuto::UpdateOdom(vec::Vector2D pos, double ang, vec::Vector2D wheelVel, double tilt) {
     m_curPos = pos;

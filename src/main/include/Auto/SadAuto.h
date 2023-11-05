@@ -2,19 +2,23 @@
 
 #include "Drive/AutoLineup.h"
 #include "Elevator/ElevatorIntake.h"
+#include "Auto/BaseAuto.h"
+#include <string>
+#include <frc/Timer.h>
 
 class SadAuto {
 public:
     enum State {
         NOT_STARTED,
         PLACING_UP,
-        PLACING_ROLLERS,
         PLACING_DOWN,
+        PLACING_ROLLERS,
+        STOWING,
         MOVING,
         DONE
     };
 
-    SadAuto();
+    SadAuto(SwerveControl& swerve_control, ElevatorIntake& elevator_intake);
 
     void Start();
     void Periodic();
@@ -23,9 +27,19 @@ public:
     State GetCurState();
     vec::Vector2D GetVelocity();
 
+    void debugChangeTime(double new_time);
+
 private:
     State m_state;
 
-    AutoLineup &m_autoLineup;
+    SwerveControl &m_swerveDrivebase;
+    frc::Timer timer{};
     ElevatorIntake &m_ei;
+
+    svector::Vector2D target{2.0, 0.0};
+    
+    std::string StateToString(State state);
+
+    double time_with_velocity = 1.0;
+    double prevTime = 0.02;
 };

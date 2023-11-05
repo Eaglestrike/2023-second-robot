@@ -9,6 +9,22 @@ using SwervePose = AutoPaths::SwervePose;
 inline std::string toString(bool b){
     return b ? "true":"false";
 }
+
+ThreePiece::ThreePiece(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap, Rollers &r):
+    BaseAuto(ei, al, ap, r),
+    shuff_("Three Piece", true)
+{
+    shuff_.add("first cone", &m_setup.firstCone, {1,1,0,0}, true);
+    shuff_.add("second cone", &m_setup.secondCone, {1,1,1,0}, true);
+    shuff_.add("third cone", &m_setup.thirdCone, {1,1,2,0}, true);
+
+    shuff_.PutInteger("first height", m_targetHeights.first, {1,1,0,1});
+    shuff_.PutInteger("second height", m_targetHeights.second, {1,1,1,1});
+    shuff_.PutInteger("third height", m_targetHeights.third, {1,1,2,1});
+    
+    shuff_.PutInteger("State", m_state, {1,1,0,2});
+}
+
 /**
  * Setup the objects
  * 
@@ -29,6 +45,10 @@ void ThreePiece::setTarget(ElevatorTarget firstTarget, ElevatorTarget secondTarg
 }
 
 void ThreePiece::Init(){
+    shuff_.update(true);
+    m_targetHeights.first = (ElevatorTarget)shuff_.GetInteger("second height", m_targetHeights.second);
+    m_targetHeights.second = (ElevatorTarget)shuff_.GetInteger("first height", m_targetHeights.first);
+    m_targetHeights.third = (ElevatorTarget)shuff_.GetInteger("third height", m_targetHeights.third);
     CalcPositions();
 
     m_autoStartTime = Utils::GetCurTimeS();
@@ -181,6 +201,8 @@ void ThreePiece::Periodic(){
     m_ei.TeleopPeriodic();
     m_ap.Periodic();
     m_r.Periodic();
+    
+    shuff_.PutInteger("State", m_state);
 }
 
 void ThreePiece::startNewPath(std::vector<SwervePose> poses){

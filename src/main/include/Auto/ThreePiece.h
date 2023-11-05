@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ShuffleboardSender/ShuffleboardSender.h"
 
 #include "Auto/BaseAuto.h"
 
@@ -36,6 +37,8 @@ class ThreePiece : public BaseAuto{
             THIRD_PLACE,
             GOING_OUT
         };
+
+        ThreePiece(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap, Rollers &r);
 
         void setSetup(bool firstCone, bool secondCone, bool thirdCone);
         void setTarget(ElevatorTarget firstTarget, ElevatorTarget secondTarget, ElevatorTarget thirdTarget);
@@ -85,4 +88,6 @@ class ThreePiece : public BaseAuto{
             SwervePose pickingThird; //Reuse navigating charge from second for third
             SwervePose placingThird;
         }m_targetPoses;
+
+        ShuffleboardSender shuff_;
 };

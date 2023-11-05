@@ -39,6 +39,7 @@ Robot::Robot():
       m_lidar{true, false},
       m_client{"10.1.14.107", 5807, 500, 5000},
       m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
+      m_threePiece{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
       m_red{false},
       m_posVal{0},
       m_heightVal{0}
@@ -117,6 +118,7 @@ Robot::Robot():
     m_autoLineup.UpdateOdom(pos, ang, wheelVel);
     m_autoPath.UpdateOdom(pos, ang, wheelVel);
     m_twoPieceDock.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData()); // doesnt need tilt
+    m_threePiece.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData()); // doesnt need tilt
     m_autoDock.UpdateOdom(roll, pitch, ang);
 
     // UNCOMMENT BELOW
@@ -418,9 +420,13 @@ void Robot::AutonomousInit()
 
   m_autoDock.SetSide(m_red);
   m_twoPieceDock.SetSide(m_red);
+  m_threePiece.SetSide(m_red);
 
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
     m_twoPieceDock.Init();
+  }
+  else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
+    m_threePiece.Init();
   }
 }
 
@@ -445,6 +451,14 @@ void Robot::AutonomousPeriodic()
       driveVel = m_autoDock.GetVel();
       angVel = 0;
     } 
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  }
+  else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
+    m_threePiece.Periodic();
+
+    vec::Vector2D driveVel = m_twoPieceDock.GetDriveVel();
+    double angVel = m_twoPieceDock.GetAngVel();
+
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   }
   m_prevTime = curTime;

@@ -45,6 +45,7 @@ class ElevatorIntake{
         void UpdateShuffleboard();
         void ManualPeriodic(double elevator, double intake);
         bool CanMoveFast() const;
+        bool IsDone() const;
 
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);

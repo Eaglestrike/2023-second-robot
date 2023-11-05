@@ -185,6 +185,9 @@ void ElevatorIntake::TeleopPeriodic(){
     }
 }
 
+bool ElevatorIntake::IsDone() const {
+    return m_movingState == DONE;
+}
 
 void ElevatorIntake::Kill(){
     m_state = STOPPED;

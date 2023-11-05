@@ -17,6 +17,7 @@ public:
     virtual void Init();
     virtual void Periodic();
     void UpdateOdom(vec::Vector2D pos, double ang, vec::Vector2D wheelVel, double tilt, LidarReader::LidarData lidarData);
+    void SetSide(bool isRed);
 
     virtual vec::Vector2D GetDriveVel();
     virtual double GetAngVel();
@@ -28,6 +29,7 @@ protected:
     vec::Vector2D m_curWheelVel;
     double m_curTilt;
     LidarReader::LidarData m_lidarData;
+    bool m_red;
 
     ElevatorIntake &m_ei;
     AutoLineup &m_al;

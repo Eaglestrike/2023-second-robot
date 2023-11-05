@@ -156,6 +156,8 @@ void Robot::RobotInit()
   m_autoChooser.AddOption("3 Piece Dock", "3 Piece Dock");
   m_autoChooser.AddOption("Dumb Dock", "Dumb Dock");
   m_autoChooser.AddOption("Sad Auto", "Sad Auto");
+  frc::SmartDashboard::PutData("auto chooser", &m_autoChooser);
+
 
   // frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
   // frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
@@ -409,6 +411,7 @@ void Robot::AutonomousInit()
 
   m_autoDock.SetSide(m_red);
   m_twoPieceDock.SetSide(m_red);
+  m_dumbDock.SetSide(!m_red);
 
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
     m_twoPieceDock.Init();
@@ -437,7 +440,31 @@ void Robot::AutonomousPeriodic()
       angVel = 0;
     } 
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  } else if (m_autoChooser.GetSelected() == "Dumb Dock"){
+    m_dumbDock.Periodic();
+    vec::Vector2D driveVel = m_dumbDock.GetVel();
+    double angVel = m_dumbDock.GetAngleVel();
+
+    if (m_dumbDock.CanDock()) {
+      if (!m_autoDock.HasStarted()) {
+        m_autoDock.Start();
+      }
+      m_autoDock.Periodic();
+      driveVel = m_autoDock.GetVel();
+      angVel = 0;
+    }
+    m_swerveController->SetAngCorrection(true);
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    m_swerveController->Periodic();
+  } else if (m_autoChooser.GetSelected() == "Sad Auto"){
+    m_dumbDock.Periodic();
+    vec::Vector2D driveVel = m_dumbDock.GetVel();
+    double angVel = m_dumbDock.GetAngleVel();
+    m_swerveController->SetAngCorrection(true);
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    m_swerveController->Periodic();
   }
+  
   m_prevTime = curTime;
 }
 
@@ -644,6 +671,7 @@ void Robot::TeleopPeriodic() {
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {
+  m_dumbDock.Reset();
   m_autoLineup.StopPos();
   m_autoLineup.StopAng();  
 }

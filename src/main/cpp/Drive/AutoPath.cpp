@@ -339,3 +339,12 @@ AutoPath::ExecuteState AutoPath::GetExecuteState() const {
 double AutoPath::GreatestTime() const {
   return m_calcTrans.getHighestTime();
 }
+
+/**
+ * Gets multiplier
+ * 
+ * @returns Multiplier
+*/
+double AutoPath::GetMultiplier() const {
+  return m_multiplier;
+}

@@ -20,18 +20,22 @@
 #include "Auto/SadAuto.h"
 #include "Auto/ThreePiece.h"
 #include "Auto/TwoPieceDock.h"
+
 #include "Controller/Controller.h"
+
 #include "Drive/AutoLineup.h"
 #include "Drive/AutoPath.h"
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
+#include "Drive/SwerveModule.h"
+
 #include "Elevator/ElevatorIntake.h"
 #include "Elevator/Intake/Rollers.h"
-#include "Drive/SwerveModule.h"
+#include "Elevator/Lidar/LidarReader.h"
+
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"
-#include "Util/Mathutil.h"
-#include "Elevator/Lidar/LidarReader.h"
+#include "Util/Utils.h"
 
 namespace vec = svector;
 

@@ -1,4 +1,4 @@
-#include "Util/Mathutil.h"
+#include "Util/Utils.h"
 
 #include <algorithm>
 #include <cmath>
@@ -246,6 +246,22 @@ FieldConstants::ScorePair Utils::GetScoringPos(int pos, int height, bool red) {
   // scoreP.second = red ? LIDAR_MAX_DIST - scoreP.second : scoreP.second;
 
   return scoreP;
+}
+
+int Utils::getPieceHeight(ElevatorConstants::ElevatorTarget target){
+  using enum ElevatorConstants::ElevatorTarget;
+  switch(target){
+    case CUSTOM:
+      return 0;
+    case LOW:
+      return 1;
+    case MID:
+      return 2;
+    case HIGH:
+      return 3;
+    case STOWED:
+      return 0;
+  }
 }
 
 /**

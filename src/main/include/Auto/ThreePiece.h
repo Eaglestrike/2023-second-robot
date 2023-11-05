@@ -6,6 +6,7 @@
 class ThreePiece : public BaseAuto{
     using ElevatorTarget = ElevatorConstants::ElevatorTarget;
     using enum ElevatorTarget;
+    using SwervePose = AutoPaths::SwervePose;
 
     //Position of pieces during auto (blue)
     const double PIECE_X = 7.068;
@@ -14,10 +15,15 @@ class ThreePiece : public BaseAuto{
     const double PIECE_Y_3 = 3.358;
     const double PIECE_Y_4 = 4.577;
     
+    //Used for navigation around
+    const double CHARGE_X = 3.826 + 1.0; //Center + width of charge station
+    const double CHARGE_Y = 2.748;
+    const double NAVIGATION_WIDTH = 2.0;//Distance from center of charge station to go around
+
     public:
         enum State{
             NONE,
-            GOING_FIRST,
+            ALIGN_FIRST,
             FIRST_PLACE,
             GOING_TO_SECOND,
             PICKING_SECOND,
@@ -41,11 +47,14 @@ class ThreePiece : public BaseAuto{
         bool DockNow() override;
 
     private:
-        bool m_hasCalcPositions;
+        void startNewPath(std::vector<SwervePose> poses);
+        void ScorePos(bool cone, ElevatorTarget target);
+
+        //Calculating targets
         void CalcPositions(); //Calculates the target positions
+        SwervePose CalcScorePositions(bool cone, ElevatorTarget target, bool coneSpots[3], int posOffset);
 
-        double m_autoStartTime;
-
+        //Structs for setup
         struct PieceSetup{
             bool firstCone = true; //Preloaded piece
             bool secondCone = false; //Outer piece
@@ -53,14 +62,26 @@ class ThreePiece : public BaseAuto{
         } m_setup;
 
         struct TargetSetup{  
-            ElevatorConstants::ElevatorTarget firstTarget = HIGH;
-            ElevatorConstants::ElevatorTarget secondTarget = HIGH;
-            ElevatorConstants::ElevatorTarget thirdTarget = MID;
-        } m_targets;
+            ElevatorTarget first = HIGH;
+            ElevatorTarget second = HIGH;
+            ElevatorTarget third = MID;
+        } m_targetHeights;
 
-        bool m_grid[3][3]; // [cone/cube/cone][low/mid/high]
+        //State logic
+        double m_autoStartTime;
 
         State m_state = NONE;
         State m_prevState = NONE;
         double m_stateStartTime;
+        SwervePose m_targetPose;
+
+        struct SwerveTargets{
+            SwervePose placingFirst;
+            SwervePose navigatingChargeForward;
+            SwervePose pickingSecond;
+            SwervePose navigatingChargeBack;
+            SwervePose placingSecond;
+            SwervePose pickingThird; //Reuse navigating charge from second for third
+            SwervePose placingThird;
+        }m_targetPoses;
 };

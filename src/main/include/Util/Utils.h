@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Drive/DriveConstants.h"
+#include "Elevator/BaseElevator/ElevatorConstants.h"
 #include "GeneralConstants.h"
 #include "thirdparty/simplevectors.hpp"
 #include "Util/UtilConstants.h"
@@ -38,6 +39,9 @@ namespace Utils {
   AutoPaths::SwervePose GetRedPose(AutoPaths::SwervePose bluePose);
   std::vector<AutoPaths::SwervePose> GetRedPoses(std::vector<AutoPaths::SwervePose> bluePoses);
   FieldConstants::ScorePair GetScoringPos(int pos, int height, bool red);
-  
+  int getPieceHeight(ElevatorConstants::ElevatorTarget target);
+
   bool IsCone(int pos);
+
+  int Utils::GetExpectedTagId(int pos, bool red);
 };

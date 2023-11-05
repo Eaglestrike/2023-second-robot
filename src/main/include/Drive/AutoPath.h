@@ -4,10 +4,11 @@
 #include <map>
 #include <vector>
 
-#include "Util/Mathutil.h"
+#include "Drive/DriveConstants.h"
+
+#include "Util/Utils.h"
 #include "Util/thirdparty/hermite.hpp"
 #include "Util/thirdparty/simplevectors.hpp"
-#include "Drive/DriveConstants.h"
 
 namespace hm = hermite;
 namespace vec = svector;

@@ -447,6 +447,7 @@ void Robot::AutonomousPeriodic()
     } 
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   }
+  m_swerveController->Periodic();
   m_prevTime = curTime;
 }
 

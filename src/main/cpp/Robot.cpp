@@ -100,6 +100,11 @@ Robot::Robot():
 
     // other odometry
     double angNavX = Utils::DegToRad(m_navx->GetYaw());
+    double pitch = Utils::DegToRad(m_navx->GetPitch());
+    double roll = Utils::DegToRad(m_navx->GetRoll());
+    pitch = Utils::NormalizeAng(pitch - SwerveConstants::PITCH_OFFSET);
+    roll = Utils::NormalizeAng(roll - SwerveConstants::ROLL_OFFSET);
+
     vec::Vector2D velWorld = m_swerveController->GetRobotVelocity(angNavX + m_startAng);
 
     m_odometry.Periodic(angNavX, velWorld);
@@ -111,7 +116,8 @@ Robot::Robot():
 
     m_autoLineup.UpdateOdom(pos, ang, wheelVel);
     m_autoPath.UpdateOdom(pos, ang, wheelVel);
-    m_twoPieceDock.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData());
+    m_twoPieceDock.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData()); // doesnt need tilt
+    m_autoDock.UpdateOdom(roll, pitch, ang);
 
     // UNCOMMENT BELOW
     frc::SmartDashboard::PutString("Robot pos", pos.toString());

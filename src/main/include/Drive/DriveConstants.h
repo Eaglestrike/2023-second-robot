@@ -76,6 +76,9 @@ namespace SwerveConstants
   const double NORMAL_SWERVE_MULT = 12.0;
   const double SLOW_SWERVE_MULT = 3.0;
 
+  const double PITCH_OFFSET = 0;
+  const double ROLL_OFFSET = 0;
+
   struct SwerveConfig{
     std::string name;
     std::size_t driveMotorId;

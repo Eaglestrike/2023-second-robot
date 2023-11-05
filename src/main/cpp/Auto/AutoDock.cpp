@@ -190,20 +190,19 @@ void AutoDock::Periodic() {
 }
 
 /**
- * Gets tilt from roll, pitch, yaw
- * 
- * Credit: https://www.reddit.com/r/askmath/comments/107g72d/tilt_angle_when_pitch_roll_is_known/ 
- * 
- * I'm not sure if this works
+ * Gets tilt from roll, pitch, yaw using Caleb method
  * 
  * @returns Tilt
 */
 double AutoDock::GetTilt() const {
+  // Credit: https://www.reddit.com/r/askmath/comments/107g72d/tilt_angle_when_pitch_roll_is_known/ 
   // double x = -std::sin(m_yaw) * std::cos(m_roll);
   // double y = std::cos(m_yaw) * std::cos(m_pitch) - std::sin(m_yaw) * std::sin(m_pitch) * std::sin(m_roll);
-  double z = std::cos(m_yaw) * std::sin(m_pitch) + std::sin(m_yaw) * std::cos(m_pitch) * std::sin(m_roll);
+  // double z = std::cos(m_yaw) * std::sin(m_pitch) + std::sin(m_yaw) * std::cos(m_pitch) * std::sin(m_roll);
 
-  return std::asin(std::clamp(z, -1.0, 1.0));
+  // return std::asin(std::clamp(z, -1.0, 1.0));
+
+  return m_pitch * std::sin(m_yaw) - m_roll * std::cos(m_yaw);
 }
 
 bool AutoDock::HasStarted() const {

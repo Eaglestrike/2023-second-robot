@@ -43,5 +43,5 @@ namespace Utils {
 
   bool IsCone(int pos);
 
-  int Utils::GetExpectedTagId(int pos, bool red);
+  int GetExpectedTagId(int pos, bool red);
 };

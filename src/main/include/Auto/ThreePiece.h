@@ -18,7 +18,8 @@ class ThreePiece : public BaseAuto{
     //Used for navigation around
     const double CHARGE_X = 3.826 + 1.0; //Center + width of charge station
     const double CHARGE_Y = 2.748;
-    const double NAVIGATION_WIDTH = 2.0;//Distance from center of charge station to go around
+    const double NAV_WIDTH = 2.0;//Distance from center of charge station to go around
+    const double NAV_VEL = 3.0;
 
     public:
         enum State{
@@ -77,9 +78,9 @@ class ThreePiece : public BaseAuto{
 
         struct SwerveTargets{
             SwervePose placingFirst;
-            SwervePose navigatingChargeForward;
+            SwervePose navChargeForward; //Moving past the charge station
             SwervePose pickingSecond;
-            SwervePose navigatingChargeBack;
+            SwervePose navChargeBack; //Moving back from charge station
             SwervePose placingSecond;
             SwervePose pickingThird; //Reuse navigating charge from second for third
             SwervePose placingThird;

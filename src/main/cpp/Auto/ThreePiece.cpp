@@ -7,7 +7,7 @@ using enum ElevatorTarget;
 using SwervePose = AutoPaths::SwervePose;
 
 inline std::string toString(bool b){
-    return b?"true":"false";
+    return b ? "true":"false";
 }
 /**
  * Setup the objects
@@ -72,7 +72,7 @@ void ThreePiece::Periodic(){
         case GOING_TO_SECOND:
             if(m_prevState != m_state){
                 m_stateStartTime = curTime;
-                startNewPath({m_targetPoses.navigatingChargeForward , m_targetPoses.pickingSecond});
+                startNewPath({m_targetPoses.navChargeForward , m_targetPoses.pickingSecond});
             }
             else if(distanceToTarget < 0.3){
                 m_state = PICKING_SECOND;
@@ -98,11 +98,12 @@ void ThreePiece::Periodic(){
         case COMING_FROM_SECOND:
             if(m_prevState != m_state){
                 m_stateStartTime = curTime;
-                startNewPath({m_targetPoses.navigatingChargeBack , m_targetPoses.placingSecond});
+                startNewPath({m_targetPoses.navChargeBack , m_targetPoses.placingSecond});
             }
             else if(distanceToTarget < 0.3){
                 m_state = SECOND_PLACE;
             }
+            break;
         case SECOND_PLACE:
             if(m_prevState != m_state){
                 m_stateStartTime = curTime;
@@ -122,7 +123,7 @@ void ThreePiece::Periodic(){
                     startNewPath({m_targetPoses.pickingThird});
                 }
                 else{
-                    startNewPath({m_targetPoses.navigatingChargeForward , m_targetPoses.pickingThird});
+                    startNewPath({m_targetPoses.navChargeForward , m_targetPoses.pickingThird});
                 }
             }
             else if(distanceToTarget < 0.3){
@@ -146,11 +147,12 @@ void ThreePiece::Periodic(){
         case COMING_FROM_THIRD:
             if(m_prevState != m_state){
                 m_stateStartTime = curTime;
-                startNewPath({m_targetPoses.navigatingChargeBack , m_targetPoses.placingThird});
+                startNewPath({m_targetPoses.navChargeBack , m_targetPoses.placingThird});
             }
             else if(distanceToTarget < 0.3){
                 m_state = THIRD_PLACE;
             }
+            break;
         case THIRD_PLACE:
             if(m_prevState != m_state){
                 ScorePos(m_setup.thirdCone, m_targetHeights.third);
@@ -165,7 +167,7 @@ void ThreePiece::Periodic(){
         case GOING_OUT:
             if(m_prevState != m_state){
                 m_stateStartTime = curTime;
-                startNewPath({m_targetPoses.navigatingChargeForward , m_targetPoses.pickingSecond});
+                startNewPath({m_targetPoses.navChargeForward , m_targetPoses.pickingSecond});
             }
             else if(distanceToTarget < 0.3){
                 m_state = NONE;
@@ -219,15 +221,49 @@ bool ThreePiece::DockNow(){
 }
 
 void ThreePiece::CalcPositions(){
+    double forwardAng = m_red ? M_PI : 0.0;
     bool top = y(m_curPos) > 2.74;
     bool left = top^m_red;
     int posOffset = left? 1 : 9;
+    printf("top: %s, left: %s, offset: %d", toString(top).data(), toString(left).data(), posOffset);
 
     //Placing locations
     bool coneSpots[3] {false}; //If a cone is placed on the outer column
     m_targetPoses.placingFirst = CalcScorePositions(m_setup.firstCone, m_targetHeights.first, coneSpots, posOffset);
     m_targetPoses.placingSecond = CalcScorePositions(m_setup.secondCone, m_targetHeights.second, coneSpots, posOffset);
     m_targetPoses.placingThird = CalcScorePositions(m_setup.thirdCone, m_targetHeights.third, coneSpots, posOffset);
+
+    //Picking pieces
+    m_targetPoses.pickingSecond = {
+        .time = 0.0,
+        .x = PIECE_X, .y = top? PIECE_Y_4 : PIECE_Y_1,
+        .vx = 0.0, .vy = 0.0,
+        .ang = forwardAng, .angVel = 0.0
+    };
+    m_targetPoses.pickingThird = {
+        .time = 0.0,
+        .x = PIECE_X, .y = top? PIECE_Y_3 : PIECE_Y_2,
+        .vx = 0.0, .vy = 0.0,
+        .ang = forwardAng + left? -60.0 : 60.0, .angVel = 0.0
+    };
+    if(m_red){
+        m_targetPoses.pickingSecond = Utils::GetRedPose(m_targetPoses.pickingSecond);
+        m_targetPoses.pickingThird = Utils::GetRedPose(m_targetPoses.pickingThird);
+    }
+
+    //Navigating Charge station
+    m_targetPoses.navChargeForward = {
+        .time = 0.0,
+        .x = CHARGE_X, .y = CHARGE_Y + (top? NAV_WIDTH : -NAV_WIDTH),
+        .vx = NAV_VEL, .vy = 0.0,
+        .ang = forwardAng, .angVel = 0.0
+    };
+    if(m_red){
+        m_targetPoses.navChargeForward = Utils::GetRedPose(m_targetPoses.navChargeForward);
+    }
+    m_targetPoses.navChargeBack = m_targetPoses.navChargeForward;
+    m_targetPoses.navChargeBack.vx *= -1.0;
+    m_targetPoses.navChargeBack.vy *= -1.0;
 }
 
 /**
@@ -247,7 +283,7 @@ SwervePose ThreePiece::CalcScorePositions(bool cone, ElevatorTarget target, bool
         targPos = posOffset + toCenter;
     }
     FieldConstants::ScorePair score = Utils::GetScoringPos(targPos, height, m_red);
-    printf("target: %d, %d, position: %s", targPos, height, score.first.toString());
+    printf("target: %d, %d, position: %s", targPos, height, score.first.toString().data());
     return {
         .time = 0.0,
         .x = x(score.first), .y = y(score.first),

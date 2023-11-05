@@ -15,6 +15,11 @@
 #include <frc/DataLogManager.h>
 #include <wpi/DataLog.h>
 
+#include "Auto/AutoDock.h"
+#include "Auto/DumbDock.h"
+#include "Auto/SadAuto.h"
+#include "Auto/ThreePiece.h"
+#include "Auto/TwoPieceDock.h"
 #include "Controller/Controller.h"
 #include "Drive/AutoLineup.h"
 #include "Drive/AutoPath.h"
@@ -53,6 +58,7 @@ class Robot : public frc::TimedRobot {
 
   // smartdashboard
   frc::SendableChooser<std::string> m_startPosChooser;
+  frc::SendableChooser<std::string> m_autoChooser;
   frc::Field2d m_field;
 
   // IMU acclerometer and gyroscope
@@ -74,10 +80,17 @@ class Robot : public frc::TimedRobot {
 
   //Controller
   Controller m_controller;
+  
+  // elevator and intake
+  ElevatorIntake m_elevatorIntake;
+  LidarReader m_lidar;
+  Rollers m_rollers;
 
   // auto
   AutoLineup m_autoLineup;
   AutoPath m_autoPath;
+  AutoDock m_autoDock;
+  TwoPieceDock m_twoPieceDock;
   // TEMP, for testing
   // double m_curVolts;
   // double m_prevTimeTest;
@@ -90,8 +103,4 @@ class Robot : public frc::TimedRobot {
   bool m_red;
   int m_posVal; // for auto lineup socring positions
   int m_heightVal;
-
-  ElevatorIntake m_elevatorIntake;
-  LidarReader m_lidar;
-  Rollers m_rollers;
 };

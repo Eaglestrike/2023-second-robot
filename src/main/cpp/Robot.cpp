@@ -33,11 +33,12 @@ Robot::Robot():
       m_startAng{0},
       m_joystickAng{0},
       m_odometry{&m_startPos, &m_startAng},
+      m_lidar{true, false},
       m_client{"10.1.14.107", 5807, 500, 5000},
+      m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
       m_red{false},
       m_posVal{0},
-      m_heightVal{0},
-      m_lidar{true, false}
+      m_heightVal{0}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
@@ -107,6 +108,7 @@ Robot::Robot():
 
     m_autoLineup.UpdateOdom(pos, ang, wheelVel);
     m_autoPath.UpdateOdom(pos, ang, wheelVel);
+    m_twoPieceDock.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData());
 
     // UNCOMMENT BELOW
     frc::SmartDashboard::PutString("Robot pos", pos.toString());
@@ -149,6 +151,11 @@ void Robot::RobotInit()
   m_startPosChooser.AddOption("Red M", "Red M");
   m_startPosChooser.AddOption("Red R", "Red R");
   frc::SmartDashboard::PutData("Starting pos", &m_startPosChooser);
+
+  m_autoChooser.SetDefaultOption("2 Piece Dock", "2 Piece Dock");
+  m_autoChooser.AddOption("3 Piece Dock", "3 Piece Dock");
+  m_autoChooser.AddOption("Dumb Dock", "Dumb Dock");
+  m_autoChooser.AddOption("Sad Auto", "Sad Auto");
 
   // frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
   // frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
@@ -319,6 +326,48 @@ void Robot::RobotPeriodic()
   //   // elevator_.setManualVolts(m_controller.getRawAxis(ELEVATOR_RANGE));
   // }
 
+  // get position offsets (sorry for bad if statements)
+  std::string m_selected = m_startPosChooser.GetSelected();
+  if (m_selected == "Debug") {
+    m_startAng = FieldConstants::DEBUG_ANG;
+    m_startPos = FieldConstants::DEBUG_POS;
+    m_joystickAng = FieldConstants::DEBUG_JANG;
+    m_red = false;
+  } else if (m_selected == "Blue L") {
+    m_startAng = FieldConstants::BL_ANG;
+    m_startPos = FieldConstants::BL_POS;
+    m_joystickAng = FieldConstants::BL_JANG;
+    m_red = false;
+  } else if (m_selected == "Blue M") {
+    m_startAng = FieldConstants::BM_ANG;
+    m_startPos = FieldConstants::BM_POS;
+    m_joystickAng = FieldConstants::BM_JANG;
+    m_red = false;
+  } else if (m_selected == "Blue R") {
+    m_startAng = FieldConstants::BR_ANG;
+    m_startPos = FieldConstants::BR_POS;
+    m_joystickAng = FieldConstants::BR_JANG;
+    m_red = false;
+  } else if (m_selected == "Red L") {
+    m_startAng = FieldConstants::RL_ANG;
+    m_startPos = FieldConstants::RL_POS;
+    m_joystickAng = FieldConstants::RL_JANG;
+    m_red = true;
+  } else if (m_selected == "Red M") {
+    m_startAng = FieldConstants::RM_ANG;
+    m_startPos = FieldConstants::RM_POS;
+    m_joystickAng = FieldConstants::RM_JANG;
+    m_red = true;
+  } else if (m_selected == "Red R") {
+    m_startAng = FieldConstants::RR_ANG;
+    m_startPos = FieldConstants::RR_POS;
+    m_joystickAng = FieldConstants::RR_JANG;
+    m_red = true;
+  } else {
+    m_startAng = FieldConstants::DEBUG_ANG;
+    m_startPos = FieldConstants::DEBUG_POS;
+    m_joystickAng = FieldConstants::DEBUG_JANG;
+  }
 
   m_elevatorIntake.Periodic();
   m_lidar.Periodic();
@@ -358,30 +407,37 @@ void Robot::AutonomousInit()
 
   m_swerveController->SetAngCorrection(false);
 
-  m_elevatorIntake.Stow();
+  m_autoDock.SetSide(m_red);
+  m_twoPieceDock.SetSide(m_red);
 
-  // TESTING CODE
-  // MAKE SURE BLUE RIGHT OR ELSE ROBOT WILL UNALIVE ITSELF
-  m_autoPath.AddPoses(AutoPaths::BIG_BOY);
-  m_autoPath.StartMove();
+  if (m_autoChooser.GetSelected() == "2 Piece Dock") {
+    m_twoPieceDock.Init();
+  }
 }
 
 void Robot::AutonomousPeriodic()
 {
   double curTime = Utils::GetCurTimeS();
   double deltaT = curTime - m_prevTime;
-  vec::Vector2D driveVel = m_autoPath.GetVel();
-  double angVel = m_autoPath.GetAngVel();
-
-  // std::cout << angVel << std::endl;
-
   double curYaw = m_odometry.GetAng();
+  vec::Vector2D curPos = m_odometry.GetPosition();
 
-  m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  if (m_autoChooser.GetSelected() == "2 Piece Dock") {
+    m_twoPieceDock.Periodic();
 
-  m_autoPath.Periodic();
-  m_swerveController->Periodic();
-  m_elevatorIntake.TeleopPeriodic();
+    vec::Vector2D driveVel = m_twoPieceDock.GetDriveVel();
+    double angVel = m_twoPieceDock.GetAngVel();
+
+    if (m_twoPieceDock.DockNow()) {
+      if (!m_autoDock.HasStarted()) {
+        m_autoDock.Start();
+      }
+      m_autoDock.Periodic();
+      driveVel = m_autoDock.GetVel();
+      angVel = 0;
+    } 
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  }
   m_prevTime = curTime;
 }
 
@@ -589,50 +645,7 @@ void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {
   m_autoLineup.StopPos();
-  m_autoLineup.StopAng();
-  
-  // get position offsets (sorry for bad if statements)
-  std::string m_selected = m_startPosChooser.GetSelected();
-  if (m_selected == "Debug") {
-    m_startAng = FieldConstants::DEBUG_ANG;
-    m_startPos = FieldConstants::DEBUG_POS;
-    m_joystickAng = FieldConstants::DEBUG_JANG;
-    m_red = false;
-  } else if (m_selected == "Blue L") {
-    m_startAng = FieldConstants::BL_ANG;
-    m_startPos = FieldConstants::BL_POS;
-    m_joystickAng = FieldConstants::BL_JANG;
-    m_red = false;
-  } else if (m_selected == "Blue M") {
-    m_startAng = FieldConstants::BM_ANG;
-    m_startPos = FieldConstants::BM_POS;
-    m_joystickAng = FieldConstants::BM_JANG;
-    m_red = false;
-  } else if (m_selected == "Blue R") {
-    m_startAng = FieldConstants::BR_ANG;
-    m_startPos = FieldConstants::BR_POS;
-    m_joystickAng = FieldConstants::BR_JANG;
-    m_red = false;
-  } else if (m_selected == "Red L") {
-    m_startAng = FieldConstants::RL_ANG;
-    m_startPos = FieldConstants::RL_POS;
-    m_joystickAng = FieldConstants::RL_JANG;
-    m_red = true;
-  } else if (m_selected == "Red M") {
-    m_startAng = FieldConstants::RM_ANG;
-    m_startPos = FieldConstants::RM_POS;
-    m_joystickAng = FieldConstants::RM_JANG;
-    m_red = true;
-  } else if (m_selected == "Red R") {
-    m_startAng = FieldConstants::RR_ANG;
-    m_startPos = FieldConstants::RR_POS;
-    m_joystickAng = FieldConstants::RR_JANG;
-    m_red = true;
-  } else {
-    m_startAng = FieldConstants::DEBUG_ANG;
-    m_startPos = FieldConstants::DEBUG_POS;
-    m_joystickAng = FieldConstants::DEBUG_JANG;
-  }
+  m_autoLineup.StopAng();  
 }
 
 void Robot::TestInit() {

@@ -205,3 +205,7 @@ double AutoDock::GetTilt() const {
 
   return std::asin(std::clamp(z, -1.0, 1.0));
 }
+
+bool AutoDock::HasStarted() const {
+  return m_curState != NOT_DOCKING;
+}

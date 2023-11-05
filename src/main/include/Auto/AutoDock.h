@@ -23,6 +23,7 @@ public:
 
   State GetState() const;
   vec::Vector2D GetVel() const;
+  bool HasStarted() const;
 
   void UpdateOdom(double r, double p, double y);
   void SetkTilt(double kTilt);

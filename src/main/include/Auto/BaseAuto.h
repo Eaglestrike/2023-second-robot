@@ -14,14 +14,14 @@ class BaseAuto {
 public:
     BaseAuto(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap, Rollers &r);
 
-    virtual void Init();
-    virtual void Periodic();
+    virtual void Init() = 0;
+    virtual void Periodic() = 0;
     void UpdateOdom(vec::Vector2D pos, double ang, vec::Vector2D wheelVel, double tilt, LidarReader::LidarData lidarData);
     void SetSide(bool isRed);
 
-    virtual vec::Vector2D GetDriveVel();
-    virtual double GetAngVel();
-    virtual bool DockNow();
+    virtual vec::Vector2D GetDriveVel() = 0;
+    virtual double GetAngVel() = 0;
+    virtual bool DockNow() = 0;
 
 protected:
     vec::Vector2D m_curPos; 

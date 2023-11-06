@@ -116,10 +116,12 @@ Robot::Robot():
     vec::Vector2D wheelVel = m_swerveController->GetRobotVelocity(ang);
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
 
+    double tilt = pitch * std::sin(ang) - roll * std::cos(ang);
+
     m_autoLineup.UpdateOdom(pos, ang, wheelVel);
     m_autoPath.UpdateOdom(pos, ang, wheelVel);
-    m_twoPieceDock.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData()); // doesnt need tilt
-    m_threePiece.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData()); // doesnt need tilt
+    m_twoPieceDock.UpdateOdom(pos, ang, wheelVel, tilt, m_lidar.getData()); // doesnt need tilt
+    m_threePiece.UpdateOdom(pos, ang, wheelVel, tilt, m_lidar.getData()); // doesnt need tilt
     m_autoDock.UpdateOdom(roll, pitch, ang);
 
     // UNCOMMENT BELOW

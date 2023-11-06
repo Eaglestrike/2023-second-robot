@@ -55,4 +55,6 @@ private:
     State m_state;
 
     double m_startTime;
+
+    double GetAbsAng();
 };

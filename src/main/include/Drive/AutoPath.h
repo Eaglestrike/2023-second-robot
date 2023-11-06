@@ -43,6 +43,7 @@ public:
   double GetAngVel() const;
   ExecuteState GetExecuteState() const;
   double GreatestTime() const;
+  double GetMultiplier() const;
 
 private:
   vec::Vector2D m_curPos;

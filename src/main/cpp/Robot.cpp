@@ -40,7 +40,6 @@ Robot::Robot():
       m_client{"10.1.14.107", 5807, 500, 5000},
       m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
       m_threePiece{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
-      m_sadAuto{*m_swerveController, m_elevatorIntake},
       m_red{false},
       m_posVal{0},
       m_heightVal{0}
@@ -307,9 +306,6 @@ void Robot::RobotPeriodic()
     m_odometry.Reset();
   }
 
-  double new_time = frc::SmartDashboard::GetNumber("sad auto move time", 1.0);
-  m_sadAuto.debugChangeTime(new_time);
-
   // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
   // frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
   // frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
@@ -427,6 +423,9 @@ void Robot::AutonomousInit()
   m_autoDock.SetSide(m_red);
   m_twoPieceDock.SetSide(m_red);
   m_threePiece.SetSide(m_red);
+  m_dumbDock.SetSide(!m_red);
+
+  m_autoPath.ResetMultiplier();
 
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
     m_twoPieceDock.Init();
@@ -460,7 +459,31 @@ void Robot::AutonomousPeriodic()
       driveVel = m_autoDock.GetVel();
       angVel = 0;
     } 
+    frc::SmartDashboard::PutString("Drive vel", driveVel.toString());
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  } else if (m_autoChooser.GetSelected() == "Dumb Dock"){
+    m_dumbDock.Periodic();
+    vec::Vector2D driveVel = m_dumbDock.GetVel();
+    double angVel = m_dumbDock.GetAngleVel();
+
+    if (m_dumbDock.CanDock()) {
+      if (!m_autoDock.HasStarted()) {
+        m_autoDock.Start();
+      }
+      m_autoDock.Periodic();
+      driveVel = m_autoDock.GetVel();
+      angVel = 0;
+    }
+    m_swerveController->SetAngCorrection(true);
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    m_swerveController->Periodic();
+  } else if (m_autoChooser.GetSelected() == "Sad Auto"){
+    m_dumbDock.Periodic();
+    vec::Vector2D driveVel = m_dumbDock.GetVel();
+    double angVel = m_dumbDock.GetAngleVel();
+    m_swerveController->SetAngCorrection(true);
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    m_swerveController->Periodic();
   }
   else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
     m_threePiece.Periodic();
@@ -476,6 +499,7 @@ void Robot::AutonomousPeriodic()
   }
   
   m_swerveController->Periodic();
+  
   m_prevTime = curTime;
 }
 
@@ -682,6 +706,7 @@ void Robot::TeleopPeriodic() {
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {
+  m_dumbDock.Reset();
   m_autoLineup.StopPos();
   m_autoLineup.StopAng();  
 }

@@ -4,10 +4,11 @@
 #include <map>
 #include <vector>
 
-#include "Util/Mathutil.h"
+#include "Drive/DriveConstants.h"
+
+#include "Util/Utils.h"
 #include "Util/thirdparty/hermite.hpp"
 #include "Util/thirdparty/simplevectors.hpp"
-#include "Drive/DriveConstants.h"
 
 namespace hm = hermite;
 namespace vec = svector;
@@ -30,19 +31,23 @@ public:
   void AddPose(AutoPaths::SwervePose pose);
   void AddPoses(std::vector<AutoPaths::SwervePose> poses);
   void ResetPath();
+  void ResetMultiplier();
   void SetPosPID(double kP, double kI, double kD);
   void SetAngPID(double kP, double kI, double kD);
   void Stop();
   void StartMove();
-  void UpdateOdom(vec::Vector2D curPos, double curAng);
+  void UpdateOdom(vec::Vector2D curPos, double curAng, vec::Vector2D curWheelVel);
   void Periodic();
 
   vec::Vector2D GetVel() const;
   double GetAngVel() const;
   ExecuteState GetExecuteState() const;
+  double GreatestTime() const;
+  double GetMultiplier() const;
 
 private:
   vec::Vector2D m_curPos;
+  vec::Vector2D m_curWheelVel;
   double m_curAng;
   int m_multiplier; // markplier???
 
@@ -75,7 +80,7 @@ private:
   double m_kIAng;
   double m_kDAng;
 
-  vec::Vector2D GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos); 
+  vec::Vector2D GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos, vec::Vector2D curExpectedVel); 
   double GetPIDAng(double deltaT, double curExpectedAng);
   bool AtTarget() const;
   bool AtTransTarget(double posErrTol, double velErrTol) const;

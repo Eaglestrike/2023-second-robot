@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Elevator/Intake/Intake.h"
 #include "BaseElevator/Elevator.h"
 #include "Lidar/LidarReader.h"
@@ -42,6 +43,7 @@ class ElevatorIntake : public Mechanism{
         void IntakeFromHPS();
 
         bool CanMoveFast() const;
+        bool IsDone() const;
         
         void SetManualVolts(double elevator, double intake);
         void SetCone(bool cone);
@@ -69,7 +71,7 @@ class ElevatorIntake : public Mechanism{
 
         bool m_useLidar = true;
 
-        Elevator m_elevator{true, true};
+        Elevator m_elevator{true, false};
         Intake m_intake;
 
         IntakeElevatorConstants::GamePieceInfo coneinfo = IntakeElevatorConstants::coneScoreInfo;

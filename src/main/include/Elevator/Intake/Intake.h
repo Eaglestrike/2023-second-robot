@@ -2,16 +2,18 @@
 
 #include <ctre/Phoenix.h>
 
+#include <rev/CANSparkMax.h>
+
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DutyCycleEncoder.h>
 #include <frc/controller/PIDController.h>
-#include <rev/CANSparkMax.h>
 
 #include "Elevator/ElevatorIntakeConstants.h"
 #include "Elevator/Lidar/LidarReader.h"
 
 #include "Util/Mechanism.h"
-#include "Util/Mathutil.h"
+#include "Util/Utils.h"
+
 
 class Intake : public Mechanism{
     public:

@@ -17,9 +17,12 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Drive/DriveConstants.h"
+
 #include "Controller/ControllerMap.h"
+
+#include "Util/Utils.h"
+
 #include "GeneralConstants.h"
-#include "Util/Mathutil.h"
 
 using namespace Actions;
 
@@ -33,14 +36,18 @@ Robot::Robot():
       m_swerveBr{SwerveConstants::BR_CONFIG, true, false},
       m_swerveFl{SwerveConstants::FL_CONFIG, true, false},
       m_swerveBl{SwerveConstants::BL_CONFIG, true, false},
-      
-      m_client{"10.1.14.107", 5807, 500, 5000},
-      m_red{false}, m_posVal{0}, m_heightVal{0},
-
+      m_startPos{0, 0},
+      m_startAng{0},
+      m_joystickAng{0},
       m_odometry{&m_startPos, &m_startAng},
-      m_startPos{0, 0}, m_startAng{0}, m_joystickAng{0},
-      
-      m_shuff{"Robot", true}
+      m_lidar{true, false},
+      m_client{"10.1.14.107", 5807, 500, 5000},
+      m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
+      m_threePiece{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
+      m_sadAuto{m_elevatorIntake, m_rollers},
+      m_red{false},
+      m_posVal{0},
+      m_heightVal{0}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
@@ -61,20 +68,7 @@ Robot::Robot():
 
   AddPeriodic([&](){
     // ODOMETRY
-    vec::Vector2D pos = m_odometry.GetPosition();
-    double ang = m_odometry.GetAng();
-    m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
-
-    m_autoLineup.UpdateOdom(pos, ang);
-    m_autoPath.UpdateOdom(pos, ang);
-
-    // UNCOMMENT BELOW
-    frc::SmartDashboard::PutString("Robot pos", pos.toString());
-    frc::SmartDashboard::PutNumber("Robot ang", ang);
-    frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
-    frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
-    frc::SmartDashboard::PutData("Field", &m_field);
-    // END UNCOMMENT
+    // int expectedId = Utils::GetExpectedTagId(m_posVal, m_red);
 
     // process camera data
     std::vector<double> camData = m_client.GetData();
@@ -91,7 +85,7 @@ Robot::Robot():
       frc::SmartDashboard::PutNumber("camY", y);
 
       bool res = false;
-      if (camId != 0 && m_isFirstTag) {
+      if (tagId != 0 && m_isSecondTag) {
         res = m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
       } 
 
@@ -100,16 +94,41 @@ Robot::Robot():
         tagId = 0;
       }
       frc::SmartDashboard::PutNumber("tag Id", tagId);
-      m_isFirstTag = true;
+      m_isSecondTag = true;
     } else {
-      m_isFirstTag = false;
+      m_isSecondTag = false;
     }
 
     // other odometry
     double angNavX = Utils::DegToRad(m_navx->GetYaw());
+    double pitch = Utils::DegToRad(m_navx->GetPitch());
+    double roll = Utils::DegToRad(m_navx->GetRoll());
+    pitch = Utils::NormalizeAng(pitch - SwerveConstants::PITCH_OFFSET);
+    roll = Utils::NormalizeAng(roll - SwerveConstants::ROLL_OFFSET);
+
     vec::Vector2D velWorld = m_swerveController->GetRobotVelocity(angNavX + m_startAng);
 
     m_odometry.Periodic(angNavX, velWorld);
+
+    vec::Vector2D pos = m_odometry.GetPosition();
+    double ang = m_odometry.GetAng();
+    vec::Vector2D wheelVel = m_swerveController->GetRobotVelocity(ang);
+    m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
+
+    m_autoLineup.UpdateOdom(pos, ang, wheelVel);
+    m_autoPath.UpdateOdom(pos, ang, wheelVel);
+    m_twoPieceDock.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData()); // doesnt need tilt
+    m_threePiece.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData()); // doesnt need tilt
+    m_autoDock.UpdateOdom(roll, pitch, ang);
+
+    // UNCOMMENT BELOW
+    frc::SmartDashboard::PutString("Robot pos", pos.toString());
+    frc::SmartDashboard::PutNumber("Robot ang", ang);
+    frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
+    frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
+    frc::SmartDashboard::PutData("Field", &m_field);
+    // END UNCOMMENT
+
     // END ODOMETRY
   }, 5_ms, 2_ms);
 }
@@ -140,14 +159,33 @@ void Robot::RobotInit()
   m_startPosChooser.AddOption("Red R", "Red R");
   frc::SmartDashboard::PutData("Starting pos", &m_startPosChooser);
 
-  // frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
-  // frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
-  // frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
+  m_autoChooser.SetDefaultOption("2 Piece Dock", "2 Piece Dock");
+  m_autoChooser.AddOption("3 Piece Dock", "3 Piece Dock");
+  m_autoChooser.AddOption("Dumb Dock", "Dumb Dock");
+  m_autoChooser.AddOption("Sad Auto", "Sad Auto");
+  frc::SmartDashboard::PutData("auto chooser", &m_autoChooser);
 
-  // frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
-  // frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
-  // frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
+  frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
+  frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
+  frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
 
+  frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
+  frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
+  frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
+
+  frc::SmartDashboard::PutNumber("ltrans kP", LineupConstants::TRANS_KP);
+  frc::SmartDashboard::PutNumber("ltrans kI", LineupConstants::TRANS_KI);
+  frc::SmartDashboard::PutNumber("ltrans kD", LineupConstants::TRANS_KD);
+
+  frc::SmartDashboard::PutNumber("lang kP", LineupConstants::ANG_KP);
+  frc::SmartDashboard::PutNumber("lang kI", LineupConstants::ANG_KI);
+  frc::SmartDashboard::PutNumber("lang kD", LineupConstants::ANG_KD);
+
+  frc::SmartDashboard::PutNumber("swerve kS", SwerveConstants::kS);
+  frc::SmartDashboard::PutNumber("swerve kV", SwerveConstants::kV);
+  frc::SmartDashboard::PutNumber("swerve kA", SwerveConstants::kA);
+
+  frc::SmartDashboard::PutNumber("sad auto move time", 1.0);
   // frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
   // frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
 
@@ -227,18 +265,16 @@ void Robot::RobotPeriodic()
     // m_autoLineup.SetPosTarget({deltaX, deltaY}, true);
     // m_autoLineup.SetAngTarget(deltaAng, true);
 
-    double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
-    double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
-    double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KD);
+    double tkP = frc::SmartDashboard::GetNumber("ltrans kP", LineupConstants::TRANS_KP);
+    double tkI = frc::SmartDashboard::GetNumber("ltrans kI", LineupConstants::TRANS_KI);
+    double tkD = frc::SmartDashboard::GetNumber("ltrans kD", LineupConstants::TRANS_KD);
 
-    double akP = frc::SmartDashboard::GetNumber("ang kP", AutoConstants::ANG_KP);
-    double akI = frc::SmartDashboard::GetNumber("ang kI", AutoConstants::ANG_KI);
-    double akD = frc::SmartDashboard::GetNumber("ang kD", AutoConstants::ANG_KD);
+    double akP = frc::SmartDashboard::GetNumber("lang kP", LineupConstants::ANG_KP);
+    double akI = frc::SmartDashboard::GetNumber("lang kI", LineupConstants::ANG_KI);
+    double akD = frc::SmartDashboard::GetNumber("lang kD", LineupConstants::ANG_KD);
 
     m_autoLineup.SetPosPID(tkP, tkI, tkD);
     m_autoLineup.SetAngPID(akP, akI, akD);
-    m_autoPath.SetPosPID(tkP, tkI, tkD);
-    m_autoPath.SetAngPID(akP, akI, akD);
 
     double tMaxSp = frc::SmartDashboard::GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
     double tMaxAcc = frc::SmartDashboard::GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
@@ -298,31 +334,110 @@ void Robot::RobotPeriodic()
  */
 void Robot::AutonomousInit()
 {
-  m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
+  double kS = frc::SmartDashboard::GetNumber("swerve kS", SwerveConstants::kS);
+  double kV = frc::SmartDashboard::GetNumber("swerve kV", SwerveConstants::kV);
+  double kA = frc::SmartDashboard::GetNumber("swerve kA", SwerveConstants::kA);
+  m_swerveController->SetFeedForward(kS, kV, kA);
 
-  // TESTING CODE
-  // MAKE SURE BLUE RIGHT OR ELSE ROBOT WILL UNALIVE ITSELF
-  m_autoPath.AddPoses(AutoPaths::BIG_BOY);
-  m_autoPath.StartMove();
+  double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
+  double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
+  double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KD);
+
+  double akP = frc::SmartDashboard::GetNumber("ang kP", AutoConstants::ANG_KP);
+  double akI = frc::SmartDashboard::GetNumber("ang kI", AutoConstants::ANG_KI);
+  double akD = frc::SmartDashboard::GetNumber("ang kD", AutoConstants::ANG_KD);
+
+  m_autoPath.SetPosPID(tkP, tkI, tkD);
+  m_autoPath.SetAngPID(akP, akI, akD);
+
+  m_swerveController->SetAngCorrection(false);
+
+  m_autoDock.SetSide(m_red);
+  m_twoPieceDock.SetSide(m_red);
+  m_threePiece.SetSide(m_red);
+  m_dumbDock.SetSide(!m_red);
+
+  m_autoPath.ResetMultiplier();
+
+  if (m_autoChooser.GetSelected() == "2 Piece Dock") {
+    m_twoPieceDock.Init();
+  } 
+  else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
+    m_threePiece.Init();
+  }
+  else if (m_autoChooser.GetSelected() == "Sad Auto") {
+    m_sadAuto.Start();
+  }
 }
 
 void Robot::AutonomousPeriodic()
 {
   double curTime = Utils::GetCurTimeS();
   double deltaT = curTime - m_prevTime;
-  vec::Vector2D driveVel = m_autoPath.GetVel();
-  double angVel = m_autoPath.GetAngVel();
-
   double curYaw = m_odometry.GetAng();
+  vec::Vector2D curPos = m_odometry.GetPosition();
 
-  m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  if (m_autoChooser.GetSelected() == "2 Piece Dock") {
+    m_twoPieceDock.Periodic();
 
-  m_autoPath.Periodic();
+    vec::Vector2D driveVel = m_twoPieceDock.GetDriveVel();
+    double angVel = m_twoPieceDock.GetAngVel();
+
+    if (m_twoPieceDock.DockNow()) {
+      if (!m_autoDock.HasStarted()) {
+        m_autoDock.Start();
+      }
+      m_autoDock.Periodic();
+      driveVel = m_autoDock.GetVel();
+      angVel = 0;
+    } 
+    frc::SmartDashboard::PutString("Drive vel", driveVel.toString());
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  } else if (m_autoChooser.GetSelected() == "Dumb Dock"){
+    m_dumbDock.Periodic();
+    vec::Vector2D driveVel = m_dumbDock.GetVel();
+    double angVel = m_dumbDock.GetAngleVel();
+
+    if (m_dumbDock.CanDock()) {
+      if (!m_autoDock.HasStarted()) {
+        m_autoDock.Start();
+      }
+      m_autoDock.Periodic();
+      driveVel = m_autoDock.GetVel();
+      angVel = 0;
+    }
+    m_swerveController->SetAngCorrection(true);
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    m_swerveController->Periodic();
+  } else if (m_autoChooser.GetSelected() == "Sad Auto"){
+    m_dumbDock.Periodic();
+    vec::Vector2D driveVel = m_dumbDock.GetVel();
+    double angVel = m_dumbDock.GetAngleVel();
+    m_swerveController->SetAngCorrection(true);
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    m_swerveController->Periodic();
+  }
+  else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
+    m_threePiece.Periodic();
+
+    vec::Vector2D driveVel = m_threePiece.GetDriveVel();
+    double angVel = m_threePiece.GetAngVel();
+
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  }
+
+  else if (m_autoChooser.GetSelected() == "Sad Auto") {
+    m_sadAuto.Periodic();
+  }
+  
+  m_swerveController->Periodic();
+  
   m_prevTime = curTime;
 }
 
 void Robot::TeleopInit() {
   m_swerveController->SetFeedForward(0, 1, 0);
+  m_swerveController->SetAngCorrection(true);
   // m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
   // m_autoLineup.SetPosFF({.maxSpeed = AutoConstants::TRANS_MAXSP, .maxAccel = AutoConstants::TRANS_MAXACC});
   // m_autoLineup.SetAngFF({.maxSpeed = AutoConstants::ANG_MAXSP, .maxAccel = AutoConstants::ANG_MAXACC});
@@ -414,14 +529,15 @@ void Robot::TeleopPeriodic() {
 
   //                                          don't auto lineup to (0,0)
   if (m_controller.getPressed(AUTO_LINEUP) && m_posVal && m_heightVal) {
+    m_swerveController->SetAngCorrection(false);
     // m_isAutoLineup = true;
     if (m_isTrimming) {
       // just do feedforward for trim, just needs to move a little
       m_autoLineup.SetPosPID(0, 0, 0);
     } else {
-      double tkP = frc::SmartDashboard::GetNumber("trans kP", AutoConstants::TRANS_KP);
-      double tkI = frc::SmartDashboard::GetNumber("trans kI", AutoConstants::TRANS_KI);
-      double tkD = frc::SmartDashboard::GetNumber("trans kD", AutoConstants::TRANS_KD);
+      double tkP = frc::SmartDashboard::GetNumber("ltrans kP", LineupConstants::TRANS_KP);
+      double tkI = frc::SmartDashboard::GetNumber("ltrans kI", LineupConstants::TRANS_KI);
+      double tkD = frc::SmartDashboard::GetNumber("ltrans kD", LineupConstants::TRANS_KD);
       m_autoLineup.SetPosPID(tkP, tkI, tkD);
     }
 
@@ -442,6 +558,7 @@ void Robot::TeleopPeriodic() {
     m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   } else {
+    m_swerveController->SetAngCorrection(true);
     m_isAutoLineup = false;
     m_autoLineup.StopPos();
     m_autoLineup.StopAng();
@@ -452,6 +569,11 @@ void Robot::TeleopPeriodic() {
 
   m_autoLineup.Periodic();
   m_swerveController->Periodic();
+
+  m_autoPath.StartMove();
+  m_autoPath.Periodic();
+
+  double time2 = Utils::GetCurTimeS();
 
   // frc::SmartDashboard::PutString("pos:", m_pos.toString());
   // frc::SmartDashboard::PutString("vel:", vel.toString());
@@ -505,51 +627,9 @@ void Robot::TeleopPeriodic() {
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {
+  m_dumbDock.Reset();
   m_autoLineup.StopPos();
-  m_autoLineup.StopAng();
-  
-  // get position offsets (sorry for bad if statements)
-  std::string m_selected = m_startPosChooser.GetSelected();
-  if (m_selected == "Debug") {
-    m_startAng = FieldConstants::DEBUG_ANG;
-    m_startPos = FieldConstants::DEBUG_POS;
-    m_joystickAng = FieldConstants::DEBUG_JANG;
-    m_red = false;
-  } else if (m_selected == "Blue L") {
-    m_startAng = FieldConstants::BL_ANG;
-    m_startPos = FieldConstants::BL_POS;
-    m_joystickAng = FieldConstants::BL_JANG;
-    m_red = false;
-  } else if (m_selected == "Blue M") {
-    m_startAng = FieldConstants::BM_ANG;
-    m_startPos = FieldConstants::BM_POS;
-    m_joystickAng = FieldConstants::BM_JANG;
-    m_red = false;
-  } else if (m_selected == "Blue R") {
-    m_startAng = FieldConstants::BR_ANG;
-    m_startPos = FieldConstants::BR_POS;
-    m_joystickAng = FieldConstants::BR_JANG;
-    m_red = false;
-  } else if (m_selected == "Red L") {
-    m_startAng = FieldConstants::RL_ANG;
-    m_startPos = FieldConstants::RL_POS;
-    m_joystickAng = FieldConstants::RL_JANG;
-    m_red = true;
-  } else if (m_selected == "Red M") {
-    m_startAng = FieldConstants::RM_ANG;
-    m_startPos = FieldConstants::RM_POS;
-    m_joystickAng = FieldConstants::RM_JANG;
-    m_red = true;
-  } else if (m_selected == "Red R") {
-    m_startAng = FieldConstants::RR_ANG;
-    m_startPos = FieldConstants::RR_POS;
-    m_joystickAng = FieldConstants::RR_JANG;
-    m_red = true;
-  } else {
-    m_startAng = FieldConstants::DEBUG_ANG;
-    m_startPos = FieldConstants::DEBUG_POS;
-    m_joystickAng = FieldConstants::DEBUG_JANG;
-  }
+  m_autoLineup.StopAng();  
 }
 
 void Robot::TestInit() {

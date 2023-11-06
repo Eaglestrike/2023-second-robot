@@ -69,12 +69,15 @@ namespace SwerveConstants
   const double ANG_CORRECT_D = 0.5;
 
   const double MAX_VOLTS = 10.0; 
-  const double kS = 0.6;
-  const double kV = 2.326;
-  const double kA = 0; // DON't TOUCH THIS, KA REMAINS AT 0
+  const double kS = 0.5;
+  const double kV = 2.18;
+  const double kA = 0.55;
 
   const double NORMAL_SWERVE_MULT = 12.0;
   const double SLOW_SWERVE_MULT = 3.0;
+
+  const double PITCH_OFFSET = 0;
+  const double ROLL_OFFSET = 0;
 
   struct SwerveConfig{
     std::string name;
@@ -170,6 +173,28 @@ namespace OdometryConstants {
   const double AT_REJECT = 6;
 }
 
+namespace LineupConstants {
+  const double TRANS_KP = 0.0;
+  const double TRANS_KI = 0;
+  const double TRANS_KD = 0;
+
+  const double ANG_KP = 0.0;
+  const double ANG_KI = 0;
+  const double ANG_KD = 0;
+
+  const double TRANS_MAXSP = 3;
+  const double TRANS_MAXACC = 2.5;
+
+  const double ANG_MAXSP = 1.5;
+  const double ANG_MAXACC = 1.5;
+
+  const double TRANS_POS_ERR_TOLERANCE = 0.025;
+  const double TRANS_VEL_ERR_TOLERANCE = 100;
+
+  const double ANG_POS_ERR_TOLERANCE = 0.025;
+  const double ANG_VEL_ERR_TOLERANCE = 100;
+}
+
 namespace AutoConstants {
   const double TRANS_POS_ERR_TOLERANCE = 0.025;
   const double TRANS_VEL_ERR_TOLERANCE = 100;
@@ -179,9 +204,9 @@ namespace AutoConstants {
 
   const double UNREASONABLE_ANG_SPEED = 62.4828; // rad/s
 
-  const double TRANS_KP = 5.2;
+  const double TRANS_KP = 1.0;
   const double TRANS_KI = 0;
-  const double TRANS_KD = 1.5;
+  const double TRANS_KD = 0.07;
   const double TRANS_MAXSP = 3;
   const double TRANS_MAXACC = 2.5;
 
@@ -192,6 +217,15 @@ namespace AutoConstants {
   const double ANG_MAXACC = 1.5;
 
   const double TRIM_DIST = 0.3;
+
+  const double PRE_DOCK_SPEED = 0;
+  const double MAX_DOCK_SPEED = 0;
+
+  const double PRE_DOCK_ANG = 5 * M_PI / 180;
+  const double DOCK_ANG = 12 * M_PI / 180;
+  const double DOCKED_TOL = 12 * M_PI / 180;
+
+  const double KTILT = 0;
 }
 
 namespace AutoPaths {
@@ -210,31 +244,31 @@ namespace AutoPaths {
   const std::vector<SwervePose> BIG_BOY{
     {
       .time = 0,
-      .x = 1.92, .y = 1.06,
+      .x = 1.92, .y = 1.56,
       .vx = 0, .vy = 0,
       .ang = 0, .angVel = 0
     },
     {
       .time = 1.5,
-      .x = 4.3, .y = 0.5,
+      .x = 3.7, .y = 0.8,
       .vx = 0.5, .vy = 0,
       .ang = M_PI / 2, .angVel = 2,
     },
     {
       .time = 3,
-      .x = 7.07, .y = 0.92,
+      .x = 6, .y = 0.92,
       .vx = 0, .vy = 0,
       .ang = M_PI, .angVel = 0,
     },
     {
       .time = 4.5,
-      .x = 4.296, .y = 1.06,
+      .x = 4.296, .y = 1.56,
       .vx = -1.5, .vy = 0,
       .ang = 3 * M_PI / 2, .angVel = 2,
     },
     {
       .time = 6,
-      .x = 1.92, .y = 0.5,
+      .x = 1.92, .y = 0.8,
       .vx = 0, .vy = 0,
       .ang = M_PI * 2, .angVel = 0
     }

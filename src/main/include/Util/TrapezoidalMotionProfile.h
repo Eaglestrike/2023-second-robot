@@ -1,5 +1,5 @@
 #include <cmath>
-#include "Util/Mathutil.h"
+#include "Util/Utils.h"
 
 class TrapezoidalMotionProfile {
     public:

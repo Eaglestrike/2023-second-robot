@@ -6,6 +6,11 @@
 
 namespace ShuffleboardHelper{
     template <typename T> nt::GenericEntry* createItem(ShuffleboardItemInterface::ItemData data, T value, frc::BuiltInWidgets type = frc::BuiltInWidgets::kTextView){
+        // for(auto component : data.tab->GetComponents()){
+        //     if(component.get()->GetTitle() == data.name){
+        //         nt::NetworkTableInstance::GetDefault().GetEntry(data.name).Delete();
+        //     }
+        // }
         if((data.pose.positionX >= 0) && (data.pose.positionY >= 0)){
             return data.tab->Add(data.name, value)
                                 .WithWidget(type)

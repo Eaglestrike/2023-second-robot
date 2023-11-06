@@ -6,7 +6,7 @@
 
 #include "Drive/DriveConstants.h"
 #include "GeneralConstants.h"
-#include "Util/Mathutil.h"
+#include "Util/Utils.h"
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643383279502884197169399
@@ -87,15 +87,15 @@ bool Odometry::SetCamData(vec::Vector2D camPos, double camAng, std::size_t tagID
   vec::Vector2D unitVec = Utils::GetUnitVecDir(angRobot);
   vec::Vector2D vecToTag = tagPos - odomPos;
 
-  // check that robot is not behind tag
-  if (tagID != 4 && tagID != 5 && (odomPos.x() < FieldConstants::TAG8.x() || odomPos.x() > FieldConstants::TAG1.x())) {
-    // std::cout << "bad 1" << std::endl;
-    return false;
-  }
-  if ((tagID == 4 || tagID == 5) && (odomPos.x() < FieldConstants::TAG5.x() || odomPos.x() > FieldConstants::TAG4.x())) {
-    // std::cout << "bad 2" << std::endl;
-    return false;
-  }
+  // // check that robot is not behind tag
+  // if (tagID != 4 && tagID != 5 && (odomPos.x() < FieldConstants::TAG8.x() || odomPos.x() > FieldConstants::TAG1.x())) {
+  //   // std::cout << "bad 1" << std::endl;
+  //   return false;
+  // }
+  // if ((tagID == 4 || tagID == 5) && (odomPos.x() < FieldConstants::TAG5.x() || odomPos.x() > FieldConstants::TAG4.x())) {
+  //   // std::cout << "bad 2" << std::endl;
+  //   return false;
+  // }
 
   double angToCam = Utils::GetAngBetweenVec(unitVec, vecToTag);
   // frc::SmartDashboard::PutString("tag vec", tagPos.toString());

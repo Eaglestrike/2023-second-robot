@@ -8,7 +8,7 @@
 #endif
 
 #include "Drive/DriveConstants.h"
-#include "Util/Mathutil.h"
+#include "Util/Utils.h"
 
 /**
  * Constructor
@@ -21,10 +21,10 @@ AutoLineup::AutoLineup()
   m_prevPos{0}, m_prevAng{0}, m_prevPosErr{0}, m_prevAngErr{0}, m_totalPosErr{0}, m_totalAngErr{0},
   /*m_prevAngVelErr{0}, m_totalAngVelErr{0},*/ m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0}
 {
-  SetPosPID(AutoConstants::TRANS_KP, AutoConstants::TRANS_KI, AutoConstants::TRANS_KD);
-  SetAngPID(AutoConstants::ANG_KP, AutoConstants::ANG_KI, AutoConstants::ANG_KD);
-  SetPosFF({AutoConstants::TRANS_MAXSP, AutoConstants::TRANS_MAXACC});
-  SetAngFF({AutoConstants::ANG_MAXSP, AutoConstants::ANG_MAXACC});
+  SetPosPID(LineupConstants::TRANS_KP, LineupConstants::TRANS_KI, LineupConstants::TRANS_KD);
+  SetAngPID(LineupConstants::ANG_KP, LineupConstants::ANG_KI, LineupConstants::ANG_KD);
+  SetPosFF({LineupConstants::TRANS_MAXSP, LineupConstants::TRANS_MAXACC});
+  SetAngFF({LineupConstants::ANG_MAXSP, LineupConstants::ANG_MAXACC});
 }
 
 
@@ -249,7 +249,7 @@ AutoLineup::ExecuteState AutoLineup::GetAngExecuteState() const {
  * @returns Wheter robot is where it is supposed to be positionally at the end of profile
 */
 bool AutoLineup::AtPosTarget() const {
-  return AtPosTarget(AutoConstants::TRANS_POS_ERR_TOLERANCE, AutoConstants::TRANS_VEL_ERR_TOLERANCE);
+  return AtPosTarget(LineupConstants::TRANS_POS_ERR_TOLERANCE, LineupConstants::TRANS_VEL_ERR_TOLERANCE);
 }
 
 /**
@@ -272,7 +272,7 @@ bool AutoLineup::AtPosTarget(double posErrTol, double velErrTol) const {
  * @returns Whether robot is where it is supposed to be angularly at the end of profile
 */
 bool AutoLineup::AtAngTarget() const {
-  return AtAngTarget(AutoConstants::ANG_POS_ERR_TOLERANCE, AutoConstants::ANG_VEL_ERR_TOLERANCE);
+  return AtAngTarget(LineupConstants::ANG_POS_ERR_TOLERANCE, LineupConstants::ANG_VEL_ERR_TOLERANCE);
 }
 
 /**
@@ -304,7 +304,7 @@ void AutoLineup::Periodic() {
       vec::Vector2D ffVel = m_posVecDir * speed;
       m_curExpectedPos += ffVel * deltaT;
 
-      vec::Vector2D correctionVel = GetPIDTrans(deltaT);
+      vec::Vector2D correctionVel = GetPIDTrans(deltaT, ffVel);
       // vec::Vector2D correctionVel = GetPIDTransVel(deltaT, ffVel);
       vec::Vector2D totalVel = ffVel + correctionVel;
 
@@ -426,10 +426,10 @@ double AutoLineup::GetAngVel() const {
  * 
  * @returns Velocity from PID
 */
-vec::Vector2D AutoLineup::GetPIDTrans(double deltaT) {
+vec::Vector2D AutoLineup::GetPIDTrans(double deltaT, vec::Vector2D curExpectedVel) {
   vec::Vector2D err = m_curExpectedPos - m_curPos;
 
-  vec::Vector2D deltaErr = (err - m_prevPosErr) / deltaT;
+  vec::Vector2D deltaErr = curExpectedVel - m_curVel;
   m_totalPosErr += err * deltaT;
   vec::Vector2D res = err * m_kPPos + m_totalPosErr * m_kIPos + deltaErr * m_kDPos;
 
@@ -534,9 +534,10 @@ void AutoLineup::SetAngPID(double kP, double kI, double kD) {
  * @param pos Current position
  * @param ang Current angle
 */
-void AutoLineup::UpdateOdom(vec::Vector2D pos, double ang) {
+void AutoLineup::UpdateOdom(vec::Vector2D pos, double ang, vec::Vector2D curWheelVel) {
   m_curPos = pos;
   m_curAng = ang;
+  m_curWheelVel = curWheelVel;
 }
 
 /**

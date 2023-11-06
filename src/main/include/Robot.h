@@ -15,6 +15,12 @@
 #include <frc/DataLogManager.h>
 #include <wpi/DataLog.h>
 
+#include "Auto/AutoDock.h"
+#include "Auto/DumbDock.h"
+#include "Auto/SadAuto.h"
+#include "Auto/ThreePiece.h"
+#include "Auto/TwoPieceDock.h"
+
 #include "Controller/Controller.h"
 
 #include "Drive/AutoLineup.h"
@@ -25,14 +31,11 @@
 
 #include "Elevator/ElevatorIntake.h"
 #include "Elevator/Intake/Rollers.h"
+#include "Elevator/Lidar/LidarReader.h"
 
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"
-#include "Util/Mathutil.h"
-
-#include "Elevator/Lidar/LidarReader.h"
-
-#include "ShuffleboardSender/ShuffleboardSender.h"
+#include "Util/Utils.h"
 
 namespace vec = svector;
 
@@ -57,13 +60,10 @@ class Robot : public frc::TimedRobot {
   // timer
   double m_prevTime;
 
-  //Controller
-  Controller m_controller;
-
-  //Elevator
-  ElevatorIntake m_elevatorIntake;
-  LidarReader m_lidar;
-  Rollers m_rollers;
+  // smartdashboard
+  frc::SendableChooser<std::string> m_startPosChooser;
+  frc::SendableChooser<std::string> m_autoChooser;
+  frc::Field2d m_field;
 
   // IMU acclerometer and gyroscope
   // Gives information on orientation and acceleration
@@ -90,11 +90,24 @@ class Robot : public frc::TimedRobot {
   double m_joystickAng;
   bool m_isAutoLineup = false; // UNUSED; disables tag odometry when auto lineup so robot isnt jumpy
   bool m_isTrimming = false; // if true, use ff only
-  bool m_isFirstTag = false;
+  bool m_isSecondTag = false;
+
+  //Controller
+  Controller m_controller;
+  
+  // elevator and intake
+  ElevatorIntake m_elevatorIntake;
+  LidarReader m_lidar;
+  Rollers m_rollers;
 
   // auto
   AutoLineup m_autoLineup;
   AutoPath m_autoPath;
+  AutoDock m_autoDock;
+  TwoPieceDock m_twoPieceDock;
+  DumbDock m_dumbDock{m_elevatorIntake, m_rollers};
+  SadAuto m_sadAuto;
+  ThreePiece m_threePiece;
   // TEMP, for testing
   // double m_curVolts;
   // double m_prevTimeTest;
@@ -102,5 +115,10 @@ class Robot : public frc::TimedRobot {
   // wpi::log::DoubleLogEntry m_voltsLog;
   // END TEMP
 
+  // jetson
+  SocketClient m_client;
+  bool m_red;
+  int m_posVal; // for auto lineup socring positions
+  int m_heightVal;
   ShuffleboardSender m_shuff;
 };

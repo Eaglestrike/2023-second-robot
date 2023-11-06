@@ -29,6 +29,7 @@ public:
   void SetAngleCorrectionPID(double kP, double kI, double kD);
   void SetRobotVelocity(vec::Vector2D vel, double angVel, double ang, double time);
   void SetRobotVelocityTele(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick);
+  void SetAngCorrection(bool angCorrection);
 
 
 private:
@@ -45,5 +46,6 @@ private:
   double m_kA;
 
   double m_curAngle;
+  bool m_angCorrection;
   frc2::PIDController m_angleCorrector;
 };

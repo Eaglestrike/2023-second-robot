@@ -1,6 +1,10 @@
 #include "Drive/AutoPath.h"
 
+#include "iostream"
+
 #include "Drive/DriveConstants.h"
+
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643383279502884197169399
@@ -59,6 +63,18 @@ void AutoPath::ResetPath() {
   m_calcAng = Hermite1{100};
 }
 
+/**
+ * Resets angle multiplier
+*/
+void AutoPath::ResetMultiplier() {
+  if (Utils::NearZero(m_curAng, M_PI / 2)) {
+    m_multiplier = 0;
+  } else if (m_curAng < 0) {
+    m_multiplier = 1;
+  } else {
+    m_multiplier = 0;
+  }
+}
 
 /**
  * Sets position correction PID
@@ -97,9 +113,13 @@ void AutoPath::Stop() {
  * Starts auto path
 */
 void AutoPath::StartMove() {
+  m_expectFinish = m_calcTrans.getHighestTime();
+  if(m_calcTrans.getHighestTime() == 0){
+    Stop();
+    return;
+  }
   m_curState = EXECUTING_PATH;
   m_startTime = Utils::GetCurTimeS();
-  m_expectFinish = m_calcTrans.getHighestTime();
 }
 
 /**
@@ -110,19 +130,24 @@ void AutoPath::StartMove() {
  * @param pos Current position
  * @param ang Current angle
 */
-void AutoPath::UpdateOdom(vec::Vector2D curPos, double curAng) {
+void AutoPath::UpdateOdom(vec::Vector2D curPos, double curAng, vec::Vector2D curWheelVel) {
   m_curPos = curPos;
+  m_curWheelVel = curWheelVel;
 
   // update multiplier of angle
   double curTimeS = Utils::GetCurTimeS();
   double curAngSpeed = (curAng - m_curAng) / (curTimeS - m_prevTimeOdom);
-  if (curAngSpeed < -AutoConstants::UNREASONABLE_ANG_SPEED) {
+  if (curAngSpeed < -AutoConstants::UNREASONABLE_ANG_SPEED && curAng < 0 && m_curAng > 0 && Utils::NearZero(curAng + M_PI, 0.2)) {
     // looping around counterclockwise
     m_multiplier++;
-  } else if (curAngSpeed > AutoConstants::UNREASONABLE_ANG_SPEED) {
+  } else if (curAngSpeed > AutoConstants::UNREASONABLE_ANG_SPEED && curAng > 0 && m_curAng < 0 && Utils::NearZero(curAng - M_PI, 0.2)) {
     // looping around clockwise
     m_multiplier--;
   }
+
+  // frc::SmartDashboard::PutNumber("multiplier", m_multiplier);
+  // frc::SmartDashboard::PutNumber("cur ang speed", curAngSpeed);
+
   m_prevTimeOdom = curTimeS;
 
   m_curAng = curAng;
@@ -144,12 +169,13 @@ void AutoPath::Periodic() {
     {
       double relTime = curTime - m_startTime;
       double highestTime = m_calcTrans.getHighestTime();
-      double getTime = (relTime <= highestTime ? relTime : highestTime);
+      double lowestTime = m_calcTrans.getLowestTime();
+      double getTime = std::clamp(relTime, lowestTime, highestTime);
 
       vec::Vector2D curExpectedPos = m_calcTrans.getPos(getTime);
       vec::Vector2D curExpectedVel = m_calcTrans.getVel(getTime);
 
-      vec::Vector2D correctionVel = GetPIDTrans(deltaT, curExpectedPos);
+      vec::Vector2D correctionVel = GetPIDTrans(deltaT, curExpectedPos, curExpectedVel);
       vec::Vector2D totalVel = curExpectedVel + correctionVel;
 
       double curExpectedAng = m_calcAng.getPos(getTime)[0];
@@ -164,8 +190,6 @@ void AutoPath::Periodic() {
       if (AtTarget()) {
         m_curState = AT_TARGET;
       }
-
-      // TODO impelemnt angle
       break;
     }
     case AT_TARGET:
@@ -241,12 +265,18 @@ double AutoPath::GetMultipliedAng() const {
  * 
  * @returns Velocity from PID
 */
-vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos) {
+vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos, vec::Vector2D curExpectedVel) {
   vec::Vector2D err = curExpectedPos - m_curPos;
 
-  vec::Vector2D deltaErr = (err - m_prevPosErr) / deltaT;
+  // frc::SmartDashboard::PutNumber("Error x", err.x());
+  // frc::SmartDashboard::PutNumber("Error y", err.y());
+
+  vec::Vector2D deltaErr =  curExpectedVel - m_curWheelVel;
   m_totalPosErr += err * deltaT;
   vec::Vector2D res = err * m_kPPos + m_totalPosErr * m_kIPos + deltaErr * m_kDPos;
+
+  // frc::SmartDashboard::PutNumber("Delta Error x", deltaErr.x());
+  // frc::SmartDashboard::PutNumber("Delta Error y", deltaErr.y());
 
   m_prevPosErr = err;
 
@@ -264,6 +294,11 @@ vec::Vector2D AutoPath::GetPIDTrans(double deltaT, vec::Vector2D curExpectedPos)
 double AutoPath::GetPIDAng(double deltaT, double curExpectedAng) {
   double curAngAbs = m_curAng + m_multiplier * M_PI * 2;
   double err = curExpectedAng - curAngAbs;
+
+  // frc::SmartDashboard::PutNumber("ang expect", curExpectedAng);
+  // frc::SmartDashboard::PutNumber("ang now", curAngAbs);
+  // frc::SmartDashboard::PutNumber("ang err", err);
+  // frc::SmartDashboard::PutNumber("ang abs", curAngAbs);
 
   double deltaErr = (err - m_prevAngErr) / deltaT;
   m_totalAngErr += err * deltaT;
@@ -302,3 +337,20 @@ AutoPath::ExecuteState AutoPath::GetExecuteState() const {
   return m_curState;
 }
 
+/**
+ * Gets greatest time of setpoints
+ * 
+ * @returns greatest time
+*/
+double AutoPath::GreatestTime() const {
+  return m_calcTrans.getHighestTime();
+}
+
+/**
+ * Gets multiplier
+ * 
+ * @returns Multiplier
+*/
+double AutoPath::GetMultiplier() const {
+  return m_multiplier;
+}

@@ -10,7 +10,7 @@
 #include "Elevator/Intake/Rollers.h"
 
 
-class SadAuto {
+class SadAuto{
 public:
     enum State {
         NOT_STARTED,

@@ -96,6 +96,7 @@ class Robot : public frc::TimedRobot {
   AutoDock m_autoDock;
   TwoPieceDock m_twoPieceDock;
   DumbDock m_dumbDock{m_elevatorIntake, m_rollers};
+  SadAuto m_sadAuto;
   ThreePiece m_threePiece;
   // TEMP, for testing
   // double m_curVolts;

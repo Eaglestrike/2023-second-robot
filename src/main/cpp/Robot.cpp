@@ -40,6 +40,7 @@ Robot::Robot():
       m_client{"10.1.14.107", 5807, 500, 5000},
       m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
       m_threePiece{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
+      m_sadAuto{m_elevatorIntake, m_rollers},
       m_red{false},
       m_posVal{0},
       m_heightVal{0}

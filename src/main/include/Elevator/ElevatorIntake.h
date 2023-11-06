@@ -48,6 +48,7 @@ class ElevatorIntake : public Mechanism{
         void SetManualVolts(double elevator, double intake);
         void SetCone(bool cone);
 
+
     private:
         void CoreInit() override;
         void CorePeriodic() override;

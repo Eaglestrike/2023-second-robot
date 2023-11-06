@@ -38,7 +38,6 @@ class Intake : public Mechanism{
         void Deploy(); 
         void ChangeDeployPos(double newPos); //pos should be in radians, w 0 as extended and parallel to ground
 
-        void UpdateLidarData(LidarReader::LidarData lidarData);
         void Kill();
 
         // for debugging

@@ -29,29 +29,32 @@ using namespace Actions;
 Robot::Robot():
       m_prevTime{0},
 
-      m_elevatorIntake{"ElevatorIntake", true, true},
-      m_lidar{true, false},
-
-      m_swerveFr{SwerveConstants::FR_CONFIG, true, false},
-      m_swerveBr{SwerveConstants::BR_CONFIG, true, false},
-      m_swerveFl{SwerveConstants::FL_CONFIG, true, false},
-      m_swerveBl{SwerveConstants::BL_CONFIG, true, false},
-      m_startPos{0, 0},
-      m_startAng{0},
-      m_joystickAng{0},
+      m_swerveFr{SwerveConstants::FR_CONFIG, true, true},
+      m_swerveBr{SwerveConstants::BR_CONFIG, true, true},
+      m_swerveFl{SwerveConstants::FL_CONFIG, true, true},
+      m_swerveBl{SwerveConstants::BL_CONFIG, true, true},
+      
       m_odometry{&m_startPos, &m_startAng},
-      m_lidar{true, false},
+      m_startPos{0, 0}, m_startAng{0}, m_joystickAng{0},
+      
       m_client{"10.1.14.107", 5807, 500, 5000},
-      m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
-      m_threePiece{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
-      m_sadAuto{m_elevatorIntake, m_rollers},
       m_red{false},
       m_posVal{0},
-      m_heightVal{0}
+      m_heightVal{0},
+      
+      m_elevatorIntake{"ElevatorIntake", true, true},
+      m_lidar{true, true},
+      
+      m_sadAuto{m_elevatorIntake, m_rollers},
+      m_dumbDock{m_elevatorIntake, m_rollers},
+      m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
+      m_threePiece{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
+
+      m_shuff{"Robot", true}
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
-  m_swerveController = new SwerveControl(moduleArray, true, false);
+  m_swerveController = new SwerveControl(moduleArray, true, true);
 
   // navx
   try
@@ -73,7 +76,7 @@ Robot::Robot():
     // process camera data
     std::vector<double> camData = m_client.GetData();
     if (!m_isAutoLineup && !m_isTrimming && m_client.HasConn() && !m_client.IsStale()) {
-      int camId = static_cast<int>(camData[0]);
+      //int camId = static_cast<int>(camData[0]);
       int tagId = static_cast<int>(camData[1]);
       double x = camData[2];
       double y = camData[3];
@@ -135,20 +138,6 @@ Robot::Robot():
 
 void Robot::RobotInit()
 {
-
-  // kalman filter constants
-  // frc::SmartDashboard::PutNumber("KF E0", OdometryConstants::E0);
-  // frc::SmartDashboard::PutNumber("KF Q", OdometryConstants::Q);
-  // frc::SmartDashboard::PutNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
-  // frc::SmartDashboard::PutNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
-  // frc::SmartDashboard::PutNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
-  frc::SmartDashboard::PutNumber("Filter Alpha", OdometryConstants::ALPHA);
-  // frc::SmartDashboard::PutNumber("Filter maxtime", OdometryConstants::MAX_TIME);
-
-  // frc::SmartDashboard::PutNumber("Delta X", 0);
-  // frc::SmartDashboard::PutNumber("Delta Y", 0);
-  // frc::SmartDashboard::PutNumber("Delta Ang", 0);
-
   // starting position
   m_startPosChooser.SetDefaultOption("Debug", "Debug");
   m_startPosChooser.AddOption("Blue L", "Blue L");
@@ -550,10 +539,6 @@ void Robot::TeleopPeriodic() {
 
     vec::Vector2D driveVel = m_autoLineup.GetVel();
     double angVel = m_autoLineup.GetAngVel();
-    // double angVel = 0;
-
-    // frc::SmartDashboard::PutString("Auto drive vel", driveVel.toString());
-    // frc::SmartDashboard::PutNumber("Auto ang vel", angVel);
 
     m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
@@ -573,20 +558,11 @@ void Robot::TeleopPeriodic() {
   m_autoPath.StartMove();
   m_autoPath.Periodic();
 
-  double time2 = Utils::GetCurTimeS();
-
-  // frc::SmartDashboard::PutString("pos:", m_pos.toString());
-  // frc::SmartDashboard::PutString("vel:", vel.toString());
-  // frc::SmartDashboard::PutString("setVel:", setVel.toString());
-  // frc::SmartDashboard::PutNumber("setAngVel:", w);
-
   if (m_controller.getTriggerDown(MANUAL1) && m_controller.getTriggerDown(MANUAL2)) {
     double elH = -m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
     double intakeAng = -m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
     m_elevatorIntake.SetManualVolts(elH, intakeAng);
-    // frc::SmartDashboard::PutBoolean("Manual", true);
   } else {
-    // frc::SmartDashboard::PutBoolean("Manual", false);
     bool cone = Utils::IsCone(m_posVal);
     m_elevatorIntake.SetCone(cone);
     m_rollers.SetCone(cone);
@@ -633,48 +609,9 @@ void Robot::DisabledPeriodic() {
 }
 
 void Robot::TestInit() {
-  // m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
-
-  // m_curVolts = 0;
 }
 
 void Robot::TestPeriodic() {
-  // // if (m_controller.getPressedOnce(START_POS_AUTO)) {
-  // //   if (m_autoLineup.GetAngExecuteState() == AutoLineup::NOT_EXECUTING) {
-  // //     m_autoLineup.StartAngMove();
-  // //   } else {
-  // //     m_autoLineup.StopAng();
-  // //   }
-  // // }
-
-  // // vec::Vector2D vel = m_autoLineup.GetVel();
-  // // double angVel = m_autoLineup.GetAngVel();
-  // double curYaw = m_odometry.GetAng();
-
-  // // frc::SmartDashboard::PutString("AutoVel", vel.toString());
-  // // frc::SmartDashboard::PutNumber("angVel", angVel);
-
-  // if (m_curVolts >= 5) {
-  //   m_curVolts = 5;
-  // }
-
-  // m_swerveController->SetRobotVelocity({m_curVolts, 0}, 0, curYaw, 0.02);
-
-  // double curS = Utils::GetCurTimeS();
-  // if (curS - m_prevTimeTest > 0.2) {
-  //   m_prevTimeTest = curS;
-  //   m_curVolts += 0.5;
-  // }
-
-  // // m_autoLineup.Periodic();
-  // vec::Vector2D robotVel = m_swerveController->GetRobotVelocity(curYaw);
-
-  // auto curTime = frc::Timer::GetFPGATimestamp();
-  // auto timeus = curTime.convert<units::microsecond>(); 
-
-  // m_voltsLog.Append(m_curVolts, timeus.value());
-  // m_speedLog.Append(magn(robotVel), timeus.value());
-  // m_swerveController->Periodic();
 }
 
 void Robot::SimulationInit() {}

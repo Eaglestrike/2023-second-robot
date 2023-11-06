@@ -188,7 +188,7 @@ void SwerveControl::CoreShuffleboardInit(){
   shuff_.add("kS", &m_kS, {1,1,3,1}, true);
   shuff_.add("kV", &m_kV, {1,1,4,1}, true);
   shuff_.add("kA", &m_kA, {1,1,5,1}, true);
-
+  
   shuff_.add("current angle", &m_curAngle, {1,1,2,3}, false);
 }
 

@@ -69,19 +69,9 @@ class Robot : public frc::TimedRobot {
   // Gives information on orientation and acceleration
   std::shared_ptr<AHRS> m_navx;
 
-  // smartdashboard
-  frc::SendableChooser<std::string> m_startPosChooser;
-  frc::Field2d m_field;
-
   // swerve
   SwerveModule m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl;
   SwerveControl *m_swerveController;
-
-  // jetson
-  SocketClient m_client;
-  bool m_red;
-  int m_posVal; // for auto lineup socring positions
-  int m_heightVal;
 
   // odometry
   Odometry m_odometry;
@@ -91,6 +81,12 @@ class Robot : public frc::TimedRobot {
   bool m_isAutoLineup = false; // UNUSED; disables tag odometry when auto lineup so robot isnt jumpy
   bool m_isTrimming = false; // if true, use ff only
   bool m_isSecondTag = false;
+
+  // jetson
+  SocketClient m_client;
+  bool m_red;
+  int m_posVal; // for auto lineup socring positions
+  int m_heightVal;
 
   //Controller
   Controller m_controller;
@@ -104,9 +100,9 @@ class Robot : public frc::TimedRobot {
   AutoLineup m_autoLineup;
   AutoPath m_autoPath;
   AutoDock m_autoDock;
-  TwoPieceDock m_twoPieceDock;
-  DumbDock m_dumbDock{m_elevatorIntake, m_rollers};
   SadAuto m_sadAuto;
+  DumbDock m_dumbDock;
+  TwoPieceDock m_twoPieceDock;
   ThreePiece m_threePiece;
   // TEMP, for testing
   // double m_curVolts;
@@ -115,10 +111,5 @@ class Robot : public frc::TimedRobot {
   // wpi::log::DoubleLogEntry m_voltsLog;
   // END TEMP
 
-  // jetson
-  SocketClient m_client;
-  bool m_red;
-  int m_posVal; // for auto lineup socring positions
-  int m_heightVal;
   ShuffleboardSender m_shuff;
 };

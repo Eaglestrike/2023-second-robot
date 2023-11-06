@@ -261,6 +261,8 @@ int Utils::getPieceHeight(ElevatorConstants::ElevatorTarget target){
       return 3;
     case STOWED:
       return 0;
+    default:
+      return 0;
   }
 }
 

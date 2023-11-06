@@ -213,16 +213,18 @@ void ElevatorIntake::CoreShuffleboardPeriodic(){
     shuff_.PutNumber("intake state", m_intake.GetState(), {2,1,6,4});
 
     //Scoring Positions
-    curGPInfo = {{shuff_.GetNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG), 
-                shuff_.GetNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE)},{
-                shuff_.GetNumber("mid e", curGPInfo.SCORE_MID.ELEVATOR_LENG),
-                shuff_.GetNumber("mid w", curGPInfo.SCORE_MID.INTAKE_ANGLE)},{
-                shuff_.GetNumber("high e", curGPInfo.SCORE_HIGH.ELEVATOR_LENG),
-                shuff_.GetNumber("high w", curGPInfo.SCORE_HIGH.INTAKE_ANGLE)},{
-                shuff_.GetNumber("grnd e", curGPInfo.GROUND_INTAKE.ELEVATOR_LENG),
-                shuff_.GetNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE)},{
-                shuff_.GetNumber("hp e", curGPInfo.HP_INTAKE.ELEVATOR_LENG),
-                shuff_.GetNumber("hp w", curGPInfo.HP_INTAKE.INTAKE_ANGLE)}};
+    curGPInfo = {.SCORE_LOW = {shuff_.GetNumber("low e", curGPInfo.SCORE_LOW.ELEVATOR_LENG), 
+                                shuff_.GetNumber("low w", curGPInfo.SCORE_LOW.INTAKE_ANGLE)},
+                .SCORE_MID = {shuff_.GetNumber("mid e", curGPInfo.SCORE_MID.ELEVATOR_LENG),
+                                shuff_.GetNumber("mid w", curGPInfo.SCORE_MID.INTAKE_ANGLE)},
+                .SCORE_HIGH = {shuff_.GetNumber("high e", curGPInfo.SCORE_HIGH.ELEVATOR_LENG),
+                                shuff_.GetNumber("high w", curGPInfo.SCORE_HIGH.INTAKE_ANGLE)},
+                .GROUND_INTAKE = {shuff_.GetNumber("grnd e", curGPInfo.GROUND_INTAKE.ELEVATOR_LENG),
+                                shuff_.GetNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE)},
+                .FLANGE_INTAKE = {shuff_.GetNumber("grnd e", curGPInfo.GROUND_INTAKE.ELEVATOR_LENG), // Reuse ground data
+                                shuff_.GetNumber("grnd w", curGPInfo.GROUND_INTAKE.INTAKE_ANGLE)},
+                .HP_INTAKE = {shuff_.GetNumber("hp e", curGPInfo.HP_INTAKE.ELEVATOR_LENG),
+                                shuff_.GetNumber("hp w", curGPInfo.HP_INTAKE.INTAKE_ANGLE)}};
 }
 
 void ElevatorIntake::CoreShuffleboardUpdate() {

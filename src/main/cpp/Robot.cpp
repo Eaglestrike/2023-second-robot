@@ -465,8 +465,8 @@ void Robot::AutonomousPeriodic()
   else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
     m_threePiece.Periodic();
 
-    vec::Vector2D driveVel = m_twoPieceDock.GetDriveVel();
-    double angVel = m_twoPieceDock.GetAngVel();
+    vec::Vector2D driveVel = m_threePiece.GetDriveVel();
+    double angVel = m_threePiece.GetAngVel();
 
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   }
@@ -474,6 +474,7 @@ void Robot::AutonomousPeriodic()
   else if (m_autoChooser.GetSelected() == "Sad Auto") {
     m_sadAuto.Periodic();
   }
+  
   m_swerveController->Periodic();
   m_prevTime = curTime;
 }

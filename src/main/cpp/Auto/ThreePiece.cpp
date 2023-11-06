@@ -23,6 +23,19 @@ ThreePiece::ThreePiece(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap, Rollers
     shuff_.PutInteger("third height", m_targetHeights.third, {1,1,2,1});
     
     shuff_.PutInteger("State", m_state, {1,1,0,2});
+
+    shuff_.PutNumber("Error Distance", 0.0, {2,1,5,2});
+
+    shuff_.PutNumber("Target X", m_targetPose.x, {2,1,4,0});
+    shuff_.PutNumber("Target Y", m_targetPose.y, {2,1,6,0});
+
+    shuff_.PutNumber("Charge X", m_targetPoses.navChargeForward.x, {2,1,4,4});
+    shuff_.PutNumber("Charge Y", m_targetPoses.navChargeForward.y, {2,1,6,4});
+    
+    shuff_.PutNumber("Current X", x(m_curPos), {2,1,4,1});
+    shuff_.PutNumber("Current Y", y(m_curPos), {2,1,6,1});
+
+    shuff_.PutNumber("Target Ang", m_targetPose.ang, {2,1,6,3});
 }
 
 /**
@@ -53,11 +66,12 @@ void ThreePiece::Init(){
 
     m_autoStartTime = Utils::GetCurTimeS();
 
-    m_state = ALIGN_FIRST;
+    m_state = FIRST_PLACE;
     m_prevState = NONE;
+    m_rollersMoving = STOP;
     m_targetPose = m_targetPoses.placingFirst;
-    m_stateStartTime = m_autoStartTime;
 
+    m_ap.ResetPath();
     m_ap.ResetMultiplier();
 }
 
@@ -85,10 +99,10 @@ void ThreePiece::Periodic(){
                 ScorePos(m_setup.firstCone, m_targetHeights.first);
             }
             else if(m_ei.IsDone()){
-                m_r.Outtake();
-            }
-            if((!m_lidarData.hasCone) || (!m_lidarData.hasCube)){ //TODO could do better check
-                m_state = GOING_TO_SECOND;
+                Outtake(m_setup.firstCone);
+                if((!m_lidarData.hasCone) && (!m_lidarData.hasCube)){ //TODO could do better check
+                    Stow(GOING_TO_SECOND);
+                }
             }
             break;
         case GOING_TO_SECOND:
@@ -103,18 +117,16 @@ void ThreePiece::Periodic(){
         case PICKING_SECOND:
             if(m_prevState != m_state){
                 m_stateStartTime = curTime;
-                m_ei.SetCone(m_setup.secondCone);
-                m_r.SetCone(m_setup.secondCone);
-                m_ei.IntakeFromGround();
-            }
-            else if(m_ei.IsDone()){
-                m_r.Intake();
+                Intake(m_setup.secondCone, false);
             }
             if((m_lidarData.hasCone) || (m_lidarData.hasCube)){ //TODO could do better check
+                StopRollers();
                 m_state = COMING_FROM_SECOND;
             }
             else if(curTime - m_stateStartTime > 3.0){
-                m_state = GOING_TO_THIRD;
+                StopRollers();
+                m_state = COMING_FROM_SECOND;
+                //m_state = GOING_TO_THIRD;
             }
             break;
         case COMING_FROM_SECOND:
@@ -132,10 +144,10 @@ void ThreePiece::Periodic(){
                 ScorePos(m_setup.secondCone, m_targetHeights.second);
             }
             else if(m_ei.IsDone()){
-                m_r.Outtake();
-            }
-            if((!m_lidarData.hasCone) || (!m_lidarData.hasCube)){ //TODO could do better check
-                m_state = GOING_TO_THIRD;
+                Outtake(m_setup.secondCone);
+                if((!m_lidarData.hasCone) && (!m_lidarData.hasCube)){ //TODO could do better check
+                    Stow(GOING_TO_THIRD);
+                }
             }
             break;
         case GOING_TO_THIRD:
@@ -155,15 +167,16 @@ void ThreePiece::Periodic(){
         case PICKING_THIRD:
             if(m_prevState != m_state){
                 m_stateStartTime = curTime;
-                m_ei.SetCone(m_setup.secondCone);
-                m_r.SetCone(m_setup.secondCone);
-                m_ei.IntakeFromGround();
-            }
-            else if(m_ei.IsDone()){
-                m_r.Intake();
+                Intake(m_setup.secondCone, false);
             }
             if((m_lidarData.hasCone) || (m_lidarData.hasCube)){ //TODO could do better check
+                StopRollers();
                 m_state = COMING_FROM_THIRD;
+            }
+            else if(curTime - m_stateStartTime > 3.0){
+                StopRollers();
+                m_state = COMING_FROM_THIRD;
+                //m_state = GOING_TO_SECOND
             }
             break;
         case COMING_FROM_THIRD:
@@ -180,10 +193,10 @@ void ThreePiece::Periodic(){
                 ScorePos(m_setup.thirdCone, m_targetHeights.third);
             }
             if(m_ei.IsDone()){
-                m_r.Outtake();
-            }
-            if((!m_lidarData.hasCone) || (!m_lidarData.hasCube)){ //TODO could do better check
-                m_state = GOING_OUT;
+                Outtake(m_setup.thirdCone);
+                if((!m_lidarData.hasCone) && (!m_lidarData.hasCube)){ //TODO could do better check
+                    Stow(GOING_OUT);
+                }
             }
             break;
         case GOING_OUT:
@@ -203,19 +216,47 @@ void ThreePiece::Periodic(){
     m_r.Periodic();
     
     shuff_.PutInteger("State", m_state);
+
+    shuff_.PutNumber("Error Distance", distanceToTarget);
+
+    shuff_.PutNumber("Current X", x(m_curPos));
+    shuff_.PutNumber("Current Y", y(m_curPos));
+
+    shuff_.PutNumber("Target X", m_targetPose.x);
+    shuff_.PutNumber("Target Y", m_targetPose.y);
+    shuff_.PutNumber("Target Ang", m_targetPose.ang);
+
+    shuff_.PutNumber("Charge X", m_targetPoses.navChargeForward.x);
+    shuff_.PutNumber("Charge Y", m_targetPoses.navChargeForward.y);
+}
+
+/**
+ * Called when elevator is at target: stows then moves to next state
+*/
+void ThreePiece::Stow(State nextState){
+    if(waitStow){
+        StopRollers();
+        m_state = nextState;
+        waitStow = false;
+    }
+    else{
+        m_ei.Stow();
+        waitStow = true;
+    }
 }
 
 void ThreePiece::startNewPath(std::vector<SwervePose> poses){
     m_ei.Stow();
     m_ap.ResetPath();
+    m_ap.AddPose(SwervePose{.time = 0.0, .x = x(m_curPos), .y = y(m_curPos), .vx = 0.0, .vy = 0.0, .ang = m_curAng, .angVel = 0.0});
     m_ap.AddPoses(poses);
     m_targetPose = poses.back();
     m_ap.StartMove();
+    std::cout << "Starting new path " << m_state <<std::endl;
 }
 
 void ThreePiece::ScorePos(bool cone, ElevatorTarget target){
     m_ei.SetCone(cone);
-    m_r.SetCone(cone);
     switch(target){
         case LOW:
             m_ei.ScoreLow();
@@ -231,12 +272,43 @@ void ThreePiece::ScorePos(bool cone, ElevatorTarget target){
     }
 }
 
+void ThreePiece::Intake(bool cone, bool flange){
+    if(m_rollersMoving == INTAKE){
+        return;
+    }
+    m_ei.SetCone(cone);
+    m_r.SetCone(cone);
+    m_r.Intake();
+    if(flange && cone){
+        m_ei.IntakeFlange();
+    }
+    else{
+        m_ei.IntakeFromGround();
+    }
+    m_rollersMoving = INTAKE;
+}
+
+void ThreePiece::Outtake(bool cone){
+    if(m_rollersMoving == OUTTAKE){
+        return;
+    }
+    m_r.SetCone(cone);
+    m_r.Outtake();
+    m_rollersMoving = OUTTAKE;
+}
+
+void ThreePiece::StopRollers(){
+    m_r.Stop();
+    m_rollersMoving = STOP;
+};
 
 vec::Vector2D ThreePiece::GetDriveVel(){
+    shuff_.PutString("curr vel", m_ap.GetVel().toString());
     return m_ap.GetVel();
 }
 
 double ThreePiece::GetAngVel(){
+    shuff_.PutNumber("curr angVel", m_al.GetAngVel());
     return m_al.GetAngVel();
 }
 
@@ -249,7 +321,6 @@ void ThreePiece::CalcPositions(){
     bool top = y(m_curPos) > 2.74;
     bool left = top^m_red;
     int posOffset = left? 1 : 9;
-    printf("top: %s, left: %s, offset: %d", toString(top).data(), toString(left).data(), posOffset);
 
     //Placing locations
     bool coneSpots[3] {false}; //If a cone is placed on the outer column
@@ -269,7 +340,7 @@ void ThreePiece::CalcPositions(){
         .time = TRAVEL_TIME,
         .x = PIECE_X, .y = top? PIECE_Y_3 : PIECE_Y_2,
         .vx = 0.0, .vy = 0.0,
-        .ang = forwardAng + left? -60.0 : 60.0, .angVel = 0.0
+        .ang = forwardAng + left? -1.04 : 1.04, .angVel = 0.0
     };
     if(m_red){
         m_targetPoses.pickingSecond = Utils::GetRedPose(m_targetPoses.pickingSecond);
@@ -281,7 +352,7 @@ void ThreePiece::CalcPositions(){
         .time = CHARGETIME_FORWARD,
         .x = CHARGE_X, .y = CHARGE_Y + (top? NAV_WIDTH : -NAV_WIDTH),
         .vx = NAV_VEL, .vy = 0.0,
-        .ang = forwardAng, .angVel = 0.0
+        .ang = forwardAng + left? -M_PI/2.0 : M_PI/2.0, .angVel = 0.0
     };
     if(m_red){
         m_targetPoses.navChargeForward = Utils::GetRedPose(m_targetPoses.navChargeForward);
@@ -309,7 +380,6 @@ SwervePose ThreePiece::CalcScorePositions(bool cone, ElevatorTarget target, bool
         targPos = posOffset + toCenter;
     }
     FieldConstants::ScorePair score = Utils::GetScoringPos(targPos, height, m_red);
-    printf("target: %d, %d, position: %s", targPos, height, score.first.toString().data());
     return {
         .time = TRAVEL_TIME,
         .x = x(score.first), .y = y(score.first),

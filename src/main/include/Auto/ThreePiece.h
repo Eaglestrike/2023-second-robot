@@ -57,8 +57,12 @@ class ThreePiece : public BaseAuto{
         bool DockNow() override;
 
     private:
+        void Stow(State nextState);
         void startNewPath(std::vector<SwervePose> poses);
         void ScorePos(bool cone, ElevatorTarget target);
+        void Intake(bool cone, bool flange);
+        void Outtake(bool cone);
+        void StopRollers();
 
         //Calculating targets
         void CalcPositions(); //Calculates the target positions
@@ -84,6 +88,12 @@ class ThreePiece : public BaseAuto{
         State m_prevState = NONE;
         double m_stateStartTime;
         SwervePose m_targetPose;
+        enum {
+            INTAKE,
+            OUTTAKE,
+            STOP
+        } m_rollersMoving;
+        bool waitStow = false;
 
         struct SwerveTargets{
             SwervePose placingFirst;

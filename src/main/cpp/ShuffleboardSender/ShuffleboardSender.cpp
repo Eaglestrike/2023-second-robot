@@ -9,7 +9,7 @@ ShuffleboardSender::ShuffleboardSender(std::string name, bool enabled):
     if(enabled){
         tab_ = &frc::Shuffleboard::GetTab(name_);
         for(auto &component : tab_->GetComponents()){
-            nt::NetworkTableInstance::GetDefault().GetEntry(component.get()->GetTitle()).Delete();
+            nt::NetworkTableInstance::GetDefault().GetEntry(component.get()->GetTitle()).Unpublish();
         }
     }
 }

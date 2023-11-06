@@ -1,5 +1,7 @@
 #include "Drive/AutoPath.h"
 
+#include "iostream"
+
 #include "Drive/DriveConstants.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -111,9 +113,13 @@ void AutoPath::Stop() {
  * Starts auto path
 */
 void AutoPath::StartMove() {
+  m_expectFinish = m_calcTrans.getHighestTime();
+  if(m_calcTrans.getHighestTime() == 0){
+    Stop();
+    return;
+  }
   m_curState = EXECUTING_PATH;
   m_startTime = Utils::GetCurTimeS();
-  m_expectFinish = m_calcTrans.getHighestTime();
 }
 
 /**

@@ -13,14 +13,19 @@
 /**
  * Constructor
 */
-AutoPath::AutoPath() : 
+AutoPath::AutoPath(bool shuffleboard) : 
   m_curAng{0}, m_multiplier{0}, m_curAngVel{0}, m_prevTime{0}, m_prevTimeOdom{0},
   m_calcTrans{100}, m_calcAng{100}, m_curState{NOT_EXECUTING},
-  m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0}
+  m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0},
+  m_shuff{"Auto Path", shuffleboard}
 {
   using namespace AutoConstants;
   SetPosPID(TRANS_KP, TRANS_KI, TRANS_KD);
   SetAngPID(ANG_KP, ANG_KI, ANG_KD);
+
+  if(m_shuff.isEnabled()){
+    ShuffleboardInit();
+  }
 }
 
 /**
@@ -353,4 +358,19 @@ double AutoPath::GreatestTime() const {
 */
 double AutoPath::GetMultiplier() const {
   return m_multiplier;
+}
+
+void AutoPath::ShuffleboardInit(){
+  m_shuff.add("trans kP", &m_kPPos, {1,1,0,0}, true);
+  m_shuff.add("trans kI", &m_kIPos, {1,1,1,0}, true);
+  m_shuff.add("trans kD", &m_kDPos, {1,1,2,0}, true);
+  m_shuff.add("ang kP", &m_kPAng, {1,1,0,1}, true);
+  m_shuff.add("ang kI", &m_kIAng, {1,1,1,1}, true);
+  m_shuff.add("ang kD", &m_kDAng, {1,1,2,1}, true);
+}
+
+void AutoPath::ShuffleboardPeriodic(){
+  if(m_shuff.isEnabled()){
+    m_shuff.update(true);
+  }
 }

@@ -10,6 +10,8 @@
 #include "Util/thirdparty/hermite.hpp"
 #include "Util/thirdparty/simplevectors.hpp"
 
+#include "ShuffleboardSender/ShuffleboardSender.h"
+
 namespace hm = hermite;
 namespace vec = svector;
 
@@ -26,7 +28,7 @@ public:
     AT_TARGET
   };
 
-  AutoPath();
+  AutoPath(bool shuffleboard = false);
 
   void AddPose(AutoPaths::SwervePose pose);
   void AddPoses(std::vector<AutoPaths::SwervePose> poses);
@@ -45,6 +47,8 @@ public:
   double GreatestTime() const;
   double GetMultiplier() const;
 
+  void ShuffleboardPeriodic();
+  
 private:
   vec::Vector2D m_curPos;
   vec::Vector2D m_curWheelVel;
@@ -86,4 +90,7 @@ private:
   bool AtTransTarget(double posErrTol, double velErrTol) const;
   bool AtRotTarget(double posErrTol, double velErrTol) const;
   double GetMultipliedAng() const;
+
+  ShuffleboardSender m_shuff;
+  void ShuffleboardInit();
 };

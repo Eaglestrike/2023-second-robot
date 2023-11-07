@@ -573,6 +573,7 @@ void Robot::TeleopInit() {
   // m_autoLineup.SetPosFF({.maxSpeed = AutoConstants::TRANS_MAXSP, .maxAccel = AutoConstants::TRANS_MAXACC});
   // m_autoLineup.SetAngFF({.maxSpeed = AutoConstants::ANG_MAXSP, .maxAccel = AutoConstants::ANG_MAXACC});
   // m_lidar.TeleopInit();
+  m_elevatorIntake.Stow();
 }
 
 void Robot::TeleopPeriodic() {

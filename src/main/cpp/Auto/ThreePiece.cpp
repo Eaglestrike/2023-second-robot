@@ -51,6 +51,10 @@ void ThreePiece::setSetup(bool firstCone, bool secondCone, bool thirdCone){
     m_setup.thirdCone = thirdCone;
 }
 
+/**
+ * Sets the target for placing
+ * Options: LOW, MID, HIGH
+*/
 void ThreePiece::setTarget(ElevatorTarget firstTarget, ElevatorTarget secondTarget, ElevatorTarget thirdTarget){
     m_targetHeights.first = firstTarget;
     m_targetHeights.second = secondTarget;
@@ -90,7 +94,7 @@ void ThreePiece::Periodic(){
             if(m_prevState != m_state){
                 startNewPath({m_targetPoses.placingFirst});
             }
-            else if(distanceToTarget < 0.3){
+            else if(distanceToTarget < PLACING_DISTANCE){
                 m_state = FIRST_PLACE;
             }
             break;
@@ -111,7 +115,7 @@ void ThreePiece::Periodic(){
                 m_stateStartTime = curTime;
                 startNewPath({m_targetPoses.navChargeForward , m_targetPoses.pickingSecond});
             }
-            else if(distanceToTarget < 0.3){
+            else if(distanceToTarget < PICKING_DISTANCE){
                 m_state = PICKING_SECOND;
             }
             break;
@@ -124,7 +128,7 @@ void ThreePiece::Periodic(){
                 StopRollers();
                 m_state = COMING_FROM_SECOND;
             }
-            else if(curTime - m_stateStartTime > 3.0){
+            else if(curTime - m_stateStartTime > PICKING_TIME){
                 StopRollers();
                 m_state = COMING_FROM_SECOND;
                 //m_state = GOING_TO_THIRD;
@@ -135,7 +139,7 @@ void ThreePiece::Periodic(){
                 m_stateStartTime = curTime;
                 startNewPath({m_targetPoses.navChargeBack , m_targetPoses.placingSecond});
             }
-            else if(distanceToTarget < 0.3){
+            else if(distanceToTarget < PLACING_DISTANCE){
                 m_state = SECOND_PLACE;
             }
             break;
@@ -161,7 +165,7 @@ void ThreePiece::Periodic(){
                     startNewPath({m_targetPoses.navChargeForward , m_targetPoses.pickingThird});
                 }
             }
-            else if(distanceToTarget < 0.3){
+            else if(distanceToTarget < PICKING_DISTANCE){
                 m_state = PICKING_THIRD;
             }
             break;
@@ -174,7 +178,7 @@ void ThreePiece::Periodic(){
                 StopRollers();
                 m_state = COMING_FROM_THIRD;
             }
-            else if(curTime - m_stateStartTime > 3.0){
+            else if(curTime - m_stateStartTime > PICKING_TIME){
                 StopRollers();
                 m_state = COMING_FROM_THIRD;
                 //m_state = GOING_TO_SECOND
@@ -185,7 +189,7 @@ void ThreePiece::Periodic(){
                 m_stateStartTime = curTime;
                 startNewPath({m_targetPoses.navChargeBack , m_targetPoses.placingThird});
             }
-            else if(distanceToTarget < 0.3){
+            else if(distanceToTarget < PLACING_DISTANCE){
                 m_state = THIRD_PLACE;
             }
             break;
@@ -197,6 +201,7 @@ void ThreePiece::Periodic(){
                 Outtake(m_setup.thirdCone);
                 if((!m_lidarData.hasCone) && (!m_lidarData.hasCube)){ //TODO could do better check
                     Stow(GOING_OUT);
+                    std::cout<< "End time: " << curTime - m_autoStartTime <<std::endl;
                 }
             }
             break;
@@ -246,6 +251,9 @@ void ThreePiece::Stow(State nextState){
     }
 }
 
+/**
+ * Starts a new AutoPaths to go through the poses, starting where it is currently
+*/
 void ThreePiece::startNewPath(std::vector<SwervePose> poses){
     m_ei.Stow();
     m_ap.ResetPath();
@@ -260,6 +268,9 @@ void ThreePiece::startNewPath(std::vector<SwervePose> poses){
     std::cout << "Starting new path " << m_state <<std::endl;
 }
 
+/**
+ * Calls on the elevator to score
+*/
 void ThreePiece::ScorePos(bool cone, ElevatorTarget target){
     m_ei.SetCone(cone);
     switch(target){
@@ -322,7 +333,6 @@ bool ThreePiece::DockNow(){
 }
 
 void ThreePiece::CalcPositions(){
-    double forwardAng = m_red ? M_PI : 0.0;
     bool top = y(m_curPos) > 2.74;
     bool left = top^m_red;
     int posOffset = left? 1 : 9;
@@ -339,13 +349,13 @@ void ThreePiece::CalcPositions(){
         .time = TRAVEL_TIME,
         .x = PIECE_X, .y = top? PIECE_Y_4 : PIECE_Y_1,
         .vx = 0.0, .vy = 0.0,
-        .ang = forwardAng + left? -0.2 : 0.2, .angVel = 0.0
+        .ang = left? -0.2 + 2*M_PI: 0.2, .angVel = 0.0
     };
     m_targetPoses.pickingThird = {
         .time = TRAVEL_TIME,
         .x = PIECE_X, .y = top? PIECE_Y_3 : PIECE_Y_2,
         .vx = 0.0, .vy = 0.0,
-        .ang = forwardAng + left? -1.04 : 1.04, .angVel = 0.0
+        .ang = left? -1.04 + 2*M_PI: 1.04, .angVel = 0.0
     };
     if(m_red){
         m_targetPoses.pickingSecond = Utils::GetRedPose(m_targetPoses.pickingSecond);
@@ -357,15 +367,20 @@ void ThreePiece::CalcPositions(){
         .time = CHARGETIME_FORWARD,
         .x = CHARGE_X, .y = CHARGE_Y + (top? NAV_WIDTH : -NAV_WIDTH),
         .vx = NAV_VEL, .vy = 0.0,
-        .ang = forwardAng + left? -M_PI/2.0 : M_PI/2.0, .angVel = 0.0
+        .ang = left? -M_PI/2.0 + 2*M_PI: M_PI/2.0, .angVel = 0.0
+    };
+    m_targetPoses.navChargeBack = {
+        .time = CHARGETIME_BACK,
+        .x = CHARGE_X, .y = CHARGE_Y + (top? NAV_WIDTH : -NAV_WIDTH),
+        .vx = -NAV_VEL, .vy = 0.0,
+        .ang = left? -M_PI/2.0 + 2*M_PI: M_PI/2.0, .angVel = 0.0
     };
     if(m_red){
         m_targetPoses.navChargeForward = Utils::GetRedPose(m_targetPoses.navChargeForward);
+        m_targetPoses.navChargeBack = Utils::GetRedPose(m_targetPoses.navChargeBack);
     }
-    m_targetPoses.navChargeBack = m_targetPoses.navChargeForward;
-    m_targetPoses.navChargeBack.time = CHARGETIME_BACK;
-    m_targetPoses.navChargeBack.vx *= -1.0;
-    m_targetPoses.navChargeBack.vy *= -1.0;
+
+    std::cout<<"left "<<toString(left)<<std::endl;
 }
 
 /**

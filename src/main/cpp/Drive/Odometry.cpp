@@ -20,12 +20,18 @@
  * @param posOffset pointer to position offset in robot cpp
  * @param angOffset pointer to angle offset in robot cpp
  */
-Odometry::Odometry(vec::Vector2D *posOffset, double *angOffset)
+Odometry::Odometry(vec::Vector2D *posOffset, double *angOffset, bool shuffleboard)
   : m_posOffset{posOffset}, m_angOffset{angOffset}, m_trimOffset{0, 0}, 
     // m_filter{OdometryConstants::E0, OdometryConstants::Q, OdometryConstants::CAM_TRUST_KANG, OdometryConstants::CAM_TRUST_KPOS, OdometryConstants::CAM_TRUST_KPOSINT, OdometryConstants::MAX_TIME, posOffset, angOffset},
     m_filter{OdometryConstants::ALPHA, OdometryConstants::MAX_TIME, m_posOffset},
     m_ang{0},
-    m_prevId{-1} {}
+    m_prevId{-1},
+    m_shuff{"Odometry", shuffleboard}
+{
+  if(m_shuff.isEnabled()){
+    ShuffleboardInit();
+  }
+}
 
 /**
  * Sets Kalman filter terms
@@ -176,6 +182,10 @@ void Odometry::Periodic(double ang, vec::Vector2D avgVelocity) {
   m_ang = ang;
   // m_filter.PredictFromWheels(avgVelocity, ang + *m_angOffset, curTimeMs);
   m_filter.AddWheelVel(avgVelocity, curTimeMs);
+
+  if(m_shuff.isEnabled()){
+    m_shuff.update(true);
+  }
 }
 
 /**
@@ -203,4 +213,13 @@ void Odometry::AddTrimOffset(vec::Vector2D trimOffset) {
 */
 vec::Vector2D Odometry::GetTrimOffset() const {
   return m_trimOffset;
+}
+
+void Odometry::ShuffleboardInit(){
+  m_shuff.PutNumber("Filter Alpha", OdometryConstants::ALPHA, {1,1,0,0});
+
+  m_shuff.addButton("Set Filter Alpha", [&](){
+    double alpha = m_shuff.GetNumber("Filter Alpha", OdometryConstants::ALPHA);
+    SetAlpha(alpha);
+  }, {2,2,1,0});
 }

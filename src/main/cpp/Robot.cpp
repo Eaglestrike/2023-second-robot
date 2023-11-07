@@ -204,8 +204,7 @@ void Robot::RobotInit()
  * <p> This runs after the mode specific periodic functions, but before
  * LiveWindow and SmartDashboard integrated updating.
  */
-void Robot::RobotPeriodic()
-{
+void Robot::RobotPeriodic(){
   frc::SmartDashboard::PutBoolean("Pos Currently executing", m_autoLineup.GetPosExecuteState() == AutoLineup::EXECUTING_TARGET);
   frc::SmartDashboard::PutBoolean("Ang Currently executing", m_autoLineup.GetAngExecuteState() == AutoLineup::EXECUTING_TARGET);
 
@@ -213,17 +212,6 @@ void Robot::RobotPeriodic()
   frc::SmartDashboard::PutBoolean("Ang at target", m_autoLineup.GetAngExecuteState() == AutoLineup::AT_TARGET);
 
   if (m_controller.getPressedOnce(ZERO_DRIVE_PID)){
-    // double E0 = frc::SmartDashboard::GetNumber("KF E0", OdometryConstants::E0);
-    // double Q = frc::SmartDashboard::GetNumber("KF Q", OdometryConstants::Q);
-    // double kAng = frc::SmartDashboard::GetNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
-    // double kPos = frc::SmartDashboard::GetNumber("KF kPos", OdometryConstants::CAM_TRUST_KPOS);
-    // double kPosInt = frc::SmartDashboard::GetNumber("KF kPosInt", OdometryConstants::CAM_TRUST_KPOSINT);
-    double alpha = frc::SmartDashboard::GetNumber("Filter Alpha", OdometryConstants::ALPHA);
-    // double maxTime = frc::SmartDashboard::GetNumber("Filter maxtime", OdometryConstants::MAX_TIME);
-
-    m_odometry.SetAlpha(alpha); 
-    // m_odometry.SetMaxTime(maxTime);
-
     m_elevatorIntake.UpdateShuffleboard();
   }
 
@@ -231,20 +219,8 @@ void Robot::RobotPeriodic()
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection(m_startAng);
     m_odometry.Reset();
+    std::cout<<"Zeroed Yaw"<<std::endl;
   }
-
-  // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
-  // frc::SmartDashboard::PutNumber("fr raw encoder", m_swerveFr.GetRawEncoderReading());
-  // frc::SmartDashboard::PutNumber("bl raw encoder", m_swerveBl.GetRawEncoderReading());
-  // frc::SmartDashboard::PutNumber("br raw encoder", m_swerveBr.GetRawEncoderReading());
-
-  // frc::SmartDashboard::PutString("fl velocity", m_swerveFl.GetVelocity().toString());
-  // frc::SmartDashboard::PutString("fr velocity", m_swerveFr.GetVelocity().toString());
-  // frc::SmartDashboard::PutString("bl velocity", m_swerveBl.GetVelocity().toString());
-  // frc::SmartDashboard::PutString("br velocity", m_swerveBr.GetVelocity().toString());
-  // if (m_controller.getPressed(ELEVATOR_UPDATE)) {
-  //   // elevator_.UpdateShuffleboard();
-  // }
 
   m_elevatorIntake.Periodic();
   m_lidar.Periodic();
@@ -252,6 +228,8 @@ void Robot::RobotPeriodic()
   m_rollers.UpdateLidarData(m_lidar.getData());
 
   m_autoLineup.ShuffleboardPeriodic();
+
+  m_shuff.update(true); //TODO set to false when running code
 }
 
 /**
@@ -371,10 +349,9 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit() {
   m_swerveController->SetFeedForward(0, 1, 0);
   m_swerveController->SetAngCorrection(true);
-  // m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
   // m_autoLineup.SetPosFF({.maxSpeed = AutoConstants::TRANS_MAXSP, .maxAccel = AutoConstants::TRANS_MAXACC});
   // m_autoLineup.SetAngFF({.maxSpeed = AutoConstants::ANG_MAXSP, .maxAccel = AutoConstants::ANG_MAXACC});
-  // m_lidar.TeleopInit();
+  m_lidar.TeleopInit();
 }
 
 void Robot::TeleopPeriodic() {

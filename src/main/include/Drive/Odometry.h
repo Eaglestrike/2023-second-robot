@@ -8,6 +8,9 @@
 #include "CompFilter.h"
 // #include "KalmanFilter.h"
 #include "SwerveControl.h"
+
+#include "ShuffleboardSender/ShuffleboardSender.h"
+
 #include "Util/thirdparty/simplevectors.hpp"
 
 namespace vec = svector;
@@ -23,7 +26,7 @@ namespace vec = svector;
 */
 class Odometry {
 public:
-  Odometry(vec::Vector2D *posOffset, double *angOffset);
+  Odometry(vec::Vector2D *posOffset, double *angOffset, bool shuffleboard = false);
   
   // void SetKFTerms(double E0, double Q, double kAng, double k, double kPosInt, double maxTime);
   void SetAlpha(double alpha);
@@ -50,4 +53,7 @@ private:
   double m_ang;
 
   long long m_prevId;
+
+  ShuffleboardSender m_shuff;
+  void ShuffleboardInit();
 };

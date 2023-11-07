@@ -322,7 +322,6 @@ bool ThreePiece::DockNow(){
 }
 
 void ThreePiece::CalcPositions(){
-    double forwardAng = m_red ? M_PI : 0.0;
     bool top = y(m_curPos) > 2.74;
     bool left = top^m_red;
     int posOffset = left? 1 : 9;
@@ -339,13 +338,13 @@ void ThreePiece::CalcPositions(){
         .time = TRAVEL_TIME,
         .x = PIECE_X, .y = top? PIECE_Y_4 : PIECE_Y_1,
         .vx = 0.0, .vy = 0.0,
-        .ang = forwardAng + left? -0.2 : 0.2, .angVel = 0.0
+        .ang = left? -0.2 : 0.2, .angVel = 0.0
     };
     m_targetPoses.pickingThird = {
         .time = TRAVEL_TIME,
         .x = PIECE_X, .y = top? PIECE_Y_3 : PIECE_Y_2,
         .vx = 0.0, .vy = 0.0,
-        .ang = forwardAng + left? -1.04 : 1.04, .angVel = 0.0
+        .ang = left? -1.04 : 1.04, .angVel = 0.0
     };
     if(m_red){
         m_targetPoses.pickingSecond = Utils::GetRedPose(m_targetPoses.pickingSecond);
@@ -357,7 +356,7 @@ void ThreePiece::CalcPositions(){
         .time = CHARGETIME_FORWARD,
         .x = CHARGE_X, .y = CHARGE_Y + (top? NAV_WIDTH : -NAV_WIDTH),
         .vx = NAV_VEL, .vy = 0.0,
-        .ang = forwardAng + left? -M_PI/2.0 : M_PI/2.0, .angVel = 0.0
+        .ang = left? -M_PI/2.0 : M_PI/2.0, .angVel = 0.0
     };
     if(m_red){
         m_targetPoses.navChargeForward = Utils::GetRedPose(m_targetPoses.navChargeForward);

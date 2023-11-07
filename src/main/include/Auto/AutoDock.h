@@ -24,6 +24,7 @@ public:
   State GetState() const;
   vec::Vector2D GetVel() const;
   bool HasStarted() const;
+  bool LockWheels() const;
 
   void UpdateOdom(double r, double p, double y);
   void SetkTilt(double kTilt);
@@ -49,6 +50,8 @@ private:
   double m_preDockAng;
   double m_dockAng;
   double m_dockedTol;
+
+  bool m_lockWheels;
 
   double m_roll, m_pitch, m_yaw;
   vec::Vector2D m_outputVel;

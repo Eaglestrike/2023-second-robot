@@ -15,7 +15,7 @@
 AutoDock::AutoDock(bool isRed)
   : m_curState{NOT_DOCKING}, m_isRed{isRed}, m_kTilt{AutoConstants::KTILT}, m_preDockSpeed{AutoConstants::PRE_DOCK_SPEED},
   m_maxDockSpeed{AutoConstants::MAX_DOCK_SPEED}, m_preDockAng{AutoConstants::PRE_DOCK_ANG},
-  m_dockAng{AutoConstants::DOCK_ANG}, m_dockedTol{AutoConstants::DOCKED_TOL}, m_roll{0}, m_pitch{0}, m_yaw{0} {}
+  m_dockAng{AutoConstants::DOCK_ANG}, m_dockedTol{AutoConstants::DOCKED_TOL}, m_lockWheels{0}, m_roll{0}, m_pitch{0}, m_yaw{0} {}
 
 /**
  * Gets current state
@@ -92,6 +92,7 @@ void AutoDock::Start() {
     return;
   }
 
+  m_lockWheels = false;
   m_curState = PRE_DOCK;
 }
 
@@ -99,6 +100,7 @@ void AutoDock::Start() {
  * Resets docking state
 */
 void AutoDock::Reset() {
+  m_lockWheels = false;
   m_curState = NOT_DOCKING;
 }
 
@@ -180,8 +182,10 @@ void AutoDock::Periodic() {
   case DOCKED:
   case ON_STN:
     if (std::abs(tilt) < m_dockedTol) {
+      m_lockWheels = true;
       m_curState = DOCKED;
     } else {
+      m_lockWheels = false;
       m_curState = ON_STN;
     }
 
@@ -191,6 +195,10 @@ void AutoDock::Periodic() {
   default:
     break;
   }
+}
+
+bool AutoDock::LockWheels() const {
+  return m_lockWheels;
 }
 
 /**

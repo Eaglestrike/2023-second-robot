@@ -491,13 +491,18 @@ void Robot::AutonomousPeriodic()
       if (!m_autoDock.HasStarted()) {
         m_autoDock.Start();
       }
+      if (m_autoDock.LockWheels()) {
+        m_swerveController->Lock();
+      }
       m_swerveController->SetAngCorrection(true);
       m_autoDock.Periodic();
       driveVel = m_autoDock.GetVel();
       angVel = 0;
     } 
-    frc::SmartDashboard::PutString("Drive vel", driveVel.toString());
-    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    // frc::SmartDashboard::PutString("Drive vel", driveVel.toString());
+    if (!m_autoDock.LockWheels()) {
+      m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    }
   } else if (m_autoChooser.GetSelected() == "Dumb Dock"){
     m_dumbDock.Periodic();
     vec::Vector2D driveVel = m_dumbDock.GetVel();
@@ -507,12 +512,17 @@ void Robot::AutonomousPeriodic()
       if (!m_autoDock.HasStarted()) {
         m_autoDock.Start();
       }
+      if (m_autoDock.LockWheels()) {
+        m_swerveController->Lock();
+      }
       m_autoDock.Periodic();
       driveVel = m_autoDock.GetVel();
       angVel = 0;
     }
     m_swerveController->SetAngCorrection(true);
-    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    if (!m_autoDock.LockWheels()) {
+      m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    }
     m_swerveController->Periodic();
     m_elevatorIntake.Periodic();
   } else if (m_autoChooser.GetSelected() == "Sad Auto"){
@@ -539,8 +549,14 @@ void Robot::AutonomousPeriodic()
     m_autoDock.Periodic();
     m_swerveController->SetAngCorrection(true);
 
+    if (m_autoDock.LockWheels()) {
+      m_swerveController->Lock();
+    }
+
     vec::Vector2D driveVel = m_autoDock.GetVel();
-    m_swerveController->SetRobotVelocity(driveVel, 0, curYaw, deltaT);
+    if (!m_autoDock.LockWheels()) {
+      m_swerveController->SetRobotVelocity(driveVel, 0, curYaw, deltaT);
+    }
     m_elevatorIntake.Periodic();
   }
   
@@ -679,7 +695,11 @@ void Robot::TeleopPeriodic() {
     m_autoLineup.StopAng();
 
     m_swerveController->SetFeedForward(0, 1, 0);
-    m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
+    if (m_controller.getPressed(LOCK_WHEELS)) {
+      m_swerveController->Lock();
+    } else {
+      m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
+    }
   }
 
   m_autoLineup.Periodic();

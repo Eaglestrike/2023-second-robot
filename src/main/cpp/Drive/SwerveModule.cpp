@@ -33,6 +33,7 @@ SwerveModule::SwerveModule(SwerveConstants::SwerveConfig config, bool enabled, b
       m_angMotorInverted{config.angMotorInverted},
       m_targetSpeed{0},
       m_offset{config.offset},
+      m_lock{false},
       m_position{config.position}
 {
   m_encoder.ConfigAbsoluteSensorRange(Signed_PlusMinus180);
@@ -152,6 +153,10 @@ void SwerveModule::SetPID(double kP, double kI, double kD)
   m_controller.SetPID(kP, kI, kD);
 }
 
+void SwerveModule::SetLock(bool lock) {
+  m_lock = lock;
+}
+
 void SwerveModule::CoreTeleopPeriodic()
 {
   // get current angle
@@ -198,7 +203,7 @@ void SwerveModule::CoreTeleopPeriodic()
   m_driveMotor.SetVoltage(units::volt_t{speed});
 
   // don't set angle motor voltage if speed = 0
-  if (Utils::NearZero(speed)) {
+  if (Utils::NearZero(speed) && !m_lock) {
     m_angleMotor.SetVoltage(units::volt_t{0});
     return;
   }

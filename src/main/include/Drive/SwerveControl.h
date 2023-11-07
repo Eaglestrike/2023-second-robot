@@ -30,6 +30,7 @@ public:
   void SetRobotVelocity(vec::Vector2D vel, double angVel, double ang, double time);
   void SetRobotVelocityTele(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick);
   void SetAngCorrection(bool angCorrection);
+  void Lock();
 
 
 private:

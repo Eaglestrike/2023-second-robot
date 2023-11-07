@@ -116,13 +116,13 @@ Robot::Robot():
     vec::Vector2D wheelVel = m_swerveController->GetRobotVelocity(ang);
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
 
-    double tilt = roll * std::sin(angNavX) - pitch * std::cos(angNavX);
+    double tilt = -roll * std::sin(angNavX) - pitch * std::cos(angNavX);
 
     m_autoLineup.UpdateOdom(pos, ang, wheelVel);
     m_autoPath.UpdateOdom(pos, ang, wheelVel);
     m_twoPieceDock.UpdateOdom(pos, ang, wheelVel, tilt, m_lidar.getData()); // doesnt need tilt
     m_threePiece.UpdateOdom(pos, ang, wheelVel, tilt, m_lidar.getData()); // doesnt need tilt
-    m_autoDock.UpdateOdom(roll, pitch, ang);
+    m_autoDock.UpdateOdom(roll, pitch, angNavX);
 
     // UNCOMMENT BELOW
     frc::SmartDashboard::PutString("Robot pos", pos.toString());
@@ -568,6 +568,7 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit() {
   m_swerveController->SetFeedForward(0, 1, 0);
   m_swerveController->SetAngCorrection(true);
+  m_posVal = 0;
   // m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
   // m_autoLineup.SetPosFF({.maxSpeed = AutoConstants::TRANS_MAXSP, .maxAccel = AutoConstants::TRANS_MAXACC});
   // m_autoLineup.SetAngFF({.maxSpeed = AutoConstants::ANG_MAXSP, .maxAccel = AutoConstants::ANG_MAXACC});

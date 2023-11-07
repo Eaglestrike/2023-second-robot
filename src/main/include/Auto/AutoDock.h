@@ -53,6 +53,8 @@ private:
 
   bool m_lockWheels;
 
+  double m_startTime;
+
   double m_roll, m_pitch, m_yaw;
   vec::Vector2D m_outputVel;
 

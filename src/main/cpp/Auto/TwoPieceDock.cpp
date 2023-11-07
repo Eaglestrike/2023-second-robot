@@ -75,7 +75,7 @@ void TwoPieceDock::Periodic() {
                 m_ei.IntakeFromGround();
                 m_r.Intake();
             }
-            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET || m_lidarData.hasCube) {
+            if (curTime - m_startTime > m_ap.GreatestTime() - 0.5 || m_lidarData.hasCube) {
                 m_doOnce = false;
                 m_state = INTAKE2;
                 m_startTime = curTime;
@@ -141,7 +141,7 @@ void TwoPieceDock::Periodic() {
                 m_r.Intake();
                 m_doOnce = true;
             }
-            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET || m_lidarData.hasCube) {
+            if (curTime - m_startTime > m_ap.GreatestTime() - 0.5 || m_lidarData.hasCube) {
                 m_doOnce = false;
                 m_state = INTAKE3;
                 m_startTime = curTime;

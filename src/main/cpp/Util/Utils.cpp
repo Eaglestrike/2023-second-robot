@@ -268,6 +268,8 @@ int Utils::getPieceHeight(ElevatorConstants::ElevatorTarget target){
  * Determines if currently setting a cone from scoring position
 */
 bool Utils::IsCone(int pos) {
+  if (pos == 0) return false;
+
   pos--;
 
   return pos % 3 != 1;

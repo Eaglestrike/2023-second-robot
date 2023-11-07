@@ -6,6 +6,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Drive/DriveConstants.h"
+#include "Util/Utils.h"
 
 /**
  * Constructor
@@ -94,6 +95,8 @@ void AutoDock::Start() {
 
   m_lockWheels = false;
   m_curState = PRE_DOCK;
+
+  m_startTime = 0;
 }
 
 /**
@@ -102,6 +105,8 @@ void AutoDock::Start() {
 void AutoDock::Reset() {
   m_lockWheels = false;
   m_curState = NOT_DOCKING;
+
+  m_startTime = 0;
 }
 
 /**
@@ -166,13 +171,14 @@ void AutoDock::Periodic() {
   case PRE_DOCK:
     if (std::abs(tilt) > m_preDockAng) {
       m_curState = TOUCH_STN;
+      m_startTime = Utils::GetCurTimeS();
     }
 
     m_outputVel = {sign * m_preDockSpeed, 0};
 
     break;
   case TOUCH_STN:
-    if (std::abs(tilt) > m_dockAng) {
+    if (std::abs(tilt) > m_dockAng && Utils::GetCurTimeS() - m_startTime > 0.3) {
       m_curState = ON_STN;
     }
 
@@ -189,7 +195,7 @@ void AutoDock::Periodic() {
       m_curState = ON_STN;
     }
 
-    m_outputVel = {-sign * m_kTilt * tilt};
+    m_outputVel = {sign * m_kTilt * tilt};
 
     break;
   default:
@@ -214,7 +220,7 @@ double AutoDock::GetTilt() const {
 
   // return std::asin(std::clamp(z, -1.0, 1.0));
 
-  return m_roll * std::sin(m_yaw) - m_pitch * std::cos(m_yaw);
+  return -m_roll * std::sin(m_yaw) - m_pitch * std::cos(m_yaw);
 }
 
 bool AutoDock::HasStarted() const {

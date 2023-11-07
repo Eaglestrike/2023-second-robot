@@ -10,7 +10,7 @@ class ThreePiece : public BaseAuto{
     using SwervePose = AutoPaths::SwervePose;
 
     //Position of pieces during auto (blue)
-    const double PIECE_X = 7.068;
+    const double PIECE_X = 7.068 - 0.5;
     const double PIECE_Y_1 = 0.919;
     const double PIECE_Y_2 = 2.138;
     const double PIECE_Y_3 = 3.358;
@@ -22,11 +22,16 @@ class ThreePiece : public BaseAuto{
     const double NAV_WIDTH = 2.0;//Distance from center of charge station to go around
     const double NAV_VEL = 3.0;
 
-    //Timing
+    //Timing & Distance
     const double PLACING_TIME = 0.5; //1st placing time
     const double TRAVEL_TIME = 3.0; //Travel to items
     const double CHARGETIME_FORWARD = 2.0;
     const double CHARGETIME_BACK = 1.0;
+
+    const double PICKING_TIME = 3.0; //Time to wait to pick, s
+
+    const double PICKING_DISTANCE = 3.0; //Distance away to intake, m
+    const double PLACING_DISTANCE = 1.0; //Distance away to start placing, m
 
     public:
         enum State{

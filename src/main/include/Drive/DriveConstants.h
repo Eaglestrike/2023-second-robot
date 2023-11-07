@@ -222,7 +222,7 @@ namespace AutoConstants {
   const double MAX_DOCK_SPEED = 3;
 
   const double PRE_DOCK_ANG = 5 * M_PI / 180;
-  const double DOCK_ANG = 0.249;
+  const double DOCK_ANG = 0.229;
   const double DOCKED_TOL = 0.159;
 
   const double KTILT = 2.5;

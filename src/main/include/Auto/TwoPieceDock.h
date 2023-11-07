@@ -3,11 +3,11 @@
 #include "Auto/BaseAuto.h"
 
 class TwoPieceDock : public BaseAuto {
-    const double ROLLER_OUTTAKE_TIME = 0.5;
+    const double ROLLER_OUTTAKE_TIME = 0.3;
     const double SPLINE_TIME_OFFSET = 0.3;
-    const double INTAKE_CUBE_TIME = 1;
+    const double INTAKE_CUBE_TIME = 0.5;
 
-    const AutoPaths::SwervePose ORIG_PIECE_2_GND = {3, 7.085, 0.923, 0, 0, 0.124, 0};
+    const AutoPaths::SwervePose ORIG_PIECE_2_GND = {3, 6.5, 0.923, 0, 0, 0, 0};
     const AutoPaths::SwervePose ORIG_PIECE_2_SCORE = {3, 1.93, 1.07, 0, 0, M_PI, 0};
 
     const AutoPaths::SwervePose ORIG_PIECE_3_MID = {1.5, 4.525, 0.6, 1, 0, 0, 0};

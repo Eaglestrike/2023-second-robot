@@ -72,6 +72,7 @@ void ThreePiece::Init(){
     m_targetPose = m_targetPoses.placingFirst;
 
     m_ap.ResetPath();
+    m_ap.Stop();
     m_ap.ResetMultiplier();
 }
 
@@ -248,7 +249,11 @@ void ThreePiece::Stow(State nextState){
 void ThreePiece::startNewPath(std::vector<SwervePose> poses){
     m_ei.Stow();
     m_ap.ResetPath();
-    m_ap.AddPose(SwervePose{.time = 0.0, .x = x(m_curPos), .y = y(m_curPos), .vx = 0.0, .vy = 0.0, .ang = m_curAng, .angVel = 0.0});
+    m_ap.AddPose(SwervePose{.time = 0.0,
+                            .x = x(m_curPos), .y = y(m_curPos),
+                            .vx = 0.0, .vy = 0.0,
+                            .ang = m_curAng + 2.0*M_PI*m_ap.GetMultiplier(),
+                            .angVel = 0.0});
     m_ap.AddPoses(poses);
     m_targetPose = poses.back();
     m_ap.StartMove();
@@ -309,7 +314,7 @@ vec::Vector2D ThreePiece::GetDriveVel(){
 
 double ThreePiece::GetAngVel(){
     shuff_.PutNumber("curr angVel", m_al.GetAngVel());
-    return m_al.GetAngVel();
+    return m_ap.GetAngVel();
 }
 
 bool ThreePiece::DockNow(){
@@ -334,7 +339,7 @@ void ThreePiece::CalcPositions(){
         .time = TRAVEL_TIME,
         .x = PIECE_X, .y = top? PIECE_Y_4 : PIECE_Y_1,
         .vx = 0.0, .vy = 0.0,
-        .ang = forwardAng, .angVel = 0.0
+        .ang = forwardAng + left? -0.2 : 0.2, .angVel = 0.0
     };
     m_targetPoses.pickingThird = {
         .time = TRAVEL_TIME,

@@ -96,9 +96,10 @@ class Robot : public frc::TimedRobot {
   LidarReader m_lidar;
   Rollers m_rollers;
 
-  // auto
+  // auto 
   AutoLineup m_autoLineup;
   AutoPath m_autoPath;
+
   AutoDock m_autoDock;
   SadAuto m_sadAuto;
   DumbDock m_dumbDock;

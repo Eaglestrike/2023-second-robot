@@ -45,6 +45,8 @@ Robot::Robot():
       m_elevatorIntake{"ElevatorIntake", true, true},
       m_lidar{true, true},
       
+      m_autoLineup{"Auto Lineup", true},
+
       m_sadAuto{m_elevatorIntake, m_rollers},
       m_dumbDock{m_elevatorIntake, m_rollers},
       m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
@@ -189,13 +191,6 @@ void Robot::RobotInit()
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
 
-  // Starts recording to data log
-  // frc::DataLogManager::Start();
-
-  // Set up custom log entries
-  // wpi::log::DataLog& log = frc::DataLogManager::GetLog();
-  // m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
-  // m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
   m_elevatorIntake.Init();
   m_lidar.Init();
   m_client.Init();
@@ -217,26 +212,7 @@ void Robot::RobotPeriodic()
   frc::SmartDashboard::PutBoolean("Pos at target", m_autoLineup.GetPosExecuteState() == AutoLineup::AT_TARGET);
   frc::SmartDashboard::PutBoolean("Ang at target", m_autoLineup.GetAngExecuteState() == AutoLineup::AT_TARGET);
 
-  if (m_controller.getPressedOnce(ZERO_DRIVE_PID))
-  {
-    // double kP = frc::SmartDashboard::GetNumber("wheel kP", SwerveConstants::TURN_P);
-    // double kI = frc::SmartDashboard::GetNumber("wheel kI", SwerveConstants::TURN_I);
-    // double kD = frc::SmartDashboard::GetNumber("wheel kD", SwerveConstants::TURN_D);
-
-    // m_swerveFl.SetPID(kP, kI, kD);
-    // m_swerveFr.SetPID(kP, kI, kD);
-    // m_swerveBl.SetPID(kP, kI, kD);
-    // m_swerveBr.SetPID(kP, kI, kD);
-
-    // double kP2 = frc::SmartDashboard::GetNumber("ang correct kP", SwerveConstants::ANG_CORRECT_P);
-    // double kI2 = frc::SmartDashboard::GetNumber("ang correct kI", SwerveConstants::ANG_CORRECT_I);
-    // double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
-    // m_swerveFl.UpdateShuffleboard();
-    // m_swerveFr.UpdateShuffleboard();
-    // m_swerveBl.UpdateShuffleboard();
-    // m_swerveBr.UpdateShuffleboard();
-    // m_swerveController->SetAngleCorrectionPID(kP2, kI2, kD2);
-
+  if (m_controller.getPressedOnce(ZERO_DRIVE_PID)){
     // double E0 = frc::SmartDashboard::GetNumber("KF E0", OdometryConstants::E0);
     // double Q = frc::SmartDashboard::GetNumber("KF Q", OdometryConstants::Q);
     // double kAng = frc::SmartDashboard::GetNumber("KF kAng", OdometryConstants::CAM_TRUST_KANG);
@@ -248,44 +224,10 @@ void Robot::RobotPeriodic()
     m_odometry.SetAlpha(alpha); 
     // m_odometry.SetMaxTime(maxTime);
 
-    // double deltaX = frc::SmartDashboard::GetNumber("Delta X", 0);
-    // double deltaY = frc::SmartDashboard::GetNumber("Delta Y", 0);
-    // double deltaAng = frc::SmartDashboard::GetNumber("Delta Ang", 0);
-    // m_autoLineup.SetPosTarget({deltaX, deltaY}, true);
-    // m_autoLineup.SetAngTarget(deltaAng, true);
-
-    double tkP = frc::SmartDashboard::GetNumber("ltrans kP", LineupConstants::TRANS_KP);
-    double tkI = frc::SmartDashboard::GetNumber("ltrans kI", LineupConstants::TRANS_KI);
-    double tkD = frc::SmartDashboard::GetNumber("ltrans kD", LineupConstants::TRANS_KD);
-
-    double akP = frc::SmartDashboard::GetNumber("lang kP", LineupConstants::ANG_KP);
-    double akI = frc::SmartDashboard::GetNumber("lang kI", LineupConstants::ANG_KI);
-    double akD = frc::SmartDashboard::GetNumber("lang kD", LineupConstants::ANG_KD);
-
-    m_autoLineup.SetPosPID(tkP, tkI, tkD);
-    m_autoLineup.SetAngPID(akP, akI, akD);
-
-    double tMaxSp = frc::SmartDashboard::GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
-    double tMaxAcc = frc::SmartDashboard::GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
-
-    double aMaxSp = frc::SmartDashboard::GetNumber("ang maxSp", AutoConstants::ANG_MAXSP);
-    double aMaxAcc = frc::SmartDashboard::GetNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
-
-    m_autoLineup.SetPosFF({tMaxSp, tMaxAcc});
-    m_autoLineup.SetAngFF({aMaxSp, aMaxAcc});
-
-    // m_odometry.SetKFTerms(E0, Q, kAng, kPos, kPosInt, maxTime);
-
-    // double mx = frc::SmartDashboard::GetNumber("1 Mid X", FieldConstants::BLUE_SCORING_POS[0][1].first.x());
-    // double hx = frc::SmartDashboard::GetNumber("1 High X", FieldConstants::BLUE_SCORING_POS[0][2].first.x());
-    // double my = frc::SmartDashboard::GetNumber("1 Mid Y", FieldConstants::BLUE_SCORING_POS[0][1].first.y());
-    // double hy = frc::SmartDashboard::GetNumber("1 High Y", FieldConstants::BLUE_SCORING_POS[0][2].first.y());
-
     m_elevatorIntake.UpdateShuffleboard();
   }
 
-  if (m_controller.getPressedOnce(ZERO_YAW))
-  {
+  if (m_controller.getPressedOnce(ZERO_YAW)){
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection(m_startAng);
     m_odometry.Reset();
@@ -308,6 +250,8 @@ void Robot::RobotPeriodic()
   m_lidar.Periodic();
 
   m_rollers.UpdateLidarData(m_lidar.getData());
+
+  m_autoLineup.ShuffleboardPeriodic();
 }
 
 /**

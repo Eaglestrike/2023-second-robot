@@ -6,11 +6,11 @@
 
 namespace ShuffleboardHelper{
     template <typename T> nt::GenericEntry* createItem(ShuffleboardItemInterface::ItemData data, T value, frc::BuiltInWidgets type = frc::BuiltInWidgets::kTextView){
-        // for(auto component : data.tab->GetComponents()){
-        //     if(component.get()->GetTitle() == data.name){
-        //         nt::NetworkTableInstance::GetDefault().GetEntry(data.name).Delete();
-        //     }
-        // }
+        for(auto component : data.tab->GetComponents()){
+            if(component.get()->GetTitle() == data.name){
+                return nt::NetworkTableInstance::GetDefault().GetEntry(data.name).GetHandle();
+            }
+        }
         if((data.pose.positionX >= 0) && (data.pose.positionY >= 0)){
             return data.tab->Add(data.name, value)
                                 .WithWidget(type)
@@ -26,7 +26,7 @@ namespace ShuffleboardHelper{
         }
     }
 
-    inline frc::ShuffleboardLayout* createList(ShuffleboardItemInterface::ItemData data){
+    frc::ShuffleboardLayout* createList(ShuffleboardItemInterface::ItemData data){
         if((data.pose.positionX >= 0) && (data.pose.positionY >= 0)){
             return &data.tab->GetLayout(data.name, frc::BuiltInLayouts::kList)
                                 .WithSize(data.pose.width, data.pose.height)

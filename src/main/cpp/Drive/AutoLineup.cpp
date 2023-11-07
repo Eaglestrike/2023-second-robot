@@ -15,16 +15,25 @@
  * 
  * @param odometry Pointer to odometry object
 */
-AutoLineup::AutoLineup()
-  : m_curAng{0}, m_prevTime{0}, m_curExpectedAng{0}, m_targetAng{0}, m_curAngVel{0}, m_posTimes{0, 0, 0, 0},
-  m_angTimes{0, 0, 0, 0}, m_angVecDir{0}, m_ffPos{0, 0}, m_ffAng{0, 0}, m_posState{NOT_EXECUTING},
+AutoLineup::AutoLineup(std::string name, bool shuffleboard):
+  m_curAng{0}, m_prevTime{0},
+  m_curExpectedAng{0}, m_targetAng{0}, m_curAngVel{0},
+  m_posTimes{0, 0, 0, 0}, m_angTimes{0, 0, 0, 0},
+  m_angVecDir{0},
+  m_ffPos{0, 0}, m_ffAng{0, 0},
+  m_posState{NOT_EXECUTING},
   m_prevPos{0}, m_prevAng{0}, m_prevPosErr{0}, m_prevAngErr{0}, m_totalPosErr{0}, m_totalAngErr{0},
-  /*m_prevAngVelErr{0}, m_totalAngVelErr{0},*/ m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0}
+  m_kPPos{0}, m_kIPos{0}, m_kDPos{0}, m_kPAng{0}, m_kIAng{0}, m_kDAng{0},
+  m_shuff{name, shuffleboard}
 {
   SetPosPID(LineupConstants::TRANS_KP, LineupConstants::TRANS_KI, LineupConstants::TRANS_KD);
   SetAngPID(LineupConstants::ANG_KP, LineupConstants::ANG_KI, LineupConstants::ANG_KD);
   SetPosFF({LineupConstants::TRANS_MAXSP, LineupConstants::TRANS_MAXACC});
   SetAngFF({LineupConstants::ANG_MAXSP, LineupConstants::ANG_MAXACC});
+
+  if(m_shuff.isEnabled()){
+    ShuffleboardInit();
+  }
 }
 
 
@@ -369,6 +378,10 @@ void AutoLineup::Periodic() {
   }
 
   m_prevTime = curTime;
+
+  if(m_shuff.isEnabled()){
+    ShuffleboardPeriodic();
+  }
 }
 
 /**
@@ -556,4 +569,66 @@ vec::Vector2D AutoLineup::GetTargetPos() const {
 */
 double AutoLineup::GetTargetAng() const {
   return m_targetAng;
+}
+
+
+void AutoLineup::ShuffleboardInit(){
+  m_shuff.PutNumber("Delta X", 0, {1,1,0,0});
+  m_shuff.PutNumber("Delta Y", 0, {1,1,1,0});
+  m_shuff.PutNumber("Delta Ang", 0, {1,1,2,0});
+
+  m_shuff.addButton("Set Relative Target", [&](){
+    double deltaX = m_shuff.GetNumber("Delta X", 0);
+    double deltaY = m_shuff.GetNumber("Delta Y", 0);
+    double deltaAng = m_shuff.GetNumber("Delta Ang", 0);
+    SetPosTarget({deltaX, deltaY}, true);
+    SetAngTarget(deltaAng, true);
+    std::cout<<"Updated Autolineup Target"<<std::endl;
+  }, {2,2,3,0});
+
+  m_shuff.PutNumber("trans kP", LineupConstants::TRANS_KP, {1,1,0,3});
+  m_shuff.PutNumber("trans kI", LineupConstants::TRANS_KI, {1,1,1,3});
+  m_shuff.PutNumber("trans kD", LineupConstants::TRANS_KD, {1,1,2,3});
+  m_shuff.PutNumber("ang kP", LineupConstants::ANG_KP, {1,1,0,4});
+  m_shuff.PutNumber("ang kI", LineupConstants::ANG_KI, {1,1,1,4});
+  m_shuff.PutNumber("ang kD", LineupConstants::ANG_KD, {1,1,2,4});
+  m_shuff.PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP, {1,1,3,3});
+  m_shuff.PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC, {1,1,4,3});
+  m_shuff.PutNumber("ang maxSp", AutoConstants::ANG_MAXSP, {1,1,3,4});
+  m_shuff.PutNumber("ang maxAcc", AutoConstants::ANG_MAXACC, {1,1,4,4});
+
+  m_shuff.addButton("Set FF PID", [&](){
+    double tkP = m_shuff.GetNumber("trans kP", LineupConstants::TRANS_KP);
+    double tkI = m_shuff.GetNumber("trans kI", LineupConstants::TRANS_KI);
+    double tkD = m_shuff.GetNumber("trans kD", LineupConstants::TRANS_KD);
+
+    double akP = m_shuff.GetNumber("ang kP", LineupConstants::ANG_KP);
+    double akI = m_shuff.GetNumber("ang kI", LineupConstants::ANG_KI);
+    double akD = m_shuff.GetNumber("ang kD", LineupConstants::ANG_KD);
+
+    SetPosPID(tkP, tkI, tkD);
+    SetAngPID(akP, akI, akD);
+
+    double tMaxSp = m_shuff.GetNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
+    double tMaxAcc = m_shuff.GetNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
+
+    double aMaxSp = m_shuff.GetNumber("ang maxSp", AutoConstants::ANG_MAXSP);
+    double aMaxAcc = m_shuff.GetNumber("ang maxAcc", AutoConstants::ANG_MAXACC);
+
+    SetPosFF({tMaxSp, tMaxAcc});
+    SetAngFF({aMaxSp, aMaxAcc});
+
+    std::cout<<"Updated Autolineup FFPID"<<std::endl;
+  },{2,2,5,3});
+}
+
+void AutoLineup::ShuffleboardPeriodic(){
+  if(!m_shuff.isEnabled()){
+    return;
+  }
+  m_shuff.update(true);
+}
+
+void AutoLineup::ShuffleboardUpdate(){
+
 }

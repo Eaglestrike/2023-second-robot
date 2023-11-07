@@ -4,6 +4,9 @@
 
 #include "Drive/Odometry.h"
 #include "Drive/SwerveControl.h"
+
+#include "ShuffleboardSender/ShuffleboardSender.h"
+
 #include "Util/thirdparty/simplevectors.hpp"
 
 namespace vec = svector;
@@ -31,7 +34,7 @@ public:
     AT_TARGET
   };
 
-  AutoLineup();
+  AutoLineup(std::string name, bool shuffleboard = false);
 
   void SetPosTarget(vec::Vector2D pos, bool rel);
   void SetAngTarget(double ang, bool rel);
@@ -53,6 +56,9 @@ public:
   double GetTargetAng() const;
   ExecuteState GetPosExecuteState() const;
   ExecuteState GetAngExecuteState() const;
+  
+  void ShuffleboardPeriodic();
+  void ShuffleboardUpdate();
 
 private:
   vec::Vector2D m_curPos;
@@ -109,13 +115,12 @@ private:
   double GetPIDAng(double deltaT);
 
   vec::Vector2D GetPIDTransVel(double deltaT, vec::Vector2D expectedVel);
-  // double GetPIDAngVel(double deltaT, vec::Vector2D expectedAngVel);
 
   bool AtPosTarget() const;
   bool AtAngTarget() const;
   bool AtPosTarget(double posErrTol, double velErrTol) const;
   bool AtAngTarget(double posErrTol, double velErrTol) const;
 
-  // TEMP
-  // double m_dist;
+  ShuffleboardSender m_shuff;
+  void ShuffleboardInit();
 };

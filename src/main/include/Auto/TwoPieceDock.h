@@ -57,4 +57,6 @@ private:
     double m_startTime;
 
     double GetAbsAng();
+
+    bool m_doOnce;
 };

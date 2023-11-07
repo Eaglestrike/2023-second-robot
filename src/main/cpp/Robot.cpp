@@ -456,13 +456,17 @@ void Robot::AutonomousInit()
 
   m_autoPath.ResetMultiplier();
 
+  m_elevatorIntake.Stow();
+
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
+    m_autoDock.Reset();
     m_twoPieceDock.Init();
   } 
   else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
     m_threePiece.Init();
   }
   else if (m_autoChooser.GetSelected() == "Sad Auto") {
+    m_autoDock.Reset();
     m_sadAuto.Start();
   } else if (m_autoChooser.GetSelected() == "Dock Test DELETE ME") {
     m_autoDock.Reset();
@@ -510,13 +514,17 @@ void Robot::AutonomousPeriodic()
     m_swerveController->SetAngCorrection(true);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
     m_swerveController->Periodic();
+    m_elevatorIntake.Periodic();
   } else if (m_autoChooser.GetSelected() == "Sad Auto"){
     m_dumbDock.Periodic();
     vec::Vector2D driveVel = m_dumbDock.GetVel();
     double angVel = m_dumbDock.GetAngleVel();
+
     m_swerveController->SetAngCorrection(true);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
     m_swerveController->Periodic();
+
+    m_elevatorIntake.Periodic();
   }
   else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
     m_threePiece.Periodic();
@@ -527,14 +535,13 @@ void Robot::AutonomousPeriodic()
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
   }
 
-  else if (m_autoChooser.GetSelected() == "Sad Auto") {
-    m_sadAuto.Periodic();
-  } else if (m_autoChooser.GetSelected() == "Dock Test DELETE ME") {
+ else if (m_autoChooser.GetSelected() == "Dock Test DELETE ME") {
     m_autoDock.Periodic();
     m_swerveController->SetAngCorrection(true);
 
     vec::Vector2D driveVel = m_autoDock.GetVel();
     m_swerveController->SetRobotVelocity(driveVel, 0, curYaw, deltaT);
+    m_elevatorIntake.Periodic();
   }
   
   m_swerveController->Periodic();

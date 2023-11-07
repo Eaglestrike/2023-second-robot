@@ -12,6 +12,8 @@ void TwoPieceDock::Init() {
     m_r.SetCone(true);
     m_ei.ScoreHigh();
 
+    m_doOnce = false;
+
     // sorry for baad code
     PIECE_2_GND = ORIG_PIECE_2_GND;
     PIECE_2_SCORE = ORIG_PIECE_2_SCORE;
@@ -31,9 +33,9 @@ void TwoPieceDock::Init() {
 void TwoPieceDock::Periodic() {
     double curTime = Utils::GetCurTimeS();
 
-    m_ei.UpdateLidarData(m_lidarData);
-    m_ap.UpdateOdom(m_curPos, m_curAng, m_curWheelVel);
-    m_r.UpdateLidarData(m_lidarData);
+    // m_ei.UpdateLidarData(m_lidarData);
+    // m_ap.UpdateOdom(m_curPos, m_curAng, m_curWheelVel);
+    // m_r.UpdateLidarData(m_lidarData);
 
     frc::SmartDashboard::PutNumber("2piece state", m_state);
 
@@ -65,11 +67,15 @@ void TwoPieceDock::Periodic() {
             }
             break;
         case GO_TO_PIECE_2:
-            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET - 1) {
+            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET - 1 && !m_doOnce) {
+                m_doOnce = true;
                 m_ei.SetCone(false);
                 m_r.SetCone(false);
                 m_ei.IntakeFromGround();
                 m_r.Intake();
+            }
+            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET) {
+                m_doOnce = false;
                 m_state = INTAKE2;
                 m_startTime = curTime;
             }
@@ -94,8 +100,12 @@ void TwoPieceDock::Periodic() {
             }
             break;
         case GO_TO_GRID_2:
-            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET - 0.5) {
+            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET - 0.5 && !m_doOnce) {
+                m_doOnce = true;
                 m_ei.ScoreHigh();
+            }
+            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET) {
+                m_doOnce = false;
                 m_state = PLACE2_UP;
             }
             break;
@@ -125,9 +135,13 @@ void TwoPieceDock::Periodic() {
             }
             break;
         case GO_TO_PIECE_3:
-            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET - 1) {
+            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET - 1 && !m_doOnce) {
                 m_ei.IntakeFromGround();
                 m_r.Intake();
+                m_doOnce = true;
+            }
+            if (curTime - m_startTime > m_ap.GreatestTime() + SPLINE_TIME_OFFSET) {
+                m_doOnce = false;
                 m_state = INTAKE3;
                 m_startTime = curTime;
             }

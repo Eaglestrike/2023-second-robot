@@ -183,10 +183,10 @@ namespace LineupConstants {
   const double ANG_KD = 0.5;
 
   const double TRANS_MAXSP = 3;
-  const double TRANS_MAXACC = 2.5;
+  const double TRANS_MAXACC = 1;
 
   const double ANG_MAXSP = 1.5;
-  const double ANG_MAXACC = 1.5;
+  const double ANG_MAXACC = 1;
 
   const double TRANS_POS_ERR_TOLERANCE = 0.025;
   const double TRANS_VEL_ERR_TOLERANCE = 100;

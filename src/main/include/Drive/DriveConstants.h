@@ -76,8 +76,8 @@ namespace SwerveConstants
   const double NORMAL_SWERVE_MULT = 12.0;
   const double SLOW_SWERVE_MULT = 3.0;
 
-  const double PITCH_OFFSET = 0;
-  const double ROLL_OFFSET = 0;
+  const double PITCH_OFFSET = -0.02;
+  const double ROLL_OFFSET = M_PI-0.02;
 
   struct SwerveConfig{
     std::string name;
@@ -218,14 +218,14 @@ namespace AutoConstants {
 
   const double TRIM_DIST = 0.3;
 
-  const double PRE_DOCK_SPEED = 0;
-  const double MAX_DOCK_SPEED = 0;
+  const double PRE_DOCK_SPEED = 1.5;
+  const double MAX_DOCK_SPEED = 3;
 
   const double PRE_DOCK_ANG = 5 * M_PI / 180;
-  const double DOCK_ANG = 12 * M_PI / 180;
-  const double DOCKED_TOL = 12 * M_PI / 180;
+  const double DOCK_ANG = 0.249;
+  const double DOCKED_TOL = 0.159;
 
-  const double KTILT = 0;
+  const double KTILT = 2.5;
 }
 
 namespace AutoPaths {

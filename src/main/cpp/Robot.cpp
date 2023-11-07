@@ -116,7 +116,7 @@ Robot::Robot():
     vec::Vector2D wheelVel = m_swerveController->GetRobotVelocity(ang);
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
 
-    double tilt = pitch * std::sin(ang) - roll * std::cos(ang);
+    double tilt = roll * std::sin(angNavX) - pitch * std::cos(angNavX);
 
     m_autoLineup.UpdateOdom(pos, ang, wheelVel);
     m_autoPath.UpdateOdom(pos, ang, wheelVel);
@@ -127,6 +127,9 @@ Robot::Robot():
     // UNCOMMENT BELOW
     frc::SmartDashboard::PutString("Robot pos", pos.toString());
     frc::SmartDashboard::PutNumber("Robot ang", ang);
+    frc::SmartDashboard::PutNumber("Robot pitch", pitch);
+    frc::SmartDashboard::PutNumber("Robot roll", roll);
+    frc::SmartDashboard::PutNumber("Robot tilt", tilt);
     frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
     frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
     frc::SmartDashboard::PutData("Field", &m_field);
@@ -170,29 +173,30 @@ void Robot::RobotInit()
   m_autoChooser.AddOption("3 Piece Dock", "3 Piece Dock");
   m_autoChooser.AddOption("Dumb Dock", "Dumb Dock");
   m_autoChooser.AddOption("Sad Auto", "Sad Auto");
+  m_autoChooser.AddOption("Dock Test DELETE ME", "Dock Test DELETE ME");
   frc::SmartDashboard::PutData("auto chooser", &m_autoChooser);
 
-  frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
-  frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
-  frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
+  // frc::SmartDashboard::PutNumber("trans kP", AutoConstants::TRANS_KP);
+  // frc::SmartDashboard::PutNumber("trans kI", AutoConstants::TRANS_KI);
+  // frc::SmartDashboard::PutNumber("trans kD", AutoConstants::TRANS_KD);
 
-  frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
-  frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
-  frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
+  // frc::SmartDashboard::PutNumber("ang kP", AutoConstants::ANG_KP);
+  // frc::SmartDashboard::PutNumber("ang kI", AutoConstants::ANG_KI);
+  // frc::SmartDashboard::PutNumber("ang kD", AutoConstants::ANG_KD);
 
-  frc::SmartDashboard::PutNumber("ltrans kP", LineupConstants::TRANS_KP);
-  frc::SmartDashboard::PutNumber("ltrans kI", LineupConstants::TRANS_KI);
-  frc::SmartDashboard::PutNumber("ltrans kD", LineupConstants::TRANS_KD);
+  // frc::SmartDashboard::PutNumber("ltrans kP", LineupConstants::TRANS_KP);
+  // frc::SmartDashboard::PutNumber("ltrans kI", LineupConstants::TRANS_KI);
+  // frc::SmartDashboard::PutNumber("ltrans kD", LineupConstants::TRANS_KD);
 
-  frc::SmartDashboard::PutNumber("lang kP", LineupConstants::ANG_KP);
-  frc::SmartDashboard::PutNumber("lang kI", LineupConstants::ANG_KI);
-  frc::SmartDashboard::PutNumber("lang kD", LineupConstants::ANG_KD);
+  // frc::SmartDashboard::PutNumber("lang kP", LineupConstants::ANG_KP);
+  // frc::SmartDashboard::PutNumber("lang kI", LineupConstants::ANG_KI);
+  // frc::SmartDashboard::PutNumber("lang kD", LineupConstants::ANG_KD);
 
-  frc::SmartDashboard::PutNumber("swerve kS", SwerveConstants::kS);
-  frc::SmartDashboard::PutNumber("swerve kV", SwerveConstants::kV);
-  frc::SmartDashboard::PutNumber("swerve kA", SwerveConstants::kA);
+  // frc::SmartDashboard::PutNumber("swerve kS", SwerveConstants::kS);
+  // frc::SmartDashboard::PutNumber("swerve kV", SwerveConstants::kV);
+  // frc::SmartDashboard::PutNumber("swerve kA", SwerveConstants::kA);
 
-  frc::SmartDashboard::PutNumber("sad auto move time", 1.0);
+  // frc::SmartDashboard::PutNumber("sad auto move time", 1.0);
   // frc::SmartDashboard::PutNumber("trans maxSp", AutoConstants::TRANS_MAXSP);
   // frc::SmartDashboard::PutNumber("trans maxAcc", AutoConstants::TRANS_MAXACC);
 
@@ -203,6 +207,13 @@ void Robot::RobotInit()
   // frc::SmartDashboard::PutNumber("1 High X", FieldConstants::BLUE_SCORING_POS[0][2].first.x());
   // frc::SmartDashboard::PutNumber("1 Mid Y", FieldConstants::BLUE_SCORING_POS[0][1].first.y());
   // frc::SmartDashboard::PutNumber("1 High Y", FieldConstants::BLUE_SCORING_POS[0][2].first.y());
+
+  frc::SmartDashboard::PutNumber("pre dock speed", AutoConstants::PRE_DOCK_SPEED);
+  frc::SmartDashboard::PutNumber("max dock speed", AutoConstants::MAX_DOCK_SPEED);
+  frc::SmartDashboard::PutNumber("pre dock ang", AutoConstants::PRE_DOCK_ANG);
+  frc::SmartDashboard::PutNumber("dock ang", AutoConstants::DOCK_ANG);
+  frc::SmartDashboard::PutNumber("dock tol", AutoConstants::DOCKED_TOL);
+  frc::SmartDashboard::PutNumber("kTilt", AutoConstants::KTILT);
 
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection();
@@ -348,42 +359,44 @@ void Robot::RobotPeriodic()
     m_startAng = FieldConstants::DEBUG_ANG;
     m_startPos = FieldConstants::DEBUG_POS;
     m_joystickAng = FieldConstants::DEBUG_JANG;
-    m_red = false;
+    // m_red = false;
   } else if (m_selected == "Blue L") {
     m_startAng = FieldConstants::BL_ANG;
     m_startPos = FieldConstants::BL_POS;
     m_joystickAng = FieldConstants::BL_JANG;
-    m_red = false;
+    // m_red = false;
   } else if (m_selected == "Blue M") {
     m_startAng = FieldConstants::BM_ANG;
     m_startPos = FieldConstants::BM_POS;
     m_joystickAng = FieldConstants::BM_JANG;
-    m_red = false;
+    // m_red = false;
   } else if (m_selected == "Blue R") {
     m_startAng = FieldConstants::BR_ANG;
     m_startPos = FieldConstants::BR_POS;
     m_joystickAng = FieldConstants::BR_JANG;
-    m_red = false;
+    // m_red = false;
   } else if (m_selected == "Red L") {
     m_startAng = FieldConstants::RL_ANG;
     m_startPos = FieldConstants::RL_POS;
     m_joystickAng = FieldConstants::RL_JANG;
-    m_red = true;
+    // m_red = true;
   } else if (m_selected == "Red M") {
     m_startAng = FieldConstants::RM_ANG;
     m_startPos = FieldConstants::RM_POS;
     m_joystickAng = FieldConstants::RM_JANG;
-    m_red = true;
+    // m_red = true;
   } else if (m_selected == "Red R") {
     m_startAng = FieldConstants::RR_ANG;
     m_startPos = FieldConstants::RR_POS;
     m_joystickAng = FieldConstants::RR_JANG;
-    m_red = true;
+    // m_red = true;
   } else {
     m_startAng = FieldConstants::DEBUG_ANG;
     m_startPos = FieldConstants::DEBUG_POS;
     m_joystickAng = FieldConstants::DEBUG_JANG;
+    // m_red = false;
   }
+  m_red = frc::DriverStation::GetAlliance() == frc::DriverStation::kRed;
 
   m_elevatorIntake.Periodic();
   m_lidar.Periodic();
@@ -421,6 +434,19 @@ void Robot::AutonomousInit()
   m_autoPath.SetPosPID(tkP, tkI, tkD);
   m_autoPath.SetAngPID(akP, akI, akD);
 
+  double preDock = frc::SmartDashboard::GetNumber("pre dock speed", AutoConstants::PRE_DOCK_SPEED);
+  double maxDock = frc::SmartDashboard::GetNumber("max dock speed", AutoConstants::MAX_DOCK_SPEED);
+  double preDockAng = frc::SmartDashboard::GetNumber("pre dock ang", AutoConstants::PRE_DOCK_ANG);
+  double dockAng = frc::SmartDashboard::GetNumber("dock ang", AutoConstants::DOCK_ANG);
+  double dockTol = frc::SmartDashboard::GetNumber("dock tol", AutoConstants::DOCKED_TOL);
+  double kTilt = frc::SmartDashboard::GetNumber("kTilt", AutoConstants::KTILT);
+  m_autoDock.SetPreDockSpeed(preDock);
+  m_autoDock.SetMaxDockSpeed(maxDock);
+  m_autoDock.SetPreDockAng(preDockAng);
+  m_autoDock.SetDockAng(dockAng);
+  m_autoDock.SetDockedTol(dockTol);
+  m_autoDock.SetkTilt(kTilt);
+
   m_swerveController->SetAngCorrection(false);
 
   m_autoDock.SetSide(m_red);
@@ -438,6 +464,9 @@ void Robot::AutonomousInit()
   }
   else if (m_autoChooser.GetSelected() == "Sad Auto") {
     m_sadAuto.Start();
+  } else if (m_autoChooser.GetSelected() == "Dock Test DELETE ME") {
+    m_autoDock.Reset();
+    m_autoDock.Start();
   }
 }
 
@@ -458,6 +487,7 @@ void Robot::AutonomousPeriodic()
       if (!m_autoDock.HasStarted()) {
         m_autoDock.Start();
       }
+      m_swerveController->SetAngCorrection(true);
       m_autoDock.Periodic();
       driveVel = m_autoDock.GetVel();
       angVel = 0;
@@ -499,6 +529,12 @@ void Robot::AutonomousPeriodic()
 
   else if (m_autoChooser.GetSelected() == "Sad Auto") {
     m_sadAuto.Periodic();
+  } else if (m_autoChooser.GetSelected() == "Dock Test DELETE ME") {
+    m_autoDock.Periodic();
+    m_swerveController->SetAngCorrection(true);
+
+    vec::Vector2D driveVel = m_autoDock.GetVel();
+    m_swerveController->SetRobotVelocity(driveVel, 0, curYaw, deltaT);
   }
   
   m_swerveController->Periodic();

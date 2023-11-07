@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 #include "Drive/DriveConstants.h"
 
 /**
@@ -151,6 +153,8 @@ void AutoDock::Periodic() {
   double tilt = GetTilt();
   double sign = m_isRed ? 1 : -1;
 
+  frc::SmartDashboard::PutNumber("Dock Current state", m_curState);
+
   switch (m_curState)
   {
   case NOT_DOCKING:
@@ -173,16 +177,16 @@ void AutoDock::Periodic() {
     m_outputVel = {sign * m_maxDockSpeed, 0};
 
     break;
+  case DOCKED:
   case ON_STN:
     if (std::abs(tilt) < m_dockedTol) {
       m_curState = DOCKED;
+    } else {
+      m_curState = ON_STN;
     }
 
-    m_outputVel = {sign * m_kTilt * std::abs(tilt)};
+    m_outputVel = {-sign * m_kTilt * tilt};
 
-    break;
-  case DOCKED:
-    m_outputVel = {0, 0};
     break;
   default:
     break;
@@ -202,7 +206,7 @@ double AutoDock::GetTilt() const {
 
   // return std::asin(std::clamp(z, -1.0, 1.0));
 
-  return m_pitch * std::sin(m_yaw) - m_roll * std::cos(m_yaw);
+  return m_roll * std::sin(m_yaw) - m_pitch * std::cos(m_yaw);
 }
 
 bool AutoDock::HasStarted() const {

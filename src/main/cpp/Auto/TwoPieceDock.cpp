@@ -34,14 +34,9 @@ void TwoPieceDock::Init() {
 void TwoPieceDock::Periodic() {
     double curTime = Utils::GetCurTimeS();
 
-<<<<<<< HEAD
-    m_ap.UpdateOdom(m_curPos, m_curAng, m_curWheelVel);
-    m_r.UpdateLidarData(m_lidarData);
-=======
     // m_ei.UpdateLidarData(m_lidarData);
     // m_ap.UpdateOdom(m_curPos, m_curAng, m_curWheelVel);
     // m_r.UpdateLidarData(m_lidarData);
->>>>>>> new-auto
 
     frc::SmartDashboard::PutNumber("2piece state", m_state);
 

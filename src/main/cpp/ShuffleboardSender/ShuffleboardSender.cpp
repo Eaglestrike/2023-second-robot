@@ -1,6 +1,7 @@
 #include "ShuffleboardSender/ShuffleboardSender.h"
 
 #include "ShuffleboardSender/ShuffleboardButton.h"
+#include "ShuffleboardSender/ShuffleboardToggleButton.h"
 
 ShuffleboardSender::ShuffleboardSender(std::string name, bool enabled):
     name_(name),
@@ -13,12 +14,22 @@ ShuffleboardSender::ShuffleboardSender(std::string name, bool enabled):
 
 void ShuffleboardSender::addButton(std::string name, std::function<void()> callback){
     std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* item){return item->getName() == name;}); //Remove all elements with the same name
-    items_.push_back(new ShuffleboardButton({name, tab_}, callback));
+    items_.push_back(new ShuffleboardButton({name, tab_, true}, callback));
 }
 
 void ShuffleboardSender::addButton(std::string name, std::function<void()> callback, ShuffleboardItemInterface::ShuffleboardPose pose){
     std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* item){return item->getName() == name;}); //Remove all elements with the same name
     items_.push_back(new ShuffleboardButton({name, tab_, true, pose}, callback));
+}
+
+void ShuffleboardSender::addToggleButton(std::string name, std::function<void()> callbackTrue, std::function<void()> callbackFalse, bool startVal){
+    std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* item){return item->getName() == name;}); //Remove all elements with the same name
+    items_.push_back(new ShuffleboardToggleButton({name, tab_, true}, callbackTrue, callbackFalse, startVal));
+}
+
+void ShuffleboardSender::addToggleButton(std::string name, std::function<void()> callbackTrue, std::function<void()> callbackFalse, bool startVal, ShuffleboardItemInterface::ShuffleboardPose pose){
+    std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* item){return item->getName() == name;}); //Remove all elements with the same name
+    items_.push_back(new ShuffleboardToggleButton({name, tab_, true, pose}, callbackTrue, callbackFalse, startVal));
 }
 
 void ShuffleboardSender::update(bool edit){

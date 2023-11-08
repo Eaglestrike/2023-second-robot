@@ -61,6 +61,12 @@ class ShuffleboardSender{
         void addButton(std::string name, std::function<void()> callback, ShuffleboardItemInterface::ShuffleboardPose pose);
 
         /**
+         * Adds a toggle button
+        */
+        void addToggleButton(std::string name, std::function<void()> callbackTrue, std::function<void()> callbackFalse, bool startVal);
+        void addToggleButton(std::string name, std::function<void()> callbackTrue, std::function<void()> callbackFalse, bool startVal, ShuffleboardItemInterface::ShuffleboardPose pose);
+
+        /**
          * Updates variables by reading and configuring, and then sending the data
          * 
          * edit boolean enable editing

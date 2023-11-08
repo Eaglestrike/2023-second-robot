@@ -23,8 +23,8 @@ class ShuffleboardToggleButton : public ShuffleboardItemInterface{
         void disable() override;
 
     private:
-        bool prevVal_;
         std::function<void()> callbackTrue_;
         std::function<void()> callbackFalse_;
+        bool prevVal_;
         nt::GenericEntry* entry_;
 };

@@ -629,6 +629,11 @@ void AutoLineup::ShuffleboardPeriodic(){
   m_shuff.update(true);
 }
 
-void AutoLineup::ShuffleboardUpdate(){
+void AutoLineup::EnableShuffleboard(){
+  m_shuff.enable();
+}
 
+
+void AutoLineup::DisableShuffleboard(){
+  m_shuff.disable();
 }

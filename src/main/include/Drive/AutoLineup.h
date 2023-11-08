@@ -58,7 +58,8 @@ public:
   ExecuteState GetAngExecuteState() const;
   
   void ShuffleboardPeriodic();
-  void ShuffleboardUpdate();
+  void EnableShuffleboard();
+  void DisableShuffleboard();
 
 private:
   vec::Vector2D m_curPos;

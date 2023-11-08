@@ -29,10 +29,10 @@ using namespace Actions;
 Robot::Robot():
       m_prevTime{0},
 
-      m_swerveFr{SwerveConstants::FR_CONFIG, true, true},
-      m_swerveBr{SwerveConstants::BR_CONFIG, true, true},
-      m_swerveFl{SwerveConstants::FL_CONFIG, true, true},
-      m_swerveBl{SwerveConstants::BL_CONFIG, true, true},
+      m_swerveFr{SwerveConstants::FR_CONFIG, true, false},
+      m_swerveBr{SwerveConstants::BR_CONFIG, true, false},
+      m_swerveFl{SwerveConstants::FL_CONFIG, true, false},
+      m_swerveBl{SwerveConstants::BL_CONFIG, true, false},
       
       m_odometry{&m_startPos, &m_startAng},
       m_startPos{0, 0}, m_startAng{0}, m_joystickAng{0},
@@ -42,11 +42,11 @@ Robot::Robot():
       m_posVal{0},
       m_heightVal{0},
       
-      m_elevatorIntake{"ElevatorIntake", true, true},
-      m_lidar{true, true},
+      m_elevatorIntake{"ElevatorIntake", true, false},
+      m_lidar{true, false},
       
-      m_autoLineup{"Auto Lineup", true},
-      m_autoPath{true},
+      m_autoLineup{"Auto Lineup", false},
+      m_autoPath{false},
 
       m_sadAuto{m_elevatorIntake, m_rollers},
       m_dumbDock{m_elevatorIntake, m_rollers},
@@ -57,7 +57,7 @@ Robot::Robot():
 {
   // swerve
   SwerveControl::RefArray<SwerveModule> moduleArray{{m_swerveFr, m_swerveBr, m_swerveFl, m_swerveBl}};
-  m_swerveController = new SwerveControl(moduleArray, true, true);
+  m_swerveController = new SwerveControl(moduleArray, true, false);
 
   // navx
   try
@@ -169,6 +169,17 @@ void Robot::RobotInit()
   m_elevatorIntake.Init();
   m_lidar.Init();
   m_client.Init();
+
+  m_shuff.addToggleButton("Swerve", [&](){m_swerveController->EnableShuffleboard();},
+                                    [&](){m_swerveController->DisableShuffleboard();},
+                                    false, {1,1,0,0});
+  m_shuff.addToggleButton("ElevatorIntake", [&](){m_elevatorIntake.EnableShuffleboard();},
+                                            [&](){m_elevatorIntake.DisableShuffleboard();},
+                                            false, {1,1,0,0});
+  m_shuff.addToggleButton("Auto Lineup", [&](){m_autoLineup.EnableShuffleboard();},
+                                         [&](){m_autoLineup.DisableShuffleboard();},
+                                         false, {1,1,0,0});
+
 }
 
 /**
@@ -205,7 +216,8 @@ void Robot::RobotPeriodic(){
 
   m_autoPath.ShuffleboardPeriodic();
   m_autoLineup.ShuffleboardPeriodic();
-  m_shuff.update(true); //TODO set to false when running competition code
+
+  m_shuff.update(false); //TODO set to false when running competition code
 }
 
 /**

@@ -5,10 +5,12 @@ ShuffleboardItem<frc::PIDController>::ShuffleboardItem(ItemData data, frc::PIDCo
 {
     value_ = value;
 
-    frc::ShuffleboardLayout* pidLayout = ShuffleboardHelper::createList(data);
-    entry_[0] = pidLayout->Add("P", value->GetP()).GetEntry();   
-    entry_[1] = pidLayout->Add("I", value->GetI()).GetEntry();
-    entry_[2] = pidLayout->Add("D", value->GetD()).GetEntry(); 
+    if(data_.tab){
+        frc::ShuffleboardLayout* pidLayout = ShuffleboardHelper::createList(data);
+        entry_[0] = pidLayout->Add("P", value->GetP()).GetEntry();   
+        entry_[1] = pidLayout->Add("I", value->GetI()).GetEntry();
+        entry_[2] = pidLayout->Add("D", value->GetD()).GetEntry(); 
+    }
 };
 
 void ShuffleboardItem<frc::PIDController>::send(){
@@ -23,8 +25,9 @@ void ShuffleboardItem<frc::PIDController>::edit(){
     value_->SetD(entry_[2]->GetDouble(value_->GetD()));
 }
 
-void ShuffleboardItem<frc::PIDController>::enable(){
+void ShuffleboardItem<frc::PIDController>::enable(frc::ShuffleboardTab* tab){
     if((!entry_[0]->Exists()) || (!entry_[1]->Exists()) || (!entry_[2]->Exists())){
+        data_.tab = tab;
         frc::ShuffleboardLayout* pidLayout = ShuffleboardHelper::createList(data_);
         entry_[0] = pidLayout->Add("P", value_->GetP()).GetEntry();   
         entry_[1] = pidLayout->Add("I", value_->GetI()).GetEntry();

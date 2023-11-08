@@ -19,7 +19,7 @@ class ShuffleboardButton : public ShuffleboardItemInterface{
     public:
         ShuffleboardButton(ItemData data, std::function<void()> callback);
         void update(bool edit) override;
-        void enable() override;
+        void enable(frc::ShuffleboardTab* tab) override;
         void disable() override;
 
     private:

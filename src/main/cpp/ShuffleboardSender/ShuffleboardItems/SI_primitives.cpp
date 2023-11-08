@@ -75,18 +75,21 @@ bool ShuffleboardItem<int>::itemHasChanged(){
 } 
 
 //Enable
-void ShuffleboardItem<double>::enable(){
+void ShuffleboardItem<double>::enable(frc::ShuffleboardTab* tab){
     if(!entry_->Exists()){
+        data_.tab = tab;
         entry_ = ShuffleboardHelper::createItem(data_, *value_);
     }
 };
-void ShuffleboardItem<bool>::enable(){
+void ShuffleboardItem<bool>::enable(frc::ShuffleboardTab* tab){
     if(!entry_->Exists()){
+        data_.tab = tab;
         entry_ = ShuffleboardHelper::createItem(data_, *value_);
     }
 };
-void ShuffleboardItem<int>::enable(){
+void ShuffleboardItem<int>::enable(frc::ShuffleboardTab* tab){
     if(!entry_->Exists()){
+        data_.tab = tab;
         entry_ = ShuffleboardHelper::createItem(data_, *value_);
     }
 };

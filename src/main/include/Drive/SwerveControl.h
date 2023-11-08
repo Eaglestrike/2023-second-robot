@@ -23,11 +23,14 @@ public:
 
   vec::Vector2D GetRobotVelocity(double ang);
 
-  void ResetAngleCorrection();
+  void ResetAngleCorrection(double startAng = 0);
   void ResetFeedForward();
   void SetFeedForward(double kS, double kV, double kA);
   void SetAngleCorrectionPID(double kP, double kI, double kD);
   void SetRobotVelocity(vec::Vector2D vel, double angVel, double ang, double time);
+  void SetRobotVelocityTele(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick);
+  void SetAngCorrection(bool angCorrection);
+  void Lock();
 
 
 private:
@@ -45,5 +48,6 @@ private:
   double m_kA;
 
   double m_curAngle;
+  bool m_angCorrection;
   frc2::PIDController m_angleCorrector;
 };

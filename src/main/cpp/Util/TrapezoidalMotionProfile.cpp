@@ -41,7 +41,7 @@ void TrapezoidalMotionProfile::SetSetpoint(double curPos, double setPt){
     m_targetAcc = m_maxAcc;
     m_curTime = Utils::GetCurTimeS();
     if (setPt < curPos)m_targetAcc *= -1;
-    CalcVelTurnPos(curPos, setPt);
+    CalcSpeedDecreasePos(curPos, setPt);
 }
 
 /**
@@ -60,17 +60,17 @@ bool TrapezoidalMotionProfile::AtSetPoint() const {
  * @param curPos current position
  * @param setPt setpoint
 */
-void TrapezoidalMotionProfile::CalcVelTurnPos(double curPos, double setPt){
+void TrapezoidalMotionProfile::CalcSpeedDecreasePos(double curPos, double setPt){
     if (m_maxAcc <= 0 || m_maxVel <= 0) {
         return;
     }
 
     if(fabs(setPt - curPos) < m_maxVel*m_maxVel/m_maxAcc){ // for triangle motion profile
-        m_velTurnPos = (m_setPt+curPos)/2;
+        m_speedDecreasePos = (m_setPt+curPos)/2;
     } else if (m_setPt > curPos)
-        m_velTurnPos = m_setPt - m_maxVel*m_maxVel/(m_maxAcc*2);
+        m_speedDecreasePos = m_setPt - m_maxVel*m_maxVel/(m_maxAcc*2);
     else 
-        m_velTurnPos = m_setPt + m_maxVel*m_maxVel/(m_maxAcc*2);
+        m_speedDecreasePos = m_setPt + m_maxVel*m_maxVel/(m_maxAcc*2);
 }
 
 /**
@@ -87,13 +87,13 @@ void TrapezoidalMotionProfile::Periodic(){
     double newTime = Utils::GetCurTimeS(), timePassed = newTime- m_curTime;
     m_curTime = newTime;
 
-    if (m_velTurnPos < m_setPt){ // if trapezoid is pos
-        if (m_targetPos > m_velTurnPos) // if after turn pt
+    if (m_speedDecreasePos < m_setPt){ // if trapezoid is pos
+        if (m_targetPos > m_speedDecreasePos) // if after turn pt
             newV = std::max(0.0, m_targetVel - m_maxAcc * timePassed);
         else 
             newV = std::min(m_maxVel, m_targetVel + m_maxAcc * timePassed);
     } else {
-        if (m_targetPos > m_velTurnPos) // if before the turn pt
+        if (m_targetPos > m_speedDecreasePos) // if before the turn pt
             newV = std::max(-m_maxVel, m_targetVel - m_maxAcc * timePassed);
         else 
             newV = std::min(0.0, m_targetVel + m_maxAcc * timePassed);

@@ -2,12 +2,13 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 #include <vector>
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Drive/DriveConstants.h"
-#include "Util/MathUtil.h"
+#include "Util/Utils.h"
 
 /**
  * Constructor
@@ -24,10 +25,14 @@
 SwerveControl::SwerveControl(RefArray<SwerveModule> modules, bool enabled, bool shuffleboard):
     Mechanism("Swerve Control", enabled, shuffleboard),
     m_modules{modules}, 
-    m_kS{0.0}, m_kV{0.0}, m_kA{0.0}, m_curAngle{0}, m_angleCorrector{0.1, 0, 0.01}
+    m_kS{0.0}, m_kV{0.0}, m_kA{0.0}, m_curAngle{0},
+    m_angCorrection{true},
+    m_angleCorrector{SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D}
 {
   m_angleCorrector.EnableContinuousInput(-M_PI, M_PI);
   ResetFeedForward();
+
+  SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
 }
 
 /**
@@ -60,13 +65,13 @@ void SwerveControl::ResetFeedForward()
 }
 
 /**
- * Resets angle correction angle to zero
+ * Resets angle correction angle to a certain angle
  *
  * @note Always call this after calling navx::ZeroYaw()
  */
-void SwerveControl::ResetAngleCorrection()
+void SwerveControl::ResetAngleCorrection(double startAng)
 {
-  m_curAngle = 0;
+  m_curAngle = startAng;
 }
 
 /**
@@ -105,28 +110,24 @@ void SwerveControl::SetAngleCorrectionPID(double kP, double kI, double kD)
  */
 void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double ang, double time)
 {
-  std::vector<vec::Vector2D> vecPrints;
-  vecPrints.resize(4);
-
-  frc::SmartDashboard::PutNumber("cjurrent angle", m_curAngle);
-
   if (!Utils::NearZero(angVel))
   {
     // if turning, track current angle
     m_curAngle = ang;
   }
 
-  if (!Utils::NearZero(vel) && Utils::NearZero(angVel))
+  if (!Utils::NearZero(vel) && Utils::NearZero(angVel) && m_angCorrection)
   {
     // if not turning, correct robot so that it doesnt turn
     angVel = m_angleCorrector.Calculate(ang, m_curAngle);
-    frc::SmartDashboard::PutNumber("pidout", angVel);
+    // frc::SmartDashboard::PutNumber("pidout", angVel);
     angVel = std::clamp(angVel, -SwerveConstants::MAX_VOLTS, SwerveConstants::MAX_VOLTS);
   }
 
-
   for (std::size_t i = 0; i < 4; i++)
   {
+    m_modules[i].get().SetLock(false);
+
     // computes vectors in 3D
     vec::Vector3D vel3D = {x(vel), y(vel), 0};
     vec::Vector3D angVel3D = {0, 0, angVel};
@@ -145,16 +146,33 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 
     // speed from ff calculations, then resize velBody to match ff calculations
     double speed = m_kS + m_kV * magn(velBody) + m_kA * (magn(velBody) - m_prevSpeeds[i]) / time;
+    m_prevSpeeds[i] = magn(velBody);
     if (!Utils::NearZero(velBody) && !Utils::NearZero(speed))
     {
       velBody = normalize(velBody) * speed;
     }
-    m_prevSpeeds[i] = magn(velBody);
 
     // set vector
-    vecPrints[i] = velBody;
     m_modules[i].get().SetVector(velBody);
   }
+}
+
+void SwerveControl::Lock() {
+  m_modules[0].get().SetSpeed(0);
+  m_modules[1].get().SetSpeed(0);
+  m_modules[2].get().SetSpeed(0);
+  m_modules[3].get().SetSpeed(0);
+
+  m_modules[0].get().SetAngle(-45);
+  m_modules[1].get().SetAngle(45);
+  m_modules[2].get().SetAngle(45);
+  m_modules[3].get().SetAngle(-45);
+
+
+  m_modules[0].get().SetLock(true);
+  m_modules[1].get().SetLock(true);
+  m_modules[2].get().SetLock(true);
+  m_modules[3].get().SetLock(true);
 }
 
 void SwerveControl::CoreInit(){
@@ -162,14 +180,26 @@ void SwerveControl::CoreInit(){
 }
 
 /**
- * Periodic function
+ * Sets robot absolute velocity given relative joystick inputs
  *
- * @note to self: CALL ME!!!! cALLL ME!!!!! you blITHERignnGG IDIOT!
+ * @param vel Velocity to set
+ * @param angVel Angular velocity, + is counterclockwise, - is clockwise
+ * @param ang Current navX angle, in radians
+ * @param time Time between readings
+ * @param angOfJoystick angle of joystick relative to field
+ */
+void SwerveControl::SetRobotVelocityTele(vec::Vector2D vel, double angVel, double ang, double time, double angOfJoystick) {
+  vec::Vector2D velAbs = vec::rotate(vel, angOfJoystick);
+  SetRobotVelocity(velAbs, angVel, ang, time);
+}
+
+/**
+ * Periodic function
  */
 void SwerveControl::CorePeriodic(){
   for (auto module : m_modules)
   {
-    module.get().Periodic();
+    module.get().TeleopPeriodic();
   }
 }
 
@@ -185,4 +215,8 @@ void SwerveControl::CoreShuffleboardUpdate(){
   double kD2 = frc::SmartDashboard::GetNumber("ang correct kD", SwerveConstants::ANG_CORRECT_D);
 
   SetAngleCorrectionPID(kP2, kI2, kD2);
+}
+
+void SwerveControl::SetAngCorrection(bool angCorrection) {
+  m_angCorrection = angCorrection;
 }

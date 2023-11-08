@@ -27,6 +27,7 @@ public:
   void SetSpeed(double speed);
   void SetAngle(double angle);
   void SetPID(double kP, double kI, double kD);
+  void SetLock(bool lock);
 
 private:
   void CoreTeleopPeriodic() override;
@@ -49,6 +50,8 @@ private:
   vec::Vector2D m_targetAngle;
   double m_targetSpeed;
   double m_offset;
+
+  bool m_lock;
 
   vec::Vector2D m_position;
 };

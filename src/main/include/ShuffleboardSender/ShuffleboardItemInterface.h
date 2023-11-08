@@ -33,6 +33,8 @@ class ShuffleboardItemInterface{
         virtual void enable() = 0;
         virtual void disable() = 0;
 
+        std::string getName();
+
     protected:
         ItemData data_;
 };

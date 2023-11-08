@@ -418,6 +418,11 @@ void Robot::RobotPeriodic()
  */
 void Robot::AutonomousInit()
 {
+  // ZERO
+  m_navx->ZeroYaw();
+  m_swerveController->ResetAngleCorrection(m_startAng);
+  m_odometry.Reset();
+
   double kS = frc::SmartDashboard::GetNumber("swerve kS", SwerveConstants::kS);
   double kV = frc::SmartDashboard::GetNumber("swerve kV", SwerveConstants::kV);
   double kA = frc::SmartDashboard::GetNumber("swerve kA", SwerveConstants::kA);
@@ -459,19 +464,20 @@ void Robot::AutonomousInit()
   m_elevatorIntake.Stow();
 
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
-    m_autoDock.Reset();
     m_twoPieceDock.Init();
   } 
   else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
     m_threePiece.Init();
   }
   else if (m_autoChooser.GetSelected() == "Sad Auto") {
-    m_autoDock.Reset();
     m_sadAuto.Start();
   } else if (m_autoChooser.GetSelected() == "Dock Test DELETE ME") {
-    m_autoDock.Reset();
     m_autoDock.Start();
   }
+  else if (m_autoChooser.GetSelected() == "Dumb Dock") {
+    m_dumbDock.Start();
+  }
+  m_autoDock.Reset();
 }
 
 void Robot::AutonomousPeriodic()
@@ -519,11 +525,12 @@ void Robot::AutonomousPeriodic()
       driveVel = m_autoDock.GetVel();
       angVel = 0;
     }
+
     m_swerveController->SetAngCorrection(true);
     if (!m_autoDock.LockWheels()) {
       m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
     }
-    m_swerveController->Periodic();
+    // m_swerveController->Periodic();
     m_elevatorIntake.Periodic();
   } else if (m_autoChooser.GetSelected() == "Sad Auto"){
     m_dumbDock.Periodic();

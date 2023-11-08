@@ -102,6 +102,7 @@ void ElevatorIntake::DebugScoring(){
 void ElevatorIntake::Periodic(){
     m_intake.Periodic();
     m_elevator.Periodic();
+    frc::SmartDashboard::PutNumber("wrist pos cur", m_intake.GetPos());
 }
 
 void ElevatorIntake::ToggleRoller(bool outtaking){

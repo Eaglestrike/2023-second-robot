@@ -67,7 +67,7 @@ void DumbDock::Periodic(){
 
 void DumbDock::Start(){
     m_state = IN;
-    m_startTime = m_curTime;
+    m_startTime = Utils::GetCurTimeS();
     m_ei.SetCone(!m_cube);
     m_rollers.SetCone(!m_cube);
 }

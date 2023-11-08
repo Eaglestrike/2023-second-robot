@@ -126,6 +126,8 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
 
   for (std::size_t i = 0; i < 4; i++)
   {
+    m_modules[i].get().SetLock(false);
+
     // computes vectors in 3D
     vec::Vector3D vel3D = {x(vel), y(vel), 0};
     vec::Vector3D angVel3D = {0, 0, angVel};
@@ -153,6 +155,24 @@ void SwerveControl::SetRobotVelocity(vec::Vector2D vel, double angVel, double an
     // set vector
     m_modules[i].get().SetVector(velBody);
   }
+}
+
+void SwerveControl::Lock() {
+  m_modules[0].get().SetSpeed(0);
+  m_modules[1].get().SetSpeed(0);
+  m_modules[2].get().SetSpeed(0);
+  m_modules[3].get().SetSpeed(0);
+
+  m_modules[0].get().SetAngle(-45);
+  m_modules[1].get().SetAngle(45);
+  m_modules[2].get().SetAngle(45);
+  m_modules[3].get().SetAngle(-45);
+
+
+  m_modules[0].get().SetLock(true);
+  m_modules[1].get().SetLock(true);
+  m_modules[2].get().SetLock(true);
+  m_modules[3].get().SetLock(true);
 }
 
 void SwerveControl::CoreInit(){

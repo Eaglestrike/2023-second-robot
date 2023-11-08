@@ -30,6 +30,7 @@ namespace Actions{
         AUTO_LINEUP,
         SLOW,
         GROUND_INTAKE,
+        LOCK_WHEELS,
         ACTION_COUNT //Just the number of actions, as it is at the end of a enum
     };
 
@@ -59,6 +60,7 @@ namespace ControllerMapData{
         {{LJOY, Y_AXIS},        SWERVE_STRAFEY},
         {{LJOY, TRIGGER},       AUTO_LINEUP},
         {{LJOY, B_4},           OUTTAKE},
+        {{LJOY, B_2},           LOCK_WHEELS},
         {{RJOY, B_3},           INTAKE},
         {{RJOY, X_AXIS},        SWERVE_ROTATION},
         {{RJOY, Y_AXIS},        NONE},

@@ -121,15 +121,20 @@ Robot::Robot():
     vec::Vector2D wheelVel = m_swerveController->GetRobotVelocity(ang);
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
 
+    double tilt = -roll * std::sin(angNavX) - pitch * std::cos(angNavX);
+
     m_autoLineup.UpdateOdom(pos, ang, wheelVel);
     m_autoPath.UpdateOdom(pos, ang, wheelVel);
-    m_twoPieceDock.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData()); // doesnt need tilt
-    m_threePiece.UpdateOdom(pos, ang, wheelVel, 0, m_lidar.getData()); // doesnt need tilt
-    m_autoDock.UpdateOdom(roll, pitch, ang);
+    m_twoPieceDock.UpdateOdom(pos, ang, wheelVel, tilt, m_lidar.getData()); // doesnt need tilt
+    m_threePiece.UpdateOdom(pos, ang, wheelVel, tilt, m_lidar.getData()); // doesnt need tilt
+    m_autoDock.UpdateOdom(roll, pitch, angNavX);
 
     // UNCOMMENT BELOW
     frc::SmartDashboard::PutString("Robot pos", pos.toString());
     frc::SmartDashboard::PutNumber("Robot ang", ang);
+    frc::SmartDashboard::PutNumber("Robot pitch", pitch);
+    frc::SmartDashboard::PutNumber("Robot roll", roll);
+    frc::SmartDashboard::PutNumber("Robot tilt", tilt);
     frc::SmartDashboard::PutBoolean("Cam stale", m_client.IsStale());
     frc::SmartDashboard::PutBoolean("Cam connection", m_client.HasConn());
     frc::SmartDashboard::PutData("Field", &m_field);
@@ -155,6 +160,7 @@ void Robot::RobotInit()
   m_autoChooser.AddOption("3 Piece Dock", "3 Piece Dock");
   m_autoChooser.AddOption("Dumb Dock", "Dumb Dock");
   m_autoChooser.AddOption("Sad Auto", "Sad Auto");
+  m_autoChooser.AddOption("Dock Test DELETE ME", "Dock Test DELETE ME");
   frc::SmartDashboard::PutData("auto chooser", &m_autoChooser);
 
   m_navx->ZeroYaw();
@@ -190,6 +196,7 @@ void Robot::RobotPeriodic(){
     m_odometry.Reset();
     std::cout<<"Zeroed Yaw"<<std::endl;
   }
+  m_red = frc::DriverStation::GetAlliance() == frc::DriverStation::kRed;
 
   m_elevatorIntake.Periodic();
   m_lidar.Periodic();
@@ -226,14 +233,21 @@ void Robot::AutonomousInit()
 
   m_autoPath.ResetMultiplier();
 
+  m_elevatorIntake.Stow();
+
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
+    m_autoDock.Reset();
     m_twoPieceDock.Init();
   } 
   else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
     m_threePiece.Init();
   }
   else if (m_autoChooser.GetSelected() == "Sad Auto") {
+    m_autoDock.Reset();
     m_sadAuto.Start();
+  } else if (m_autoChooser.GetSelected() == "Dock Test DELETE ME") {
+    m_autoDock.Reset();
+    m_autoDock.Start();
   }
 }
 
@@ -254,13 +268,19 @@ void Robot::AutonomousPeriodic()
       if (!m_autoDock.HasStarted()) {
         m_autoDock.Start();
       }
+      if (m_autoDock.LockWheels()) {
+        m_swerveController->Lock();
+      }
+      m_swerveController->SetAngCorrection(true);
       m_autoDock.Periodic();
       driveVel = m_autoDock.GetVel();
       angVel = 0;
     } 
-    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
-  }
-  else if (m_autoChooser.GetSelected() == "Dumb Dock"){
+    // frc::SmartDashboard::PutString("Drive vel", driveVel.toString());
+    if (!m_autoDock.LockWheels()) {
+      m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    }
+  } else if (m_autoChooser.GetSelected() == "Dumb Dock"){
     m_dumbDock.Periodic();
     vec::Vector2D driveVel = m_dumbDock.GetVel();
     double angVel = m_dumbDock.GetAngleVel();
@@ -269,21 +289,29 @@ void Robot::AutonomousPeriodic()
       if (!m_autoDock.HasStarted()) {
         m_autoDock.Start();
       }
+      if (m_autoDock.LockWheels()) {
+        m_swerveController->Lock();
+      }
       m_autoDock.Periodic();
       driveVel = m_autoDock.GetVel();
       angVel = 0;
     }
     m_swerveController->SetAngCorrection(true);
-    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    if (!m_autoDock.LockWheels()) {
+      m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+    }
     m_swerveController->Periodic();
-  }
-  else if (m_autoChooser.GetSelected() == "Sad Auto"){
+    m_elevatorIntake.Periodic();
+  } else if (m_autoChooser.GetSelected() == "Sad Auto"){
     m_dumbDock.Periodic();
     vec::Vector2D driveVel = m_dumbDock.GetVel();
     double angVel = m_dumbDock.GetAngleVel();
+
     m_swerveController->SetAngCorrection(true);
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
     m_swerveController->Periodic();
+
+    m_elevatorIntake.Periodic();
   }
   else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
     m_threePiece.Periodic();
@@ -292,6 +320,21 @@ void Robot::AutonomousPeriodic()
     double angVel = m_threePiece.GetAngVel();
 
     m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  }
+
+ else if (m_autoChooser.GetSelected() == "Dock Test DELETE ME") {
+    m_autoDock.Periodic();
+    m_swerveController->SetAngCorrection(true);
+
+    if (m_autoDock.LockWheels()) {
+      m_swerveController->Lock();
+    }
+
+    vec::Vector2D driveVel = m_autoDock.GetVel();
+    if (!m_autoDock.LockWheels()) {
+      m_swerveController->SetRobotVelocity(driveVel, 0, curYaw, deltaT);
+    }
+    m_elevatorIntake.Periodic();
   }
   
   m_swerveController->Periodic();
@@ -302,9 +345,12 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit() {
   m_swerveController->SetFeedForward(0, 1, 0);
   m_swerveController->SetAngCorrection(true);
+  m_posVal = 0;
+  // m_swerveController->SetAngleCorrectionPID(SwerveConstants::ANG_CORRECT_P, SwerveConstants::ANG_CORRECT_I, SwerveConstants::ANG_CORRECT_D);
   // m_autoLineup.SetPosFF({.maxSpeed = AutoConstants::TRANS_MAXSP, .maxAccel = AutoConstants::TRANS_MAXACC});
   // m_autoLineup.SetAngFF({.maxSpeed = AutoConstants::ANG_MAXSP, .maxAccel = AutoConstants::ANG_MAXACC});
-  m_lidar.TeleopInit();
+  // m_lidar.TeleopInit();
+  m_elevatorIntake.Stow();
 }
 
 void Robot::TeleopPeriodic() {
@@ -423,7 +469,11 @@ void Robot::TeleopPeriodic() {
     m_autoLineup.StopAng();
 
     m_swerveController->SetFeedForward(0, 1, 0);
-    m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
+    if (m_controller.getPressed(LOCK_WHEELS)) {
+      m_swerveController->Lock();
+    } else {
+      m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
+    }
   }
 
   m_autoLineup.Periodic();

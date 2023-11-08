@@ -1,6 +1,6 @@
-#include "ShuffleboardSender\ShuffleboardSender.h"
+#include "ShuffleboardSender/ShuffleboardSender.h"
 
-#include "ShuffleboardSender\ShuffleboardButton.h"
+#include "ShuffleboardSender/ShuffleboardButton.h"
 
 ShuffleboardSender::ShuffleboardSender(std::string name, bool enabled):
     name_(name),

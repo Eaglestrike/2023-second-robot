@@ -4,7 +4,7 @@
 class DumbDock {
     public:
         const double OUT_SPEED = 2.0; //swerve out speed
-        const double OUT_TIME = 1.0;
+        const double OUT_TIME = 2.25;
         const double IN_SPEED = 0.5; // not used
         const double IN_TIME = 0.0; // not used
         const double OUTTAKE_TIME = 1.0;

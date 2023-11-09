@@ -170,15 +170,16 @@ void Robot::RobotInit()
   m_lidar.Init();
   m_client.Init();
 
-  m_shuff.addToggleButton("Swerve", [&](){m_swerveController->EnableShuffleboard();},
+  m_shuff.addToggleButton("Swerve", [&](){m_swerveController->EnableShuffleboard();
+                                          std::cout<<"Enabled Swerve"<<std::endl;},
                                     [&](){m_swerveController->DisableShuffleboard();},
-                                    false, {1,1,0,0});
+                                    false, {2,1,0,0});
   m_shuff.addToggleButton("ElevatorIntake", [&](){m_elevatorIntake.EnableShuffleboard();},
                                             [&](){m_elevatorIntake.DisableShuffleboard();},
-                                            false, {1,1,0,0});
+                                            false, {2,1,0,1});
   m_shuff.addToggleButton("Auto Lineup", [&](){m_autoLineup.EnableShuffleboard();},
                                          [&](){m_autoLineup.DisableShuffleboard();},
-                                         false, {1,1,0,0});
+                                         false, {2,1,0,2});
 
 }
 
@@ -217,7 +218,7 @@ void Robot::RobotPeriodic(){
   m_autoPath.ShuffleboardPeriodic();
   m_autoLineup.ShuffleboardPeriodic();
 
-  m_shuff.update(false); //TODO set to false when running competition code
+  m_shuff.update(true); //TODO set to false when running competition code (set to true when debugging)
 }
 
 /**
@@ -233,6 +234,11 @@ void Robot::RobotPeriodic(){
  */
 void Robot::AutonomousInit()
 {
+  // ZERO
+  m_navx->ZeroYaw();
+  m_swerveController->ResetAngleCorrection(m_startAng);
+  m_odometry.Reset();
+
   m_autoPath.SetPosPID(AutoConstants::TRANS_KP, AutoConstants::TRANS_KI, AutoConstants::TRANS_KD);
   m_autoPath.SetAngPID(AutoConstants::ANG_KP, AutoConstants::ANG_KI, AutoConstants::ANG_KD);
 
@@ -248,19 +254,20 @@ void Robot::AutonomousInit()
   m_elevatorIntake.Stow();
 
   if (m_autoChooser.GetSelected() == "2 Piece Dock") {
-    m_autoDock.Reset();
     m_twoPieceDock.Init();
   } 
   else if(m_autoChooser.GetSelected() == "3 Piece Dock"){
     m_threePiece.Init();
   }
   else if (m_autoChooser.GetSelected() == "Sad Auto") {
-    m_autoDock.Reset();
     m_sadAuto.Start();
   } else if (m_autoChooser.GetSelected() == "Dock Test DELETE ME") {
-    m_autoDock.Reset();
     m_autoDock.Start();
   }
+  else if (m_autoChooser.GetSelected() == "Dumb Dock") {
+    m_dumbDock.Start();
+  }
+  m_autoDock.Reset();
 }
 
 void Robot::AutonomousPeriodic()
@@ -308,11 +315,12 @@ void Robot::AutonomousPeriodic()
       driveVel = m_autoDock.GetVel();
       angVel = 0;
     }
+
     m_swerveController->SetAngCorrection(true);
     if (!m_autoDock.LockWheels()) {
       m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
     }
-    m_swerveController->Periodic();
+    // m_swerveController->Periodic();
     m_elevatorIntake.Periodic();
   } else if (m_autoChooser.GetSelected() == "Sad Auto"){
     m_dumbDock.Periodic();

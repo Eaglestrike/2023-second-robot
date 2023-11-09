@@ -24,20 +24,22 @@ class ShuffleboardSender{
          * Pair a value on shuffleboard to the code
         */
         template <typename T> void add(ShuffleboardItem<T>* item){
-            std::string itemName = item->getName();
-            std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* x){return x->getName() == itemName;}); //Remove all elements with the same name
             items_.push_back(item);
         }
 
         /**
          * Adds an item to this sender via a pointer
          * 
-         * Replaces current element if one already has the same name
+         * Does not add current element if one already has the same name
          * 
          * @param edit if the value will update in the code on the update call
         */
         template <typename T> void add(std::string name, T* o, bool edit = false){
-            std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* item){return item->getName() == name;}); //Remove all elements with the same name
+            for(ShuffleboardItemInterface* item : items_){
+                if(item->getName() == name){
+                    return;
+                }
+            }
             items_.push_back(new ShuffleboardItem({name, tab_, edit}, o));
         }
         
@@ -45,12 +47,16 @@ class ShuffleboardSender{
          * Adds an item with the position and size of order {width, height, x, y}
          * Coordinates start at 0, 0
          * 
-         * Replaces current element if one already has the same name
+         * Does not add current element if one already has the same name
          * 
          * @param edit if the value will update in the code on the update call
         */
         template <typename T> void add(std::string name, T* o, ShuffleboardItemInterface::ShuffleboardPose pose, bool edit = false){
-            std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* item){return item->getName() == name;}); //Remove all elements with the same name
+            for(ShuffleboardItemInterface* item : items_){
+                if(item->getName() == name){
+                    return;
+                }
+            }
             items_.push_back(new ShuffleboardItem({name, tab_, edit, pose}, o));
         }
         

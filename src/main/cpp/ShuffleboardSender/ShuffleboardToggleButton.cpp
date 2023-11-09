@@ -41,6 +41,7 @@ void ShuffleboardToggleButton::enable(frc::ShuffleboardTab* tab){
         entry_ = ShuffleboardHelper::createItem(data_, prevVal_, frc::BuiltInWidgets::kToggleSwitch);
     }
 };
+
 void ShuffleboardToggleButton::disable(){
     entry_->Unpublish();
 };

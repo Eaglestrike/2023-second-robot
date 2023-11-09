@@ -76,31 +76,40 @@ bool ShuffleboardItem<int>::itemHasChanged(){
 
 //Enable
 void ShuffleboardItem<double>::enable(frc::ShuffleboardTab* tab){
-    if(!entry_->Exists()){
-        data_.tab = tab;
-        entry_ = ShuffleboardHelper::createItem(data_, *value_);
+    for(auto &component :tab->GetComponents()){
+        if(component->GetTitle() == data_.name){
+            return;
+        }
     }
+    data_.tab = tab;
+    entry_ = ShuffleboardHelper::createItem(data_, *value_);
 };
 void ShuffleboardItem<bool>::enable(frc::ShuffleboardTab* tab){
-    if(!entry_->Exists()){
-        data_.tab = tab;
-        entry_ = ShuffleboardHelper::createItem(data_, *value_);
+    for(auto &component :tab->GetComponents()){
+        if(component->GetTitle() == data_.name){
+            return;
+        }
     }
+    data_.tab = tab;
+    entry_ = ShuffleboardHelper::createItem(data_, *value_);
 };
 void ShuffleboardItem<int>::enable(frc::ShuffleboardTab* tab){
-    if(!entry_->Exists()){
-        data_.tab = tab;
-        entry_ = ShuffleboardHelper::createItem(data_, *value_);
+    for(auto &component :tab->GetComponents()){
+        if(component->GetTitle() == data_.name){
+            return;
+        }
     }
+    data_.tab = tab;
+    entry_ = ShuffleboardHelper::createItem(data_, *value_);
 };
 
 //Disable
 void ShuffleboardItem<double>::disable(){
-    entry_->Unpublish();
+    //entry_->Unpublish();
 };
 void ShuffleboardItem<bool>::disable(){
-    entry_->Unpublish();
+    //entry_->Unpublish();
 };
 void ShuffleboardItem<int>::disable(){
-    entry_->Unpublish();
+    //entry_->Unpublish();
 };

@@ -49,7 +49,9 @@ void Mechanism::Periodic(){
     if(enabled_){
         CorePeriodic();
     }
-    shuff_.update(true);
+    if(shuff_.isEnabled()){
+        shuff_.update(true);
+    }
 }
 
 
@@ -113,8 +115,8 @@ void Mechanism::DisabledPeriodic(){
  * Calls ShuffleboardInit
 */
 void Mechanism::EnableShuffleboard(){
-    CoreShuffleboardInit();
     shuff_.enable();
+    CoreShuffleboardInit();
 }
 
 /**
@@ -128,7 +130,7 @@ void Mechanism::DisableShuffleboard(){
  * Call to run any Shuffleboard functionality that needs to be executed once
 */
 void Mechanism::UpdateShuffleboard(){
-    if(enabled_){
+    if(shuff_.isEnabled()){
         CoreShuffleboardUpdate();
     }
 }

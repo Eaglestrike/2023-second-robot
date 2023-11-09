@@ -631,6 +631,7 @@ void AutoLineup::ShuffleboardPeriodic(){
 
 void AutoLineup::EnableShuffleboard(){
   m_shuff.enable();
+  ShuffleboardInit();
 }
 
 

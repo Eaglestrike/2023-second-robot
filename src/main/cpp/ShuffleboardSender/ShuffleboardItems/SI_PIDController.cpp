@@ -26,17 +26,20 @@ void ShuffleboardItem<frc::PIDController>::edit(){
 }
 
 void ShuffleboardItem<frc::PIDController>::enable(frc::ShuffleboardTab* tab){
-    if((!entry_[0]->Exists()) || (!entry_[1]->Exists()) || (!entry_[2]->Exists())){
-        data_.tab = tab;
-        frc::ShuffleboardLayout* pidLayout = ShuffleboardHelper::createList(data_);
-        entry_[0] = pidLayout->Add("P", value_->GetP()).GetEntry();   
-        entry_[1] = pidLayout->Add("I", value_->GetI()).GetEntry();
-        entry_[2] = pidLayout->Add("D", value_->GetD()).GetEntry(); 
+    for(auto &component :tab->GetComponents()){
+        if(component->GetTitle() == data_.name){
+            return;
+        }
     }
+    data_.tab = tab;
+    frc::ShuffleboardLayout* pidLayout = ShuffleboardHelper::createList(data_);
+    entry_[0] = pidLayout->Add("P", value_->GetP()).GetEntry();   
+    entry_[1] = pidLayout->Add("I", value_->GetI()).GetEntry();
+    entry_[2] = pidLayout->Add("D", value_->GetD()).GetEntry(); 
 };
 
 void ShuffleboardItem<frc::PIDController>::disable(){
-    entry_[0]->Unpublish();
-    entry_[1]->Unpublish();
-    entry_[2]->Unpublish();
+    // entry_[0]->Unpublish();
+    // entry_[1]->Unpublish();
+    // entry_[2]->Unpublish();
 };

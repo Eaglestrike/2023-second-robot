@@ -13,22 +13,38 @@ ShuffleboardSender::ShuffleboardSender(std::string name, bool enabled):
 }
 
 void ShuffleboardSender::addButton(std::string name, std::function<void()> callback){
-    std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* item){return item->getName() == name;}); //Remove all elements with the same name
+    for(ShuffleboardItemInterface* item : items_){
+        if(item->getName() == name){
+            return;
+        }
+    }
     items_.push_back(new ShuffleboardButton({name, tab_, true}, callback));
 }
 
 void ShuffleboardSender::addButton(std::string name, std::function<void()> callback, ShuffleboardItemInterface::ShuffleboardPose pose){
-    std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* item){return item->getName() == name;}); //Remove all elements with the same name
+    for(ShuffleboardItemInterface* item : items_){
+        if(item->getName() == name){
+            return;
+        }
+    }
     items_.push_back(new ShuffleboardButton({name, tab_, true, pose}, callback));
 }
 
 void ShuffleboardSender::addToggleButton(std::string name, std::function<void()> callbackTrue, std::function<void()> callbackFalse, bool startVal){
-    std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* item){return item->getName() == name;}); //Remove all elements with the same name
+    for(ShuffleboardItemInterface* item : items_){
+        if(item->getName() == name){
+            return;
+        }
+    }
     items_.push_back(new ShuffleboardToggleButton({name, tab_, true}, callbackTrue, callbackFalse, startVal));
 }
 
 void ShuffleboardSender::addToggleButton(std::string name, std::function<void()> callbackTrue, std::function<void()> callbackFalse, bool startVal, ShuffleboardItemInterface::ShuffleboardPose pose){
-    std::remove_if(items_.begin(), items_.end(), [&](ShuffleboardItemInterface* item){return item->getName() == name;}); //Remove all elements with the same name
+    for(ShuffleboardItemInterface* item : items_){
+        if(item->getName() == name){
+            return;
+        }
+    }
     items_.push_back(new ShuffleboardToggleButton({name, tab_, true, pose}, callbackTrue, callbackFalse, startVal));
 }
 
@@ -43,9 +59,6 @@ void ShuffleboardSender::update(bool edit){
 void ShuffleboardSender::enable(){
     enabled_ = true;
     tab_ = &frc::Shuffleboard::GetTab(name_);
-    for(auto &component : tab_->GetComponents()){
-        nt::NetworkTableInstance::GetDefault().GetEntry(component.get()->GetTitle()).Unpublish();
-    }
     for(ShuffleboardItemInterface* item : items_){
         item->enable(tab_);
     }
@@ -56,10 +69,10 @@ void ShuffleboardSender::disable(){
     for(ShuffleboardItemInterface* item : items_){
         item->disable();
     }
-    for(std::pair<const std::string, nt::GenericEntry*> pair : keyMap_){
-        pair.second->Unpublish();
-    }
-    keyMap_.clear();
+    // for(std::pair<const std::string, nt::GenericEntry*> pair : keyMap_){
+    //     pair.second->Unpublish();
+    // }
+    // keyMap_.clear();
 }
 
 bool ShuffleboardSender::isEnabled(){

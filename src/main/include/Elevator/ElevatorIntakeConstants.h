@@ -98,5 +98,5 @@ namespace IntakeConstants{
 
     const double WRIST_MAX_VOLTS = 5.0;
 
-    const double REL_CONV_FACTOR = 1 * (1.0 / 20.0) * (16.0 / 36.0) * (2 * M_PI);
+    const double REL_CONV_FACTOR = 1 * (1.0 / 20.0) * (16.0 / 36.0) * (2 * M_PI) * (1.885 / 1.588);
 }

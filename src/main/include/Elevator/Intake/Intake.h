@@ -100,5 +100,6 @@ class Intake{
 
         double m_hasConeStartTime = 0;
 
-        bool m_isRelativeEncoder = 0;
+        double m_absEncoderInit = 0;
+        double m_relEncoderInit = 0;
 };

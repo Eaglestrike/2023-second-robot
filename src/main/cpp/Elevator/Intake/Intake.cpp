@@ -20,7 +20,8 @@ Intake::Intake() {
 }
 
 void Intake::Zero() {
-    m_relEncoder.SetPosition(GetAbsEncoderPos());
+    m_absEncoderInit = GetAbsEncoderPos();
+    m_relEncoder.SetPosition(0);
 }
 
 // needs to be called INSTEAD of teleop periodic
@@ -231,18 +232,20 @@ double Intake::GetPos(){
 }
 
 double Intake::GetRelPos() {
-    return m_relEncoder.GetPosition() * IntakeConstants::REL_CONV_FACTOR * -1;
+    // return 2 * m_absEncoderInit - m_relEncoder.GetPosition() * IntakeConstants::REL_CONV_FACTOR;
+    return -m_relEncoder.GetPosition() * IntakeConstants::REL_CONV_FACTOR + m_absEncoderInit;
 }
 
-//the following functions are all private methods
-
+// absolute encoder pos in radians
 double Intake::GetAbsEncoderPos() {
     return m_wristEncoder.GetAbsolutePosition() * 2 * M_PI + IntakeConstants::WRIST_ABS_ENCODER_OFFSET;
 }
 
+//the following functions are all private methods
+
 //Updates the current position, velocity, and acceleration of the wrist
 void Intake::UpdatePose(){
-    double newPos = GetAbsEncoderPos(); // might need to negate or do some wrap around calculations
+    double newPos = GetRelPos(); // might need to negate or do some wrap around calculations
     double newVel = (newPos - m_curPos)/0.02;
     m_curAcc = (newVel - m_curVel)/0.02;
     m_curVel = newVel;

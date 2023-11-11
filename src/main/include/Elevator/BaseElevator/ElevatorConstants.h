@@ -83,5 +83,5 @@ namespace ElevatorConstants {
     double kd = KD;
   } FEEDFORWARD_CONSTANTS;
 
-  const double POSITION_ERROR_TOLERANCE = 0.05; //m
+  const double POSITION_ERROR_TOLERANCE = 0.07; //m
 };

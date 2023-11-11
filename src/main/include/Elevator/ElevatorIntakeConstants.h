@@ -26,7 +26,7 @@ namespace IntakeElevatorConstants{
                                       .SCORE_HIGH =     {0.545, 0.8},
                                       .GROUND_INTAKE =  {0.0, 0.183}, // ground intake upright
                                       .FLANGE_INTAKE =  {0.0, 0.0}, // ground intake flange
-                                      .HP_INTAKE =      {0.0, 1.5}}; // intake from drop station
+                                      .HP_INTAKE =      {0.0, 1.43}}; // intake from drop station
 
     const GamePieceInfo cubeScoreInfo{.SCORE_LOW =      {0.0, 1.4}, // was 0.58
                                       .SCORE_MID =      {0.291, 1.25},
@@ -81,15 +81,15 @@ namespace IntakeConstants{
     };
 
     const GamePieceInfo CONE_INFO = {.SPIKE_CURRENT = 100.0,
-                                     .IN_VOLTS = 5.0,
+                                     .IN_VOLTS = 8.0,
                                      .STRONG_IN_VOLTS = 9.0,
                                      .KEEP_VOLTS = -1.1,
                                      .OUT_VOLTS = 3.0};
     const GamePieceInfo CUBE_INFO = {.SPIKE_CURRENT = 15.0,
                                      .IN_VOLTS = 4.0,
                                      .STRONG_IN_VOLTS = 4.0,
-                                     .KEEP_VOLTS = 0.7,
-                                     .OUT_VOLTS = 3.0}; // MAYBE LESS
+                                     .KEEP_VOLTS = 1.2,
+                                     .OUT_VOLTS = 1.7}; // MAYBE LESS
     
     // const double KEEP_CONE_CURRENT = 5.0;
     // const double KEEP_CUBE_CURRENT = 10.0;

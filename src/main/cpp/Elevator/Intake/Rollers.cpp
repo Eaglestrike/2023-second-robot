@@ -53,7 +53,7 @@ void Rollers::Periodic() {
     switch (m_state) {
         case INTAKE:
             if (m_hasGamePiece) {
-                if (Utils::GetCurTimeS() - m_hasGamePieceStart > 1.0) {
+                if (Utils::GetCurTimeS() - m_hasGamePieceStart > 4.0) {
                     m_state = RETAIN;
                 }
             } else {

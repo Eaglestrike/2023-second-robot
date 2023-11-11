@@ -52,9 +52,9 @@ class Intake{
         TargetState GetTargetState();
         double GetPos();
         double GetRelPos();
+        double GetAbsEncoderPos();
 
     private:
-        double GetAbsEncoderPos();
         void UpdatePose();
         void UpdateTargetPose();
         double FFPIDCalculate();
@@ -70,6 +70,7 @@ class Intake{
         bool dbg = false, dbg2 = true;
 
         rev::CANSparkMax m_wristMotor{IntakeConstants::WRIST_MOTOR_ID, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
+        rev::SparkMaxRelativeEncoder m_relEncoder = m_wristMotor.GetEncoder();
         // WPI_TalonFX m_rollerMotor{IntakeConstants::ROLLER_MOTOR_ID};
         frc::DutyCycleEncoder m_wristEncoder{IntakeConstants::WRIST_ENCODER_CAN_ID};
 

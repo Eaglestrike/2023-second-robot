@@ -31,7 +31,7 @@ class DumbDock {
         double GetAngleVel();
     private:
         State m_state = NOT_STARTED;
-        bool m_cube = true;
+        bool m_cube = false;
         bool m_blue = true;
         double m_curTime, m_startTime;
         vec::Vector2D m_vel = {0.0, 0.0};

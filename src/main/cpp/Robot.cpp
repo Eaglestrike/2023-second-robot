@@ -227,6 +227,7 @@ void Robot::RobotInit()
   // m_speedLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/vel");
   // m_voltsLog = wpi::log::DoubleLogEntry(log, "/ff/swerve/volts");
 
+  m_elevatorIntake.Init();
   m_lidar.Init();
   m_client.Init();
 }
@@ -749,19 +750,19 @@ void Robot::TeleopPeriodic() {
     else if (m_controller.getPressedOnce(HP)) {
       m_elevatorIntake.IntakeFromHPS();
       m_rollers.SetCone(true);
-      m_rollers.Intake();
+      m_rollers.Intake(true);
       m_posVal = 1;
     }
     else if (m_controller.getPressedOnce(GROUND_INTAKE)) {
       m_elevatorIntake.IntakeFromGround();
       m_rollers.SetCone(false);
-      m_rollers.Intake();
+      m_rollers.Intake(true);
       m_posVal = 2;
     }
     else if (m_controller.getPOVDownOnce(INTAKE_FLANGE)){
       m_elevatorIntake.IntakeFlange();
       m_rollers.SetCone(true);
-      m_rollers.Intake();
+      m_rollers.Intake(true);
       m_posVal = 1;
     }
   }

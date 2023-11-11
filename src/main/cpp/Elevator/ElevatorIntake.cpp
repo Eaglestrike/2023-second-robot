@@ -110,7 +110,7 @@ void ElevatorIntake::Periodic(){
 
     frc::SmartDashboard::PutNumber("elevator acc pos", m_elevator.getElevatorHeight());
     frc::SmartDashboard::PutNumber("intake acc angle", m_intake.GetPos());
-    frc::SmartDashboard::PutNumber("rel intake acc angle", m_intake.GetRelPos());
+    frc::SmartDashboard::PutNumber("abs intake acc angle", m_intake.GetAbsEncoderPos());
     frc::SmartDashboard::PutNumber("elevator targ pos", m_targElevatorPos);
     frc::SmartDashboard::PutNumber("intake targ angle", m_targIntakeAng);    
 }
@@ -146,7 +146,6 @@ void ElevatorIntake::TeleopPeriodic(){
    }
     // frc::SmartDashboard::PutNumber("elevator acc pos", m_elevator.getElevatorHeight());
     // frc::SmartDashboard::PutNumber("intake acc angle", m_intake.GetPos());
-    // frc::SmartDashboard::PutNumber("rel intake acc angle", m_intake.GetRelPos());
     // frc::SmartDashboard::PutNumber("elevator targ pos", m_targElevatorPos);
     // frc::SmartDashboard::PutNumber("intake targ angle", m_targIntakeAng);    
     m_intake.TeleopPeriodic();

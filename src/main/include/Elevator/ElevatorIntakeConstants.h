@@ -1,5 +1,11 @@
 #pragma once
 
+#include <cmath>
+
+#ifndef M_PI
+#define M_PI 3.14159265359
+#endif
+
 namespace IntakeElevatorConstants{
     struct ElevatorIntakePosInfo{
         double ELEVATOR_LENG; //vir units
@@ -91,4 +97,6 @@ namespace IntakeConstants{
     const double ROLLER_MAX_VOLTS = 5.0;
 
     const double WRIST_MAX_VOLTS = 5.0;
+
+    const double REL_CONV_FACTOR = 1 * (1.0 / 20.0) * (16.0 / 36.0) * (2 * M_PI);
 }

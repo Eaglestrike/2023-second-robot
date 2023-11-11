@@ -31,8 +31,9 @@ class Intake{
             HP
         };
         
+        void Zero();
         void ManualPeriodic(double wristVolts);
-        void TeleopPeriodic();    
+        void TeleopPeriodic();
         void Periodic();    
         void Stow();
         void HalfStow();
@@ -50,8 +51,10 @@ class Intake{
         MechState GetState();
         TargetState GetTargetState();
         double GetPos();
+        double GetRelPos();
 
     private:
+        double GetAbsEncoderPos();
         void UpdatePose();
         void UpdateTargetPose();
         double FFPIDCalculate();
@@ -95,4 +98,6 @@ class Intake{
         bool m_hasGamePiece = false;
 
         double m_hasConeStartTime = 0;
+
+        bool m_isRelativeEncoder = 0;
 };

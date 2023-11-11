@@ -47,6 +47,7 @@ class ElevatorIntake{
         void ManualPeriodic(double elevator, double intake);
         bool CanMoveFast() const;
         bool IsDone() const;
+        void ZeroIntake();
 
     private:
         void DeployElevatorIntake(IntakeElevatorConstants::ElevatorIntakePosInfo scoreInfo);

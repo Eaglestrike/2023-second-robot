@@ -318,6 +318,7 @@ void Robot::RobotPeriodic()
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection(m_startAng);
     m_odometry.Reset();
+    m_elevatorIntake.ZeroIntake();
   }
 
   // frc::SmartDashboard::PutNumber("fl raw encoder", m_swerveFl.GetRawEncoderReading());
@@ -422,6 +423,7 @@ void Robot::AutonomousInit()
   m_navx->ZeroYaw();
   m_swerveController->ResetAngleCorrection(m_startAng);
   m_odometry.Reset();
+  m_elevatorIntake.ZeroIntake();
 
   double kS = frc::SmartDashboard::GetNumber("swerve kS", SwerveConstants::kS);
   double kV = frc::SmartDashboard::GetNumber("swerve kV", SwerveConstants::kV);

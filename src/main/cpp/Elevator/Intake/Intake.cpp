@@ -17,7 +17,12 @@ Intake::Intake() {
         frc::SmartDashboard::PutNumber("a", m_a); 
     }
     frc::SmartDashboard::PutNumber("cone spike current", IntakeConstants::CONE_INFO.SPIKE_CURRENT);
+    // MAYBE INVERTED?
+    m_wristMotor.GetEncoder().SetPositionConversionFactor(IntakeConstants::REL_CONV_FACTOR);
+}
 
+void Intake::Zero() {
+    m_wristMotor.GetEncoder().SetPosition(GetAbsEncoderPos());
 }
 
 // needs to be called INSTEAD of teleop periodic
@@ -227,11 +232,19 @@ double Intake::GetPos(){
     return m_curPos;
 }
 
+double Intake::GetRelPos() {
+    return m_wristMotor.GetEncoder().GetPosition();
+}
+
 //the following functions are all private methods
+
+double Intake::GetAbsEncoderPos() {
+    return m_wristEncoder.GetAbsolutePosition() * 2 * M_PI + IntakeConstants::WRIST_ABS_ENCODER_OFFSET;
+}
 
 //Updates the current position, velocity, and acceleration of the wrist
 void Intake::UpdatePose(){
-    double newPos = m_wristEncoder.GetAbsolutePosition() * 2 * M_PI + IntakeConstants::WRIST_ABS_ENCODER_OFFSET; // might need to negate or do some wrap around calculations
+    double newPos = GetRelPos(); // might need to negate or do some wrap around calculations
     double newVel = (newPos - m_curPos)/0.02;
     m_curAcc = (newVel - m_curVel)/0.02;
     m_curVel = newVel;

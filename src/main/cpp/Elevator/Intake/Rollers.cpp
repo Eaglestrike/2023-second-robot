@@ -10,8 +10,8 @@ void Rollers::UpdateLidarData(LidarReader::LidarData lidarData) {
     if (lidarData.isValid) m_hasGamePiece = lidarData.hasCone || lidarData.hasCube;
 }
 
-void Rollers::Intake() {
-    if (m_state == INTAKE) {
+void Rollers::Intake(bool force) {
+    if (m_state == INTAKE && !force) {
         Stop();
     } else {
         m_state = INTAKE;
@@ -31,8 +31,8 @@ void Rollers::HoldIntake(bool on){
     }
 }
 
-void Rollers::Outtake() {
-    if (m_state == OUTTAKE) {
+void Rollers::Outtake(bool force) {
+    if (m_state == OUTTAKE && !force) {
         Stop();
     } else {
         m_state = OUTTAKE;

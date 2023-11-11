@@ -38,9 +38,9 @@ Robot::Robot():
       m_odometry{&m_startPos, &m_startAng},
       m_lidar{true, false},
       m_client{"10.1.14.21", 5807, 500, 5000},
-      m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
       m_threePiece{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
       m_sadAuto{m_elevatorIntake, m_rollers},
+      m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
       m_red{false},
       m_posVal{0},
       m_heightVal{0}
@@ -86,6 +86,8 @@ Robot::Robot():
         res = m_odometry.SetCamData({x, y}, angZ, tagId, age, uniqueId);
       } 
 
+      frc::SmartDashboard::PutNumber("tag Id", tagId);
+
       // frc::SmartDashboard::PutBoolean("Good ID", res);
       if (!res) {
         tagId = 0;
@@ -93,7 +95,6 @@ Robot::Robot():
         isCorrecting = true;
         // std::cout << "good " << tagId << " " << Utils::GetCurTimeMs() << std::endl;
       }
-      frc::SmartDashboard::PutNumber("tag Id", tagId);
       m_isSecondTag = true;
     } else {
       m_isSecondTag = false;

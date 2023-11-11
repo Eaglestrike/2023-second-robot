@@ -24,7 +24,7 @@ void DumbDock::Periodic(){
         case SCORE:
             frc::SmartDashboard::PutString("state", "score");
             if (m_ei.IsDone()){
-                m_rollers.Outtake();
+                m_rollers.Outtake(true);
                 m_startTime = m_curTime;
                 m_state = OUTTAKE;
             }
@@ -70,6 +70,7 @@ void DumbDock::Start(){
     m_startTime = Utils::GetCurTimeS();
     m_ei.SetCone(!m_cube);
     m_rollers.SetCone(!m_cube);
+    m_rollers.Stop();
 }
 
 double DumbDock::GetAngleVel(){return 0.0;}

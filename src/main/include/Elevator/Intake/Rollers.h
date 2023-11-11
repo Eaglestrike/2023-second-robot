@@ -20,9 +20,9 @@ public:
   void SetCone(bool cone);
   void UpdateLidarData(LidarReader::LidarData lidardata);
 
-  void Intake();
+  void Intake(bool force = false);
   void HoldIntake(bool on);
-  void Outtake();
+  void Outtake(bool force = false);
   void Stop();
   void Periodic();
 

@@ -68,7 +68,7 @@ namespace SwerveConstants
   const double ANG_CORRECT_I = 0;
   const double ANG_CORRECT_D = 0.5;
 
-  const double MAX_VOLTS = 10.0; 
+  const double MAX_VOLTS = 12.0; 
   const double kS = 0.5;
   const double kV = 2.18;
   const double kA = 0.55;

@@ -4,11 +4,11 @@
 class DumbDock {
     public:
         const double OUT_SPEED = 2.0; //swerve out speed
-        const double OUT_TIME = 2.25;
+        const double OUT_TIME = 2.65;
         const double IN_SPEED = 0.5; // not used
         const double IN_TIME = 0.0; // not used
-        const double OUTTAKE_TIME = 1.0;
-        const double DONE_WAIT_TIME = 1.0;
+        const double OUTTAKE_TIME = 1;
+        const double DONE_WAIT_TIME = 2.0;
 
         enum State{
             NOT_STARTED,

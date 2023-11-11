@@ -121,6 +121,8 @@ Robot::Robot():
     vec::Vector2D wheelVel = m_swerveController->GetRobotVelocity(ang);
     m_field.SetRobotPose(units::meter_t{pos.x()}, units::meter_t{pos.y()}, units::radian_t{ang});
 
+    frc::SmartDashboard::PutNumber("curYaw", ang);
+
     double tilt = -roll * std::sin(angNavX) - pitch * std::cos(angNavX);
 
     m_autoLineup.UpdateOdom(pos, ang, wheelVel);
@@ -180,7 +182,7 @@ void Robot::RobotInit()
   m_shuff.addToggleButton("Auto Lineup", [&](){m_autoLineup.EnableShuffleboard();},
                                          [&](){m_autoLineup.DisableShuffleboard();},
                                          false, {2,1,0,2});
-
+  
 }
 
 /**
@@ -206,9 +208,21 @@ void Robot::RobotPeriodic(){
     m_navx->ZeroYaw();
     m_swerveController->ResetAngleCorrection(m_startAng);
     m_odometry.Reset();
+    
+    m_posVal = 0;
+    m_heightVal = 0;
     std::cout<<"Zeroed Yaw"<<std::endl;
   }
   m_red = frc::DriverStation::GetAlliance() == frc::DriverStation::kRed;
+
+  int posVal = m_controller.getValue(ControllerMapData::SCORING_POS, 0);
+  if (posVal) {
+    m_posVal = posVal;
+  }
+  int heightVal = m_controller.getValue(ControllerMapData::GET_LEVEL, 0);
+  if (heightVal) {
+    m_heightVal = heightVal;
+  }
 
   m_elevatorIntake.Periodic();
   m_lidar.Periodic();
@@ -391,22 +405,10 @@ void Robot::TeleopPeriodic() {
   vec::Vector2D curPos = m_odometry.GetPosition();
   double curYaw = m_odometry.GetAng();
 
-  frc::SmartDashboard::PutNumber("curYaw", curYaw);
-
   vec::Vector2D setVel = {-vy, -vx};
 
   if (!Utils::NearZero(setVel)) {
     m_isTrimming = false;
-  }
-
-  // get auto lineup pos
-  int posVal = m_controller.getValue(ControllerMapData::SCORING_POS, 0);
-  if (posVal) {
-    m_posVal = posVal;
-  }
-  int heightVal = m_controller.getValue(ControllerMapData::GET_LEVEL, 0);
-  if (heightVal) {
-    m_heightVal = heightVal;
   }
 
   frc::SmartDashboard::PutNumber("score pos val", m_posVal);
@@ -556,6 +558,116 @@ void Robot::TestInit() {
 }
 
 void Robot::TestPeriodic() {
+  double curTime = Utils::GetCurTimeS();
+  double deltaT = curTime - m_prevTime;
+
+  double lx = m_controller.getWithDeadContinuous(SWERVE_STRAFEX, 0.1);
+  double ly = m_controller.getWithDeadContinuous(SWERVE_STRAFEY, 0.1);
+
+  double rx = m_controller.getWithDeadContinuous(SWERVE_ROTATION, 0.1);
+
+  bool fast = !m_controller.getPressed(SLOW);
+  double mult = fast ? SwerveConstants::NORMAL_SWERVE_MULT : SwerveConstants::SLOW_SWERVE_MULT;
+  double vx = std::clamp(lx, -1.0, 1.0) * mult;
+  double vy = std::clamp(ly, -1.0, 1.0) * mult;
+  double w = -std::clamp(rx, -1.0, 1.0) * mult / 2;
+
+  vec::Vector2D curPos = m_odometry.GetPosition();
+  double curYaw = m_odometry.GetAng();
+
+  vec::Vector2D setVel = {-vy, -vx};
+
+  if (m_posVal && m_heightVal) {
+    FieldConstants::ScorePair scorePair = Utils::GetScoringPos(m_posVal, m_heightVal, m_red);
+    double ang = Utils::NormalizeAng(m_joystickAng + M_PI);
+
+    vec::Vector2D scorePos = scorePair.first;
+    double lidarOffset = scorePair.second;
+    double lidarReading = 0;
+
+    if (m_lidar.hasCone()) {
+      lidarReading = m_lidar.getConePos() / 100.0;
+      scorePos -= {0, m_red ? lidarOffset - lidarReading : lidarReading - lidarOffset};
+    } else if (m_lidar.hasCube()) {
+      lidarReading = m_lidar.getCubePos() / 100.0;
+      scorePos += {0, m_red ? lidarOffset - lidarReading : lidarReading - lidarOffset};
+    }
+    
+    m_autoLineup.SetPosTarget(scorePos, false);
+    m_autoLineup.SetAngTarget(ang, false);
+  }
+
+  AutoLineup::ExecuteState curPosAutoState = m_autoLineup.GetPosExecuteState();
+  AutoLineup::ExecuteState curAngAutoState = m_autoLineup.GetAngExecuteState();
+  if (m_controller.getPressed(AUTO_LINEUP)) {
+    m_swerveController->SetAngCorrection(false);
+    if (curPosAutoState != AutoLineup::EXECUTING_TARGET) {
+      m_autoLineup.StartPosMove();
+    }
+    if (curAngAutoState != AutoLineup::EXECUTING_TARGET) {
+      m_autoLineup.StartAngMove();
+    }
+    vec::Vector2D driveVel = m_autoLineup.GetVel();
+    double angVel = m_autoLineup.GetAngVel();
+
+    m_swerveController->SetFeedForward(SwerveConstants::kS, SwerveConstants::kV, SwerveConstants::kA);
+    m_swerveController->SetRobotVelocity(driveVel, angVel, curYaw, deltaT);
+  } else {
+    m_swerveController->SetAngCorrection(true);
+    m_autoLineup.StopPos();
+    m_autoLineup.StopAng();
+
+    m_swerveController->SetFeedForward(0, 1, 0);
+    if (m_controller.getPressed(LOCK_WHEELS)) {
+      m_swerveController->Lock();
+    } else {
+      m_swerveController->SetRobotVelocityTele(setVel, w, curYaw, deltaT, m_joystickAng);
+    }
+  }
+  
+  m_autoLineup.Periodic();
+  m_swerveController->Periodic();
+  
+  if (m_controller.getTriggerDown(MANUAL1) && m_controller.getTriggerDown(MANUAL2)) {
+    double elH = -m_controller.getWithDeadContinuous(ELEVATOR_H, 0.1);
+    double intakeAng = -m_controller.getWithDeadContinuous(INTAKE_ANG, 0.1);
+    m_elevatorIntake.SetManualVolts(elH, intakeAng);
+  } else {
+    bool cone = Utils::IsCone(m_posVal);
+    m_elevatorIntake.SetCone(cone);
+    m_rollers.SetCone(cone);
+    if(m_controller.getPressedOnce(SCORE_HIGH))
+      m_elevatorIntake.ScoreHigh();
+    else if (m_controller.getPressedOnce(SCORE_MID))
+      m_elevatorIntake.ScoreMid();
+    else if (m_controller.getPressedOnce(SCORE_LOW))
+      m_elevatorIntake.ScoreLow();
+    else if (m_controller.getPressedOnce(STOW))
+      m_elevatorIntake.Stow();
+    else if (m_controller.getPressedOnce(HP)) {
+      m_elevatorIntake.IntakeFromHPS();
+      m_rollers.SetCone(true);
+      m_posVal = 1;
+    }
+    else if (m_controller.getPressedOnce(GROUND_INTAKE)) {
+      m_elevatorIntake.IntakeFromGround();
+      m_rollers.SetCone(false);
+      m_posVal = 2;
+    }
+    else if (m_controller.getPOVDownOnce(INTAKE_FLANGE)){
+      m_elevatorIntake.IntakeFlange();
+    }
+  }
+  if (m_controller.getPressedOnce(INTAKE))
+    m_rollers.Intake();
+  else if (m_controller.getPressedOnce(OUTTAKE))
+    m_rollers.Outtake();
+  m_rollers.HoldIntake(m_controller.getPressed(INTAKE));
+  
+  m_elevatorIntake.TeleopPeriodic();
+  m_rollers.Periodic();
+
+  m_prevTime = curTime;
 }
 
 void Robot::SimulationInit() {}

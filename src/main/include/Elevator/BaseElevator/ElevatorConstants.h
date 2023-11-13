@@ -51,8 +51,8 @@ namespace ElevatorConstants {
   const double KG = 1.1;
 
   const double KP = 8.5;
-  const double KI = 0.0;
-  const double KD = 3.5;
+  const double KI = 0.35;
+  const double KD = 5.1;
 
   // elevator heights
 

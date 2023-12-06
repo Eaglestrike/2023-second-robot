@@ -1,5 +1,6 @@
 #pragma once 
 #include "BaseAuto.h"
+#include "RobotStuff.h"
 
 class DumbDock {
     public:
@@ -21,7 +22,7 @@ class DumbDock {
             DONE
         };
 
-        DumbDock (ElevatorIntake& e, Rollers& r);
+        DumbDock (ElevatorIntake& e);
         void SetSide (bool blue);
         bool CanDock();
         void Periodic();
@@ -36,5 +37,4 @@ class DumbDock {
         double m_curTime, m_startTime;
         vec::Vector2D m_vel = {0.0, 0.0};
         ElevatorIntake& m_ei;
-        Rollers& m_rollers;
 };

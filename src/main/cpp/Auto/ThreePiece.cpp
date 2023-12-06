@@ -10,8 +10,8 @@ inline std::string toString(bool b){
     return b ? "true":"false";
 }
 
-ThreePiece::ThreePiece(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap, Rollers &r):
-    BaseAuto(ei, al, ap, r),
+ThreePiece::ThreePiece(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap):
+    BaseAuto(ei, al, ap),
     shuff_("Three Piece", true)
 {
     shuff_.add("first cone", &m_setup.firstCone, {1,1,0,0}, true);
@@ -219,7 +219,7 @@ void ThreePiece::Periodic(){
 
     m_ei.TeleopPeriodic();
     m_ap.Periodic();
-    m_r.Periodic();
+    Mechanisms::rollers.Periodic();
     
     shuff_.PutInteger("State", m_state);
 
@@ -293,8 +293,8 @@ void ThreePiece::Intake(bool cone, bool flange){
         return;
     }
     m_ei.SetCone(cone);
-    m_r.SetCone(cone);
-    m_r.Intake();
+    Mechanisms::rollers.SetCone(cone);
+    Mechanisms::rollers.Intake();
     if(flange && cone){
         m_ei.IntakeFlange();
     }
@@ -308,13 +308,13 @@ void ThreePiece::Outtake(bool cone){
     if(m_rollersMoving == OUTTAKE){
         return;
     }
-    m_r.SetCone(cone);
-    m_r.Outtake();
+    Mechanisms::rollers.SetCone(cone);
+    Mechanisms::rollers.Outtake();
     m_rollersMoving = OUTTAKE;
 }
 
 void ThreePiece::StopRollers(){
-    m_r.Stop();
+    Mechanisms::rollers.Stop();
     m_rollersMoving = STOP;
 };
 

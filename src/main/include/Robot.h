@@ -17,7 +17,6 @@
 
 #include "Auto/AutoDock.h"
 #include "Auto/DumbDock.h"
-#include "Auto/SadAuto.h"
 #include "Auto/ThreePiece.h"
 #include "Auto/TwoPieceDock.h"
 
@@ -36,6 +35,7 @@
 #include "Util/SocketClient.h"
 #include "Util/thirdparty/simplevectors.hpp"
 #include "Util/Utils.h"
+#include "RobotStuff.h"
 
 namespace vec = svector;
 
@@ -88,15 +88,14 @@ class Robot : public frc::TimedRobot {
   // elevator and intake
   ElevatorIntake m_elevatorIntake;
   LidarReader m_lidar;
-  Rollers m_rollers;
+  // Rollers m_rollers;
 
   // auto
   AutoLineup m_autoLineup;
   AutoPath m_autoPath;
   AutoDock m_autoDock;
   TwoPieceDock m_twoPieceDock;
-  DumbDock m_dumbDock{m_elevatorIntake, m_rollers};
-  SadAuto m_sadAuto;
+  DumbDock m_dumbDock{m_elevatorIntake};
   ThreePiece m_threePiece;
   // TEMP, for testing
   // double m_curVolts;

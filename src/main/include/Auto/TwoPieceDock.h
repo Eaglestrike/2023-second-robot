@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Auto/BaseAuto.h"
+#include "RobotStuff.h"
 
 class TwoPieceDock : public BaseAuto {
     const double ROLLER_OUTTAKE_TIME = 0.3;

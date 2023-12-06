@@ -10,7 +10,7 @@ void TwoPieceDock::Init() {
     m_ei.Init();
     m_state = PLACE1_UP;
     m_ei.SetCone(true);
-    m_r.SetCone(true);
+    Mechanisms::rollers.SetCone(true);
     m_ei.ScoreHigh();
 
     m_doOnce = false;
@@ -46,14 +46,14 @@ void TwoPieceDock::Periodic() {
         case PLACE1_UP:
             if (m_ei.IsDone()) {
                 m_state = PLACE1_HOLD;
-                m_r.Outtake();
+                Mechanisms::rollers.Outtake();
                 m_startTime = curTime;
             }
             break;
         case PLACE1_HOLD:
             if (curTime - m_startTime > ROLLER_OUTTAKE_TIME) {
                 m_ei.Stow();
-                m_r.Stop();
+                Mechanisms::rollers.Stop();
                 m_state = PLACE1_DOWN;
             }
             break;
@@ -71,9 +71,9 @@ void TwoPieceDock::Periodic() {
             if (curTime - m_startTime > m_ap.GreatestTime() - 2 && !m_doOnce) {
                 m_doOnce = true;
                 m_ei.SetCone(false);
-                m_r.SetCone(false);
+                Mechanisms::rollers.SetCone(false);
                 m_ei.IntakeFromGround();
-                m_r.Intake();
+                Mechanisms::rollers.Intake();
             }
             if (curTime - m_startTime > m_ap.GreatestTime() - 0.5 || m_lidarData.hasCube) {
                 m_doOnce = false;
@@ -113,14 +113,14 @@ void TwoPieceDock::Periodic() {
         case PLACE2_UP:
             if (m_ei.IsDone()) {
                 m_state = PLACE2_HOLD;
-                m_r.Outtake();
+                Mechanisms::rollers.Outtake();
                 m_startTime = curTime;
             }
             break;
         case PLACE2_HOLD:
             if (curTime - m_startTime > ROLLER_OUTTAKE_TIME) {
                 m_ei.Stow();
-                m_r.Stop();
+                Mechanisms::rollers.Stop();
                 m_state = PLACE2_DOWN;
             }
             break;
@@ -138,7 +138,7 @@ void TwoPieceDock::Periodic() {
         case GO_TO_PIECE_3:
             if (curTime - m_startTime > m_ap.GreatestTime()  - 2 && !m_doOnce) {
                 m_ei.IntakeFromGround();
-                m_r.Intake();
+                Mechanisms::rollers.Intake();
                 m_doOnce = true;
             }
             if (curTime - m_startTime > m_ap.GreatestTime() - 0.5 || m_lidarData.hasCube) {
@@ -170,7 +170,7 @@ void TwoPieceDock::Periodic() {
     m_ei.Periodic();
     m_ei.TeleopPeriodic();
     m_ap.Periodic();
-    m_r.Periodic();
+    Mechanisms::rollers.Periodic();
 }
 
 vec::Vector2D TwoPieceDock::GetDriveVel() {

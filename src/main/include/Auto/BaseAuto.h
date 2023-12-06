@@ -13,7 +13,7 @@ namespace vec = svector;
 
 class BaseAuto {
 public:
-    BaseAuto(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap, Rollers &r);
+    BaseAuto(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap);
 
     virtual void Init() = 0;
     virtual void Periodic() = 0;
@@ -35,5 +35,5 @@ protected:
     ElevatorIntake &m_ei;
     AutoLineup &m_al;
     AutoPath &m_ap;
-    Rollers &m_r;
+    // Rollers &m_r;
 };

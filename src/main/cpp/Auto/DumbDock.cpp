@@ -3,7 +3,7 @@
 void DumbDock::Periodic(){
     m_curTime = Utils::GetCurTimeS();
     m_ei.TeleopPeriodic();
-    m_rollers.Periodic();
+    Mechanisms::rollers.Periodic();
     frc::SmartDashboard::PutNumber("m_vel x", m_vel.x());
     frc::SmartDashboard::PutNumber("m_vel y", m_vel.y());
     switch(m_state){
@@ -24,7 +24,7 @@ void DumbDock::Periodic(){
         case SCORE:
             frc::SmartDashboard::PutString("state", "score");
             if (m_ei.IsDone()){
-                m_rollers.Outtake(true);
+                Mechanisms::rollers.Outtake(true);
                 m_startTime = m_curTime;
                 m_state = OUTTAKE;
             }
@@ -32,7 +32,7 @@ void DumbDock::Periodic(){
         case OUTTAKE:
             frc::SmartDashboard::PutString("state", "outtake");
             if (m_curTime > m_startTime + OUTTAKE_TIME ){
-                m_rollers.Stop();
+                Mechanisms::rollers.Stop();
                 m_ei.Stow();
                 m_state = PREP4EXIT;
             }
@@ -69,8 +69,8 @@ void DumbDock::Start(){
     m_state = IN;
     m_startTime = Utils::GetCurTimeS();
     m_ei.SetCone(!m_cube);
-    m_rollers.SetCone(!m_cube);
-    m_rollers.Stop();
+    Mechanisms::rollers.SetCone(!m_cube);
+    Mechanisms::rollers.Stop();
 }
 
 double DumbDock::GetAngleVel(){return 0.0;}
@@ -84,4 +84,4 @@ void DumbDock::SetSide(bool blue){m_blue = blue;}
 void DumbDock::Reset(){m_state = NOT_STARTED;}
 
 
-DumbDock::DumbDock(ElevatorIntake& e, Rollers& r):m_ei{e}, m_rollers{r}{}
+DumbDock::DumbDock(ElevatorIntake& e):m_ei{e}{}

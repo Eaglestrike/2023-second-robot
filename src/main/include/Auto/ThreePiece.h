@@ -3,7 +3,7 @@
 #include "ShuffleboardSender/ShuffleboardSender.h"
 
 #include "Auto/BaseAuto.h"
-
+#include "RobotStuff.h"
 class ThreePiece : public BaseAuto{
     using ElevatorTarget = ElevatorConstants::ElevatorTarget;
     using enum ElevatorTarget;
@@ -49,7 +49,7 @@ class ThreePiece : public BaseAuto{
             GOING_OUT
         };
 
-        ThreePiece(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap, Rollers &r);
+        ThreePiece(ElevatorIntake &ei, AutoLineup &al, AutoPath &ap);
 
         void setSetup(bool firstCone, bool secondCone, bool thirdCone);
         void setTarget(ElevatorTarget firstTarget, ElevatorTarget secondTarget, ElevatorTarget thirdTarget);

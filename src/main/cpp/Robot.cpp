@@ -38,9 +38,8 @@ Robot::Robot():
       m_odometry{&m_startPos, &m_startAng},
       m_lidar{true, false},
       m_client{"10.1.14.21", 5807, 500, 5000},
-      m_threePiece{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
-      m_sadAuto{m_elevatorIntake, m_rollers},
-      m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath, m_rollers},
+      m_threePiece{m_elevatorIntake, m_autoLineup, m_autoPath},
+      m_twoPieceDock{m_elevatorIntake, m_autoLineup, m_autoPath},
       m_red{false},
       m_posVal{0},
       m_heightVal{0}
@@ -404,7 +403,7 @@ void Robot::RobotPeriodic()
   m_lidar.Periodic();
 
   m_elevatorIntake.UpdateLidarData(m_lidar.getData());
-  m_rollers.UpdateLidarData(m_lidar.getData());
+  Mechanisms::rollers.UpdateLidarData(m_lidar.getData());
 }
 
 /**
@@ -473,7 +472,7 @@ void Robot::AutonomousInit()
     m_threePiece.Init();
   }
   else if (m_autoChooser.GetSelected() == "Sad Auto") {
-    m_sadAuto.Start();
+    m_dumbDock.Start();
   } else if (m_autoChooser.GetSelected() == "Dock Test DELETE ME") {
     m_autoDock.Start();
   }
@@ -737,7 +736,7 @@ void Robot::TeleopPeriodic() {
     m_elevatorIntake.TeleopPeriodic();
     bool cone = Utils::IsCone(m_posVal);
     m_elevatorIntake.SetCone(cone);
-    m_rollers.SetCone(cone);
+    Mechanisms::rollers.SetCone(cone);
     if(m_controller.getPressedOnce(SCORE_HIGH))
       m_elevatorIntake.ScoreHigh();
     else if (m_controller.getPressedOnce(SCORE_MID))
@@ -748,30 +747,30 @@ void Robot::TeleopPeriodic() {
       m_elevatorIntake.Stow();
     else if (m_controller.getPressedOnce(HP)) {
       m_elevatorIntake.IntakeFromHPS();
-      m_rollers.SetCone(true);
-      m_rollers.Intake();
+      Mechanisms::rollers.SetCone(true);
+      Mechanisms::rollers.Intake();
       m_posVal = 1;
     }
     else if (m_controller.getPressedOnce(GROUND_INTAKE)) {
       m_elevatorIntake.IntakeFromGround();
-      m_rollers.SetCone(false);
-      m_rollers.Intake();
+      Mechanisms::rollers.SetCone(false);
+      Mechanisms::rollers.Intake();
       m_posVal = 2;
     }
     else if (m_controller.getPOVDownOnce(INTAKE_FLANGE)){
       m_elevatorIntake.IntakeFlange();
-      m_rollers.SetCone(true);
-      m_rollers.Intake();
+      Mechanisms::rollers.SetCone(true);
+      Mechanisms::rollers.Intake();
       m_posVal = 1;
     }
   }
   if (m_controller.getPressedOnce(INTAKE))
-    m_rollers.Intake();
+    Mechanisms::rollers.Intake();
   else if (m_controller.getPressedOnce(OUTTAKE))
-    m_rollers.Outtake();
-  m_rollers.HoldIntake(m_controller.getPressed(INTAKE));
+    Mechanisms::rollers.Outtake();
+  Mechanisms::rollers.HoldIntake(m_controller.getPressed(INTAKE));
 
-  m_rollers.Periodic();
+  Mechanisms::rollers.Periodic();
   double time3 = Utils::GetCurTimeS();
 
   // frc::SmartDashboard::PutNumber("swerve time", time2 - time1);
